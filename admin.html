@@ -1,2624 +1,2748 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Nababi Ristorante | Admin Panel</title>
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --gold: #d4af37;
-      --gold-light: #f2d675;
-      --black: #070707;
-      --dark: #0e0e0e;
-      --card: #151515;
-      --border: rgba(212,175,55,.22);
-      --text: #fff;
-      --muted: #999;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--black);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    /* =========================
-       LOGIN
-    ========================= */
-
-    #loginScreen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 25px;
-
-      background:
-        linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.92)),
-        url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1800&q=85")
-        center/cover no-repeat;
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 430px;
-      background: rgba(14,14,14,.96);
-      border: 1px solid var(--border);
-      padding: 45px 35px;
-      box-shadow: 0 25px 70px rgba(0,0,0,.7);
-    }
-
-    .login-logo {
-      width: 75px;
-      height: 75px;
-      border: 1px solid var(--gold);
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gold);
-      font-family: Georgia, serif;
-      font-size: 30px;
-    }
-
-    .login-card h1 {
-      text-align: center;
-      font-family: Georgia, serif;
-      font-weight: 400;
-      font-size: 30px;
-    }
-
-    .login-subtitle {
-      text-align: center;
-      color: var(--gold);
-      font-size: 11px;
-      letter-spacing: 4px;
-      margin: 7px 0 30px;
-    }
-
-    .field {
-      margin-bottom: 18px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-      color: #ccc;
-      font-size: 13px;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      background: #090909;
-      color: #fff;
-      border: 1px solid #292929;
-      padding: 13px 14px;
-      outline: none;
-      border-radius: 2px;
-    }
-
-    .field textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: var(--gold);
-    }
-
-    .gold-btn {
-      width: 100%;
-      border: 1px solid var(--gold);
-      background: var(--gold);
-      color: #000;
-      padding: 14px;
-      font-weight: bold;
-      transition: .3s;
-    }
-
-    .gold-btn:hover {
-      background: var(--gold-light);
-    }
-
-    .error {
-      color: #ff7777;
-      font-size: 13px;
-      margin-top: 15px;
-      text-align: center;
-    }
-
-    /* =========================
-       APP
-    ========================= */
-
-    #app {
-      display: none;
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 255px;
-      background: #0b0b0b;
-      border-right: 1px solid var(--border);
-      padding: 25px 15px;
-      z-index: 50;
-      overflow-y: auto;
-    }
-
-    .sidebar-logo {
-      text-align: center;
-      padding: 10px 0 30px;
-      border-bottom: 1px solid #1c1c1c;
-      margin-bottom: 20px;
-    }
-
-    .sidebar-logo strong {
-      display: block;
-      font-family: Georgia, serif;
-      font-size: 22px;
-      letter-spacing: 2px;
-    }
-
-    .sidebar-logo span {
-      color: var(--gold);
-      font-size: 9px;
-      letter-spacing: 4px;
-    }
-
-    .menu-label {
-      color: #555;
-      font-size: 10px;
-      letter-spacing: 2px;
-      margin: 20px 12px 8px;
-      text-transform: uppercase;
-    }
-
-    .side-btn {
-      width: 100%;
-      display: block;
-      background: transparent;
-      color: #aaa;
-      border: 0;
-      padding: 12px 14px;
-      text-align: left;
-      border-radius: 3px;
-      margin-bottom: 4px;
-    }
-
-    .side-btn:hover,
-    .side-btn.active {
-      background: rgba(212,175,55,.1);
-      color: var(--gold);
-    }
-
-    .logout {
-      margin-top: 25px;
-      border: 1px solid #292929;
-    }
-
-    .logout:hover {
-      border-color: #aa4444;
-      color: #ff7777;
-    }
-
-    /* =========================
-       MAIN
-    ========================= */
-
-    .main {
-      margin-left: 255px;
-      min-height: 100vh;
-    }
-
-    .top-header {
-      height: 76px;
-      border-bottom: 1px solid #1c1c1c;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 35px;
-      background: #090909;
-      position: sticky;
-      top: 0;
-      z-index: 30;
-    }
-
-    .top-header h2 {
-      font-family: Georgia, serif;
-      font-weight: 400;
-    }
-
-    .view-site {
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 9px 16px;
-      border-radius: 3px;
-    }
-
-    .view-site:hover {
-      background: var(--gold);
-      color: #000;
-    }
-
-    .content {
-      padding: 35px;
-      max-width: 1300px;
-    }
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    .page-title {
-      margin-bottom: 25px;
-    }
-
-    .page-title small {
-      color: var(--gold);
-      letter-spacing: 3px;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .page-title h1 {
-      font-family: Georgia, serif;
-      font-weight: 400;
-      font-size: 38px;
-      margin-top: 7px;
-    }
-
-    /* =========================
-       DASHBOARD CARDS
-    ========================= */
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-      margin-bottom: 30px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid #202020;
-      padding: 25px;
-    }
-
-    .stat-card span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .stat-card strong {
-      display: block;
-      color: var(--gold);
-      font-size: 31px;
-      margin-top: 8px;
-      font-family: Georgia, serif;
-    }
-
-    /* =========================
-       PANELS
-    ========================= */
-
-    .panel {
-      background: var(--card);
-      border: 1px solid #202020;
-      padding: 28px;
-      margin-bottom: 20px;
-    }
-
-    .panel h3 {
-      font-family: Georgia, serif;
-      font-weight: 400;
-      font-size: 24px;
-      margin-bottom: 22px;
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .save-btn {
-      background: var(--gold);
-      color: #000;
-      border: 0;
-      padding: 12px 22px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    .save-btn:hover {
-      background: var(--gold-light);
-    }
-
-    /* =========================
-       UPLOAD
-    ========================= */
-
-    .upload-box {
-      border: 1px dashed #444;
-      padding: 30px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .upload-box:hover {
-      border-color: var(--gold);
-    }
-
-    .upload-box p {
-      color: #888;
-      margin-bottom: 15px;
-    }
-
-    .file-input {
-      display: none;
-    }
-
-    .upload-label {
-      display: inline-block;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 11px 20px;
-      cursor: pointer;
-    }
-
-    .upload-label:hover {
-      background: var(--gold);
-      color: #000;
-    }
-
-    .preview {
-      max-width: 220px;
-      max-height: 180px;
-      margin: 20px auto 0;
-      border: 1px solid #333;
-      display: none;
-    }
-
-    /* =========================
-       MENU
-    ========================= */
-
-    .menu-toolbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .add-btn {
-      background: var(--gold);
-      color: #000;
-      border: 0;
-      padding: 12px 20px;
-      font-weight: bold;
-    }
-
-    .category-select {
-      background: #090909;
-      border: 1px solid #292929;
-      color: #fff;
-      padding: 11px 14px;
-    }
-
-    .menu-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .menu-item {
-      background: #101010;
-      border: 1px solid #222;
-      padding: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .menu-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .menu-photo {
-      width: 70px;
-      height: 70px;
-      object-fit: cover;
-      background: #222;
-    }
-
-    .menu-info h4 {
-      font-family: Georgia, serif;
-      font-size: 18px;
-      font-weight: 400;
-    }
-
-    .menu-info p {
-      color: #888;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    .menu-price {
-      color: var(--gold);
-      font-weight: bold;
-    }
-
-    .actions {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-
-    .small-btn {
-      border: 1px solid #444;
-      background: transparent;
-      color: #ccc;
-      padding: 7px 10px;
-      font-size: 11px;
-    }
-
-    .small-btn:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    .delete-btn:hover {
-      border-color: #b44;
-      color: #f77;
-    }
-
-    /* =========================
-       CATEGORY
-    ========================= */
-
-    .category-list {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
-
-    .category-tag {
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 7px 12px;
-      font-size: 12px;
-    }
-
-    /* =========================
-       MESSAGE
-    ========================= */
-
-    #message {
-      position: fixed;
-      right: 25px;
-      bottom: 25px;
-      background: var(--gold);
-      color: #000;
-      padding: 13px 20px;
-      display: none;
-      z-index: 100;
-      font-size: 13px;
-      font-weight: bold;
-    }
-
-    /* =========================
-       MOBILE
-    ========================= */
-
-    .mobile-menu {
-      display: none;
-    }
-
-    @media (max-width: 1000px) {
-
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .two-col {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 750px) {
-
-      .sidebar {
-        width: 230px;
-        transform: translateX(-100%);
-        transition: .3s;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main {
-        margin-left: 0;
-      }
-
-      .mobile-menu {
-        display: block;
-        border: 1px solid #333;
-        background: transparent;
-        color: var(--gold);
-        padding: 7px 10px;
-        margin-right: 12px;
-      }
-
-      .top-header {
-        padding: 0 15px;
-      }
-
-      .top-header h2 {
-        font-size: 18px;
-      }
-
-      .content {
-        padding: 22px 15px;
-      }
-
-      .page-title h1 {
-        font-size: 31px;
-      }
-
-      .stats {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .panel {
-        padding: 20px;
-      }
-
-      .menu-item {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .menu-info {
-        width: 100%;
-      }
-    }
-
-    @media (max-width: 430px) {
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .menu-info {
-        align-items: flex-start;
-      }
-
-      .menu-photo {
-        width: 60px;
-        height: 60px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nababi Ristorante — Admin Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#d4af37;
+  --gold2:#f1d77a;
+  --black:#080808;
+  --dark:#111;
+  --card:#171717;
+  --line:#292929;
+  --text:#f5f5f5;
+  --muted:#aaa;
+  --danger:#e74c3c;
+  --green:#35c978;
+}
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#090909;
+  color:var(--text);
+  min-height:100vh;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+
+.hidden{display:none!important}
+
+/* LOGIN */
+#loginPage{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top right,#3b2b08 0,transparent 35%),
+    radial-gradient(circle at bottom left,#201804 0,transparent 30%),
+    #070707;
+}
+.login-box{
+  width:100%;
+  max-width:440px;
+  background:rgba(20,20,20,.96);
+  border:1px solid #3a301a;
+  border-radius:24px;
+  padding:38px 30px;
+  box-shadow:0 25px 80px rgba(0,0,0,.65);
+}
+.logo-circle{
+  width:90px;
+  height:90px;
+  border:2px solid var(--gold);
+  border-radius:50%;
+  margin:0 auto 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold);
+  font-size:30px;
+  font-weight:bold;
+}
+.login-box h1{
+  text-align:center;
+  color:var(--gold2);
+  font-size:27px;
+  margin-bottom:8px;
+}
+.login-box p{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:28px;
+}
+.field{margin-bottom:16px}
+.field label{
+  display:block;
+  color:#ddd;
+  font-size:13px;
+  margin-bottom:7px;
+}
+input,textarea,select{
+  width:100%;
+  background:#0d0d0d;
+  color:white;
+  border:1px solid #333;
+  border-radius:10px;
+  padding:12px 13px;
+  outline:none;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--gold);
+}
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+.btn{
+  border:0;
+  border-radius:10px;
+  padding:11px 17px;
+  background:var(--gold);
+  color:#090909;
+  font-weight:bold;
+}
+.btn:hover{background:var(--gold2)}
+.btn.full{width:100%}
+.btn.dark{
+  background:#242424;
+  color:white;
+  border:1px solid #3b3b3b;
+}
+.btn.danger{
+  background:#451815;
+  color:#ffaaa2;
+  border:1px solid #70332d;
+}
+.btn.green{
+  background:#143b27;
+  color:#78e6a5;
+  border:1px solid #246440;
+}
+.message{
+  margin-top:15px;
+  text-align:center;
+  font-size:14px;
+  min-height:20px;
+}
+
+/* APP */
+#app{display:none;min-height:100vh}
+#app.show{display:flex}
+
+.sidebar{
+  width:270px;
+  background:#0d0d0d;
+  border-right:1px solid var(--line);
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  z-index:50;
+  overflow-y:auto;
+}
+.brand{
+  padding:25px 20px;
+  border-bottom:1px solid var(--line);
+}
+.brand h2{color:var(--gold);font-size:20px}
+.brand small{color:#888}
+
+.nav{padding:14px 10px}
+.nav button{
+  width:100%;
+  text-align:left;
+  border:0;
+  background:transparent;
+  color:#bbb;
+  padding:12px 13px;
+  border-radius:9px;
+  margin-bottom:4px;
+}
+.nav button:hover,.nav button.active{
+  background:#201c10;
+  color:var(--gold2);
+}
+.nav-section{
+  color:#666;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  padding:15px 13px 7px;
+}
+.logout{
+  margin:15px 10px 25px;
+  width:calc(100% - 20px);
+}
+
+.main{
+  margin-left:270px;
+  width:calc(100% - 270px);
+  min-height:100vh;
+}
+.topbar{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 28px;
+  border-bottom:1px solid var(--line);
+  background:#0c0c0c;
+  position:sticky;
+  top:0;
+  z-index:30;
+}
+.topbar h1{font-size:20px}
+.admin-email{color:#999;font-size:12px}
+.menu-toggle{
+  display:none;
+  background:#222;
+  color:white;
+  border:1px solid #444;
+  padding:8px 11px;
+  border-radius:8px;
+}
+.content{padding:25px;max-width:1500px;margin:auto}
+
+.section{display:none}
+.section.active{display:block}
+
+.section-title{
+  margin-bottom:20px;
+}
+.section-title h2{
+  color:var(--gold2);
+  margin-bottom:5px;
+}
+.section-title p{color:#888;font-size:14px}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:18px;
+}
+.card h3{
+  color:var(--gold);
+  margin-bottom:17px;
+}
+.grid2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:15px;
+}
+.small{font-size:12px;color:#888}
+.preview{
+  width:100%;
+  max-height:260px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:10px;
+  border:1px solid #333;
+}
+.thumb{
+  width:110px;
+  height:85px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid #333;
+}
+.item{
+  border:1px solid #292929;
+  background:#111;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:10px;
+}
+.item-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+.item-title{font-weight:bold;color:#eee}
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:11px;
+  background:#29220e;
+  color:var(--gold2);
+}
+.stat{
+  background:#151515;
+  border:1px solid var(--line);
+  padding:22px;
+  border-radius:15px;
+}
+.stat b{
+  display:block;
+  font-size:31px;
+  color:var(--gold);
+  margin-top:8px;
+}
+.stat span{color:#888;font-size:13px}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{
+  padding:12px 10px;
+  border-bottom:1px solid #292929;
+  text-align:left;
+  vertical-align:top;
+  font-size:13px;
+}
+th{color:var(--gold);font-weight:bold}
+td{color:#ccc}
+
+.category-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.category{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  background:#201c10;
+  border:1px solid #493d1c;
+  color:var(--gold2);
+  padding:8px 10px;
+  border-radius:20px;
+}
+.category button{
+  background:none;
+  border:0;
+  color:#d98b83;
+  font-size:14px;
+}
+
+.notice{
+  padding:12px;
+  background:#18150d;
+  border:1px solid #493d1c;
+  color:#cbbd91;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
+/* TOAST */
+#toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:100;
+  background:#191919;
+  border:1px solid var(--gold);
+  color:white;
+  padding:13px 18px;
+  border-radius:10px;
+  transform:translateY(120px);
+  opacity:0;
+  transition:.25s;
+}
+#toast.show{
+  transform:translateY(0);
+  opacity:1;
+}
+
+/* MOBILE */
+@media(max-width:850px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+    width:270px;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{
+    margin-left:0;
+    width:100%;
+  }
+  .menu-toggle{display:block}
+  .topbar{padding:0 15px}
+  .admin-email{display:none}
+  .content{padding:15px}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .card{padding:15px}
+}
+</style>
 </head>
 
 <body>
 
-  <!-- =========================
-       LOGIN SCREEN
-  ========================= -->
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="logo-circle">N</div>
+    <h1>Nababi Ristorante</h1>
+    <p>Premium Admin Panel</p>
 
-  <div id="loginScreen">
+    <div class="field">
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="Admin email">
+    </div>
 
-    <div class="login-card">
+    <div class="field">
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="Password">
+    </div>
 
-      <div class="login-logo">N</div>
+    <button class="btn full" onclick="login()">LOGIN</button>
+    <div id="loginMessage" class="message"></div>
+  </div>
+</div>
 
-      <h1>Nababi Ristorante</h1>
 
-      <div class="login-subtitle">
-        ADMIN PANEL
+<!-- APP -->
+<div id="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <h2>NABABI RISTORANTE</h2>
+      <small>Premium Control Panel</small>
+    </div>
+
+    <nav class="nav">
+
+      <div class="nav-section">Main</div>
+
+      <button class="nav-btn active" data-section="dashboard">
+        📊 Dashboard
+      </button>
+
+      <button class="nav-btn" data-section="home">
+        🏠 Home / Hero
+      </button>
+
+      <button class="nav-btn" data-section="news">
+        📰 Breaking News
+      </button>
+
+      <button class="nav-btn" data-section="logo">
+        🏷️ Logo
+      </button>
+
+      <button class="nav-btn" data-section="about">
+        ℹ️ About Us
+      </button>
+
+      <div class="nav-section">Restaurant</div>
+
+      <button class="nav-btn" data-section="menu">
+        🍽️ Menu Manager
+      </button>
+
+      <button class="nav-btn" data-section="gallery">
+        🖼️ Gallery
+      </button>
+
+      <button class="nav-btn" data-section="videos">
+        🎬 Videos
+      </button>
+
+      <button class="nav-btn" data-section="bookings">
+        📅 Table Bookings
+      </button>
+
+      <button class="nav-btn" data-section="reviews">
+        ⭐ Reviews
+      </button>
+
+      <button class="nav-btn" data-section="reports">
+        📩 Reports / Feedback
+      </button>
+
+      <div class="nav-section">Information</div>
+
+      <button class="nav-btn" data-section="contact">
+        📞 Contact
+      </button>
+
+      <button class="nav-btn" data-section="social">
+        🌐 Social Media
+      </button>
+
+      <button class="nav-btn" data-section="hours">
+        🕐 Opening Hours
+      </button>
+
+    </nav>
+
+    <button class="btn danger logout" onclick="logout()">Logout</button>
+  </aside>
+
+
+  <main class="main">
+
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="admin-email" id="adminEmail"></div>
+    </header>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="section active">
+        <div class="section-title">
+          <h2>Dashboard</h2>
+          <p>Welcome to your Nababi Ristorante control panel.</p>
+        </div>
+
+        <div class="grid3">
+          <div class="stat">
+            <span>Menu Items</span>
+            <b id="statMenu">0</b>
+          </div>
+          <div class="stat">
+            <span>Gallery Photos</span>
+            <b id="statGallery">0</b>
+          </div>
+          <div class="stat">
+            <span>Bookings</span>
+            <b id="statBookings">0</b>
+          </div>
+          <div class="stat">
+            <span>Reviews</span>
+            <b id="statReviews">0</b>
+          </div>
+          <div class="stat">
+            <span>Reports</span>
+            <b id="statReports">0</b>
+          </div>
+          <div class="stat">
+            <span>Categories</span>
+            <b id="statCategories">0</b>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <h3>Quick Actions</h3>
+          <div class="actions">
+            <button class="btn" onclick="showSection('menu')">+ Add Menu Item</button>
+            <button class="btn" onclick="showSection('gallery')">+ Add Gallery Photos</button>
+            <button class="btn" onclick="showSection('videos')">🎬 Manage Videos</button>
+            <button class="btn" onclick="showSection('bookings')">📅 View Bookings</button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- HOME / HERO -->
+      <section id="home" class="section">
+        <div class="section-title">
+          <h2>Home / Hero</h2>
+          <p>Control the main screen of your website.</p>
+        </div>
+
+        <div class="card">
+          <h3>Hero Content</h3>
+
+          <div class="field">
+            <label>Hero Title</label>
+            <input id="heroTitle">
+          </div>
+
+          <div class="field">
+            <label>Hero Text</label>
+            <textarea id="heroText"></textarea>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Hero Image</label>
+              <input id="heroImage" type="file" accept="image/*">
+              <img id="heroPreview" class="preview hidden">
+            </div>
+
+            <div>
+              <label>Hero Video</label>
+              <input id="heroVideo" type="file" accept="video/*">
+              <video id="heroVideoPreview" class="preview hidden" controls muted></video>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" onclick="saveHero()">Save Home / Hero</button>
+            <button class="btn danger" onclick="deleteHeroMedia()">Delete Hero Media</button>
+          </div>
+        </div>
+
+        <div class="notice">
+          The homepage can use the Hero image or Hero video. Your separate Video 1 and Video 2 are managed from the Videos section.
+        </div>
+      </section>
+
+
+      <!-- NEWS -->
+      <section id="news" class="section">
+        <div class="section-title">
+          <h2>Breaking News</h2>
+          <p>Show or hide the announcement bar on the homepage.</p>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label>
+              <input id="newsEnabled" type="checkbox" style="width:auto">
+              Show Breaking News
+            </label>
+          </div>
+
+          <div class="field">
+            <label>News Text</label>
+            <textarea id="newsText"></textarea>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>Start Date</label>
+              <input id="newsStart" type="datetime-local">
+            </div>
+            <div class="field">
+              <label>End Date</label>
+              <input id="newsEnd" type="datetime-local">
+            </div>
+          </div>
+
+          <button class="btn" onclick="saveNews()">Save Breaking News</button>
+        </div>
+      </section>
+
+
+      <!-- LOGO -->
+      <section id="logo" class="section">
+        <div class="section-title">
+          <h2>Restaurant Logo</h2>
+          <p>Upload and change the logo directly from your phone or computer.</p>
+        </div>
+
+        <div class="card">
+          <h3>Current Logo</h3>
+
+          <img id="logoPreview" class="preview hidden"
+               style="max-width:350px;object-fit:contain;background:#090909">
+
+          <div class="field" style="margin-top:15px">
+            <label>Choose New Logo</label>
+            <input id="logoFile" type="file" accept="image/*">
+          </div>
+
+          <div class="actions">
+            <button class="btn" onclick="saveLogo()">Upload / Change Logo</button>
+            <button class="btn danger" onclick="deleteLogo()">Delete Logo</button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ABOUT -->
+      <section id="about" class="section">
+        <div class="section-title">
+          <h2>About Us</h2>
+          <p>Edit your restaurant introduction.</p>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label>About Title</label>
+            <input id="aboutTitle">
+          </div>
+
+          <div class="field">
+            <label>About Text</label>
+            <textarea id="aboutText"></textarea>
+          </div>
+
+          <button class="btn" onclick="saveAbout()">Save About Us</button>
+        </div>
+      </section>
+
+
+      <!-- MENU -->
+      <section id="menu" class="section">
+        <div class="section-title">
+          <h2>Menu Manager</h2>
+          <p>Add, edit, change photo, price, category and delete food items.</p>
+        </div>
+
+        <div class="card">
+          <h3>Categories</h3>
+
+          <div class="grid2">
+            <div>
+              <div class="field">
+                <label>New Category Name</label>
+                <input id="newCategory" placeholder="Example: Special Offers">
+              </div>
+              <button class="btn" onclick="addCategory()">+ Add Category</button>
+            </div>
+
+            <div>
+              <div class="category-list" id="categoryList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="menuFormTitle">Add New Food</h3>
+
+          <input type="hidden" id="menuId">
+
+          <div class="grid2">
+            <div class="field">
+              <label>Food Name</label>
+              <input id="menuName" placeholder="Chicken Biryani">
+            </div>
+
+            <div class="field">
+              <label>Price</label>
+              <input id="menuPrice" placeholder="€12.90">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Category</label>
+            <select id="menuCategory">
+              <option value="">Select Category</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Description</label>
+            <textarea id="menuDescription" placeholder="Food description"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Food Photo</label>
+            <input id="menuImage" type="file" accept="image/*">
+          </div>
+
+          <div id="menuImagePreviewBox"></div>
+
+          <div class="actions">
+            <button class="btn" onclick="saveMenuItem()">Save Food</button>
+            <button class="btn dark" onclick="resetMenuForm()">Clear Form</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Menu Items</h3>
+          <div id="menuList"></div>
+        </div>
+      </section>
+
+
+      <!-- GALLERY -->
+      <section id="gallery" class="section">
+        <div class="section-title">
+          <h2>Gallery</h2>
+          <p>Upload multiple restaurant photos from your phone.</p>
+        </div>
+
+        <div class="card">
+          <h3>Upload Photos</h3>
+
+          <div class="grid2">
+            <div class="field">
+              <label>Photos</label>
+              <input id="galleryFiles" type="file" accept="image/*" multiple>
+            </div>
+
+            <div class="field">
+              <label>Gallery Category</label>
+              <input id="galleryCategory" value="Restaurant">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Title (optional)</label>
+            <input id="galleryTitle" placeholder="Restaurant Interior">
+          </div>
+
+          <button class="btn" onclick="uploadGallery()">Upload Photos</button>
+        </div>
+
+        <div class="card">
+          <h3>Gallery Photos</h3>
+          <div id="galleryList"></div>
+        </div>
+      </section>
+
+
+      <!-- VIDEOS -->
+      <section id="videos" class="section">
+        <div class="section-title">
+          <h2>Videos</h2>
+          <p>Video 1 and Video 2 are completely separate.</p>
+        </div>
+
+        <div class="grid2">
+
+          <div class="card">
+            <h3>🎬 Video 1</h3>
+
+            <video id="video1Preview" class="preview hidden" controls muted></video>
+
+            <div class="field" style="margin-top:15px">
+              <label>Upload Video 1</label>
+              <input id="video1File" type="file" accept="video/*">
+            </div>
+
+            <div class="actions">
+              <button class="btn" onclick="saveVideo(1)">Upload Video 1</button>
+              <button class="btn danger" onclick="deleteVideo(1)">Delete</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>🎬 Video 2</h3>
+
+            <video id="video2Preview" class="preview hidden" controls muted></video>
+
+            <div class="field" style="margin-top:15px">
+              <label>Upload Video 2</label>
+              <input id="video2File" type="file" accept="video/*">
+            </div>
+
+            <div class="actions">
+              <button class="btn" onclick="saveVideo(2)">Upload Video 2</button>
+              <button class="btn danger" onclick="deleteVideo(2)">Delete</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- BOOKINGS -->
+      <section id="bookings" class="section">
+        <div class="section-title">
+          <h2>Table Bookings</h2>
+          <p>Manage customer reservation requests.</p>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Guests</th>
+                  <th>Request</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsList"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- REVIEWS -->
+      <section id="reviews" class="section">
+        <div class="section-title">
+          <h2>Reviews</h2>
+          <p>Approve, hide, feature or delete customer reviews.</p>
+        </div>
+
+        <div class="card">
+          <div id="reviewsList"></div>
+        </div>
+      </section>
+
+
+      <!-- REPORTS -->
+      <section id="reports" class="section">
+        <div class="section-title">
+          <h2>Reports / Feedback</h2>
+          <p>Manage customer reports and feedback.</p>
+        </div>
+
+        <div class="card">
+          <div id="reportsList"></div>
+        </div>
+      </section>
+
+
+      <!-- CONTACT -->
+      <section id="contact" class="section">
+        <div class="section-title">
+          <h2>Contact</h2>
+          <p>Edit address, phones, WhatsApp and Google Maps.</p>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label>Address</label>
+            <input id="contactAddress">
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>Phone 1</label>
+              <input id="contactPhone1">
+            </div>
+
+            <div class="field">
+              <label>Phone 2</label>
+              <input id="contactPhone2">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>WhatsApp</label>
+            <input id="contactWhatsapp">
+          </div>
+
+          <div class="field">
+            <label>Google Maps URL</label>
+            <input id="contactMaps">
+          </div>
+
+          <button class="btn" onclick="saveContact()">Save Contact</button>
+        </div>
+      </section>
+
+
+      <!-- SOCIAL -->
+      <section id="social" class="section">
+        <div class="section-title">
+          <h2>Social Media</h2>
+          <p>Manage your restaurant's social links.</p>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label>Facebook</label>
+            <input id="socialFacebook">
+          </div>
+
+          <div class="field">
+            <label>Instagram</label>
+            <input id="socialInstagram">
+          </div>
+
+          <div class="field">
+            <label>TikTok</label>
+            <input id="socialTikTok">
+          </div>
+
+          <button class="btn" onclick="saveSocial()">Save Social Media</button>
+        </div>
+      </section>
+
+
+      <!-- HOURS -->
+      <section id="hours" class="section">
+        <div class="section-title">
+          <h2>Opening Hours</h2>
+          <p>Set the restaurant opening hours.</p>
+        </div>
+
+        <div class="card">
+          <div id="hoursForm"></div>
+          <button class="btn" onclick="saveHours()">Save Opening Hours</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+
+<script>
+/* ==========================================
+   SUPABASE
+========================================== */
+
+const supabaseClient = window.supabase.createClient(
+  window.SUPABASE_URL,
+  window.SUPABASE_ANON_KEY
+);
+
+const SITE_BUCKET = "site-media";
+const MENU_BUCKET = "menu-images";
+
+let settings = {};
+let categories = [];
+let menuItems = [];
+let galleryItems = [];
+let currentLogoPath = "";
+let currentHeroImagePath = "";
+let currentHeroVideoPath = "";
+let videoPaths = {video1:"",video2:""};
+
+
+/* ==========================================
+   HELPERS
+========================================== */
+
+function toast(message){
+  const el=document.getElementById("toast");
+  el.textContent=message;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),3000);
+}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function fileName(file){
+  return Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
+}
+
+function publicUrl(bucket,path){
+  if(!path)return "";
+  return supabaseClient.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}
+
+async function uploadFile(bucket,folder,file){
+  const path=folder+"/"+fileName(file);
+
+  const {error}=await supabaseClient.storage
+    .from(bucket)
+    .upload(path,file,{upsert:false});
+
+  if(error)throw error;
+
+  return path;
+}
+
+async function deleteStorage(bucket,path){
+  if(!path)return;
+  const {error}=await supabaseClient.storage
+    .from(bucket)
+    .remove([path]);
+
+  if(error)console.warn(error);
+}
+
+async function getSetting(key){
+  const {data,error}=await supabaseClient
+    .from("site_settings")
+    .select("*")
+    .eq("key",key)
+    .maybeSingle();
+
+  if(error)throw error;
+
+  return data?.value || {};
+}
+
+async function saveSetting(key,value){
+  const {error}=await supabaseClient
+    .from("site_settings")
+    .upsert({
+      key:key,
+      value:value,
+      updated_at:new Date().toISOString()
+    });
+
+  if(error)throw error;
+  settings[key]=value;
+}
+
+
+/* ==========================================
+   AUTH
+========================================== */
+
+async function checkAuth(){
+
+  const {data:{session}}=
+    await supabaseClient.auth.getSession();
+
+  if(session){
+    openAdmin(session);
+  }else{
+    document.getElementById("loginPage").style.display="flex";
+    document.getElementById("app").classList.remove("show");
+  }
+}
+
+async function login(){
+
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+
+  const msg=document.getElementById("loginMessage");
+
+  if(!email || !password){
+    msg.textContent="Please enter email and password.";
+    msg.style.color="#ff8177";
+    return;
+  }
+
+  msg.textContent="Logging in...";
+  msg.style.color="#d4af37";
+
+  const {data,error}=await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    msg.textContent=error.message;
+    msg.style.color="#ff8177";
+    return;
+  }
+
+  openAdmin(data.session);
+}
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  document.getElementById("app").classList.remove("show");
+  document.getElementById("loginPage").style.display="flex";
+
+  toast("Logged out");
+}
+
+function openAdmin(session){
+
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("app").classList.add("show");
+
+  document.getElementById("adminEmail").textContent=
+    session.user.email || "";
+
+  loadEverything();
+}
+
+
+/* ==========================================
+   NAVIGATION
+========================================== */
+
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    showSection(btn.dataset.section);
+  });
+});
+
+function showSection(id){
+
+  document.querySelectorAll(".section")
+    .forEach(x=>x.classList.remove("active"));
+
+  const target=document.getElementById(id);
+  if(target)target.classList.add("active");
+
+  document.querySelectorAll(".nav-btn")
+    .forEach(x=>x.classList.remove("active"));
+
+  const btn=document.querySelector(
+    '.nav-btn[data-section="'+id+'"]'
+  );
+
+  if(btn)btn.classList.add("active");
+
+  const title=btn
+    ? btn.textContent.trim()
+    : "Dashboard";
+
+  document.getElementById("pageTitle").textContent=title;
+
+  document.getElementById("sidebar").classList.remove("open");
+}
+
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+
+/* ==========================================
+   LOAD EVERYTHING
+========================================== */
+
+async function loadEverything(){
+
+  try{
+    await Promise.all([
+      loadSettings(),
+      loadCategories(),
+      loadMenu(),
+      loadGallery(),
+      loadBookings(),
+      loadReviews(),
+      loadReports()
+    ]);
+
+    buildHoursForm();
+    updateDashboard();
+
+  }catch(error){
+    console.error(error);
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   SETTINGS
+========================================== */
+
+async function loadSettings(){
+
+  const {data,error}=await supabaseClient
+    .from("site_settings")
+    .select("*");
+
+  if(error)throw error;
+
+  settings={};
+
+  (data||[]).forEach(row=>{
+    settings[row.key]=row.value||{};
+  });
+
+  const hero=settings.hero||{};
+
+  document.getElementById("heroTitle").value=hero.title||"";
+  document.getElementById("heroText").value=hero.text||"";
+
+  if(hero.image_url){
+    document.getElementById("heroPreview").src=hero.image_url;
+    document.getElementById("heroPreview").classList.remove("hidden");
+  }
+
+  currentHeroImagePath=hero.image_path||"";
+
+  if(hero.video_url){
+    const v=document.getElementById("heroVideoPreview");
+    v.src=hero.video_url;
+    v.classList.remove("hidden");
+  }
+
+  currentHeroVideoPath=hero.video_path||"";
+
+  /* NEWS */
+  const news=settings.breaking_news||{};
+
+  document.getElementById("newsEnabled").checked=
+    news.enabled!==false;
+
+  document.getElementById("newsText").value=
+    news.text||"";
+
+  document.getElementById("newsStart").value=
+    news.start||"";
+
+  document.getElementById("newsEnd").value=
+    news.end||"";
+
+
+  /* LOGO */
+  const logo=settings.logo||{};
+
+  if(logo.url){
+    document.getElementById("logoPreview").src=logo.url;
+    document.getElementById("logoPreview").classList.remove("hidden");
+  }
+
+  currentLogoPath=logo.path||"";
+
+
+  /* ABOUT */
+  const about=settings.about||{};
+
+  document.getElementById("aboutTitle").value=
+    about.title||"";
+
+  document.getElementById("aboutText").value=
+    about.text||"";
+
+
+  /* VIDEOS */
+  const videos=settings.videos||{};
+
+  videoPaths={
+    video1:videos.video1_path||"",
+    video2:videos.video2_path||""
+  };
+
+  if(videos.video1){
+    const v=document.getElementById("video1Preview");
+    v.src=videos.video1;
+    v.classList.remove("hidden");
+  }
+
+  if(videos.video2){
+    const v=document.getElementById("video2Preview");
+    v.src=videos.video2;
+    v.classList.remove("hidden");
+  }
+
+
+  /* CONTACT */
+  const contact=settings.contact||{};
+
+  document.getElementById("contactAddress").value=
+    contact.address||"";
+
+  document.getElementById("contactPhone1").value=
+    contact.phone1||"";
+
+  document.getElementById("contactPhone2").value=
+    contact.phone2||"";
+
+  document.getElementById("contactWhatsapp").value=
+    contact.whatsapp||"";
+
+  document.getElementById("contactMaps").value=
+    contact.maps||"";
+
+
+  /* SOCIAL */
+  const social=settings.social||{};
+
+  document.getElementById("socialFacebook").value=
+    social.facebook||"";
+
+  document.getElementById("socialInstagram").value=
+    social.instagram||"";
+
+  document.getElementById("socialTikTok").value=
+    social.tiktok||"";
+}
+
+
+/* ==========================================
+   HERO
+========================================== */
+
+async function saveHero(){
+
+  try{
+
+    const hero={
+      ...(settings.hero||{}),
+      title:document.getElementById("heroTitle").value.trim(),
+      text:document.getElementById("heroText").value.trim()
+    };
+
+    const imageFile=
+      document.getElementById("heroImage").files[0];
+
+    if(imageFile){
+
+      if(currentHeroImagePath)
+        await deleteStorage(SITE_BUCKET,currentHeroImagePath);
+
+      const path=await uploadFile(
+        SITE_BUCKET,
+        "hero",
+        imageFile
+      );
+
+      hero.image_path=path;
+      hero.image_url=publicUrl(SITE_BUCKET,path);
+
+      document.getElementById("heroPreview").src=hero.image_url;
+      document.getElementById("heroPreview")
+        .classList.remove("hidden");
+
+      currentHeroImagePath=path;
+    }
+
+    const videoFile=
+      document.getElementById("heroVideo").files[0];
+
+    if(videoFile){
+
+      if(currentHeroVideoPath)
+        await deleteStorage(SITE_BUCKET,currentHeroVideoPath);
+
+      const path=await uploadFile(
+        SITE_BUCKET,
+        "hero-video",
+        videoFile
+      );
+
+      hero.video_path=path;
+      hero.video_url=publicUrl(SITE_BUCKET,path);
+
+      const v=document.getElementById("heroVideoPreview");
+      v.src=hero.video_url;
+      v.classList.remove("hidden");
+
+      currentHeroVideoPath=path;
+    }
+
+    await saveSetting("hero",hero);
+
+    toast("Home / Hero saved successfully");
+
+  }catch(error){
+    console.error(error);
+    toast(error.message);
+  }
+}
+
+async function deleteHeroMedia(){
+
+  try{
+
+    if(currentHeroImagePath)
+      await deleteStorage(SITE_BUCKET,currentHeroImagePath);
+
+    if(currentHeroVideoPath)
+      await deleteStorage(SITE_BUCKET,currentHeroVideoPath);
+
+    const hero={
+      ...(settings.hero||{}),
+      image_url:"",
+      image_path:"",
+      video_url:"",
+      video_path:""
+    };
+
+    await saveSetting("hero",hero);
+
+    document.getElementById("heroPreview")
+      .classList.add("hidden");
+
+    document.getElementById("heroVideoPreview")
+      .classList.add("hidden");
+
+    currentHeroImagePath="";
+    currentHeroVideoPath="";
+
+    toast("Hero media deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   NEWS
+========================================== */
+
+async function saveNews(){
+
+  try{
+
+    await saveSetting("breaking_news",{
+      enabled:document.getElementById("newsEnabled").checked,
+      text:document.getElementById("newsText").value.trim(),
+      start:document.getElementById("newsStart").value,
+      end:document.getElementById("newsEnd").value
+    });
+
+    toast("Breaking News saved");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   LOGO
+========================================== */
+
+async function saveLogo(){
+
+  try{
+
+    const file=document.getElementById("logoFile").files[0];
+
+    if(!file){
+      toast("Please choose a logo image");
+      return;
+    }
+
+    if(currentLogoPath)
+      await deleteStorage(SITE_BUCKET,currentLogoPath);
+
+    const path=await uploadFile(
+      SITE_BUCKET,
+      "logo",
+      file
+    );
+
+    const url=publicUrl(SITE_BUCKET,path);
+
+    await saveSetting("logo",{
+      url:url,
+      path:path
+    });
+
+    currentLogoPath=path;
+
+    document.getElementById("logoPreview").src=url;
+    document.getElementById("logoPreview")
+      .classList.remove("hidden");
+
+    toast("Logo updated successfully");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function deleteLogo(){
+
+  try{
+
+    if(currentLogoPath)
+      await deleteStorage(SITE_BUCKET,currentLogoPath);
+
+    await saveSetting("logo",{
+      url:"",
+      path:""
+    });
+
+    document.getElementById("logoPreview")
+      .classList.add("hidden");
+
+    currentLogoPath="";
+
+    toast("Logo deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   ABOUT
+========================================== */
+
+async function saveAbout(){
+
+  try{
+
+    await saveSetting("about",{
+      title:document.getElementById("aboutTitle").value.trim(),
+      text:document.getElementById("aboutText").value.trim()
+    });
+
+    toast("About Us saved");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   CATEGORIES
+========================================== */
+
+async function loadCategories(){
+
+  const {data,error}=await supabaseClient
+    .from("menu_categories")
+    .select("*")
+    .order("sort_order",{ascending:true})
+    .order("name",{ascending:true});
+
+  if(error)throw error;
+
+  categories=data||[];
+
+  renderCategories();
+}
+
+function renderCategories(){
+
+  const list=document.getElementById("categoryList");
+
+  list.innerHTML=categories.map(c=>`
+    <div class="category">
+      <span>${escapeHtml(c.name)}</span>
+      <button onclick="deleteCategory(${c.id})">×</button>
+    </div>
+  `).join("");
+
+  const select=document.getElementById("menuCategory");
+
+  select.innerHTML=
+    '<option value="">Select Category</option>'+
+    categories.map(c=>
+      `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
+    ).join("");
+}
+
+async function addCategory(){
+
+  const input=document.getElementById("newCategory");
+  const name=input.value.trim();
+
+  if(!name){
+    toast("Enter category name");
+    return;
+  }
+
+  try{
+
+    const maxOrder=categories.length
+      ? Math.max(...categories.map(x=>x.sort_order||0))
+      : 0;
+
+    const {error}=await supabaseClient
+      .from("menu_categories")
+      .insert({
+        name:name,
+        sort_order:maxOrder+1
+      });
+
+    if(error)throw error;
+
+    input.value="";
+
+    await loadCategories();
+
+    toast("Category added");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function deleteCategory(id){
+
+  if(!confirm("Delete this category?"))return;
+
+  try{
+
+    const category=categories.find(x=>x.id===id);
+
+    const {count,error:countError}=
+      await supabaseClient
+      .from("Menu")
+      .select("id",{count:"exact",head:true})
+      .eq("category",category.name);
+
+    if(countError)throw countError;
+
+    if(count>0){
+      toast("Cannot delete: this category is used by menu items.");
+      return;
+    }
+
+    const {error}=await supabaseClient
+      .from("menu_categories")
+      .delete()
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadCategories();
+
+    toast("Category deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   MENU
+========================================== */
+
+async function loadMenu(){
+
+  const {data,error}=await supabaseClient
+    .from("Menu")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error)throw error;
+
+  menuItems=data||[];
+
+  renderMenu();
+}
+
+function renderMenu(){
+
+  const box=document.getElementById("menuList");
+
+  if(!menuItems.length){
+    box.innerHTML='<p class="small">No menu items yet.</p>';
+    return;
+  }
+
+  box.innerHTML=menuItems.map(item=>`
+
+    <div class="item">
+
+      <div style="display:flex;gap:14px;align-items:flex-start">
+
+        ${
+          item.image_url
+          ? `<img src="${escapeHtml(item.image_url)}" class="thumb">`
+          : `<div class="thumb" style="display:flex;align-items:center;justify-content:center;color:#666">No Photo</div>`
+        }
+
+        <div style="flex:1">
+          <div class="item-head">
+            <div>
+              <div class="item-title">${escapeHtml(item.name)}</div>
+              <div class="small">${escapeHtml(item.category||"No Category")}</div>
+            </div>
+            <span class="badge">${escapeHtml(item.price||"")}</span>
+          </div>
+
+          <p class="small" style="margin-top:7px">
+            ${escapeHtml(item.description||"")}
+          </p>
+
+          <div class="actions">
+            <button class="btn" onclick="editMenu(${item.id})">Edit</button>
+            <button class="btn dark" onclick="changeMenuPhoto(${item.id})">Change Photo</button>
+            <button class="btn danger" onclick="deleteMenu(${item.id})">Delete</button>
+          </div>
+
+          <input
+            id="photo-${item.id}"
+            type="file"
+            accept="image/*"
+            style="display:none"
+            onchange="uploadMenuPhoto(${item.id},this)"
+          >
+
+        </div>
+      </div>
+    </div>
+
+  `).join("");
+}
+
+async function saveMenuItem(){
+
+  try{
+
+    const id=document.getElementById("menuId").value;
+
+    const name=document.getElementById("menuName").value.trim();
+    const price=document.getElementById("menuPrice").value.trim();
+    const category=document.getElementById("menuCategory").value;
+    const description=document.getElementById("menuDescription").value.trim();
+    const file=document.getElementById("menuImage").files[0];
+
+    if(!name){
+      toast("Food name is required");
+      return;
+    }
+
+    if(!category){
+      toast("Please select a category");
+      return;
+    }
+
+    let payload={
+      name,
+      price,
+      category,
+      description
+    };
+
+    let oldItem=null;
+
+    if(id){
+      oldItem=menuItems.find(x=>String(x.id)===String(id));
+    }
+
+    if(file){
+
+      if(oldItem?.image_path)
+        await deleteStorage(MENU_BUCKET,oldItem.image_path);
+
+      const path=await uploadFile(
+        MENU_BUCKET,
+        "menu",
+        file
+      );
+
+      payload.image_path=path;
+      payload.image_url=publicUrl(MENU_BUCKET,path);
+    }
+
+    if(id){
+
+      const {error}=await supabaseClient
+        .from("Menu")
+        .update(payload)
+        .eq("id",id);
+
+      if(error)throw error;
+
+      toast("Menu item updated");
+
+    }else{
+
+      const {error}=await supabaseClient
+        .from("Menu")
+        .insert(payload);
+
+      if(error)throw error;
+
+      toast("Menu item added");
+    }
+
+    resetMenuForm();
+    await loadMenu();
+
+  }catch(error){
+    console.error(error);
+    toast(error.message);
+  }
+}
+
+function editMenu(id){
+
+  const item=menuItems.find(x=>x.id===id);
+
+  if(!item)return;
+
+  document.getElementById("menuId").value=item.id;
+  document.getElementById("menuName").value=item.name||"";
+  document.getElementById("menuPrice").value=item.price||"";
+  document.getElementById("menuCategory").value=item.category||"";
+  document.getElementById("menuDescription").value=item.description||"";
+
+  document.getElementById("menuFormTitle").textContent=
+    "Edit Food";
+
+  if(item.image_url){
+    document.getElementById("menuImagePreviewBox").innerHTML=
+      `<img src="${escapeHtml(item.image_url)}" class="thumb">`;
+  }
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function resetMenuForm(){
+
+  document.getElementById("menuId").value="";
+  document.getElementById("menuName").value="";
+  document.getElementById("menuPrice").value="";
+  document.getElementById("menuCategory").value="";
+  document.getElementById("menuDescription").value="";
+  document.getElementById("menuImage").value="";
+  document.getElementById("menuImagePreviewBox").innerHTML="";
+  document.getElementById("menuFormTitle").textContent="Add New Food";
+}
+
+function changeMenuPhoto(id){
+  document.getElementById("photo-"+id).click();
+}
+
+async function uploadMenuPhoto(id,input){
+
+  const file=input.files[0];
+
+  if(!file)return;
+
+  try{
+
+    const item=menuItems.find(x=>x.id===id);
+
+    if(item.image_path)
+      await deleteStorage(MENU_BUCKET,item.image_path);
+
+    const path=await uploadFile(
+      MENU_BUCKET,
+      "menu",
+      file
+    );
+
+    const {error}=await supabaseClient
+      .from("Menu")
+      .update({
+        image_path:path,
+        image_url:publicUrl(MENU_BUCKET,path)
+      })
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadMenu();
+
+    toast("Photo changed");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function deleteMenu(id){
+
+  if(!confirm("Delete this menu item?"))return;
+
+  try{
+
+    const item=menuItems.find(x=>x.id===id);
+
+    if(item?.image_path)
+      await deleteStorage(MENU_BUCKET,item.image_path);
+
+    const {error}=await supabaseClient
+      .from("Menu")
+      .delete()
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadMenu();
+
+    toast("Menu item deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   GALLERY
+========================================== */
+
+async function loadGallery(){
+
+  const {data,error}=await supabaseClient
+    .from("gallery")
+    .select("*")
+    .order("sort_order",{ascending:true})
+    .order("created_at",{ascending:false});
+
+  if(error)throw error;
+
+  galleryItems=data||[];
+
+  renderGallery();
+}
+
+function renderGallery(){
+
+  const box=document.getElementById("galleryList");
+
+  if(!galleryItems.length){
+    box.innerHTML='<p class="small">No gallery photos yet.</p>';
+    return;
+  }
+
+  box.innerHTML=galleryItems.map(item=>`
+
+    <div class="item">
+      <div style="display:flex;gap:14px;align-items:center">
+
+        <img src="${escapeHtml(item.image_url)}" class="thumb">
+
+        <div style="flex:1">
+          <div class="item-title">
+            ${escapeHtml(item.title||"Gallery Photo")}
+          </div>
+
+          <div class="small">
+            ${escapeHtml(item.category||"Restaurant")}
+            · ${item.is_visible ? "Visible" : "Hidden"}
+          </div>
+
+          <div class="actions">
+            <button class="btn dark"
+              onclick="toggleGallery(${item.id},${item.is_visible})">
+              ${item.is_visible ? "Hide" : "Show"}
+            </button>
+
+            <button class="btn danger"
+              onclick="deleteGallery(${item.id})">
+              Delete
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  `).join("");
+}
+
+async function uploadGallery(){
+
+  const files=[
+    ...document.getElementById("galleryFiles").files
+  ];
+
+  if(!files.length){
+    toast("Choose one or more photos");
+    return;
+  }
+
+  const category=
+    document.getElementById("galleryCategory").value.trim()
+    ||"Restaurant";
+
+  const title=
+    document.getElementById("galleryTitle").value.trim();
+
+  try{
+
+    let order=galleryItems.length;
+
+    for(const file of files){
+
+      const path=await uploadFile(
+        SITE_BUCKET,
+        "gallery",
+        file
+      );
+
+      const {error}=await supabaseClient
+        .from("gallery")
+        .insert({
+          image_url:publicUrl(SITE_BUCKET,path),
+          storage_path:path,
+          title:title,
+          category:category,
+          sort_order:order++,
+          is_visible:true
+        });
+
+      if(error)throw error;
+    }
+
+    document.getElementById("galleryFiles").value="";
+    document.getElementById("galleryTitle").value="";
+
+    await loadGallery();
+
+    toast(files.length+" photo(s) uploaded");
+
+  }catch(error){
+    console.error(error);
+    toast(error.message);
+  }
+}
+
+async function toggleGallery(id,current){
+
+  try{
+
+    const {error}=await supabaseClient
+      .from("gallery")
+      .update({is_visible:!current})
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadGallery();
+
+    toast(current ? "Photo hidden" : "Photo shown");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function deleteGallery(id){
+
+  if(!confirm("Delete this gallery photo?"))return;
+
+  try{
+
+    const item=galleryItems.find(x=>x.id===id);
+
+    if(item?.storage_path)
+      await deleteStorage(SITE_BUCKET,item.storage_path);
+
+    const {error}=await supabaseClient
+      .from("gallery")
+      .delete()
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadGallery();
+
+    toast("Gallery photo deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   VIDEOS
+========================================== */
+
+async function saveVideo(number){
+
+  const file=document.getElementById(
+    "video"+number+"File"
+  ).files[0];
+
+  if(!file){
+    toast("Please choose Video "+number);
+    return;
+  }
+
+  try{
+
+    const key="video"+number;
+
+    if(videoPaths[key])
+      await deleteStorage(SITE_BUCKET,videoPaths[key]);
+
+    const path=await uploadFile(
+      SITE_BUCKET,
+      "videos",
+      file
+    );
+
+    const videos={
+      ...(settings.videos||{})
+    };
+
+    videos[key]=publicUrl(SITE_BUCKET,path);
+    videos[key+"_path"]=path;
+
+    await saveSetting("videos",videos);
+
+    videoPaths[key]=path;
+
+    const preview=document.getElementById(
+      "video"+number+"Preview"
+    );
+
+    preview.src=videos[key];
+    preview.classList.remove("hidden");
+
+    document.getElementById(
+      "video"+number+"File"
+    ).value="";
+
+    toast("Video "+number+" uploaded successfully");
+
+  }catch(error){
+    console.error(error);
+    toast(error.message);
+  }
+}
+
+async function deleteVideo(number){
+
+  if(!confirm("Delete Video "+number+"?"))return;
+
+  try{
+
+    const key="video"+number;
+
+    if(videoPaths[key])
+      await deleteStorage(SITE_BUCKET,videoPaths[key]);
+
+    const videos={
+      ...(settings.videos||{})
+    };
+
+    videos[key]="";
+    videos[key+"_path"]="";
+
+    await saveSetting("videos",videos);
+
+    videoPaths[key]="";
+
+    const preview=document.getElementById(
+      "video"+number+"Preview"
+    );
+
+    preview.pause();
+    preview.removeAttribute("src");
+    preview.load();
+    preview.classList.add("hidden");
+
+    toast("Video "+number+" deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   BOOKINGS
+========================================== */
+
+async function loadBookings(){
+
+  const {data,error}=await supabaseClient
+    .from("table_bookings")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error)throw error;
+
+  const box=document.getElementById("bookingsList");
+
+  if(!data?.length){
+    box.innerHTML=
+      `<tr><td colspan="8" class="small">No bookings yet.</td></tr>`;
+    return;
+  }
+
+  box.innerHTML=data.map(b=>`
+
+    <tr>
+
+      <td>
+        <b>${escapeHtml(b.customer_name)}</b>
+        ${b.email ? `<div class="small">${escapeHtml(b.email)}</div>`:""}
+      </td>
+
+      <td>${escapeHtml(b.phone)}</td>
+
+      <td>${escapeHtml(b.booking_date)}</td>
+
+      <td>${escapeHtml(b.booking_time)}</td>
+
+      <td>${escapeHtml(b.guests)}</td>
+
+      <td>${escapeHtml(b.special_request||"")}</td>
+
+      <td>
+        <select
+          onchange="updateBookingStatus(${b.id},this.value)"
+          style="min-width:120px">
+          ${["Pending","Confirmed","Completed","Cancelled"]
+            .map(s=>`
+              <option ${b.status===s?"selected":""}>
+                ${s}
+              </option>
+            `).join("")}
+        </select>
+      </td>
+
+      <td>
+        <button class="btn danger"
+          onclick="deleteBooking(${b.id})">
+          Delete
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+}
+
+async function updateBookingStatus(id,status){
+
+  try{
+
+    const {error}=await supabaseClient
+      .from("table_bookings")
+      .update({status})
+      .eq("id",id);
+
+    if(error)throw error;
+
+    toast("Booking status updated");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function deleteBooking(id){
+
+  if(!confirm("Delete this booking?"))return;
+
+  try{
+
+    const {error}=await supabaseClient
+      .from("table_bookings")
+      .delete()
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadBookings();
+
+    toast("Booking deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   REVIEWS
+========================================== */
+
+async function loadReviews(){
+
+  const {data,error}=await supabaseClient
+    .from("reviews")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error)throw error;
+
+  const box=document.getElementById("reviewsList");
+
+  if(!data?.length){
+    box.innerHTML=
+      '<p class="small">No reviews yet.</p>';
+    return;
+  }
+
+  box.innerHTML=data.map(r=>`
+
+    <div class="item">
+
+      <div class="item-head">
+
+        <div>
+          <div class="item-title">
+            ${escapeHtml(r.customer_name)}
+          </div>
+
+          <div style="color:#d4af37;margin-top:4px">
+            ${"★".repeat(Math.max(0,Math.min(5,r.rating||5)))}
+          </div>
+        </div>
+
+        <span class="badge">
+          ${escapeHtml(r.status||"Pending")}
+        </span>
+
       </div>
 
-      <form id="loginForm">
+      <p style="margin-top:10px;color:#ccc">
+        ${escapeHtml(r.message)}
+      </p>
 
-        <div class="field">
-          <label>Email</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Admin email"
-            required
-          >
-        </div>
+      <div class="actions">
 
-        <div class="field">
-          <label>Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            required
-          >
-        </div>
-
-        <button class="gold-btn" type="submit">
-          LOGIN TO ADMIN
+        <button class="btn"
+          onclick="reviewStatus(${r.id},'Approved')">
+          Approve
         </button>
 
-        <div id="loginError" class="error"></div>
+        <button class="btn dark"
+          onclick="reviewStatus(${r.id},'Hidden')">
+          Hide
+        </button>
 
-      </form>
+        <button class="btn green"
+          onclick="featureReview(${r.id},${!r.is_featured})">
+          ${r.is_featured?"Unfeature":"Feature"}
+        </button>
+
+        <button class="btn danger"
+          onclick="deleteReview(${r.id})">
+          Delete
+        </button>
+
+      </div>
 
     </div>
 
-  </div>
+  `).join("");
+}
+
+async function reviewStatus(id,status){
+
+  try{
+
+    const {error}=await supabaseClient
+      .from("reviews")
+      .update({status})
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadReviews();
+
+    toast("Review updated");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function featureReview(id,value){
+
+  try{
+
+    const {error}=await supabaseClient
+      .from("reviews")
+      .update({
+        is_featured:value,
+        status:value?"Approved":"Pending"
+      })
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadReviews();
+
+    toast(value?"Review featured":"Review unfeatured");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+async function deleteReview(id){
+
+  if(!confirm("Delete this review?"))return;
+
+  try{
+
+    const {error}=await supabaseClient
+      .from("reviews")
+      .delete()
+      .eq("id",id);
+
+    if(error)throw error;
+
+    await loadReviews();
+
+    toast("Review deleted");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
 
 
-  <!-- =========================
-       ADMIN APP
-  ========================= -->
+/* ==========================================
+   REPORTS
+========================================== */
 
-  <div id="app">
+async function loadReports(){
 
-    <!-- SIDEBAR -->
+  const {data,error}=await supabaseClient
+    .from("customer_reports")
+    .select("*")
+    .order("created_at",{ascending:false});
 
-    <aside class="sidebar" id="sidebar">
+  if(error)throw error;
 
-      <div class="sidebar-logo">
-        <strong>NABABI</strong>
-        <span>RISTORANTE ADMIN</span>
-      </div>
+  const box=document.getElementById("reportsList");
 
+  if(!data?.length){
+    box.innerHTML=
+      '<p class="small">No reports or feedback yet.</p>';
+    return;
+  }
 
-      <div class="menu-label">
-        Website
-      </div>
+  box.innerHTML=data.map(r=>`
 
-      <button class="side-btn active" data-page="dashboard">
-        🏠 Dashboard
-      </button>
+    <div class="item">
 
-      <button class="side-btn" data-page="hero">
-        ✦ Home / Hero
-      </button>
+      <div class="item-head">
 
-      <button class="side-btn" data-page="about">
-        ◈ About Us
-      </button>
+        <div>
+          <div class="item-title">
+            ${escapeHtml(r.subject||"Customer Report")}
+          </div>
 
-
-      <div class="menu-label">
-        Media
-      </div>
-
-      <button class="side-btn" data-page="logo">
-        ◎ Logo
-      </button>
-
-      <button class="side-btn" data-page="gallery">
-        ▧ Gallery
-      </button>
-
-      <button class="side-btn" data-page="videos">
-        ▶ Videos
-      </button>
-
-
-      <div class="menu-label">
-        Restaurant
-      </div>
-
-      <button class="side-btn" data-page="menu">
-        ☰ Menu Manager
-      </button>
-
-      <button class="side-btn" data-page="contact">
-        ☎ Contact
-      </button>
-
-      <button class="side-btn" data-page="social">
-        ● Social Media
-      </button>
-
-      <button class="side-btn" data-page="hours">
-        ◷ Opening Hours
-      </button>
-
-
-      <button class="side-btn logout" id="logoutBtn">
-        ⇥ Logout
-      </button>
-
-    </aside>
-
-
-    <!-- MAIN -->
-
-    <main class="main">
-
-      <div class="top-header">
-
-        <div style="display:flex;align-items:center;">
-
-          <button
-            class="mobile-menu"
-            id="mobileMenu"
-          >
-            ☰
-          </button>
-
-          <h2 id="pageHeading">
-            Dashboard
-          </h2>
-
+          <div class="small">
+            ${escapeHtml(r.customer_name||"Anonymous")}
+            ${r.phone ? " · "+escapeHtml(r.phone):""}
+            ${r.email ? " · "+escapeHtml(r.email):""}
+          </div>
         </div>
 
-        <a
-          href="index.html"
-          class="view-site"
-        >
-          View Website ↗
-        </a>
+        <span class="badge">
+          ${escapeHtml(r.status||"New")}
+        </span>
 
       </div>
 
-
-      <div class="content">
-
-
-        <!-- =====================
-             DASHBOARD
-        ====================== -->
-
-        <section
-          class="page active"
-          id="page-dashboard"
-        >
-
-          <div class="page-title">
-            <small>Welcome Back</small>
-            <h1>Restaurant Dashboard</h1>
-          </div>
-
-
-          <div class="stats">
-
-            <div class="stat-card">
-              <span>Menu Items</span>
-              <strong id="statMenu">0</strong>
-            </div>
-
-            <div class="stat-card">
-              <span>Gallery</span>
-              <strong id="statGallery">0</strong>
-            </div>
-
-            <div class="stat-card">
-              <span>Videos</span>
-              <strong>2</strong>
-            </div>
-
-            <div class="stat-card">
-              <span>Website</span>
-              <strong>LIVE</strong>
-            </div>
-
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Quick Actions</h3>
-
-            <div class="two-col">
-
-              <button
-                class="save-btn"
-                onclick="openPage('menu')"
-              >
-                + Add Menu Item
-              </button>
-
-              <button
-                class="save-btn"
-                onclick="openPage('gallery')"
-              >
-                + Add Gallery Photo
-              </button>
-
-            </div>
-
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Restaurant Information</h3>
-
-            <p style="color:#999;">
-              Via Vespasiano 73/75/77 Roma
-            </p>
-
-            <p style="color:#999;margin-top:8px;">
-              📞 +39 333 7687319
-            </p>
-
-            <p style="color:#999;margin-top:8px;">
-              📞 +39 393 3805350
-            </p>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             HERO
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-hero"
-        >
-
-          <div class="page-title">
-            <small>Website</small>
-            <h1>Home / Hero</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Hero Content</h3>
-
-            <div class="field">
-              <label>Hero Small Text</label>
-              <input
-                id="heroSmall"
-                value="Welcome to Nababi"
-              >
-            </div>
-
-            <div class="field">
-              <label>Hero Title</label>
-              <input
-                id="heroTitle"
-                value="Taste of India in Roma"
-              >
-            </div>
-
-            <div class="field">
-              <label>Hero Description</label>
-              <textarea id="heroText">Discover an elegant dining experience where authentic Indian flavours meet modern hospitality in the heart of Rome.</textarea>
-            </div>
-
-            <div class="field">
-              <label>Hero Image URL</label>
-              <input
-                id="heroImage"
-                placeholder="Image URL"
-              >
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveHero()"
-            >
-              SAVE HERO
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             ABOUT
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-about"
-        >
-
-          <div class="page-title">
-            <small>Website</small>
-            <h1>About Us</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>About Restaurant</h3>
-
-            <div class="field">
-              <label>Title</label>
-              <input
-                id="aboutTitle"
-                value="A Journey of Authentic Flavours"
-              >
-            </div>
-
-            <div class="field">
-              <label>Description</label>
-              <textarea id="aboutText">At Nababi Ristorante, we bring the rich traditions and unforgettable flavours of India to the heart of Rome.</textarea>
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveAbout()"
-            >
-              SAVE ABOUT
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             LOGO
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-logo"
-        >
-
-          <div class="page-title">
-            <small>Media</small>
-            <h1>Restaurant Logo</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Change Logo</h3>
-
-            <div class="upload-box">
-
-              <p>
-                Choose your logo from your phone Gallery.
-              </p>
-
-              <input
-                class="file-input"
-                type="file"
-                id="logoFile"
-                accept="image/*"
-              >
-
-              <label
-                class="upload-label"
-                for="logoFile"
-              >
-                SELECT LOGO
-              </label>
-
-              <img
-                id="logoPreview"
-                class="preview"
-                alt="Logo Preview"
-              >
-
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveLogo()"
-            >
-              SAVE LOGO
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             GALLERY
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-gallery"
-        >
-
-          <div class="page-title">
-            <small>Media</small>
-            <h1>Gallery</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Add Restaurant Photos</h3>
-
-            <div class="upload-box">
-
-              <p>
-                Select one or multiple photos from your phone.
-              </p>
-
-              <input
-                class="file-input"
-                type="file"
-                id="galleryFiles"
-                accept="image/*"
-                multiple
-              >
-
-              <label
-                class="upload-label"
-                for="galleryFiles"
-              >
-                SELECT PHOTOS
-              </label>
-
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="uploadGallery()"
-            >
-              UPLOAD PHOTOS
-            </button>
-
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Gallery Management</h3>
-
-            <p style="color:#777;">
-              Uploaded gallery photos will appear here.
-            </p>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             VIDEOS
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-videos"
-        >
-
-          <div class="page-title">
-            <small>Media</small>
-            <h1>Two Video Sections</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Video 01</h3>
-
-            <div class="upload-box">
-
-              <p>
-                Choose the first restaurant video.
-              </p>
-
-              <input
-                class="file-input"
-                type="file"
-                id="videoOne"
-                accept="video/*"
-              >
-
-              <label
-                class="upload-label"
-                for="videoOne"
-              >
-                SELECT VIDEO 01
-              </label>
-
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveVideo(1)"
-            >
-              SAVE VIDEO 01
-            </button>
-
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Video 02</h3>
-
-            <div class="upload-box">
-
-              <p>
-                Choose the second restaurant video.
-              </p>
-
-              <input
-                class="file-input"
-                type="file"
-                id="videoTwo"
-                accept="video/*"
-              >
-
-              <label
-                class="upload-label"
-                for="videoTwo"
-              >
-                SELECT VIDEO 02
-              </label>
-
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveVideo(2)"
-            >
-              SAVE VIDEO 02
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             MENU MANAGER
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-menu"
-        >
-
-          <div class="page-title">
-            <small>Restaurant</small>
-            <h1>Menu Manager</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <div class="menu-toolbar">
-
-              <select
-                class="category-select"
-                id="categoryFilter"
-              >
-                <option value="all">
-                  All Categories
-                </option>
-              </select>
-
-              <button
-                class="add-btn"
-                onclick="showAddMenu()"
-              >
-                + ADD MENU ITEM
-              </button>
-
-            </div>
-
-
-            <div
-              id="menuForm"
-              style="display:none;margin-bottom:25px;"
-            >
-
-              <div class="panel">
-
-                <h3>Add / Edit Menu Item</h3>
-
-                <input
-                  type="hidden"
-                  id="editMenuId"
-                >
-
-                <div class="two-col">
-
-                  <div class="field">
-                    <label>Dish Name</label>
-                    <input
-                      id="menuName"
-                      placeholder="Chicken Tikka"
-                    >
-                  </div>
-
-                  <div class="field">
-                    <label>Price (€)</label>
-                    <input
-                      id="menuPrice"
-                      type="number"
-                      step="0.01"
-                      placeholder="14"
-                    >
-                  </div>
-
-                </div>
-
-
-                <div class="field">
-
-                  <label>Category</label>
-
-                  <select id="menuCategory">
-                  </select>
-
-                </div>
-
-
-                <div class="field">
-
-                  <label>Dish Photo</label>
-
-                  <input
-                    type="file"
-                    id="menuPhoto"
-                    accept="image/*"
-                  >
-
-                </div>
-
-
-                <div style="display:flex;gap:10px;">
-
-                  <button
-                    class="save-btn"
-                    onclick="saveMenuItem()"
-                  >
-                    SAVE ITEM
-                  </button>
-
-                  <button
-                    class="small-btn"
-                    onclick="hideMenuForm()"
-                  >
-                    CANCEL
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div id="menuList" class="menu-list">
-              Loading menu...
-            </div>
-
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Categories</h3>
-
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-
-              <input
-                id="newCategory"
-                placeholder="New category name"
-                style="
-                  background:#090909;
-                  border:1px solid #292929;
-                  color:#fff;
-                  padding:11px 14px;
-                  flex:1;
-                  min-width:200px;
-                "
-              >
-
-              <button
-                class="add-btn"
-                onclick="addCategory()"
-              >
-                + ADD CATEGORY
-              </button>
-
-            </div>
-
-
-            <div
-              id="categoryList"
-              class="category-list"
-            ></div>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             CONTACT
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-contact"
-        >
-
-          <div class="page-title">
-            <small>Restaurant</small>
-            <h1>Contact</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Contact Information</h3>
-
-            <div class="field">
-              <label>Address</label>
-              <input
-                id="contactAddress"
-                value="Via Vespasiano 73/75/77 Roma"
-              >
-            </div>
-
-            <div class="two-col">
-
-              <div class="field">
-                <label>Phone 01</label>
-                <input
-                  id="phoneOne"
-                  value="+39 333 7687319"
-                >
-              </div>
-
-              <div class="field">
-                <label>Phone 02</label>
-                <input
-                  id="phoneTwo"
-                  value="+39 393 3805350"
-                >
-              </div>
-
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveContact()"
-            >
-              SAVE CONTACT
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             SOCIAL
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-social"
-        >
-
-          <div class="page-title">
-            <small>Restaurant</small>
-            <h1>Social Media</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Social Links</h3>
-
-            <div class="field">
-              <label>Facebook</label>
-              <input
-                id="facebook"
-                value="https://www.facebook.com/share/19eKdKRhLL/?mibextid=wwXIfr"
-              >
-            </div>
-
-            <div class="field">
-              <label>TikTok</label>
-              <input
-                id="tiktok"
-                value="https://www.tiktok.com/@nababiristorante"
-              >
-            </div>
-
-            <div class="field">
-              <label>Instagram</label>
-              <input
-                id="instagram"
-                placeholder="Instagram link"
-              >
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveSocial()"
-            >
-              SAVE SOCIAL MEDIA
-            </button>
-
-          </div>
-
-        </section>
-
-
-        <!-- =====================
-             HOURS
-        ====================== -->
-
-        <section
-          class="page"
-          id="page-hours"
-        >
-
-          <div class="page-title">
-            <small>Restaurant</small>
-            <h1>Opening Hours</h1>
-          </div>
-
-
-          <div class="panel">
-
-            <h3>Restaurant Opening Hours</h3>
-
-            <div class="two-col">
-
-              <div class="field">
-                <label>Monday</label>
-                <input
-                  id="mon"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-              <div class="field">
-                <label>Tuesday</label>
-                <input
-                  id="tue"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-              <div class="field">
-                <label>Wednesday</label>
-                <input
-                  id="wed"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-              <div class="field">
-                <label>Thursday</label>
-                <input
-                  id="thu"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-              <div class="field">
-                <label>Friday</label>
-                <input
-                  id="fri"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-              <div class="field">
-                <label>Saturday</label>
-                <input
-                  id="sat"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-              <div class="field">
-                <label>Sunday</label>
-                <input
-                  id="sun"
-                  value="12:00 - 23:00"
-                >
-              </div>
-
-            </div>
-
-            <button
-              class="save-btn"
-              onclick="saveHours()"
-            >
-              SAVE OPENING HOURS
-            </button>
-
-          </div>
-
-        </section>
-
+      <p style="margin-top:12px;color:#ccc">
+        ${escapeHtml(r.message)}
+      </p>
+
+      <div class="actions">
+
+        <button class="btn"
+          onclick="reportStatus(${r.id},'Read')">
+          Mark Read
+        </button>
+
+        <button class="btn green"
+          onclick="reportStatus(${r.id},'Resolved')">
+          Resolved
+        </button>
+
+        <button class="btn danger"
+          onclick="deleteReport(${r.id})">
+          Delete
+        </button>
 
       </div>
 
-    </main>
+    </div>
 
-  </div>
+  `).join("");
+}
 
+async function reportStatus(id,status){
 
-  <div id="message"></div>
+  try{
 
+    const {error}=await supabaseClient
+      .from("customer_reports")
+      .update({status})
+      .eq("id",id);
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./config.js"></script>
+    if(error)throw error;
 
+    await loadReports();
 
-  <script>
+    toast("Report updated");
 
-    let supabaseClient = null;
-    let currentMenu = [];
-    let categories = [];
+  }catch(error){
+    toast(error.message);
+  }
+}
 
+async function deleteReport(id){
 
-    /* =========================
-       SUPABASE
-    ========================= */
+  if(!confirm("Delete this report?"))return;
 
-    function initializeSupabase() {
+  try{
 
-      const url = window.SUPABASE_URL;
-      const key = window.SUPABASE_ANON_KEY;
+    const {error}=await supabaseClient
+      .from("customer_reports")
+      .delete()
+      .eq("id",id);
 
-      if (!url || !key) {
-        console.error("Supabase configuration missing.");
-        return false;
-      }
+    if(error)throw error;
 
-      supabaseClient =
-        window.supabase.createClient(url, key);
+    await loadReports();
 
-      return true;
-    }
+    toast("Report deleted");
 
-
-    /* =========================
-       LOGIN
-    ========================= */
-
-    document
-      .getElementById("loginForm")
-      .addEventListener("submit", async function(e) {
-
-        e.preventDefault();
-
-        const email =
-          document.getElementById("email").value.trim();
-
-        const password =
-          document.getElementById("password").value;
-
-        const errorBox =
-          document.getElementById("loginError");
-
-        errorBox.textContent = "";
-
-        if (!supabaseClient) {
-          errorBox.textContent =
-            "Supabase connection is not available.";
-          return;
-        }
-
-        const { error } =
-          await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-          });
-
-        if (error) {
-
-          errorBox.textContent =
-            error.message;
-
-          return;
-        }
-
-        showApp();
-
-      });
+  }catch(error){
+    toast(error.message);
+  }
+}
 
 
-    async function checkSession() {
+/* ==========================================
+   CONTACT
+========================================== */
 
-      if (!supabaseClient) return;
+async function saveContact(){
 
-      const {
-        data
-      } = await supabaseClient.auth.getSession();
+  try{
 
-      if (data.session) {
-        showApp();
-      }
-
-    }
-
-
-    function showApp() {
-
-      document
-        .getElementById("loginScreen")
-        .style.display = "none";
-
-      document
-        .getElementById("app")
-        .style.display = "block";
-
-      loadMenu();
-
-    }
-
-
-    /* =========================
-       LOGOUT
-    ========================= */
-
-    document
-      .getElementById("logoutBtn")
-      .addEventListener("click", async function() {
-
-        if (supabaseClient) {
-          await supabaseClient.auth.signOut();
-        }
-
-        location.reload();
-
-      });
-
-
-    /* =========================
-       NAVIGATION
-    ========================= */
-
-    const sideButtons =
-      document.querySelectorAll(".side-btn[data-page]");
-
-    sideButtons.forEach(button => {
-
-      button.addEventListener("click", function() {
-
-        openPage(this.dataset.page);
-
-        document
-          .querySelectorAll(".side-btn")
-          .forEach(btn =>
-            btn.classList.remove("active")
-          );
-
-        this.classList.add("active");
-
-      });
-
+    await saveSetting("contact",{
+      address:document.getElementById("contactAddress").value.trim(),
+      phone1:document.getElementById("contactPhone1").value.trim(),
+      phone2:document.getElementById("contactPhone2").value.trim(),
+      whatsapp:document.getElementById("contactWhatsapp").value.trim(),
+      maps:document.getElementById("contactMaps").value.trim()
     });
 
+    toast("Contact information saved");
 
-    function openPage(pageName) {
+  }catch(error){
+    toast(error.message);
+  }
+}
 
-      document
-        .querySelectorAll(".page")
-        .forEach(page =>
-          page.classList.remove("active")
-        );
 
-      const target =
-        document.getElementById(
-          "page-" + pageName
-        );
+/* ==========================================
+   SOCIAL
+========================================== */
 
-      if (target) {
-        target.classList.add("active");
-      }
+async function saveSocial(){
 
-      const titles = {
-        dashboard: "Dashboard",
-        hero: "Home / Hero",
-        about: "About Us",
-        logo: "Restaurant Logo",
-        gallery: "Gallery",
-        videos: "Videos",
-        menu: "Menu Manager",
-        contact: "Contact",
-        social: "Social Media",
-        hours: "Opening Hours"
+  try{
+
+    await saveSetting("social",{
+      facebook:document.getElementById("socialFacebook").value.trim(),
+      instagram:document.getElementById("socialInstagram").value.trim(),
+      tiktok:document.getElementById("socialTikTok").value.trim()
+    });
+
+    toast("Social Media saved");
+
+  }catch(error){
+    toast(error.message);
+  }
+}
+
+
+/* ==========================================
+   OPENING HOURS
+========================================== */
+
+const DAYS=[
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+];
+
+function buildHoursForm(){
+
+  const hours=settings.hours||{};
+  const box=document.getElementById("hoursForm");
+
+  box.innerHTML=DAYS.map(day=>{
+
+    const h=hours[day]||{
+      open:"12:00",
+      close:"23:00"
+    };
+
+    return `
+      <div class="grid2" style="margin-bottom:12px">
+        <div>
+          <label>${day}</label>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input
+            type="time"
+            id="open-${day}"
+            value="${escapeHtml(h.open||"")}">
+
+          <input
+            type="time"
+            id="close-${day}"
+            value="${escapeHtml(h.close||"")}">
+        </div>
+      </div>
+    `;
+
+  }).join("");
+}
+
+async function saveHours(){
+
+  try{
+
+    const hours={};
+
+    DAYS.forEach(day=>{
+      hours[day]={
+        open:document.getElementById("open-"+day).value,
+        close:document.getElementById("close-"+day).value
       };
+    });
 
-      document
-        .getElementById("pageHeading")
-        .textContent =
-        titles[pageName] || "Admin Panel";
+    await saveSetting("hours",hours);
 
-      document
-        .getElementById("sidebar")
-        .classList.remove("open");
+    toast("Opening hours saved");
 
-      if (pageName === "menu") {
-        loadMenu();
-      }
+  }catch(error){
+    toast(error.message);
+  }
+}
 
-    }
 
+/* ==========================================
+   DASHBOARD
+========================================== */
 
-    document
-      .getElementById("mobileMenu")
-      .addEventListener("click", function() {
+async function updateDashboard(){
 
-        document
-          .getElementById("sidebar")
-          .classList.toggle("open");
+  try{
 
-      });
+    const queries=await Promise.all([
+      supabaseClient.from("Menu").select("*",{count:"exact",head:true}),
+      supabaseClient.from("gallery").select("*",{count:"exact",head:true}),
+      supabaseClient.from("table_bookings").select("*",{count:"exact",head:true}),
+      supabaseClient.from("reviews").select("*",{count:"exact",head:true}),
+      supabaseClient.from("customer_reports").select("*",{count:"exact",head:true}),
+      supabaseClient.from("menu_categories").select("*",{count:"exact",head:true})
+    ]);
 
+    document.getElementById("statMenu").textContent=
+      queries[0].count||0;
 
-    /* =========================
-       MENU
-    ========================= */
+    document.getElementById("statGallery").textContent=
+      queries[1].count||0;
 
-    async function loadMenu() {
+    document.getElementById("statBookings").textContent=
+      queries[2].count||0;
 
-      if (!supabaseClient) return;
+    document.getElementById("statReviews").textContent=
+      queries[3].count||0;
 
-      const list =
-        document.getElementById("menuList");
+    document.getElementById("statReports").textContent=
+      queries[4].count||0;
 
-      list.innerHTML = "Loading menu...";
+    document.getElementById("statCategories").textContent=
+      queries[5].count||0;
 
-      const {
-        data,
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .select("*")
-        .order("id", {
-          ascending: false
-        });
+  }catch(error){
+    console.error(error);
+  }
+}
 
-      if (error) {
 
-        list.innerHTML =
-          `<p style="color:#f77;">
-            ${escapeHtml(error.message)}
-          </p>`;
+/* ==========================================
+   START
+========================================== */
 
-        return;
-      }
+supabaseClient.auth.onAuthStateChange((event,session)=>{
 
-      currentMenu = data || [];
+  if(session){
+    openAdmin(session);
+  }
 
-      document
-        .getElementById("statMenu")
-        .textContent =
-        currentMenu.length;
+});
 
-      buildCategories();
+checkAuth();
 
-      renderMenu();
-
-    }
-
-
-    function buildCategories() {
-
-      const saved =
-        JSON.parse(
-          localStorage.getItem("nababi_categories") ||
-          "[]"
-        );
-
-      const fromMenu =
-        currentMenu
-          .map(item => item.category)
-          .filter(Boolean);
-
-      categories =
-        [...new Set([
-          ...saved,
-          ...fromMenu
-        ])];
-
-      if (!categories.length) {
-        categories = [
-          "Starters",
-          "Main Course",
-          "Rice",
-          "Breads",
-          "Desserts",
-          "Drinks"
-        ];
-      }
-
-      localStorage.setItem(
-        "nababi_categories",
-        JSON.stringify(categories)
-      );
-
-      updateCategorySelects();
-      renderCategories();
-
-    }
-
-
-    function updateCategorySelects() {
-
-      const filter =
-        document.getElementById("categoryFilter");
-
-      const select =
-        document.getElementById("menuCategory");
-
-      filter.innerHTML =
-        `<option value="all">All Categories</option>`;
-
-      select.innerHTML = "";
-
-      categories.forEach(category => {
-
-        filter.innerHTML +=
-          `<option value="${escapeAttr(category)}">
-            ${escapeHtml(category)}
-          </option>`;
-
-        select.innerHTML +=
-          `<option value="${escapeAttr(category)}">
-            ${escapeHtml(category)}
-          </option>`;
-
-      });
-
-    }
-
-
-    document
-      .getElementById("categoryFilter")
-      .addEventListener("change", renderMenu);
-
-
-    function renderMenu() {
-
-      const list =
-        document.getElementById("menuList");
-
-      const filter =
-        document.getElementById("categoryFilter").value;
-
-      let items = currentMenu;
-
-      if (filter !== "all") {
-        items =
-          items.filter(
-            item => item.category === filter
-          );
-      }
-
-      if (!items.length) {
-
-        list.innerHTML =
-          `<p style="color:#777;">
-            No menu items found.
-          </p>`;
-
-        return;
-      }
-
-      list.innerHTML = items.map(item => {
-
-        const image =
-          item.image_url ||
-          "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=300&q=70";
-
-        return `
-          <div class="menu-item">
-
-            <div class="menu-info">
-
-              <img
-                class="menu-photo"
-                src="${escapeAttr(image)}"
-                alt=""
-              >
-
-              <div>
-
-                <h4>
-                  ${escapeHtml(item.name || "")}
-                </h4>
-
-                <p>
-                  ${escapeHtml(item.category || "Uncategorized")}
-                </p>
-
-              </div>
-
-            </div>
-
-            <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
-
-              <span class="menu-price">
-                €${escapeHtml(String(item.price || ""))}
-              </span>
-
-              <div class="actions">
-
-                <button
-                  class="small-btn"
-                  onclick="editMenu('${escapeAttr(String(item.id))}')"
-                >
-                  Edit
-                </button>
-
-                <button
-                  class="small-btn"
-                  onclick="changePrice('${escapeAttr(String(item.id))}')"
-                >
-                  Price
-                </button>
-
-                <button
-                  class="small-btn"
-                  onclick="changeCategory('${escapeAttr(String(item.id))}')"
-                >
-                  Category
-                </button>
-
-                <button
-                  class="small-btn"
-                  onclick="changePhoto('${escapeAttr(String(item.id))}')"
-                >
-                  Photo
-                </button>
-
-                <button
-                  class="small-btn delete-btn"
-                  onclick="deleteMenu('${escapeAttr(String(item.id))}')"
-                >
-                  Delete
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("");
-
-    }
-
-
-    function showAddMenu() {
-
-      document
-        .getElementById("menuForm")
-        .style.display = "block";
-
-      document
-        .getElementById("editMenuId")
-        .value = "";
-
-      document
-        .getElementById("menuName")
-        .value = "";
-
-      document
-        .getElementById("menuPrice")
-        .value = "";
-
-      document
-        .getElementById("menuPhoto")
-        .value = "";
-
-      updateCategorySelects();
-
-    }
-
-
-    function hideMenuForm() {
-
-      document
-        .getElementById("menuForm")
-        .style.display = "none";
-
-    }
-
-
-    function editMenu(id) {
-
-      const item =
-        currentMenu.find(
-          x => String(x.id) === String(id)
-        );
-
-      if (!item) return;
-
-      document
-        .getElementById("menuForm")
-        .style.display = "block";
-
-      document
-        .getElementById("editMenuId")
-        .value = item.id;
-
-      document
-        .getElementById("menuName")
-        .value = item.name || "";
-
-      document
-        .getElementById("menuPrice")
-        .value = item.price || "";
-
-      updateCategorySelects();
-
-      document
-        .getElementById("menuCategory")
-        .value =
-        item.category || categories[0];
-
-      document
-        .getElementById("menuPhoto")
-        .value = "";
-
-    }
-
-
-    async function saveMenuItem() {
-
-      const id =
-        document.getElementById("editMenuId").value;
-
-      const name =
-        document.getElementById("menuName").value.trim();
-
-      const price =
-        document.getElementById("menuPrice").value;
-
-      const category =
-        document.getElementById("menuCategory").value;
-
-      if (!name || !price) {
-        showMessage("Please enter name and price.");
-        return;
-      }
-
-      const payload = {
-        name,
-        price,
-        category
-      };
-
-      let result;
-
-      if (id) {
-
-        result =
-          await supabaseClient
-            .from("Menu")
-            .update(payload)
-            .eq("id", id);
-
-      } else {
-
-        result =
-          await supabaseClient
-            .from("Menu")
-            .insert(payload);
-
-      }
-
-      if (result.error) {
-
-        showMessage(result.error.message);
-        return;
-
-      }
-
-      hideMenuForm();
-
-      showMessage("Menu item saved.");
-
-      loadMenu();
-
-    }
-
-
-    async function deleteMenu(id) {
-
-      if (!confirm("Delete this menu item?")) {
-        return;
-      }
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .delete()
-        .eq("id", id);
-
-      if (error) {
-
-        showMessage(error.message);
-        return;
-
-      }
-
-      showMessage("Menu item deleted.");
-
-      loadMenu();
-
-    }
-
-
-    async function changePrice(id) {
-
-      const item =
-        currentMenu.find(
-          x => String(x.id) === String(id)
-        );
-
-      if (!item) return;
-
-      const value =
-        prompt(
-          "Enter new price:",
-          item.price || ""
-        );
-
-      if (value === null) return;
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .update({
-          price: value
-        })
-        .eq("id", id);
-
-      if (error) {
-
-        showMessage(error.message);
-        return;
-
-      }
-
-      showMessage("Price updated.");
-
-      loadMenu();
-
-    }
-
-
-    async function changeCategory(id) {
-
-      const item =
-        currentMenu.find(
-          x => String(x.id) === String(id)
-        );
-
-      if (!item) return;
-
-      const value =
-        prompt(
-          "Enter category:\n\n" +
-          categories.join(", "),
-          item.category || ""
-        );
-
-      if (value === null || !value.trim()) {
-        return;
-      }
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .update({
-          category: value.trim()
-        })
-        .eq("id", id);
-
-      if (error) {
-
-        showMessage(error.message);
-        return;
-
-      }
-
-      if (!categories.includes(value.trim())) {
-
-        categories.push(value.trim());
-
-        localStorage.setItem(
-          "nababi_categories",
-          JSON.stringify(categories)
-        );
-
-      }
-
-      showMessage("Category updated.");
-
-      loadMenu();
-
-    }
-
-
-    async function changePhoto(id) {
-
-      showMessage(
-        "Photo upload connection will be enabled next."
-      );
-
-    }
-
-
-    function addCategory() {
-
-      const input =
-        document.getElementById("newCategory");
-
-      const value =
-        input.value.trim();
-
-      if (!value) {
-        showMessage("Enter a category name.");
-        return;
-      }
-
-      if (!categories.includes(value)) {
-
-        categories.push(value);
-
-        localStorage.setItem(
-          "nababi_categories",
-          JSON.stringify(categories)
-        );
-
-        updateCategorySelects();
-        renderCategories();
-
-        showMessage(
-          "Category added."
-        );
-
-      } else {
-
-        showMessage(
-          "Category already exists."
-        );
-
-      }
-
-      input.value = "";
-
-    }
-
-
-    function renderCategories() {
-
-      const box =
-        document.getElementById("categoryList");
-
-      box.innerHTML =
-        categories.map(category => `
-          <span class="category-tag">
-            ${escapeHtml(category)}
-          </span>
-        `).join("");
-
-    }
-
-
-    /* =========================
-       SAVE SETTINGS
-    ========================= */
-
-    function saveHero() {
-
-      localStorage.setItem(
-        "nababi_hero",
-        JSON.stringify({
-          small:
-            document.getElementById("heroSmall").value,
-          title:
-            document.getElementById("heroTitle").value,
-          text:
-            document.getElementById("heroText").value,
-          image:
-            document.getElementById("heroImage").value
-        })
-      );
-
-      showMessage("Hero saved.");
-
-    }
-
-
-    function saveAbout() {
-
-      localStorage.setItem(
-        "nababi_about",
-        JSON.stringify({
-          title:
-            document.getElementById("aboutTitle").value,
-          text:
-            document.getElementById("aboutText").value
-        })
-      );
-
-      showMessage("About section saved.");
-
-    }
-
-
-    function saveLogo() {
-
-      const file =
-        document.getElementById("logoFile").files[0];
-
-      if (!file) {
-
-        showMessage(
-          "Please select a logo."
-        );
-
-        return;
-      }
-
-      showMessage(
-        "Logo upload connection will be enabled next."
-      );
-
-    }
-
-
-    function uploadGallery() {
-
-      const files =
-        document.getElementById("galleryFiles").files;
-
-      if (!files.length) {
-
-        showMessage(
-          "Please select photos."
-        );
-
-        return;
-      }
-
-      showMessage(
-        files.length +
-        " photo(s) selected. Storage upload will be connected next."
-      );
-
-    }
-
-
-    function saveVideo(number) {
-
-      const id =
-        number === 1
-          ? "videoOne"
-          : "videoTwo";
-
-      const file =
-        document.getElementById(id).files[0];
-
-      if (!file) {
-
-        showMessage(
-          "Please select a video."
-        );
-
-        return;
-      }
-
-      showMessage(
-        "Video " +
-        number +
-        " selected. Storage upload will be connected next."
-      );
-
-    }
-
-
-    function saveContact() {
-
-      localStorage.setItem(
-        "nababi_contact",
-        JSON.stringify({
-          address:
-            document.getElementById("contactAddress").value,
-          phone1:
-            document.getElementById("phoneOne").value,
-          phone2:
-            document.getElementById("phoneTwo").value
-        })
-      );
-
-      showMessage("Contact saved.");
-
-    }
-
-
-    function saveSocial() {
-
-      localStorage.setItem(
-        "nababi_social",
-        JSON.stringify({
-          facebook:
-            document.getElementById("facebook").value,
-          tiktok:
-            document.getElementById("tiktok").value,
-          instagram:
-            document.getElementById("instagram").value
-        })
-      );
-
-      showMessage("Social media saved.");
-
-    }
-
-
-    function saveHours() {
-
-      const ids = [
-        "mon",
-        "tue",
-        "wed",
-        "thu",
-        "fri",
-        "sat",
-        "sun"
-      ];
-
-      const data = {};
-
-      ids.forEach(id => {
-        data[id] =
-          document.getElementById(id).value;
-      });
-
-      localStorage.setItem(
-        "nababi_hours",
-        JSON.stringify(data)
-      );
-
-      showMessage("Opening hours saved.");
-
-    }
-
-
-    /* =========================
-       LOGO PREVIEW
-    ========================= */
-
-    document
-      .getElementById("logoFile")
-      .addEventListener("change", function() {
-
-        const file = this.files[0];
-
-        if (!file) return;
-
-        const reader =
-          new FileReader();
-
-        reader.onload = function(e) {
-
-          const preview =
-            document.getElementById("logoPreview");
-
-          preview.src = e.target.result;
-
-          preview.style.display = "block";
-
-        };
-
-        reader.readAsDataURL(file);
-
-      });
-
-
-    /* =========================
-       MESSAGE
-    ========================= */
-
-    function showMessage(message) {
-
-      const box =
-        document.getElementById("message");
-
-      box.textContent = message;
-
-      box.style.display = "block";
-
-      setTimeout(() => {
-
-        box.style.display = "none";
-
-      }, 3000);
-
-    }
-
-
-    /* =========================
-       SECURITY HELPERS
-    ========================= */
-
-    function escapeHtml(value) {
-
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-    }
-
-
-    function escapeAttr(value) {
-      return escapeHtml(value);
-    }
-
-
-    /* =========================
-       START
-    ========================= */
-
-    if (initializeSupabase()) {
-      checkSession();
-    }
-
-  </script>
+</script>
 
 </body>
 </html>
