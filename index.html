@@ -1,1088 +1,729 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Nababi Ristorante | Authentic Indian Restaurant in Roma</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-
-  <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-    }
-
-    html{
-      scroll-behavior:smooth;
-    }
-
-    body{
-      font-family:Arial,Helvetica,sans-serif;
-      background:#080808;
-      color:#fff;
-      line-height:1.6;
-    }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    img{
-      max-width:100%;
-      display:block;
-    }
-
-    button,input,textarea,select{
-      font:inherit;
-    }
-
-    :root{
-      --gold:#d4af37;
-      --gold2:#f1d77a;
-      --dark:#080808;
-      --card:#121212;
-      --border:rgba(212,175,55,.28);
-      --muted:#b7b7b7;
-    }
-
-    /* HEADER */
-
-    header{
-      position:sticky;
-      top:0;
-      z-index:1000;
-      background:rgba(5,5,5,.96);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--border);
-    }
-
-    .nav{
-      max-width:1400px;
-      margin:auto;
-      min-height:78px;
-      padding:10px 25px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:180px;
-    }
-
-    .brand img{
-      width:58px;
-      height:58px;
-      object-fit:contain;
-      border-radius:50%;
-      border:1px solid var(--gold);
-      background:#111;
-    }
-
-    .brand-name{
-      color:var(--gold2);
-      font-size:20px;
-      font-weight:800;
-      letter-spacing:1px;
-    }
-
-    .brand-sub{
-      color:#aaa;
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:2px;
-    }
-
-    nav{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:20px;
-      flex-wrap:wrap;
-    }
-
-    nav a{
-      color:#eee;
-      font-size:14px;
-      transition:.25s;
-    }
-
-    nav a:hover{
-      color:var(--gold2);
-    }
-
-    .admin-btn{
-      border:1px solid var(--gold);
-      padding:9px 14px;
-      border-radius:30px;
-      color:var(--gold2);
-    }
-
-    .menu-toggle{
-      display:none;
-      background:none;
-      border:1px solid var(--gold);
-      color:var(--gold2);
-      padding:8px 12px;
-      border-radius:8px;
-    }
-
-    /* BREAKING NEWS */
-
-    .breaking{
-      background:linear-gradient(90deg,#171000,#090909,#171000);
-      border-bottom:1px solid var(--border);
-      overflow:hidden;
-    }
-
-    .breaking-inner{
-      max-width:1400px;
-      margin:auto;
-      display:flex;
-      align-items:center;
-      min-height:42px;
-    }
-
-    .breaking-label{
-      background:var(--gold);
-      color:#000;
-      font-weight:800;
-      padding:8px 15px;
-      white-space:nowrap;
-    }
-
-    .breaking-text{
-      padding:0 20px;
-      color:#eee;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    /* HERO */
-
-    .hero{
-      min-height:680px;
-      position:relative;
-      overflow:hidden;
-      background:
-        radial-gradient(circle at 20% 30%,rgba(212,175,55,.14),transparent 35%),
-        #080808;
-    }
-
-    .hero-bg{
-      position:absolute;
-      inset:0;
-      background-position:center;
-      background-size:cover;
-      opacity:.18;
-      z-index:0;
-    }
-
-    .hero-overlay{
-      position:absolute;
-      inset:0;
-      background:linear-gradient(90deg,
-        rgba(5,5,5,.97) 0%,
-        rgba(5,5,5,.88) 42%,
-        rgba(5,5,5,.25) 100%);
-      z-index:1;
-    }
-
-    .hero-inner{
-      max-width:1400px;
-      min-height:680px;
-      margin:auto;
-      padding:70px 25px;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      align-items:center;
-      gap:55px;
-      position:relative;
-      z-index:2;
-    }
-
-    .hero-content{
-      max-width:650px;
-    }
-
-    .eyebrow{
-      color:var(--gold2);
-      letter-spacing:4px;
-      text-transform:uppercase;
-      font-size:13px;
-      margin-bottom:18px;
-    }
-
-    .hero h1{
-      font-size:clamp(42px,6vw,78px);
-      line-height:1.03;
-      margin-bottom:22px;
-      font-weight:900;
-    }
-
-    .gold{
-      color:var(--gold2);
-    }
-
-    .hero p{
-      color:#d0d0d0;
-      font-size:19px;
-      max-width:600px;
-      margin-bottom:30px;
-    }
-
-    .hero-buttons{
-      display:flex;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:35px;
-      padding:13px 22px;
-      border:1px solid var(--gold);
-      cursor:pointer;
-      transition:.25s;
-      font-weight:700;
-    }
-
-    .btn-gold{
-      background:var(--gold);
-      color:#000;
-    }
-
-    .btn-gold:hover{
-      background:var(--gold2);
-      transform:translateY(-2px);
-    }
-
-    .btn-outline{
-      color:var(--gold2);
-      background:rgba(0,0,0,.25);
-    }
-
-    .btn-outline:hover{
-      background:rgba(212,175,55,.12);
-    }
-
-    /* HERO MEDIA */
-
-    .hero-media{
-      position:relative;
-      min-height:470px;
-      border:1px solid var(--border);
-      border-radius:25px;
-      overflow:hidden;
-      background:#111;
-      box-shadow:0 20px 70px rgba(0,0,0,.65);
-    }
-
-    .hero-media video,
-    .hero-media img{
-      width:100%;
-      height:100%;
-      min-height:470px;
-      object-fit:cover;
-    }
-
-    .hero-media-placeholder{
-      min-height:470px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:30px;
-      color:#999;
-      background:
-        radial-gradient(circle at center,rgba(212,175,55,.13),transparent 50%),
-        #111;
-    }
-
-    .media-badge{
-      position:absolute;
-      left:18px;
-      bottom:18px;
-      background:rgba(0,0,0,.75);
-      border:1px solid var(--border);
-      color:var(--gold2);
-      padding:7px 12px;
-      border-radius:20px;
-      font-size:12px;
-      z-index:3;
-    }
-
-    /* GENERAL */
-
-    section{
-      padding:90px 25px;
-    }
-
-    .container{
-      max-width:1250px;
-      margin:auto;
-    }
-
-    .section-head{
-      text-align:center;
-      margin-bottom:45px;
-    }
-
-    .section-head small{
-      color:var(--gold2);
-      text-transform:uppercase;
-      letter-spacing:3px;
-    }
-
-    .section-head h2{
-      font-size:42px;
-      margin-top:8px;
-    }
-
-    .section-head p{
-      color:var(--muted);
-      max-width:700px;
-      margin:10px auto 0;
-    }
-
-    /* ABOUT */
-
-    .about{
-      background:#0d0d0d;
-    }
-
-    .about-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:50px;
-      align-items:center;
-    }
-
-    .about-card{
-      border:1px solid var(--border);
-      background:linear-gradient(145deg,#151515,#0b0b0b);
-      padding:40px;
-      border-radius:22px;
-    }
-
-    .about-card h3{
-      color:var(--gold2);
-      font-size:30px;
-      margin-bottom:15px;
-    }
-
-    .about-card p{
-      color:#ccc;
-      white-space:pre-line;
-    }
-
-    .about-decoration{
-      min-height:320px;
-      border-radius:22px;
-      border:1px solid var(--border);
-      background:
-        radial-gradient(circle at 50% 50%,rgba(212,175,55,.18),transparent 40%),
-        linear-gradient(135deg,#161616,#070707);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:30px;
-    }
-
-    .about-decoration span{
-      font-size:80px;
-    }
-
-    /* MENU */
-
-    .menu-section{
-      background:#080808;
-    }
-
-    .categories{
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-bottom:35px;
-    }
-
-    .category-btn{
-      background:#111;
-      color:#ddd;
-      border:1px solid #333;
-      padding:10px 17px;
-      border-radius:30px;
-      cursor:pointer;
-    }
-
-    .category-btn.active,
-    .category-btn:hover{
-      border-color:var(--gold);
-      color:#000;
-      background:var(--gold);
-    }
-
-    .menu-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:22px;
-    }
-
-    .food-card{
-      background:#111;
-      border:1px solid #242424;
-      border-radius:18px;
-      overflow:hidden;
-      transition:.3s;
-    }
-
-    .food-card:hover{
-      transform:translateY(-5px);
-      border-color:var(--gold);
-    }
-
-    .food-image{
-      height:230px;
-      background:#181818;
-    }
-
-    .food-image img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .food-info{
-      padding:20px;
-    }
-
-    .food-top{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .food-name{
-      font-size:19px;
-      font-weight:800;
-    }
-
-    .food-price{
-      color:var(--gold2);
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .food-category{
-      color:var(--gold);
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      margin-top:4px;
-    }
-
-    .food-description{
-      color:#aaa;
-      margin-top:10px;
-      font-size:14px;
-    }
-
-    .empty{
-      text-align:center;
-      padding:50px;
-      color:#888;
-      grid-column:1/-1;
-    }
-
-    /* BOOKING */
-
-    .booking{
-      background:
-        linear-gradient(rgba(5,5,5,.88),rgba(5,5,5,.95)),
-        radial-gradient(circle at center,rgba(212,175,55,.2),transparent 55%);
-    }
-
-    .booking-box{
-      max-width:950px;
-      margin:auto;
-      background:#111;
-      border:1px solid var(--border);
-      border-radius:25px;
-      padding:35px;
-    }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:17px;
-    }
-
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:7px;
-    }
-
-    .field.full{
-      grid-column:1/-1;
-    }
-
-    .field label{
-      color:#bbb;
-      font-size:13px;
-    }
-
-    .field input,
-    .field textarea,
-    .field select{
-      background:#080808;
-      border:1px solid #333;
-      color:#fff;
-      border-radius:10px;
-      padding:12px;
-      outline:none;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus{
-      border-color:var(--gold);
-    }
-
-    textarea{
-      min-height:110px;
-      resize:vertical;
-    }
-
-    .form-message{
-      margin-top:15px;
-      color:var(--gold2);
-    }
-
-    /* VIDEO */
-
-    .video-section{
-      background:#0d0d0d;
-    }
-
-    .video-box{
-      max-width:1100px;
-      margin:auto;
-      border:1px solid var(--border);
-      border-radius:25px;
-      overflow:hidden;
-      background:#111;
-      min-height:450px;
-    }
-
-    .video-box video{
-      width:100%;
-      height:600px;
-      object-fit:cover;
-      display:block;
-    }
-
-    .video-placeholder{
-      min-height:450px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      color:#777;
-      text-align:center;
-      padding:30px;
-    }
-
-    /* GALLERY */
-
-    .gallery{
-      background:#080808;
-    }
-
-    .gallery-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:15px;
-    }
-
-    .gallery-item{
-      height:250px;
-      overflow:hidden;
-      border-radius:15px;
-      border:1px solid #222;
-      background:#111;
-      position:relative;
-    }
-
-    .gallery-item img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      transition:.4s;
-    }
-
-    .gallery-item:hover img{
-      transform:scale(1.07);
-    }
-
-    .gallery-title{
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      padding:10px;
-      background:linear-gradient(transparent,rgba(0,0,0,.85));
-      color:#fff;
-      font-size:13px;
-    }
-
-    /* REVIEWS */
-
-    .reviews{
-      background:#0d0d0d;
-    }
-
-    .review-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:20px;
-    }
-
-    .review-card{
-      background:#111;
-      border:1px solid #272727;
-      border-radius:18px;
-      padding:25px;
-    }
-
-    .stars{
-      color:var(--gold2);
-      letter-spacing:3px;
-      margin-bottom:10px;
-    }
-
-    .review-card p{
-      color:#ccc;
-    }
-
-    .review-name{
-      margin-top:15px;
-      color:var(--gold2);
-      font-weight:700;
-    }
-
-    /* REPORT */
-
-    .report{
-      background:#080808;
-    }
-
-    .report-box{
-      max-width:850px;
-      margin:auto;
-      background:#111;
-      border:1px solid var(--border);
-      border-radius:22px;
-      padding:35px;
-    }
-
-    /* CONTACT */
-
-    .contact{
-      background:#0d0d0d;
-    }
-
-    .contact-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:25px;
-    }
-
-    .contact-card{
-      background:#111;
-      border:1px solid #292929;
-      border-radius:18px;
-      padding:28px;
-    }
-
-    .contact-card h3{
-      color:var(--gold2);
-      margin-bottom:18px;
-    }
-
-    .contact-line{
-      margin:12px 0;
-      color:#ccc;
-    }
-
-    .contact-line strong{
-      color:#fff;
-    }
-
-    .map{
-      width:100%;
-      min-height:380px;
-      border:0;
-      border-radius:18px;
-      margin-top:20px;
-    }
-
-    /* SOCIAL */
-
-    .social{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:20px;
-    }
-
-    .social a{
-      border:1px solid var(--border);
-      padding:9px 14px;
-      border-radius:25px;
-      color:var(--gold2);
-    }
-
-    /* HOURS */
-
-    .hours{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px 30px;
-    }
-
-    .hour-row{
-      display:flex;
-      justify-content:space-between;
-      border-bottom:1px solid #292929;
-      padding:9px 0;
-      color:#ccc;
-    }
-
-    .hour-row span:last-child{
-      color:var(--gold2);
-    }
-
-    /* FOOTER */
-
-    footer{
-      background:#050505;
-      border-top:1px solid var(--border);
-      padding:45px 25px;
-      text-align:center;
-    }
-
-    footer .footer-logo{
-      width:70px;
-      height:70px;
-      object-fit:contain;
-      border-radius:50%;
-      border:1px solid var(--gold);
-      margin:0 auto 12px;
-    }
-
-    footer h3{
-      color:var(--gold2);
-      font-size:22px;
-    }
-
-    footer p{
-      color:#777;
-      margin-top:8px;
-    }
-
-    .footer-copy{
-      margin-top:20px;
-      font-size:12px;
-    }
-
-    /* TOAST */
-
-    .toast{
-      position:fixed;
-      right:20px;
-      bottom:20px;
-      z-index:5000;
-      background:#151515;
-      color:#fff;
-      border:1px solid var(--gold);
-      padding:13px 18px;
-      border-radius:10px;
-      transform:translateY(120px);
-      opacity:0;
-      transition:.3s;
-    }
-
-    .toast.show{
-      transform:translateY(0);
-      opacity:1;
-    }
-
-    /* RESPONSIVE */
-
-    @media(max-width:1000px){
-
-      nav{
-        gap:12px;
-      }
-
-      .hero-inner{
-        grid-template-columns:1fr;
-      }
-
-      .hero-media{
-        min-height:400px;
-      }
-
-      .hero-media video,
-      .hero-media img{
-        min-height:400px;
-      }
-
-      .menu-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .gallery-grid{
-        grid-template-columns:repeat(3,1fr);
-      }
-
-      .review-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
-
-    @media(max-width:760px){
-
-      .nav{
-        min-height:70px;
-        padding:8px 15px;
-      }
-
-      .brand-name{
-        font-size:17px;
-      }
-
-      .brand-sub{
-        font-size:9px;
-      }
-
-      .brand img{
-        width:48px;
-        height:48px;
-      }
-
-      .menu-toggle{
-        display:block;
-      }
-
-      nav{
-        display:none;
-        position:absolute;
-        top:70px;
-        left:0;
-        right:0;
-        background:#090909;
-        padding:15px;
-        border-bottom:1px solid var(--border);
-        flex-direction:column;
-      }
-
-      nav.open{
-        display:flex;
-      }
-
-      nav a{
-        width:100%;
-        text-align:center;
-        padding:8px;
-      }
-
-      .breaking-label{
-        font-size:12px;
-      }
-
-      .breaking-text{
-        font-size:12px;
-      }
-
-      .hero{
-        min-height:auto;
-      }
-
-      .hero-inner{
-        min-height:auto;
-        padding:55px 18px;
-        gap:30px;
-      }
-
-      .hero h1{
-        font-size:43px;
-      }
-
-      .hero p{
-        font-size:16px;
-      }
-
-      .hero-media{
-        min-height:330px;
-        border-radius:18px;
-      }
-
-      .hero-media video,
-      .hero-media img{
-        min-height:330px;
-      }
-
-      section{
-        padding:65px 18px;
-      }
-
-      .section-head h2{
-        font-size:34px;
-      }
-
-      .about-grid,
-      .contact-grid{
-        grid-template-columns:1fr;
-      }
-
-      .menu-grid{
-        grid-template-columns:1fr;
-      }
-
-      .gallery-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .gallery-item{
-        height:180px;
-      }
-
-      .review-grid{
-        grid-template-columns:1fr;
-      }
-
-      .form-grid{
-        grid-template-columns:1fr;
-      }
-
-      .field.full{
-        grid-column:auto;
-      }
-
-      .hours{
-        grid-template-columns:1fr;
-      }
-
-      .video-box video{
-        height:350px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nababi Ristorante</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:#070707;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+a{text-decoration:none;color:inherit}
+button,input,textarea,select{font:inherit}
+:root{
+  --gold:#d6ad45;
+  --gold2:#f3d47b;
+  --black:#070707;
+  --card:#111;
+  --line:rgba(214,173,69,.25);
+  --muted:#aaa;
+}
+
+/* TOP HEADER */
+.top{
+  background:#050505;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+.top-inner{
+  max-width:1450px;
+  margin:auto;
+  min-height:86px;
+  padding:10px 25px;
+  display:flex;
+  align-items:center;
+  gap:22px;
+}
+.logo{
+  width:62px;
+  height:62px;
+  object-fit:contain;
+  border-radius:50%;
+  border:1px solid var(--gold);
+  background:#111;
+}
+.brand{
+  color:var(--gold2);
+  font-weight:900;
+  letter-spacing:2px;
+  font-size:21px;
+  white-space:nowrap;
+}
+.nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+.nav a{
+  font-size:14px;
+  color:#eee;
+}
+.nav a:hover{color:var(--gold2)}
+
+.langs{
+  display:flex;
+  gap:5px;
+  border-left:1px solid #333;
+  padding-left:15px;
+}
+.lang{
+  background:#111;
+  color:#ddd;
+  border:1px solid #333;
+  padding:7px 9px;
+  border-radius:7px;
+  cursor:pointer;
+}
+.lang.active{
+  color:#000;
+  background:var(--gold);
+  border-color:var(--gold);
+}
+.admin{
+  border:1px solid var(--gold)!important;
+  padding:8px 13px;
+  border-radius:20px;
+  color:var(--gold2)!important;
+}
+.menuBtn{
+  display:none;
+  margin-left:auto;
+  background:#111;
+  color:var(--gold2);
+  border:1px solid var(--gold);
+  border-radius:8px;
+  padding:9px 12px;
+}
+
+/* INFO STRIP */
+.info{
+  background:#101010;
+  border-bottom:1px solid #222;
+}
+.info-inner{
+  max-width:1450px;
+  margin:auto;
+  min-height:48px;
+  padding:7px 25px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+.info-items{
+  display:flex;
+  gap:25px;
+  flex-wrap:wrap;
+}
+.info-item{
+  color:#ccc;
+  font-size:13px;
+}
+.info-item b{color:var(--gold2)}
+
+/* BREAKING */
+.breaking{
+  display:none;
+  background:linear-gradient(90deg,#241900,#0d0d0d,#241900);
+  border-bottom:1px solid var(--gold);
+}
+.breaking.show{display:block}
+.breaking-inner{
+  max-width:1450px;
+  margin:auto;
+  padding:8px 25px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+.breaking-label{
+  background:var(--gold);
+  color:#000;
+  font-weight:900;
+  padding:7px 12px;
+  border-radius:5px;
+}
+.breaking-content{
+  flex:1;
+  color:#fff;
+}
+.breaking-video{
+  width:250px;
+  height:100px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid var(--gold);
+  display:none;
+}
+.breaking-video.show{display:block}
+
+/* HERO */
+.hero{
+  min-height:680px;
+  position:relative;
+  overflow:hidden;
+  background:#080808;
+}
+.hero-bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:.22;
+}
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,#050505 5%,rgba(5,5,5,.86) 42%,rgba(5,5,5,.25));
+}
+.hero-inner{
+  position:relative;
+  z-index:2;
+  max-width:1450px;
+  margin:auto;
+  min-height:680px;
+  padding:70px 25px;
+  display:grid;
+  grid-template-columns:1fr 1.05fr;
+  align-items:center;
+  gap:50px;
+}
+.hero-title{
+  font-size:clamp(45px,6vw,82px);
+  line-height:1;
+  font-weight:900;
+}
+.gold{color:var(--gold2)}
+.hero-text{
+  max-width:650px;
+  margin:25px 0;
+  color:#ccc;
+  font-size:19px;
+}
+.buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.btn{
+  border:1px solid var(--gold);
+  border-radius:30px;
+  padding:13px 22px;
+  cursor:pointer;
+  font-weight:800;
+}
+.goldBtn{
+  background:var(--gold);
+  color:#000;
+}
+.outlineBtn{
+  background:#111;
+  color:var(--gold2);
+}
+.hero-media{
+  height:510px;
+  border:1px solid var(--gold);
+  border-radius:25px;
+  overflow:hidden;
+  background:#111;
+  box-shadow:0 25px 80px #000;
+}
+.hero-media img,
+.hero-media video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.placeholder{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#777;
+  padding:30px;
+}
+
+/* GENERAL */
+section{padding:90px 25px}
+.container{max-width:1250px;margin:auto}
+.heading{text-align:center;margin-bottom:45px}
+.heading small{
+  color:var(--gold2);
+  text-transform:uppercase;
+  letter-spacing:4px;
+}
+.heading h2{
+  font-size:44px;
+  margin-top:8px;
+}
+.heading p{
+  color:var(--muted);
+  margin:10px auto;
+  max-width:750px;
+}
+
+/* ABOUT */
+.about{background:#0d0d0d}
+.about-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:35px;
+}
+.about-media{
+  min-height:390px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  overflow:hidden;
+  background:#111;
+}
+.about-media img,
+.about-media video{
+  width:100%;
+  height:100%;
+  min-height:390px;
+  object-fit:cover;
+}
+.about-text{
+  background:#111;
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:40px;
+}
+.about-text h3{
+  color:var(--gold2);
+  font-size:30px;
+  margin-bottom:18px;
+}
+.about-text p{
+  color:#ccc;
+  white-space:pre-line;
+}
+
+/* MENU */
+.menu{
+  background:#070707;
+}
+.categories{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:40px;
+}
+.cat{
+  background:#111;
+  color:#ddd;
+  border:1px solid #333;
+  padding:10px 18px;
+  border-radius:25px;
+  cursor:pointer;
+}
+.cat.active{
+  background:var(--gold);
+  color:#000;
+  border-color:var(--gold);
+}
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:22px;
+}
+.food{
+  background:#111;
+  border:1px solid #242424;
+  border-radius:18px;
+  overflow:hidden;
+}
+.food-img{
+  height:230px;
+  background:#181818;
+}
+.food-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.food-body{padding:20px}
+.food-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+.food-name{font-size:19px;font-weight:800}
+.price{color:var(--gold2);font-weight:800}
+.food-desc{
+  color:#aaa;
+  margin-top:9px;
+  font-size:14px;
+}
+
+/* GALLERY */
+.gallery{background:#0d0d0d}
+.gallery-preview{
+  max-width:750px;
+  height:430px;
+  margin:auto;
+  position:relative;
+  border-radius:22px;
+  overflow:hidden;
+  border:1px solid var(--gold);
+}
+.gallery-preview img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.gallery-view{
+  text-align:center;
+  margin-top:20px;
+}
+.all-gallery{
+  display:none;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-top:25px;
+}
+.all-gallery.open{display:grid}
+.g-item{
+  height:220px;
+  overflow:hidden;
+  border-radius:14px;
+}
+.g-item img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* REPORT */
+.report{background:#070707}
+.report-card,
+.booking-card{
+  max-width:900px;
+  margin:auto;
+  background:#111;
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:35px;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.field{display:flex;flex-direction:column;gap:7px}
+.full{grid-column:1/-1}
+.field label{color:#aaa;font-size:13px}
+.field input,
+.field textarea,
+.field select{
+  background:#080808;
+  color:#fff;
+  border:1px solid #333;
+  border-radius:9px;
+  padding:12px;
+  outline:none;
+}
+.field textarea{min-height:120px;resize:vertical}
+.field input:focus,
+.field textarea:focus,
+.field select:focus{border-color:var(--gold)}
+.message{
+  margin-top:15px;
+  color:var(--gold2);
+}
+
+/* REVIEWS */
+.reviews{background:#0d0d0d}
+.review-slider{
+  max-width:850px;
+  margin:auto;
+}
+.review{
+  display:none;
+  background:#111;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:35px;
+  text-align:center;
+}
+.review.active{display:block}
+.stars{color:var(--gold2);font-size:22px}
+.review-message{
+  color:#ddd;
+  margin:18px 0;
+  font-size:18px;
+}
+.review-name{color:var(--gold2);font-weight:bold}
+
+/* BOOKING */
+.booking{background:#080808}
+
+/* CONTACT */
+.contact{background:#0d0d0d}
+.contact-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:25px;
+}
+.contact-card{
+  background:#111;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:30px;
+}
+.contact-card h3{
+  color:var(--gold2);
+  margin-bottom:20px;
+}
+.contact-line{
+  color:#ccc;
+  padding:10px 0;
+  border-bottom:1px solid #252525;
+}
+.contact-line b{color:#fff}
+.social{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:20px;
+}
+.social a{
+  border:1px solid var(--gold);
+  color:var(--gold2);
+  padding:9px 14px;
+  border-radius:20px;
+}
+.hours{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 25px;
+}
+.hour{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #252525;
+  padding:9px 0;
+  color:#ccc;
+}
+.hour span:last-child{color:var(--gold2)}
+.map{
+  width:100%;
+  height:400px;
+  border:0;
+  border-radius:20px;
+  margin-top:25px;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:45px 20px;
+  background:#050505;
+  border-top:1px solid var(--line);
+}
+.footer-logo{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  border:1px solid var(--gold);
+  border-radius:50%;
+  margin:auto;
+}
+footer h3{
+  color:var(--gold2);
+  margin-top:12px;
+}
+footer p{color:#777;margin-top:7px}
+
+/* MOBILE */
+@media(max-width:1050px){
+  .nav a{display:none}
+  .menuBtn{display:block}
+  .nav.mobile{
+    position:absolute;
+    top:86px;
+    left:0;
+    right:0;
+    background:#080808;
+    border-bottom:1px solid var(--gold);
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .nav.mobile a{display:block;padding:10px;text-align:center}
+  .hero-inner{grid-template-columns:1fr}
+  .menu-grid{grid-template-columns:repeat(2,1fr)}
+  .all-gallery{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .top-inner{padding:8px 14px}
+  .logo{width:52px;height:52px}
+  .brand{font-size:16px}
+  .info-inner{padding:7px 14px}
+  .info-items{gap:10px}
+  .info-item{font-size:11px}
+  .breaking-inner{padding:8px 14px}
+  .breaking-video{width:100px;height:60px}
+  .hero-inner{padding:50px 17px}
+  .hero-media{height:350px}
+  .hero-title{font-size:45px}
+  section{padding:65px 17px}
+  .heading h2{font-size:34px}
+  .about-grid,
+  .contact-grid{grid-template-columns:1fr}
+  .menu-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .gallery-preview{height:300px}
+  .all-gallery{grid-template-columns:1fr 1fr}
+  .g-item{height:150px}
+  .hours{grid-template-columns:1fr}
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <div class="nav">
+<!-- HEADER -->
 
-    <a href="#home" class="brand">
-      <img id="headerLogo" src="" alt="Nababi Ristorante">
-      <div>
-        <div class="brand-name">NABABI RISTORANTE</div>
-        <div class="brand-sub">Authentic Indian Cuisine</div>
+<header class="top">
+  <div class="top-inner">
+
+    <img id="logo" class="logo" src="" alt="Nababi Ristorante">
+
+    <div class="brand">NABABI RISTORANTE</div>
+
+    <button class="menuBtn" onclick="toggleNav()">☰</button>
+
+    <nav id="nav" class="nav">
+
+      <a href="#home" data-i="home">Home</a>
+      <a href="#about" data-i="about">About</a>
+      <a href="#menu" data-i="menu">Menu</a>
+      <a href="#gallery" data-i="gallery">Gallery</a>
+      <a href="#booking" data-i="booking">Booking</a>
+      <a href="#contact" data-i="contact">Contact</a>
+
+      <a href="admin.html" class="admin" data-i="admin">Admin Login</a>
+
+      <div class="langs">
+        <button class="lang active" onclick="changeLanguage('it')">🇮🇹</button>
+        <button class="lang" onclick="changeLanguage('en')">🇬🇧</button>
+        <button class="lang" onclick="changeLanguage('bn')">🇧🇩</button>
       </div>
-    </a>
 
-    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-
-    <nav id="mainNav">
-      <a href="#home">Home</a>
-      <a href="#about">About</a>
-      <a href="#menu">Menu</a>
-      <a href="#booking">Table Booking</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#contact">Contact</a>
-      <a href="admin.html" class="admin-btn">Admin Login</a>
     </nav>
 
   </div>
 </header>
 
-<!-- BREAKING NEWS -->
+<!-- CONTACT INFO -->
 
-<div class="breaking" id="breakingBar">
-  <div class="breaking-inner">
-    <div class="breaking-label">NEWS</div>
-    <div class="breaking-text" id="breakingText">
-      Welcome to Nababi Ristorante
+<div class="info">
+  <div class="info-inner">
+    <div class="info-items">
+
+      <div class="info-item">
+        📍 <b id="addressTop">Via Vespasiano 73/75/77 Roma</b>
+      </div>
+
+      <div class="info-item">
+        📞 <b id="phoneTop">+39 333 7687319</b>
+      </div>
+
+      <div class="info-item">
+        💬 <b id="whatsappTop">+39 333 7687319</b>
+      </div>
+
     </div>
   </div>
+</div>
+
+<!-- BREAKING NEWS -->
+
+<div id="breaking" class="breaking">
+
+  <div class="breaking-inner">
+
+    <div class="breaking-label" data-i="breaking">BREAKING NEWS</div>
+
+    <div class="breaking-content">
+      <strong id="breakingText"></strong>
+    </div>
+
+    <video id="breakingVideo"
+      class="breaking-video"
+      muted
+      autoplay
+      loop
+      playsinline>
+    </video>
+
+  </div>
+
 </div>
 
 <!-- HERO -->
 
 <section class="hero" id="home">
 
-  <div class="hero-bg" id="heroBackground"></div>
+  <div id="heroBg" class="hero-bg"></div>
   <div class="hero-overlay"></div>
 
   <div class="hero-inner">
 
-    <div class="hero-content">
+    <div>
 
-      <div class="eyebrow">Welcome to Nababi Ristorante</div>
+      <div style="color:var(--gold2);letter-spacing:4px;margin-bottom:18px">
+        NABABI RISTORANTE
+      </div>
 
-      <h1 id="heroTitle">
-        Taste the <span class="gold">Royal Flavours</span> of India
+      <h1 id="heroTitle" class="hero-title">
+        Il Gusto Reale dell'India
       </h1>
 
-      <p id="heroText">
-        Authentic Indian cuisine in the heart of Roma.
+      <p id="heroText" class="hero-text">
+        Autentica cucina indiana nel cuore di Roma.
       </p>
 
-      <div class="hero-buttons">
-        <a href="#booking" class="btn btn-gold">
-          Book a Table
+      <div class="buttons">
+
+        <a href="#booking" class="btn goldBtn" data-i="bookTable">
+          Prenota un Tavolo
         </a>
 
-        <a href="#menu" class="btn btn-outline">
-          Explore Menu
+        <a href="#menu" class="btn outlineBtn" data-i="viewMenu">
+          Guarda il Menu
         </a>
+
       </div>
 
     </div>
 
-    <!-- RIGHT VIDEO / PHOTO AREA -->
+    <!-- RIGHT MEDIA -->
 
-    <div class="hero-media" id="heroMedia">
-
-      <div class="hero-media-placeholder">
+    <div id="heroMedia" class="hero-media">
+      <div class="placeholder">
         <div>
-          <div style="font-size:55px;margin-bottom:10px;">🍽️</div>
-          <h3 style="color:#ddd;">Nababi Ristorante</h3>
-          <p style="color:#777;">
-            Your restaurant video or photo will appear here.
-          </p>
+          <div style="font-size:65px">🍛</div>
+          <h2>Nababi Ristorante</h2>
         </div>
       </div>
-
-      <div class="media-badge">NABABI RISTORANTE</div>
-
     </div>
 
   </div>
@@ -1090,31 +731,24 @@
 
 <!-- ABOUT -->
 
-<section class="about" id="about">
+<section id="about" class="about">
 
   <div class="container">
 
-    <div class="section-head">
-      <small>Discover Us</small>
-      <h2>About Us</h2>
+    <div class="heading">
+      <small data-i="discover">Scopri</small>
+      <h2 data-i="about">About Nababi</h2>
     </div>
 
     <div class="about-grid">
 
-      <div class="about-card">
-        <h3 id="aboutTitle">About Nababi Ristorante</h3>
-        <p id="aboutText">
-          Experience authentic Indian flavours in the heart of Roma.
-        </p>
+      <div id="aboutMedia" class="about-media">
+        <div class="placeholder">Nababi</div>
       </div>
 
-      <div class="about-decoration">
-        <div>
-          <span>👑</span>
-          <h3 style="color:var(--gold2);margin-top:10px;">
-            Royal Indian Experience
-          </h3>
-        </div>
+      <div class="about-text">
+        <h3 id="aboutTitle">Nababi Ristorante</h3>
+        <p id="aboutText"></p>
       </div>
 
     </div>
@@ -1125,65 +759,170 @@
 
 <!-- MENU -->
 
-<section class="menu-section" id="menu">
+<section id="menu" class="menu">
 
   <div class="container">
 
-    <div class="section-head">
-      <small>Our Cuisine</small>
-      <h2>Our Menu</h2>
-      <p>
-        Discover our selection of authentic Indian dishes.
+    <div class="heading">
+      <small data-i="ourCuisine">La Nostra Cucina</small>
+      <h2 data-i="ourMenu">Il Nostro Menu</h2>
+      <p data-i="chooseCategory">
+        Scegli una categoria per vedere i piatti.
       </p>
     </div>
 
-    <div class="categories" id="categories"></div>
+    <div id="categories" class="categories"></div>
 
-    <div class="menu-grid" id="menuGrid">
-      <div class="empty">Loading menu...</div>
+    <div id="menuGrid" class="menu-grid"></div>
+
+  </div>
+
+</section>
+
+<!-- GALLERY -->
+
+<section id="gallery" class="gallery">
+
+  <div class="container">
+
+    <div class="heading">
+      <small data-i="moments">Momenti</small>
+      <h2 data-i="gallery">Gallery</h2>
+    </div>
+
+    <div id="galleryPreview" class="gallery-preview">
+      <div class="placeholder">Gallery</div>
+    </div>
+
+    <div class="gallery-view">
+      <button id="galleryBtn"
+        class="btn goldBtn"
+        onclick="toggleGallery()"
+        data-i="viewAll">
+        Guarda tutte le foto
+      </button>
+    </div>
+
+    <div id="allGallery" class="all-gallery"></div>
+
+  </div>
+
+</section>
+
+<!-- REVIEWS -->
+
+<section class="reviews">
+
+  <div class="container">
+
+    <div class="heading">
+      <small data-i="guestReviews">Recensioni</small>
+      <h2 data-i="customerReviews">Customer Reviews</h2>
+    </div>
+
+    <div id="reviewSlider" class="review-slider"></div>
+
+  </div>
+
+</section>
+
+<!-- REPORT -->
+
+<section class="report">
+
+  <div class="container">
+
+    <div class="heading">
+      <small data-i="feedbackSmall">La tua opinione conta</small>
+      <h2 data-i="reportTitle">Report / Feedback</h2>
+    </div>
+
+    <div class="report-card">
+
+      <form id="reportForm">
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label data-i="name">Nome</label>
+            <input id="reportName">
+          </div>
+
+          <div class="field">
+            <label data-i="phone">Telefono</label>
+            <input id="reportPhone">
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input id="reportEmail" type="email">
+          </div>
+
+          <div class="field">
+            <label data-i="subject">Oggetto</label>
+            <input id="reportSubject">
+          </div>
+
+          <div class="field full">
+            <label data-i="message">Messaggio</label>
+            <textarea id="reportMessage" required></textarea>
+          </div>
+
+          <div class="field full">
+            <button class="btn goldBtn" type="submit" data-i="send">
+              Invia
+            </button>
+          </div>
+
+        </div>
+
+      </form>
+
+      <div id="reportResult" class="message"></div>
+
     </div>
 
   </div>
 
 </section>
 
-<!-- TABLE BOOKING -->
+<!-- BOOKING -->
 
-<section class="booking" id="booking">
+<section id="booking" class="booking">
 
   <div class="container">
 
-    <div class="section-head">
-      <small>Reserve Your Table</small>
-      <h2>Table Booking</h2>
-      <p>
-        Book your table at Nababi Ristorante.
+    <div class="heading">
+      <small data-i="reserve">Prenotazione</small>
+      <h2 data-i="bookTitle">Prenota il tuo Tavolo</h2>
+      <p data-i="bookingText">
+        Inserisci i tuoi dati per richiedere una prenotazione.
       </p>
     </div>
 
-    <div class="booking-box">
+    <div class="booking-card">
 
       <form id="bookingForm">
 
         <div class="form-grid">
 
           <div class="field">
-            <label>Full Name *</label>
+            <label data-i="name">Nome *</label>
             <input id="bookingName" required>
           </div>
 
           <div class="field">
-            <label>Phone *</label>
+            <label data-i="phone">Telefono *</label>
             <input id="bookingPhone" required>
           </div>
 
           <div class="field">
             <label>Email</label>
-            <input type="email" id="bookingEmail">
+            <input id="bookingEmail" type="email">
           </div>
 
           <div class="field">
-            <label>Guests *</label>
+            <label data-i="guests">Persone *</label>
             <select id="bookingGuests">
               <option>1</option>
               <option selected>2</option>
@@ -1199,177 +938,43 @@
           </div>
 
           <div class="field">
-            <label>Date *</label>
-            <input type="date" id="bookingDate" required>
+            <label data-i="date">Data *</label>
+            <input id="bookingDate" type="date" required>
           </div>
 
           <div class="field">
-            <label>Time *</label>
-            <input type="time" id="bookingTime" required>
+            <label data-i="time">Ora *</label>
+            <input id="bookingTime" type="time" required>
           </div>
 
           <div class="field full">
-            <label>Special Request</label>
-            <textarea id="bookingRequest"></textarea>
+            <label data-i="details">Dettagli / Richiesta speciale</label>
+            <textarea id="bookingDetails"></textarea>
           </div>
 
           <div class="field full">
-            <button class="btn btn-gold" type="submit">
-              Confirm Booking Request
+
+            <button class="btn goldBtn" type="submit" data-i="sendBooking">
+              Invia richiesta di prenotazione
             </button>
+
           </div>
 
         </div>
 
       </form>
 
-      <div class="form-message" id="bookingMessage"></div>
+      <div id="bookingResult" class="message"></div>
 
-    </div>
-
-  </div>
-
-</section>
-
-<!-- VIDEO 1 -->
-
-<section class="video-section" id="videoSection1">
-
-  <div class="container">
-
-    <div class="section-head">
-      <small>Experience Nababi</small>
-      <h2>Our Restaurant</h2>
-    </div>
-
-    <div class="video-box" id="videoBox1">
-      <div class="video-placeholder">
-        Video 1 will appear here when added from Admin Panel.
+      <div style="margin-top:25px;padding:18px;background:#090909;border:1px solid #333;border-radius:12px;color:#999">
+        <strong style="color:var(--gold2)" data-i="securityTitle">
+          Sicurezza prenotazione
+        </strong>
+        <br>
+        <span data-i="securityText">
+          Dopo l'attivazione della verifica OTP potrai modificare o cancellare la tua prenotazione usando il codice ricevuto sul tuo telefono.
+        </span>
       </div>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- GALLERY -->
-
-<section class="gallery" id="gallery">
-
-  <div class="container">
-
-    <div class="section-head">
-      <small>Moments</small>
-      <h2>Gallery</h2>
-      <p>
-        Explore moments from Nababi Ristorante.
-      </p>
-    </div>
-
-    <div class="gallery-grid" id="galleryGrid">
-      <div class="empty">Loading gallery...</div>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- VIDEO 2 -->
-
-<section class="video-section" id="videoSection2">
-
-  <div class="container">
-
-    <div class="section-head">
-      <small>More From Nababi</small>
-      <h2>Our Experience</h2>
-    </div>
-
-    <div class="video-box" id="videoBox2">
-      <div class="video-placeholder">
-        Video 2 will appear here when added from Admin Panel.
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- REVIEWS -->
-
-<section class="reviews" id="reviews">
-
-  <div class="container">
-
-    <div class="section-head">
-      <small>Guest Experience</small>
-      <h2>Reviews</h2>
-    </div>
-
-    <div class="review-grid" id="reviewGrid">
-      <div class="empty">Loading reviews...</div>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- REPORT -->
-
-<section class="report" id="report">
-
-  <div class="container">
-
-    <div class="section-head">
-      <small>We Listen</small>
-      <h2>Report / Feedback</h2>
-      <p>
-        Your feedback helps us improve.
-      </p>
-    </div>
-
-    <div class="report-box">
-
-      <form id="reportForm">
-
-        <div class="form-grid">
-
-          <div class="field">
-            <label>Name</label>
-            <input id="reportName">
-          </div>
-
-          <div class="field">
-            <label>Phone</label>
-            <input id="reportPhone">
-          </div>
-
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="reportEmail">
-          </div>
-
-          <div class="field">
-            <label>Subject</label>
-            <input id="reportSubject">
-          </div>
-
-          <div class="field full">
-            <label>Message *</label>
-            <textarea id="reportMessage" required></textarea>
-          </div>
-
-          <div class="field full">
-            <button class="btn btn-gold" type="submit">
-              Send Feedback
-            </button>
-          </div>
-
-        </div>
-
-      </form>
-
-      <div class="form-message" id="reportMessageBox"></div>
 
     </div>
 
@@ -1379,13 +984,13 @@
 
 <!-- CONTACT -->
 
-<section class="contact" id="contact">
+<section id="contact" class="contact">
 
   <div class="container">
 
-    <div class="section-head">
-      <small>Visit Us</small>
-      <h2>Contact</h2>
+    <div class="heading">
+      <small data-i="visit">Vieni a trovarci</small>
+      <h2 data-i="contact">Contact</h2>
     </div>
 
     <div class="contact-grid">
@@ -1395,43 +1000,36 @@
         <h3>Nababi Ristorante</h3>
 
         <div class="contact-line">
-          📍 <strong>Address</strong><br>
-          <span id="contactAddress">
-            Via Vespasiano 73/75/77 Roma
-          </span>
+          📍 <b data-i="address">Indirizzo</b><br>
+          <span id="address"></span>
         </div>
 
         <div class="contact-line">
-          📞 <strong>Phone</strong><br>
-          <span id="contactPhone1"></span>
+          📞 <b data-i="phone">Telefono</b><br>
+          <span id="phone"></span>
         </div>
 
         <div class="contact-line">
-          📞 <strong>Phone 2</strong><br>
-          <span id="contactPhone2"></span>
+          💬 <b>WhatsApp</b><br>
+          <span id="whatsapp"></span>
         </div>
 
-        <div class="contact-line">
-          💬 <strong>WhatsApp</strong><br>
-          <span id="contactWhatsApp"></span>
-        </div>
-
-        <div class="social" id="socialLinks"></div>
+        <div id="social" class="social"></div>
 
       </div>
 
       <div class="contact-card">
 
-        <h3>Opening Hours</h3>
+        <h3 data-i="hours">Opening Hours</h3>
 
-        <div class="hours" id="hoursList"></div>
+        <div id="hours" class="hours"></div>
 
       </div>
 
     </div>
 
     <iframe
-      id="mapFrame"
+      id="map"
       class="map"
       loading="lazy"
       src="https://www.google.com/maps?q=Via%20Vespasiano%2073%2F75%2F77%20Roma&output=embed">
@@ -1441,743 +1039,907 @@
 
 </section>
 
-<!-- FOOTER -->
-
 <footer>
 
-  <img id="footerLogo" class="footer-logo" src="" alt="Nababi Ristorante">
+  <img id="footerLogo" class="footer-logo" src="" alt="Nababi">
 
   <h3>NABABI RISTORANTE</h3>
 
-  <p>
-    Authentic Indian Cuisine in the Heart of Roma
-  </p>
+  <p>Authentic Indian Cuisine • Roma</p>
 
-  <p class="footer-copy">
-    © <span id="year"></span> Nababi Ristorante. All Rights Reserved.
+  <p>
+    © <span id="year"></span> Nababi Ristorante
   </p>
 
 </footer>
 
-<div class="toast" id="toast"></div>
-
 <script>
 
-  const supabaseClient = window.supabase.createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_ANON_KEY
-  );
+const db = window.supabase.createClient(
+  window.SUPABASE_URL,
+  window.SUPABASE_ANON_KEY
+);
+
+let settings = {};
+let menu = [];
+let categories = [];
+let gallery = [];
+let reviews = [];
+let currentCategory = null;
+let currentLang = localStorage.getItem("nababi_language") || "it";
+let reviewIndex = 0;
+
+const fallbackLogo =
+"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=300&q=80";
+
+const T = {
+
+it:{
+home:"Home",
+about:"About",
+menu:"Menu",
+gallery:"Gallery",
+booking:"Prenotazione",
+contact:"Contatti",
+admin:"Admin Login",
+breaking:"BREAKING NEWS",
+bookTable:"Prenota un Tavolo",
+viewMenu:"Guarda il Menu",
+discover:"Scopri",
+ourCuisine:"La Nostra Cucina",
+ourMenu:"Il Nostro Menu",
+chooseCategory:"Scegli una categoria per vedere i piatti.",
+moments:"Momenti",
+viewAll:"Guarda tutte le foto",
+guestReviews:"Recensioni",
+customerReviews:"Customer Reviews",
+feedbackSmall:"La tua opinione conta",
+reportTitle:"Report / Feedback",
+name:"Nome",
+phone:"Telefono",
+subject:"Oggetto",
+message:"Messaggio",
+send:"Invia",
+reserve:"Prenotazione",
+bookTitle:"Prenota il tuo Tavolo",
+bookingText:"Inserisci i tuoi dati per richiedere una prenotazione.",
+guests:"Persone",
+date:"Data",
+time:"Ora",
+details:"Dettagli / Richiesta speciale",
+sendBooking:"Invia richiesta di prenotazione",
+securityTitle:"Sicurezza prenotazione",
+securityText:"Dopo l'attivazione della verifica OTP potrai modificare o cancellare la tua prenotazione usando il codice ricevuto sul tuo telefono.",
+visit:"Vieni a trovarci",
+address:"Indirizzo",
+hours:"Orari di apertura"
+},
+
+en:{
+home:"Home",
+about:"About",
+menu:"Menu",
+gallery:"Gallery",
+booking:"Booking",
+contact:"Contact",
+admin:"Admin Login",
+breaking:"BREAKING NEWS",
+bookTable:"Book a Table",
+viewMenu:"View Menu",
+discover:"Discover",
+ourCuisine:"Our Cuisine",
+ourMenu:"Our Menu",
+chooseCategory:"Choose a category to see the dishes.",
+moments:"Moments",
+viewAll:"View All Photos",
+guestReviews:"Guest Reviews",
+customerReviews:"Customer Reviews",
+feedbackSmall:"Your opinion matters",
+reportTitle:"Report / Feedback",
+name:"Name",
+phone:"Phone",
+subject:"Subject",
+message:"Message",
+send:"Send",
+reserve:"Reservation",
+bookTitle:"Book Your Table",
+bookingText:"Enter your details to request a reservation.",
+guests:"Guests",
+date:"Date",
+time:"Time",
+details:"Details / Special Request",
+sendBooking:"Send Booking Request",
+securityTitle:"Booking Security",
+securityText:"After OTP verification is activated, you will be able to edit or cancel your booking using the code received on your phone.",
+visit:"Visit Us",
+address:"Address",
+hours:"Opening Hours"
+},
+
+bn:{
+home:"হোম",
+about:"আমাদের সম্পর্কে",
+menu:"মেনু",
+gallery:"গ্যালারি",
+booking:"টেবিল বুকিং",
+contact:"যোগাযোগ",
+admin:"অ্যাডমিন লগইন",
+breaking:"ব্রেকিং নিউজ",
+bookTable:"টেবিল বুক করুন",
+viewMenu:"মেনু দেখুন",
+discover:"পরিচিতি",
+ourCuisine:"আমাদের খাবার",
+ourMenu:"আমাদের মেনু",
+chooseCategory:"খাবার দেখতে একটি ক্যাটাগরি নির্বাচন করুন।",
+moments:"ছবির মুহূর্ত",
+viewAll:"সব ছবি দেখুন",
+guestReviews:"কাস্টমার রিভিউ",
+customerReviews:"কাস্টমার রিভিউ",
+feedbackSmall:"আপনার মতামত গুরুত্বপূর্ণ",
+reportTitle:"রিপোর্ট / মতামত",
+name:"নাম",
+phone:"ফোন",
+subject:"বিষয়",
+message:"মেসেজ",
+send:"পাঠান",
+reserve:"রিজার্ভেশন",
+bookTitle:"টেবিল বুক করুন",
+bookingText:"বুকিংয়ের জন্য আপনার তথ্য দিন।",
+guests:"কতজন",
+date:"তারিখ",
+time:"সময়",
+details:"বিস্তারিত / বিশেষ অনুরোধ",
+sendBooking:"বুকিং পাঠান",
+securityTitle:"বুকিং নিরাপত্তা",
+securityText:"OTP verification চালু হলে ফোনে পাওয়া কোড দিয়ে আপনার বুকিং Edit বা Cancel করতে পারবেন।",
+visit:"আমাদের কাছে আসুন",
+address:"ঠিকানা",
+hours:"খোলার সময়"
+}
+
+};
 
-  let allMenu = [];
-  let allCategories = [];
-  let selectedCategory = "All";
+function esc(v){
+return String(v ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+}
 
-  const defaultLogo =
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=300&q=80";
+function changeLanguage(lang){
 
-  function showToast(message){
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.classList.add("show");
+currentLang=lang;
+localStorage.setItem("nababi_language",lang);
 
-    setTimeout(()=>{
-      toast.classList.remove("show");
-    },3000);
-  }
+document.documentElement.lang=lang;
 
-  function toggleMenu(){
-    document.getElementById("mainNav").classList.toggle("open");
-  }
+document.querySelectorAll("[data-i]").forEach(el=>{
+const key=el.getAttribute("data-i");
+if(T[lang][key]) el.textContent=T[lang][key];
+});
 
-  document.querySelectorAll("nav a").forEach(a=>{
-    a.addEventListener("click",()=>{
-      document.getElementById("mainNav").classList.remove("open");
-    });
-  });
+document.querySelectorAll(".lang").forEach(x=>x.classList.remove("active"));
 
-  function setLogo(url){
+const active=document.querySelector(
+`.lang[onclick="changeLanguage('${lang}')"]`
+);
 
-    const finalUrl = url || defaultLogo;
+if(active) active.classList.add("active");
 
-    document.getElementById("headerLogo").src = finalUrl;
-    document.getElementById("footerLogo").src = finalUrl;
+renderMenu();
+renderCategories();
+renderReviews();
 
-  }
+}
 
-  async function loadSettings(){
+function toggleNav(){
+document.getElementById("nav").classList.toggle("mobile");
+}
 
-    const {data,error} =
-      await supabaseClient
-      .from("site_settings")
-      .select("key,value");
+async function loadSettings(){
 
-    if(error){
-      console.error(error);
-      return;
-    }
+const {data,error}=await db
+.from("site_settings")
+.select("key,value");
 
-    const settings = {};
+if(error){
+console.error(error);
+return;
+}
 
-    (data || []).forEach(row=>{
-      settings[row.key] = row.value || {};
-    });
+settings={};
 
-    /* LOGO */
+(data||[]).forEach(row=>{
+settings[row.key]=row.value || {};
+});
 
-    setLogo(settings.logo?.url || "");
+const logo=settings.logo?.url || fallbackLogo;
 
-    /* HERO */
+document.getElementById("logo").src=logo;
+document.getElementById("footerLogo").src=logo;
 
-    document.getElementById("heroTitle").innerHTML =
-      settings.hero?.title ||
-      'Taste the <span class="gold">Royal Flavours</span> of India';
+const hero=settings.hero || {};
 
-    document.getElementById("heroText").textContent =
-      settings.hero?.text ||
-      "Authentic Indian cuisine in the heart of Roma.";
+document.getElementById("heroTitle").textContent =
+hero.title || "Il Gusto Reale dell'India";
 
-    if(settings.hero?.image_url){
+document.getElementById("heroText").textContent =
+hero.text || "Autentica cucina indiana nel cuore di Roma.";
 
-      document.getElementById("heroBackground").style.backgroundImage =
-        `url("${settings.hero.image_url}")`;
+if(hero.image_url){
+document.getElementById("heroBg").style.backgroundImage=
+`url("${hero.image_url}")`;
+}
 
-    }
+renderHero(hero);
 
-    renderHeroMedia(
-      settings.hero?.video_url ||
-      settings.videos?.video1 ||
-      "",
-      settings.hero?.image_url ||
-      ""
-    );
+const about=settings.about || {};
 
-    /* ABOUT */
+document.getElementById("aboutTitle").textContent=
+about.title || "Nababi Ristorante";
 
-    document.getElementById("aboutTitle").textContent =
-      settings.about?.title ||
-      "About Nababi Ristorante";
+document.getElementById("aboutText").textContent=
+about.text || "";
 
-    document.getElementById("aboutText").textContent =
-      settings.about?.text ||
-      "Experience authentic Indian flavours in the heart of Roma.";
+renderAbout(about);
 
-    /* BREAKING NEWS */
+renderBreaking(settings.breaking_news || {});
 
-    const breaking = settings.breaking_news || {};
+renderContact(settings.contact || {});
 
-    if(breaking.enabled === false){
+renderSocial(settings.social || {});
 
-      document.getElementById("breakingBar").style.display="none";
+renderHours(settings.hours || {});
 
-    }else{
+}
 
-      document.getElementById("breakingText").textContent =
-        breaking.text || "Welcome to Nababi Ristorante";
+function renderHero(hero){
 
-    }
+const box=document.getElementById("heroMedia");
 
-    /* CONTACT */
+const video=
+hero.video_url ||
+settings.videos?.video1 ||
+"";
 
-    const contact = settings.contact || {};
+const image=hero.image_url || "";
 
-    document.getElementById("contactAddress").textContent =
-      contact.address || "Via Vespasiano 73/75/77 Roma";
+if(video){
 
-    document.getElementById("contactPhone1").textContent =
-      contact.phone1 || "+39 333 7687319";
+box.innerHTML=`
+<video
+src="${esc(video)}"
+autoplay
+muted
+loop
+playsinline
+controls>
+</video>`;
 
-    document.getElementById("contactPhone2").textContent =
-      contact.phone2 || "+39 393 3805350";
+}else if(image){
 
-    document.getElementById("contactWhatsApp").textContent =
-      contact.whatsapp || "+39 333 7687319";
+box.innerHTML=`
+<img src="${esc(image)}" alt="Nababi Ristorante">`;
 
-    if(contact.maps_url){
-      document.getElementById("mapFrame").src =
-        contact.maps_url.includes("output=embed")
-        ? contact.maps_url
-        : contact.maps_url;
-    }
+}else{
 
-    /* SOCIAL */
+box.innerHTML=`
+<div class="placeholder">
+<div>
+<div style="font-size:70px">🍛</div>
+<h2>Nababi Ristorante</h2>
+</div>
+</div>`;
 
-    renderSocial(settings.social || {});
+}
 
-    /* HOURS */
+}
 
-    renderHours(settings.hours || {});
+function renderAbout(about){
 
-    /* VIDEOS */
+const box=document.getElementById("aboutMedia");
 
-    renderVideo(
-      "videoBox1",
-      settings.videos?.video1 || ""
-    );
+const video=about.video_url || "";
+const image=about.image_url || "";
 
-    renderVideo(
-      "videoBox2",
-      settings.videos?.video2 || ""
-    );
+if(video){
 
-  }
+box.innerHTML=`
+<video
+src="${esc(video)}"
+autoplay
+muted
+loop
+playsinline
+controls>
+</video>`;
 
-  function renderHeroMedia(videoUrl,imageUrl){
+}else if(image){
 
-    const box = document.getElementById("heroMedia");
+box.innerHTML=
+`<img src="${esc(image)}" alt="About Nababi">`;
 
-    let media="";
+}else{
 
-    if(videoUrl){
+box.innerHTML=
+`<div class="placeholder">
+<div style="font-size:70px">👑</div>
+</div>`;
 
-      media = `
-        <video
-          src="${escapeHtml(videoUrl)}"
-          autoplay
-          muted
-          loop
-          playsinline
-          controls>
-        </video>
-      `;
+}
 
-    }else if(imageUrl){
+}
 
-      media = `
-        <img
-          src="${escapeHtml(imageUrl)}"
-          alt="Nababi Ristorante">
-      `;
+function renderBreaking(b){
 
-    }else{
+const bar=document.getElementById("breaking");
+const text=document.getElementById("breakingText");
+const video=document.getElementById("breakingVideo");
 
-      media = `
-        <div class="hero-media-placeholder">
-          <div>
-            <div style="font-size:55px;margin-bottom:10px;">🍽️</div>
-            <h3 style="color:#ddd;">Nababi Ristorante</h3>
-            <p style="color:#777;">
-              Add a photo or video from Admin Panel.
-            </p>
-          </div>
-        </div>
-      `;
+bar.classList.remove("show");
+video.classList.remove("show");
 
-    }
+if(b.enabled===false)return;
 
-    box.innerHTML =
-      media +
-      `<div class="media-badge">NABABI RISTORANTE</div>`;
+if(!b.text && !b.video_url)return;
 
-  }
+const now=new Date();
 
-  function renderVideo(id,url){
+if(b.start_at && now < new Date(b.start_at))return;
 
-    const box = document.getElementById(id);
+if(b.end_at && now >= new Date(b.end_at))return;
 
-    if(!url){
+text.textContent=b.text || "";
 
-      box.innerHTML = `
-        <div class="video-placeholder">
-          Video will appear here when added from Admin Panel.
-        </div>
-      `;
+if(b.video_url){
 
-      return;
-    }
+video.src=b.video_url;
+video.classList.add("show");
 
-    box.innerHTML = `
-      <video
-        src="${escapeHtml(url)}"
-        controls
-        autoplay
-        muted
-        loop
-        playsinline>
-      </video>
-    `;
+}
 
-  }
+bar.classList.add("show");
 
-  async function loadCategories(){
+if(b.end_at){
 
-    const {data,error} =
-      await supabaseClient
-      .from("menu_categories")
-      .select("*")
-      .order("sort_order",{ascending:true})
-      .order("name",{ascending:true});
+const delay=
+new Date(b.end_at).getTime()-Date.now();
 
-    if(error){
-      console.error(error);
-      return;
-    }
+if(delay>0){
+setTimeout(()=>{
+bar.classList.remove("show");
+},delay);
+}
 
-    allCategories = data || [];
+}
 
-    renderCategories();
+}
 
-  }
+async function loadCategories(){
 
-  function renderCategories(){
+const {data,error}=await db
+.from("menu_categories")
+.select("*")
+.order("sort_order",{ascending:true});
 
-    const box = document.getElementById("categories");
+if(error){
+console.error(error);
+return;
+}
 
-    box.innerHTML =
-      `<button class="category-btn ${selectedCategory==="All"?"active":""}"
-        onclick="selectCategory('All')">
-        All
-      </button>`;
+categories=data||[];
 
-    allCategories.forEach(category=>{
+renderCategories();
 
-      box.innerHTML += `
-        <button
-          class="category-btn ${selectedCategory===category.name?"active":""}"
-          onclick="selectCategory(${JSON.stringify(category.name)})">
-          ${escapeHtml(category.name)}
-        </button>
-      `;
+}
 
-    });
+function renderCategories(){
 
-  }
+const box=document.getElementById("categories");
 
-  function selectCategory(category){
+box.innerHTML="";
 
-    selectedCategory = category;
+categories.forEach(c=>{
 
-    renderCategories();
-    renderMenu();
+const active=
+currentCategory===c.name;
 
-  }
+box.innerHTML+=`
+<button
+class="cat ${active?"active":""}"
+onclick='selectCategory(${JSON.stringify(c.name)})'>
+${esc(c.name)}
+</button>`;
 
-  async function loadMenu(){
+});
 
-    const {data,error} =
-      await supabaseClient
-      .from("Menu")
-      .select("*")
-      .order("id",{ascending:false});
+if(!currentCategory && categories.length){
 
-    if(error){
+box.innerHTML=
+`<button class="cat active">
+${esc(T[currentLang].chooseCategory)}
+</button>`
++
+box.innerHTML;
 
-      console.error(error);
+}else if(!currentCategory){
 
-      document.getElementById("menuGrid").innerHTML =
-        `<div class="empty">Unable to load menu.</div>`;
+box.innerHTML=
+`<button class="cat active">
+${esc(T[currentLang].chooseCategory)}
+</button>`;
 
-      return;
-    }
+}
 
-    allMenu = data || [];
+}
 
-    renderMenu();
+function selectCategory(category){
 
-  }
+currentCategory=category;
 
-  function renderMenu(){
+renderCategories();
+renderMenu();
 
-    const grid = document.getElementById("menuGrid");
+}
 
-    let items = allMenu;
+async function loadMenu(){
 
-    if(selectedCategory !== "All"){
-      items = items.filter(
-        item => item.category === selectedCategory
-      );
-    }
+const {data,error}=await db
+.from("Menu")
+.select("*")
+.order("id",{ascending:false});
 
-    if(!items.length){
+if(error){
+console.error(error);
+return;
+}
 
-      grid.innerHTML =
-        `<div class="empty">No dishes available in this category.</div>`;
+menu=data||[];
 
-      return;
-    }
+renderMenu();
 
-    grid.innerHTML = items.map(item=>{
+}
 
-      const image =
-        item.image_url ||
-        "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80";
+function getTranslated(item,field){
 
-      return `
-        <article class="food-card">
+const lang=currentLang;
 
-          <div class="food-image">
-            <img
-              src="${escapeHtml(image)}"
-              alt="${escapeHtml(item.name || "Food")}">
-          </div>
+if(lang==="en"){
 
-          <div class="food-info">
+return item[field+"_en"] ||
+item[field] ||
+"";
 
-            <div class="food-top">
+}
 
-              <div>
-                <div class="food-name">
-                  ${escapeHtml(item.name || "")}
-                </div>
+if(lang==="bn"){
 
-                <div class="food-category">
-                  ${escapeHtml(item.category || "")}
-                </div>
-              </div>
+return item[field+"_bn"] ||
+item[field] ||
+"";
 
-              <div class="food-price">
-                ${escapeHtml(item.price || "")}
-              </div>
+}
 
-            </div>
+return item[field+"_it"] ||
+item[field] ||
+"";
 
-            <div class="food-description">
-              ${escapeHtml(item.description || "")}
-            </div>
+}
 
-          </div>
+function renderMenu(){
 
-        </article>
-      `;
+const grid=document.getElementById("menuGrid");
 
-    }).join("");
+if(!currentCategory){
 
-  }
+grid.innerHTML=`
+<div style="
+grid-column:1/-1;
+text-align:center;
+padding:50px;
+color:#777;
+">
+${esc(T[currentLang].chooseCategory)}
+</div>`;
 
-  async function loadGallery(){
+return;
 
-    const {data,error} =
-      await supabaseClient
-      .from("gallery")
-      .select("*")
-      .eq("is_visible",true)
-      .order("sort_order",{ascending:true})
-      .order("id",{ascending:false});
+}
 
-    if(error){
+const items=menu.filter(
+x=>x.category===currentCategory
+);
 
-      console.error(error);
+if(!items.length){
 
-      document.getElementById("galleryGrid").innerHTML =
-        `<div class="empty">Unable to load gallery.</div>`;
+grid.innerHTML=`
+<div style="
+grid-column:1/-1;
+text-align:center;
+padding:50px;
+color:#777;
+">
+No items found.
+</div>`;
 
-      return;
-    }
+return;
 
-    const grid = document.getElementById("galleryGrid");
+}
 
-    if(!data || !data.length){
+grid.innerHTML=items.map(item=>{
 
-      grid.innerHTML =
-        `<div class="empty">Gallery photos will appear here.</div>`;
+const name=getTranslated(item,"name");
+const description=getTranslated(item,"description");
 
-      return;
-    }
+const image=item.image_url ||
+"https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80";
 
-    grid.innerHTML = data.map(item=>{
+return`
+<article class="food">
 
-      return `
-        <div class="gallery-item">
+<div class="food-img">
+<img src="${esc(image)}" alt="${esc(name)}">
+</div>
 
-          <img
-            src="${escapeHtml(item.image_url)}"
-            alt="${escapeHtml(item.title || "Gallery")}">
+<div class="food-body">
 
-          ${
-            item.title
-            ? `<div class="gallery-title">
-                ${escapeHtml(item.title)}
-              </div>`
-            : ""
-          }
+<div class="food-head">
+<div class="food-name">${esc(name)}</div>
+<div class="price">${esc(item.price||"")}</div>
+</div>
 
-        </div>
-      `;
+<div class="food-desc">
+${esc(description)}
+</div>
 
-    }).join("");
+</div>
+</article>`;
 
-  }
+}).join("");
 
-  async function loadReviews(){
+}
 
-    const {data,error} =
-      await supabaseClient
-      .from("reviews")
-      .select("*")
-      .eq("status","Approved")
-      .order("is_featured",{ascending:false})
-      .order("created_at",{ascending:false})
-      .limit(9);
+async function loadGallery(){
 
-    if(error){
+const {data,error}=await db
+.from("gallery")
+.select("*")
+.eq("is_visible",true)
+.order("sort_order",{ascending:true})
+.order("id",{ascending:false});
 
-      console.error(error);
+if(error){
+console.error(error);
+return;
+}
 
-      document.getElementById("reviewGrid").innerHTML =
-        `<div class="empty">Reviews will appear here.</div>`;
+gallery=data||[];
 
-      return;
-    }
+renderGallery();
 
-    const grid = document.getElementById("reviewGrid");
+}
 
-    if(!data || !data.length){
+function renderGallery(){
 
-      grid.innerHTML =
-        `<div class="empty">
-          Customer reviews will appear here after approval.
-        </div>`;
+const preview=document.getElementById("galleryPreview");
+const all=document.getElementById("allGallery");
 
-      return;
-    }
+if(!gallery.length){
 
-    grid.innerHTML = data.map(review=>{
+preview.innerHTML=
+`<div class="placeholder">Gallery</div>`;
 
-      const rating =
-        Math.max(1,Math.min(5,Number(review.rating || 5)));
+all.innerHTML="";
 
-      return `
-        <div class="review-card">
+return;
 
-          <div class="stars">
-            ${"★".repeat(rating)}
-            ${"☆".repeat(5-rating)}
-          </div>
+}
 
-          <p>
-            ${escapeHtml(review.message || "")}
-          </p>
+preview.innerHTML=
+`<img src="${esc(gallery[0].image_url)}" alt="Nababi Gallery">`;
 
-          <div class="review-name">
-            — ${escapeHtml(review.customer_name || "Guest")}
-          </div>
+all.innerHTML=gallery.map(g=>
+`<div class="g-item">
+<img src="${esc(g.image_url)}"
+alt="${esc(g.title||"Nababi Gallery")}">
+</div>`
+).join("");
 
-        </div>
-      `;
+}
 
-    }).join("");
+function toggleGallery(){
 
-  }
+const all=document.getElementById("allGallery");
 
-  function renderSocial(social){
+all.classList.toggle("open");
 
-    const box = document.getElementById("socialLinks");
+const open=all.classList.contains("open");
 
-    const links=[];
+document.getElementById("galleryBtn").textContent=
+open
+? (currentLang==="bn"?"ছবি বন্ধ করুন":
+   currentLang==="en"?"Hide Photos":
+   "Nascondi foto")
+: T[currentLang].viewAll;
 
-    if(social.facebook){
-      links.push(
-        `<a href="${escapeHtml(social.facebook)}"
-          target="_blank"
-          rel="noopener">
-          Facebook
-        </a>`
-      );
-    }
+}
 
-    if(social.instagram){
-      links.push(
-        `<a href="${escapeHtml(social.instagram)}"
-          target="_blank"
-          rel="noopener">
-          Instagram
-        </a>`
-      );
-    }
+async function loadReviews(){
 
-    if(social.tiktok){
-      links.push(
-        `<a href="${escapeHtml(social.tiktok)}"
-          target="_blank"
-          rel="noopener">
-          TikTok
-        </a>`
-      );
-    }
+const {data,error}=await db
+.from("reviews")
+.select("*")
+.eq("status","Approved")
+.order("created_at",{ascending:true});
 
-    box.innerHTML = links.join("");
+if(error){
+console.error(error);
+return;
+}
 
-  }
+reviews=data||[];
 
-  function renderHours(hours){
+renderReviews();
 
-    const days=[
-      ["Monday","monday"],
-      ["Tuesday","tuesday"],
-      ["Wednesday","wednesday"],
-      ["Thursday","thursday"],
-      ["Friday","friday"],
-      ["Saturday","saturday"],
-      ["Sunday","sunday"]
-    ];
+}
 
-    const box=document.getElementById("hoursList");
+function renderReviews(){
 
-    box.innerHTML=days.map(([label,key])=>{
+const box=document.getElementById("reviewSlider");
 
-      const value =
-        hours[key] ||
-        "Closed";
+if(!reviews.length){
 
-      return `
-        <div class="hour-row">
-          <span>${label}</span>
-          <span>${escapeHtml(value)}</span>
-        </div>
-      `;
+box.innerHTML="";
+return;
 
-    }).join("");
+}
 
-  }
+box.innerHTML=reviews.map((r,i)=>`
 
-  function escapeHtml(value){
+<div class="review ${i===reviewIndex?"active":""}">
 
-    return String(value ?? "")
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
-      .replace(/'/g,"&#039;");
+<div class="stars">
+${"★".repeat(Math.max(1,Math.min(5,r.rating||5)))}
+</div>
 
-  }
+<div class="review-message">
+"${esc(r.message)}"
+</div>
 
-  /* BOOKING */
+<div class="review-name">
+— ${esc(r.customer_name)}
+</div>
 
-  document.getElementById("bookingForm")
-    .addEventListener("submit",async e=>{
+</div>
 
-      e.preventDefault();
+`).join("");
 
-      const message =
-        document.getElementById("bookingMessage");
+}
 
-      message.textContent="Sending booking request...";
+setInterval(()=>{
 
-      const payload={
+if(reviews.length<2)return;
 
-        customer_name:
-          document.getElementById("bookingName").value.trim(),
+reviewIndex=(reviewIndex+1)%reviews.length;
 
-        phone:
-          document.getElementById("bookingPhone").value.trim(),
+renderReviews();
 
-        email:
-          document.getElementById("bookingEmail").value.trim() || null,
+},5000);
 
-        booking_date:
-          document.getElementById("bookingDate").value,
+function renderContact(c){
 
-        booking_time:
-          document.getElementById("bookingTime").value,
+const address=c.address||"Via Vespasiano 73/75/77 Roma";
+const phone=c.phone1||"+39 333 7687319";
+const whatsapp=c.whatsapp||"+39 333 7687319";
 
-        guests:
-          Number(document.getElementById("bookingGuests").value),
+document.getElementById("address").textContent=address;
+document.getElementById("phone").textContent=phone;
+document.getElementById("whatsapp").textContent=whatsapp;
 
-        special_request:
-          document.getElementById("bookingRequest").value.trim() || null,
+document.getElementById("addressTop").textContent=address;
+document.getElementById("phoneTop").textContent=phone;
+document.getElementById("whatsappTop").textContent=whatsapp;
 
-        status:"Pending"
+if(c.maps_url){
 
-      };
+document.getElementById("map").src=
+c.maps_url.includes("output=embed")
+?c.maps_url
+:c.maps_url;
 
-      const {error} =
-        await supabaseClient
-        .from("table_bookings")
-        .insert(payload);
+}
 
-      if(error){
+}
 
-        console.error(error);
+function renderSocial(s){
 
-        message.textContent =
-          "Booking could not be sent. Please try again.";
+const box=document.getElementById("social");
 
-        return;
-      }
+box.innerHTML="";
 
-      message.textContent =
-        "Thank you! Your booking request has been received.";
+if(s.facebook){
+box.innerHTML+=`
+<a href="${esc(s.facebook)}" target="_blank">
+Facebook
+</a>`;
+}
 
-      document.getElementById("bookingForm").reset();
+if(s.instagram){
+box.innerHTML+=`
+<a href="${esc(s.instagram)}" target="_blank">
+Instagram
+</a>`;
+}
 
-      showToast("Booking request sent successfully.");
+if(s.tiktok){
+box.innerHTML+=`
+<a href="${esc(s.tiktok)}" target="_blank">
+TikTok
+</a>`;
+}
 
-    });
+if(s.youtube){
+box.innerHTML+=`
+<a href="${esc(s.youtube)}" target="_blank">
+YouTube
+</a>`;
+}
 
-  /* REPORT */
+}
 
-  document.getElementById("reportForm")
-    .addEventListener("submit",async e=>{
+function renderHours(h){
 
-      e.preventDefault();
+const days=[
+["Monday","monday"],
+["Tuesday","tuesday"],
+["Wednesday","wednesday"],
+["Thursday","thursday"],
+["Friday","friday"],
+["Saturday","saturday"],
+["Sunday","sunday"]
+];
 
-      const box =
-        document.getElementById("reportMessageBox");
+document.getElementById("hours").innerHTML=
+days.map(d=>`
+<div class="hour">
+<span>${d[0]}</span>
+<span>${esc(h[d[1]]||"Closed")}</span>
+</div>
+`).join("");
 
-      box.textContent="Sending...";
+}
 
-      const payload={
+document.getElementById("reportForm")
+.addEventListener("submit",async e=>{
 
-        customer_name:
-          document.getElementById("reportName").value.trim() || null,
+e.preventDefault();
 
-        phone:
-          document.getElementById("reportPhone").value.trim() || null,
+const result=document.getElementById("reportResult");
 
-        email:
-          document.getElementById("reportEmail").value.trim() || null,
+result.textContent="Sending...";
 
-        subject:
-          document.getElementById("reportSubject").value.trim() || null,
+const {error}=await db
+.from("customer_reports")
+.insert({
 
-        message:
-          document.getElementById("reportMessage").value.trim(),
+customer_name:document.getElementById("reportName").value,
+phone:document.getElementById("reportPhone").value,
+email:document.getElementById("reportEmail").value,
+subject:document.getElementById("reportSubject").value,
+message:document.getElementById("reportMessage").value,
+status:"New"
 
-        status:"New"
+});
 
-      };
+if(error){
 
-      const {error} =
-        await supabaseClient
-        .from("customer_reports")
-        .insert(payload);
+console.error(error);
 
-      if(error){
+result.textContent=
+"Unable to send. Please try again.";
 
-        console.error(error);
+return;
 
-        box.textContent =
-          "Could not send your feedback.";
+}
 
-        return;
-      }
+result.textContent=
+currentLang==="bn"
+?"আপনার মতামত সফলভাবে পাঠানো হয়েছে।":
+currentLang==="en"
+?"Your feedback has been sent successfully."
+:"Il tuo feedback è stato inviato.";
 
-      box.textContent =
-        "Thank you. Your feedback has been received.";
+e.target.reset();
 
-      document.getElementById("reportForm").reset();
+});
 
-      showToast("Feedback sent successfully.");
+document.getElementById("bookingForm")
+.addEventListener("submit",async e=>{
 
-    });
+e.preventDefault();
 
-  document.getElementById("year").textContent =
-    new Date().getFullYear();
+const result=document.getElementById("bookingResult");
 
-  /* START */
+result.textContent=
+currentLang==="bn"
+?"বুকিং পাঠানো হচ্ছে...":
+currentLang==="en"
+?"Sending booking...":
+"Invio prenotazione...";
 
-  async function startSite(){
+const {error}=await db
+.from("table_bookings")
+.insert({
 
-    setLogo("");
+customer_name:
+document.getElementById("bookingName").value,
 
-    await loadSettings();
-    await loadCategories();
-    await loadMenu();
-    await loadGallery();
-    await loadReviews();
+phone:
+document.getElementById("bookingPhone").value,
 
-  }
+email:
+document.getElementById("bookingEmail").value||null,
 
-  startSite();
+booking_date:
+document.getElementById("bookingDate").value,
+
+booking_time:
+document.getElementById("bookingTime").value,
+
+guests:
+Number(document.getElementById("bookingGuests").value),
+
+special_request:
+document.getElementById("bookingDetails").value||null,
+
+status:"Pending"
+
+});
+
+if(error){
+
+console.error(error);
+
+result.textContent=
+currentLang==="bn"
+?"বুকিং পাঠানো যায়নি।":
+currentLang==="en"
+?"Booking could not be sent."
+:"Impossibile inviare la prenotazione.";
+
+return;
+
+}
+
+result.textContent=
+currentLang==="bn"
+?"বুকিং সফলভাবে পাঠানো হয়েছে।":
+currentLang==="en"
+?"Booking request sent successfully."
+:"Richiesta di prenotazione inviata.";
+
+e.target.reset();
+
+});
+
+async function start(){
+
+document.getElementById("year").textContent=
+new Date().getFullYear();
+
+await loadSettings();
+await loadCategories();
+await loadMenu();
+await loadGallery();
+await loadReviews();
+
+changeLanguage(currentLang);
+
+}
+
+start();
 
 </script>
 
