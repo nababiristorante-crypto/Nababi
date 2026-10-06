@@ -4,32 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Nababi Ristorante — Admin Panel</title>
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Your Supabase config -->
-  <script src="./config.js"></script>
+  <title>Nababi Ristorante | Admin Panel</title>
 
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #d4af37;
+      --gold-light: #f2d675;
+      --black: #070707;
+      --dark: #0e0e0e;
+      --card: #151515;
+      --border: rgba(212,175,55,.22);
+      --text: #fff;
+      --muted: #999;
     }
 
     body {
       font-family: Arial, Helvetica, sans-serif;
-      background: #090909;
-      color: #fff;
+      background: var(--black);
+      color: var(--text);
       min-height: 100vh;
     }
 
     button,
     input,
-    select,
-    textarea {
+    textarea,
+    select {
       font: inherit;
     }
 
@@ -37,11 +42,9 @@
       cursor: pointer;
     }
 
-    .gold {
-      color: #d4af37;
-    }
-
-    /* LOGIN */
+    /* =========================
+       LOGIN
+    ========================= */
 
     #loginScreen {
       min-height: 100vh;
@@ -49,131 +52,109 @@
       align-items: center;
       justify-content: center;
       padding: 25px;
+
       background:
-        radial-gradient(circle at top, rgba(212,175,55,.16), transparent 35%),
-        #090909;
+        linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.92)),
+        url("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1800&q=85")
+        center/cover no-repeat;
     }
 
     .login-card {
       width: 100%;
       max-width: 430px;
-      background: #111;
-      border: 1px solid #2d2d2d;
-      border-radius: 22px;
-      padding: 35px;
-      box-shadow: 0 25px 80px rgba(0,0,0,.55);
+      background: rgba(14,14,14,.96);
+      border: 1px solid var(--border);
+      padding: 45px 35px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.7);
     }
 
     .login-logo {
-      width: 90px;
-      height: 90px;
+      width: 75px;
+      height: 75px;
+      border: 1px solid var(--gold);
       border-radius: 50%;
       margin: 0 auto 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #181818;
-      border: 2px solid #d4af37;
-      color: #d4af37;
+      color: var(--gold);
+      font-family: Georgia, serif;
       font-size: 30px;
-      font-weight: bold;
     }
 
     .login-card h1 {
       text-align: center;
-      color: #d4af37;
-      margin-bottom: 8px;
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 30px;
     }
 
-    .login-card p {
+    .login-subtitle {
       text-align: center;
-      color: #999;
-      margin-bottom: 25px;
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 4px;
+      margin: 7px 0 30px;
     }
 
-    label {
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
       display: block;
-      color: #ccc;
-      font-size: 14px;
       margin-bottom: 8px;
+      color: #ccc;
+      font-size: 13px;
     }
 
-    input,
-    select,
-    textarea {
+    .field input,
+    .field textarea,
+    .field select {
       width: 100%;
-      background: #181818;
-      border: 1px solid #333;
+      background: #090909;
       color: #fff;
-      border-radius: 10px;
+      border: 1px solid #292929;
       padding: 13px 14px;
       outline: none;
-      margin-bottom: 16px;
+      border-radius: 2px;
     }
 
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: #d4af37;
-    }
-
-    textarea {
+    .field textarea {
       min-height: 120px;
       resize: vertical;
     }
 
-    .btn {
-      border: 0;
-      border-radius: 10px;
-      padding: 12px 18px;
-      font-weight: bold;
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--gold);
     }
 
-    .btn-gold {
+    .gold-btn {
       width: 100%;
-      background: #d4af37;
-      color: #080808;
+      border: 1px solid var(--gold);
+      background: var(--gold);
+      color: #000;
+      padding: 14px;
+      font-weight: bold;
+      transition: .3s;
     }
 
-    .btn-gold:hover {
-      background: #f0cf58;
+    .gold-btn:hover {
+      background: var(--gold-light);
     }
 
-    .btn-dark {
-      background: #222;
-      color: #fff;
-      border: 1px solid #444;
-    }
-
-    .btn-danger {
-      background: #9e2424;
-      color: white;
-    }
-
-    .message {
+    .error {
+      color: #ff7777;
+      font-size: 13px;
       margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 14px;
-      display: none;
-      line-height: 1.5;
+      text-align: center;
     }
 
-    .message.error {
-      display: block;
-      background: rgba(180,30,30,.15);
-      border: 1px solid #8c2929;
-      color: #ff8d8d;
-    }
-
-    .message.success {
-      display: block;
-      background: rgba(30,150,70,.12);
-      border: 1px solid #2d8147;
-      color: #7fe39b;
-    }
-
-    /* APP */
+    /* =========================
+       APP
+    ========================= */
 
     #app {
       display: none;
@@ -184,121 +165,278 @@
       position: fixed;
       left: 0;
       top: 0;
-      width: 250px;
-      height: 100vh;
-      background: #0f0f0f;
-      border-right: 1px solid #292929;
+      bottom: 0;
+      width: 255px;
+      background: #0b0b0b;
+      border-right: 1px solid var(--border);
       padding: 25px 15px;
       z-index: 50;
+      overflow-y: auto;
     }
 
-    .brand {
-      color: #d4af37;
+    .sidebar-logo {
+      text-align: center;
+      padding: 10px 0 30px;
+      border-bottom: 1px solid #1c1c1c;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-logo strong {
+      display: block;
+      font-family: Georgia, serif;
       font-size: 22px;
-      font-weight: bold;
-      padding: 10px 12px 25px;
+      letter-spacing: 2px;
     }
 
-    .nav-btn {
+    .sidebar-logo span {
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 4px;
+    }
+
+    .menu-label {
+      color: #555;
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin: 20px 12px 8px;
+      text-transform: uppercase;
+    }
+
+    .side-btn {
       width: 100%;
-      text-align: left;
-      border: 0;
+      display: block;
       background: transparent;
       color: #aaa;
-      padding: 13px 14px;
-      border-radius: 10px;
-      margin-bottom: 5px;
+      border: 0;
+      padding: 12px 14px;
+      text-align: left;
+      border-radius: 3px;
+      margin-bottom: 4px;
     }
 
-    .nav-btn:hover,
-    .nav-btn.active {
-      background: #1c1c1c;
-      color: #d4af37;
+    .side-btn:hover,
+    .side-btn.active {
+      background: rgba(212,175,55,.1);
+      color: var(--gold);
     }
 
-    .logout-btn {
-      position: absolute;
-      left: 15px;
-      right: 15px;
-      bottom: 20px;
-      width: calc(100% - 30px);
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #522;
-      background: #211010;
-      color: #ff8d8d;
+    .logout {
+      margin-top: 25px;
+      border: 1px solid #292929;
+    }
+
+    .logout:hover {
+      border-color: #aa4444;
+      color: #ff7777;
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .main {
+      margin-left: 255px;
+      min-height: 100vh;
+    }
+
+    .top-header {
+      height: 76px;
+      border-bottom: 1px solid #1c1c1c;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 35px;
+      background: #090909;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .top-header h2 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+    }
+
+    .view-site {
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 9px 16px;
+      border-radius: 3px;
+    }
+
+    .view-site:hover {
+      background: var(--gold);
+      color: #000;
     }
 
     .content {
-      margin-left: 250px;
-      padding: 30px;
-      max-width: 1400px;
+      padding: 35px;
+      max-width: 1300px;
     }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      gap: 15px;
-    }
-
-    .topbar h2 {
-      color: #d4af37;
-    }
-
-    .status {
-      color: #7fe39b;
-      font-size: 14px;
-    }
-
-    .section {
+    .page {
       display: none;
     }
 
-    .section.active {
+    .page.active {
       display: block;
     }
 
-    .card {
-      background: #111;
-      border: 1px solid #292929;
-      border-radius: 18px;
-      padding: 24px;
+    .page-title {
+      margin-bottom: 25px;
+    }
+
+    .page-title small {
+      color: var(--gold);
+      letter-spacing: 3px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .page-title h1 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 38px;
+      margin-top: 7px;
+    }
+
+    /* =========================
+       DASHBOARD CARDS
+    ========================= */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid #202020;
+      padding: 25px;
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-card strong {
+      display: block;
+      color: var(--gold);
+      font-size: 31px;
+      margin-top: 8px;
+      font-family: Georgia, serif;
+    }
+
+    /* =========================
+       PANELS
+    ========================= */
+
+    .panel {
+      background: var(--card);
+      border: 1px solid #202020;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .panel h3 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 24px;
       margin-bottom: 22px;
     }
 
-    .card h3 {
-      color: #d4af37;
-      margin-bottom: 18px;
-    }
-
-    .grid {
+    .two-col {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    .save-row {
+    .save-btn {
+      background: var(--gold);
+      color: #000;
+      border: 0;
+      padding: 12px 22px;
+      font-weight: bold;
       margin-top: 5px;
     }
 
-    /* MENU */
+    .save-btn:hover {
+      background: var(--gold-light);
+    }
+
+    /* =========================
+       UPLOAD
+    ========================= */
+
+    .upload-box {
+      border: 1px dashed #444;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .upload-box:hover {
+      border-color: var(--gold);
+    }
+
+    .upload-box p {
+      color: #888;
+      margin-bottom: 15px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .upload-label {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 11px 20px;
+      cursor: pointer;
+    }
+
+    .upload-label:hover {
+      background: var(--gold);
+      color: #000;
+    }
+
+    .preview {
+      max-width: 220px;
+      max-height: 180px;
+      margin: 20px auto 0;
+      border: 1px solid #333;
+      display: none;
+    }
+
+    /* =========================
+       MENU
+    ========================= */
 
     .menu-toolbar {
       display: flex;
-      gap: 10px;
+      justify-content: space-between;
+      gap: 15px;
       flex-wrap: wrap;
       margin-bottom: 20px;
     }
 
-    .menu-toolbar select {
-      max-width: 280px;
-      margin: 0;
+    .add-btn {
+      background: var(--gold);
+      color: #000;
+      border: 0;
+      padding: 12px 20px;
+      font-weight: bold;
+    }
+
+    .category-select {
+      background: #090909;
+      border: 1px solid #292929;
+      color: #fff;
+      padding: 11px 14px;
     }
 
     .menu-list {
@@ -307,27 +445,46 @@
     }
 
     .menu-item {
+      background: #101010;
+      border: 1px solid #222;
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .menu-info {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 15px;
-      padding: 15px;
-      border: 1px solid #292929;
-      border-radius: 12px;
-      background: #151515;
+    }
+
+    .menu-photo {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      background: #222;
     }
 
     .menu-info h4 {
-      color: #fff;
-      margin-bottom: 5px;
+      font-family: Georgia, serif;
+      font-size: 18px;
+      font-weight: 400;
     }
 
-    .menu-info span {
-      color: #999;
-      font-size: 13px;
+    .menu-info p {
+      color: #888;
+      font-size: 12px;
+      margin-top: 4px;
     }
 
-    .menu-actions {
+    .menu-price {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .actions {
       display: flex;
       gap: 7px;
       flex-wrap: wrap;
@@ -335,62 +492,123 @@
 
     .small-btn {
       border: 1px solid #444;
-      background: #222;
-      color: #fff;
-      padding: 8px 11px;
-      border-radius: 8px;
+      background: transparent;
+      color: #ccc;
+      padding: 7px 10px;
+      font-size: 11px;
+    }
+
+    .small-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .delete-btn:hover {
+      border-color: #b44;
+      color: #f77;
+    }
+
+    /* =========================
+       CATEGORY
+    ========================= */
+
+    .category-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .category-tag {
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 7px 12px;
       font-size: 12px;
     }
 
-    .small-btn.gold-btn {
-      color: #d4af37;
-      border-color: #6b5921;
+    /* =========================
+       MESSAGE
+    ========================= */
+
+    #message {
+      position: fixed;
+      right: 25px;
+      bottom: 25px;
+      background: var(--gold);
+      color: #000;
+      padding: 13px 20px;
+      display: none;
+      z-index: 100;
+      font-size: 13px;
+      font-weight: bold;
     }
 
-    .category-box {
-      display: flex;
-      gap: 8px;
+    /* =========================
+       MOBILE
+    ========================= */
+
+    .mobile-menu {
+      display: none;
     }
 
-    .category-box input {
-      margin: 0;
-    }
+    @media (max-width: 1000px) {
 
-    .category-box button {
-      white-space: nowrap;
-    }
-
-    .empty {
-      color: #777;
-      padding: 20px 0;
-    }
-
-    @media (max-width: 800px) {
-      .sidebar {
-        position: static;
-        width: 100%;
-        height: auto;
-        border-right: 0;
-        border-bottom: 1px solid #292929;
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      .logout-btn {
-        position: static;
-        width: 100%;
-        margin-top: 10px;
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 750px) {
+
+      .sidebar {
+        width: 230px;
+        transform: translateX(-100%);
+        transition: .3s;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .mobile-menu {
+        display: block;
+        border: 1px solid #333;
+        background: transparent;
+        color: var(--gold);
+        padding: 7px 10px;
+        margin-right: 12px;
+      }
+
+      .top-header {
+        padding: 0 15px;
+      }
+
+      .top-header h2 {
+        font-size: 18px;
       }
 
       .content {
-        margin-left: 0;
+        padding: 22px 15px;
+      }
+
+      .page-title h1 {
+        font-size: 31px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .panel {
         padding: 20px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .full {
-        grid-column: auto;
       }
 
       .menu-item {
@@ -398,8 +616,24 @@
         flex-direction: column;
       }
 
-      .menu-actions {
+      .menu-info {
         width: 100%;
+      }
+    }
+
+    @media (max-width: 430px) {
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-info {
+        align-items: flex-start;
+      }
+
+      .menu-photo {
+        width: 60px;
+        height: 60px;
       }
     }
   </style>
@@ -407,1076 +641,1175 @@
 
 <body>
 
-<!-- ================= LOGIN ================= -->
+  <!-- =========================
+       LOGIN SCREEN
+  ========================= -->
 
-<div id="loginScreen">
+  <div id="loginScreen">
 
-  <div class="login-card">
+    <div class="login-card">
 
-    <div class="login-logo">NR</div>
+      <div class="login-logo">N</div>
 
-    <h1>Nababi Ristorante</h1>
+      <h1>Nababi Ristorante</h1>
 
-    <p>Admin Panel</p>
+      <div class="login-subtitle">
+        ADMIN PANEL
+      </div>
 
-    <form id="loginForm">
+      <form id="loginForm">
 
-      <label for="email">Admin Email</label>
-      <input
-        id="email"
-        type="email"
-        placeholder="Enter admin email"
-        required
-      >
+        <div class="field">
+          <label>Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Admin email"
+            required
+          >
+        </div>
 
-      <label for="password">Password</label>
-      <input
-        id="password"
-        type="password"
-        placeholder="Enter password"
-        required
-      >
+        <div class="field">
+          <label>Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          >
+        </div>
 
-      <button class="btn btn-gold" type="submit">
-        Login
-      </button>
+        <button class="gold-btn" type="submit">
+          LOGIN TO ADMIN
+        </button>
 
-    </form>
+        <div id="loginError" class="error"></div>
 
-    <div id="loginMessage" class="message"></div>
+      </form>
+
+    </div>
 
   </div>
 
-</div>
 
+  <!-- =========================
+       ADMIN APP
+  ========================= -->
 
-<!-- ================= ADMIN APP ================= -->
+  <div id="app">
 
-<div id="app">
+    <!-- SIDEBAR -->
 
-  <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
-    <div class="brand">
-      NABABI RISTORANTE
-    </div>
-
-    <button class="nav-btn active" data-section="home">
-      🏠 Home / Hero
-    </button>
-
-    <button class="nav-btn" data-section="logo">
-      🖼 Logo
-    </button>
-
-    <button class="nav-btn" data-section="gallery">
-      📸 Gallery
-    </button>
-
-    <button class="nav-btn" data-section="videos">
-      🎬 Videos
-    </button>
-
-    <button class="nav-btn" data-section="menu">
-      🍽 Menu Manager
-    </button>
-
-    <button class="nav-btn" data-section="contact">
-      📍 Contact
-    </button>
-
-    <button class="nav-btn" data-section="social">
-      📱 Social Media
-    </button>
-
-    <button class="nav-btn" data-section="hours">
-      🕐 Opening Hours
-    </button>
-
-    <button id="logoutBtn" class="logout-btn">
-      Logout
-    </button>
-
-  </aside>
-
-
-  <main class="content">
-
-    <div class="topbar">
-      <h2 id="pageTitle">Dashboard</h2>
-      <div class="status">● Supabase Connected</div>
-    </div>
-
-
-    <!-- HOME -->
-
-    <section id="home" class="section active">
-
-      <div class="card">
-
-        <h3>Hero Section</h3>
-
-        <div class="grid">
-
-          <div>
-            <label>Hero Title</label>
-            <input id="heroTitle" placeholder="Nababi Ristorante">
-          </div>
-
-          <div>
-            <label>Hero Image URL</label>
-            <input id="heroImage" placeholder="https://...">
-          </div>
-
-          <div class="full">
-            <label>Hero Text</label>
-            <textarea id="heroText"
-              placeholder="Write your restaurant introduction..."></textarea>
-          </div>
-
-        </div>
-
-        <button class="btn btn-gold save-row" id="saveHero">
-          Save Hero
-        </button>
-
-        <div id="heroMessage" class="message"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- LOGO -->
-
-    <section id="logo" class="section">
-
-      <div class="card">
-
-        <h3>Restaurant Logo</h3>
-
-        <label>Logo Image URL</label>
-        <input id="logoUrl" placeholder="https://...">
-
-        <button class="btn btn-gold" id="saveLogo">
-          Save Logo
-        </button>
-
-        <div id="logoMessage" class="message"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- GALLERY -->
-
-    <section id="gallery" class="section">
-
-      <div class="card">
-
-        <h3>Gallery</h3>
-
-        <p style="color:#999;margin-bottom:18px;">
-          Gallery upload system will be connected to Supabase Storage.
-        </p>
-
-        <input type="file" id="galleryFile" accept="image/*">
-
-        <button class="btn btn-gold" id="galleryButton">
-          Add Gallery Image
-        </button>
-
-        <div id="galleryMessage" class="message"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- VIDEOS -->
-
-    <section id="videos" class="section">
-
-      <div class="card">
-
-        <h3>Hero Video 1</h3>
-
-        <label>Video URL</label>
-        <input id="video1" placeholder="https://...">
-
-        <button class="btn btn-gold" id="saveVideo1">
-          Save Video 1
-        </button>
-
-        <div id="video1Message" class="message"></div>
-
+      <div class="sidebar-logo">
+        <strong>NABABI</strong>
+        <span>RISTORANTE ADMIN</span>
       </div>
 
 
-      <div class="card">
-
-        <h3>Hero Video 2</h3>
-
-        <label>Video URL</label>
-        <input id="video2" placeholder="https://...">
-
-        <button class="btn btn-gold" id="saveVideo2">
-          Save Video 2
-        </button>
-
-        <div id="video2Message" class="message"></div>
-
+      <div class="menu-label">
+        Website
       </div>
 
-    </section>
+      <button class="side-btn active" data-page="dashboard">
+        🏠 Dashboard
+      </button>
+
+      <button class="side-btn" data-page="hero">
+        ✦ Home / Hero
+      </button>
+
+      <button class="side-btn" data-page="about">
+        ◈ About Us
+      </button>
 
 
-    <!-- MENU -->
+      <div class="menu-label">
+        Media
+      </div>
 
-    <section id="menu" class="section">
+      <button class="side-btn" data-page="logo">
+        ◎ Logo
+      </button>
 
-      <div class="card">
+      <button class="side-btn" data-page="gallery">
+        ▧ Gallery
+      </button>
 
-        <h3>Menu Manager</h3>
+      <button class="side-btn" data-page="videos">
+        ▶ Videos
+      </button>
 
-        <div class="menu-toolbar">
 
-          <select id="categoryFilter">
-            <option value="">All Categories</option>
-          </select>
+      <div class="menu-label">
+        Restaurant
+      </div>
 
-          <button class="btn btn-dark" id="refreshMenu">
-            Refresh
+      <button class="side-btn" data-page="menu">
+        ☰ Menu Manager
+      </button>
+
+      <button class="side-btn" data-page="contact">
+        ☎ Contact
+      </button>
+
+      <button class="side-btn" data-page="social">
+        ● Social Media
+      </button>
+
+      <button class="side-btn" data-page="hours">
+        ◷ Opening Hours
+      </button>
+
+
+      <button class="side-btn logout" id="logoutBtn">
+        ⇥ Logout
+      </button>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+      <div class="top-header">
+
+        <div style="display:flex;align-items:center;">
+
+          <button
+            class="mobile-menu"
+            id="mobileMenu"
+          >
+            ☰
           </button>
 
+          <h2 id="pageHeading">
+            Dashboard
+          </h2>
+
         </div>
 
-        <div class="card" style="background:#0d0d0d;margin-bottom:20px;">
+        <a
+          href="index.html"
+          class="view-site"
+        >
+          View Website ↗
+        </a>
 
-          <h3>Add New Menu Item</h3>
+      </div>
 
-          <div class="grid">
 
-            <div>
-              <label>Name</label>
-              <input id="menuName" placeholder="Chicken Biryani">
+      <div class="content">
+
+
+        <!-- =====================
+             DASHBOARD
+        ====================== -->
+
+        <section
+          class="page active"
+          id="page-dashboard"
+        >
+
+          <div class="page-title">
+            <small>Welcome Back</small>
+            <h1>Restaurant Dashboard</h1>
+          </div>
+
+
+          <div class="stats">
+
+            <div class="stat-card">
+              <span>Menu Items</span>
+              <strong id="statMenu">0</strong>
             </div>
 
-            <div>
-              <label>Price</label>
-              <input id="menuPrice" placeholder="15.00">
+            <div class="stat-card">
+              <span>Gallery</span>
+              <strong id="statGallery">0</strong>
             </div>
 
-            <div>
-              <label>Category</label>
-
-              <select id="menuCategory">
-                <option value="">Select Category</option>
-              </select>
+            <div class="stat-card">
+              <span>Videos</span>
+              <strong>2</strong>
             </div>
 
-            <div>
-              <label>Image URL</label>
-              <input id="menuImage" placeholder="https://...">
+            <div class="stat-card">
+              <span>Website</span>
+              <strong>LIVE</strong>
             </div>
 
           </div>
 
-          <div class="category-box">
 
-            <input
-              id="newCategory"
-              placeholder="New category name"
+          <div class="panel">
+
+            <h3>Quick Actions</h3>
+
+            <div class="two-col">
+
+              <button
+                class="save-btn"
+                onclick="openPage('menu')"
+              >
+                + Add Menu Item
+              </button>
+
+              <button
+                class="save-btn"
+                onclick="openPage('gallery')"
+              >
+                + Add Gallery Photo
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Restaurant Information</h3>
+
+            <p style="color:#999;">
+              Via Vespasiano 73/75/77 Roma
+            </p>
+
+            <p style="color:#999;margin-top:8px;">
+              📞 +39 333 7687319
+            </p>
+
+            <p style="color:#999;margin-top:8px;">
+              📞 +39 393 3805350
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             HERO
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-hero"
+        >
+
+          <div class="page-title">
+            <small>Website</small>
+            <h1>Home / Hero</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Hero Content</h3>
+
+            <div class="field">
+              <label>Hero Small Text</label>
+              <input
+                id="heroSmall"
+                value="Welcome to Nababi"
+              >
+            </div>
+
+            <div class="field">
+              <label>Hero Title</label>
+              <input
+                id="heroTitle"
+                value="Taste of India in Roma"
+              >
+            </div>
+
+            <div class="field">
+              <label>Hero Description</label>
+              <textarea id="heroText">Discover an elegant dining experience where authentic Indian flavours meet modern hospitality in the heart of Rome.</textarea>
+            </div>
+
+            <div class="field">
+              <label>Hero Image URL</label>
+              <input
+                id="heroImage"
+                placeholder="Image URL"
+              >
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveHero()"
             >
-
-            <button class="btn btn-dark" id="addCategory">
-              + Add Category
+              SAVE HERO
             </button>
 
           </div>
 
-          <br>
+        </section>
 
-          <button class="btn btn-gold" id="addMenu">
-            Add Menu Item
-          </button>
 
-          <div id="menuMessage" class="message"></div>
+        <!-- =====================
+             ABOUT
+        ====================== -->
 
-        </div>
+        <section
+          class="page"
+          id="page-about"
+        >
 
-        <div id="menuList" class="menu-list">
-          <div class="empty">Loading menu...</div>
-        </div>
+          <div class="page-title">
+            <small>Website</small>
+            <h1>About Us</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>About Restaurant</h3>
+
+            <div class="field">
+              <label>Title</label>
+              <input
+                id="aboutTitle"
+                value="A Journey of Authentic Flavours"
+              >
+            </div>
+
+            <div class="field">
+              <label>Description</label>
+              <textarea id="aboutText">At Nababi Ristorante, we bring the rich traditions and unforgettable flavours of India to the heart of Rome.</textarea>
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveAbout()"
+            >
+              SAVE ABOUT
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             LOGO
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-logo"
+        >
+
+          <div class="page-title">
+            <small>Media</small>
+            <h1>Restaurant Logo</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Change Logo</h3>
+
+            <div class="upload-box">
+
+              <p>
+                Choose your logo from your phone Gallery.
+              </p>
+
+              <input
+                class="file-input"
+                type="file"
+                id="logoFile"
+                accept="image/*"
+              >
+
+              <label
+                class="upload-label"
+                for="logoFile"
+              >
+                SELECT LOGO
+              </label>
+
+              <img
+                id="logoPreview"
+                class="preview"
+                alt="Logo Preview"
+              >
+
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveLogo()"
+            >
+              SAVE LOGO
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             GALLERY
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-gallery"
+        >
+
+          <div class="page-title">
+            <small>Media</small>
+            <h1>Gallery</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Add Restaurant Photos</h3>
+
+            <div class="upload-box">
+
+              <p>
+                Select one or multiple photos from your phone.
+              </p>
+
+              <input
+                class="file-input"
+                type="file"
+                id="galleryFiles"
+                accept="image/*"
+                multiple
+              >
+
+              <label
+                class="upload-label"
+                for="galleryFiles"
+              >
+                SELECT PHOTOS
+              </label>
+
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="uploadGallery()"
+            >
+              UPLOAD PHOTOS
+            </button>
+
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Gallery Management</h3>
+
+            <p style="color:#777;">
+              Uploaded gallery photos will appear here.
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             VIDEOS
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-videos"
+        >
+
+          <div class="page-title">
+            <small>Media</small>
+            <h1>Two Video Sections</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Video 01</h3>
+
+            <div class="upload-box">
+
+              <p>
+                Choose the first restaurant video.
+              </p>
+
+              <input
+                class="file-input"
+                type="file"
+                id="videoOne"
+                accept="video/*"
+              >
+
+              <label
+                class="upload-label"
+                for="videoOne"
+              >
+                SELECT VIDEO 01
+              </label>
+
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveVideo(1)"
+            >
+              SAVE VIDEO 01
+            </button>
+
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Video 02</h3>
+
+            <div class="upload-box">
+
+              <p>
+                Choose the second restaurant video.
+              </p>
+
+              <input
+                class="file-input"
+                type="file"
+                id="videoTwo"
+                accept="video/*"
+              >
+
+              <label
+                class="upload-label"
+                for="videoTwo"
+              >
+                SELECT VIDEO 02
+              </label>
+
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveVideo(2)"
+            >
+              SAVE VIDEO 02
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             MENU MANAGER
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-menu"
+        >
+
+          <div class="page-title">
+            <small>Restaurant</small>
+            <h1>Menu Manager</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <div class="menu-toolbar">
+
+              <select
+                class="category-select"
+                id="categoryFilter"
+              >
+                <option value="all">
+                  All Categories
+                </option>
+              </select>
+
+              <button
+                class="add-btn"
+                onclick="showAddMenu()"
+              >
+                + ADD MENU ITEM
+              </button>
+
+            </div>
+
+
+            <div
+              id="menuForm"
+              style="display:none;margin-bottom:25px;"
+            >
+
+              <div class="panel">
+
+                <h3>Add / Edit Menu Item</h3>
+
+                <input
+                  type="hidden"
+                  id="editMenuId"
+                >
+
+                <div class="two-col">
+
+                  <div class="field">
+                    <label>Dish Name</label>
+                    <input
+                      id="menuName"
+                      placeholder="Chicken Tikka"
+                    >
+                  </div>
+
+                  <div class="field">
+                    <label>Price (€)</label>
+                    <input
+                      id="menuPrice"
+                      type="number"
+                      step="0.01"
+                      placeholder="14"
+                    >
+                  </div>
+
+                </div>
+
+
+                <div class="field">
+
+                  <label>Category</label>
+
+                  <select id="menuCategory">
+                  </select>
+
+                </div>
+
+
+                <div class="field">
+
+                  <label>Dish Photo</label>
+
+                  <input
+                    type="file"
+                    id="menuPhoto"
+                    accept="image/*"
+                  >
+
+                </div>
+
+
+                <div style="display:flex;gap:10px;">
+
+                  <button
+                    class="save-btn"
+                    onclick="saveMenuItem()"
+                  >
+                    SAVE ITEM
+                  </button>
+
+                  <button
+                    class="small-btn"
+                    onclick="hideMenuForm()"
+                  >
+                    CANCEL
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div id="menuList" class="menu-list">
+              Loading menu...
+            </div>
+
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Categories</h3>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+              <input
+                id="newCategory"
+                placeholder="New category name"
+                style="
+                  background:#090909;
+                  border:1px solid #292929;
+                  color:#fff;
+                  padding:11px 14px;
+                  flex:1;
+                  min-width:200px;
+                "
+              >
+
+              <button
+                class="add-btn"
+                onclick="addCategory()"
+              >
+                + ADD CATEGORY
+              </button>
+
+            </div>
+
+
+            <div
+              id="categoryList"
+              class="category-list"
+            ></div>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             CONTACT
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-contact"
+        >
+
+          <div class="page-title">
+            <small>Restaurant</small>
+            <h1>Contact</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Contact Information</h3>
+
+            <div class="field">
+              <label>Address</label>
+              <input
+                id="contactAddress"
+                value="Via Vespasiano 73/75/77 Roma"
+              >
+            </div>
+
+            <div class="two-col">
+
+              <div class="field">
+                <label>Phone 01</label>
+                <input
+                  id="phoneOne"
+                  value="+39 333 7687319"
+                >
+              </div>
+
+              <div class="field">
+                <label>Phone 02</label>
+                <input
+                  id="phoneTwo"
+                  value="+39 393 3805350"
+                >
+              </div>
+
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveContact()"
+            >
+              SAVE CONTACT
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             SOCIAL
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-social"
+        >
+
+          <div class="page-title">
+            <small>Restaurant</small>
+            <h1>Social Media</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Social Links</h3>
+
+            <div class="field">
+              <label>Facebook</label>
+              <input
+                id="facebook"
+                value="https://www.facebook.com/share/19eKdKRhLL/?mibextid=wwXIfr"
+              >
+            </div>
+
+            <div class="field">
+              <label>TikTok</label>
+              <input
+                id="tiktok"
+                value="https://www.tiktok.com/@nababiristorante"
+              >
+            </div>
+
+            <div class="field">
+              <label>Instagram</label>
+              <input
+                id="instagram"
+                placeholder="Instagram link"
+              >
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveSocial()"
+            >
+              SAVE SOCIAL MEDIA
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- =====================
+             HOURS
+        ====================== -->
+
+        <section
+          class="page"
+          id="page-hours"
+        >
+
+          <div class="page-title">
+            <small>Restaurant</small>
+            <h1>Opening Hours</h1>
+          </div>
+
+
+          <div class="panel">
+
+            <h3>Restaurant Opening Hours</h3>
+
+            <div class="two-col">
+
+              <div class="field">
+                <label>Monday</label>
+                <input
+                  id="mon"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+              <div class="field">
+                <label>Tuesday</label>
+                <input
+                  id="tue"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+              <div class="field">
+                <label>Wednesday</label>
+                <input
+                  id="wed"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+              <div class="field">
+                <label>Thursday</label>
+                <input
+                  id="thu"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+              <div class="field">
+                <label>Friday</label>
+                <input
+                  id="fri"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+              <div class="field">
+                <label>Saturday</label>
+                <input
+                  id="sat"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+              <div class="field">
+                <label>Sunday</label>
+                <input
+                  id="sun"
+                  value="12:00 - 23:00"
+                >
+              </div>
+
+            </div>
+
+            <button
+              class="save-btn"
+              onclick="saveHours()"
+            >
+              SAVE OPENING HOURS
+            </button>
+
+          </div>
+
+        </section>
+
 
       </div>
 
-    </section>
+    </main>
+
+  </div>
 
 
-    <!-- CONTACT -->
-
-    <section id="contact" class="section">
-
-      <div class="card">
-
-        <h3>Contact Information</h3>
-
-        <label>Address</label>
-        <input id="contactAddress">
-
-        <label>Phone</label>
-        <input id="contactPhone">
-
-        <label>WhatsApp</label>
-        <input id="contactWhatsapp">
-
-        <button class="btn btn-gold" id="saveContact">
-          Save Contact
-        </button>
-
-        <div id="contactMessage" class="message"></div>
-
-      </div>
-
-    </section>
+  <div id="message"></div>
 
 
-    <!-- SOCIAL -->
-
-    <section id="social" class="section">
-
-      <div class="card">
-
-        <h3>Social Media</h3>
-
-        <label>Facebook</label>
-        <input id="facebookUrl">
-
-        <label>Instagram</label>
-        <input id="instagramUrl">
-
-        <label>TikTok</label>
-        <input id="tiktokUrl">
-
-        <button class="btn btn-gold" id="saveSocial">
-          Save Social Media
-        </button>
-
-        <div id="socialMessage" class="message"></div>
-
-      </div>
-
-    </section>
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
 
 
-    <!-- HOURS -->
+  <script>
 
-    <section id="hours" class="section">
-
-      <div class="card">
-
-        <h3>Opening Hours</h3>
-
-        <textarea id="openingHours"
-          placeholder="Monday - Sunday&#10;12:00 - 23:00"></textarea>
-
-        <button class="btn btn-gold" id="saveHours">
-          Save Opening Hours
-        </button>
-
-        <div id="hoursMessage" class="message"></div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-</div>
+    let supabaseClient = null;
+    let currentMenu = [];
+    let categories = [];
 
 
-<script>
+    /* =========================
+       SUPABASE
+    ========================= */
 
-  /* =========================================================
-     SUPABASE INITIALIZATION
-  ========================================================= */
+    function initializeSupabase() {
 
-  let supabaseClient = null;
+      const url = window.SUPABASE_URL;
+      const key = window.SUPABASE_ANON_KEY;
 
-  const loginScreen = document.getElementById("loginScreen");
-  const app = document.getElementById("app");
-  const loginMessage = document.getElementById("loginMessage");
+      if (!url || !key) {
+        console.error("Supabase configuration missing.");
+        return false;
+      }
 
-  function showLoginError(message) {
-    loginMessage.className = "message error";
-    loginMessage.textContent = message;
-  }
-
-  function showLoginSuccess(message) {
-    loginMessage.className = "message success";
-    loginMessage.textContent = message;
-  }
-
-  function getConfigValue(name) {
-    try {
-      return window[name];
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function initializeSupabase() {
-
-    const url = getConfigValue("SUPABASE_URL");
-    const key = getConfigValue("SUPABASE_ANON_KEY");
-
-    if (!url) {
-      showLoginError(
-        "Supabase URL is missing. Please check config.js."
-      );
-      return false;
-    }
-
-    if (!key) {
-      showLoginError(
-        "Supabase Publishable Key is missing. Please check config.js."
-      );
-      return false;
-    }
-
-    if (!window.supabase || !window.supabase.createClient) {
-      showLoginError(
-        "Supabase library could not be loaded. Please refresh the page."
-      );
-      return false;
-    }
-
-    try {
-
-      supabaseClient = window.supabase.createClient(
-        url,
-        key
-      );
+      supabaseClient =
+        window.supabase.createClient(url, key);
 
       return true;
-
-    } catch (error) {
-
-      showLoginError(
-        "Supabase client error: " + error.message
-      );
-
-      return false;
-    }
-  }
-
-
-  /* =========================================================
-     INITIAL LOAD
-  ========================================================= */
-
-  async function startAdmin() {
-
-    if (!initializeSupabase()) {
-      return;
     }
 
-    try {
 
-      const {
-        data,
-        error
-      } = await supabaseClient.auth.getSession();
+    /* =========================
+       LOGIN
+    ========================= */
 
-      if (error) {
-        showLoginError(
-          "Supabase connection error: " + error.message
-        );
-        return;
-      }
+    document
+      .getElementById("loginForm")
+      .addEventListener("submit", async function(e) {
 
-      if (data && data.session) {
-        showAdmin();
-      }
+        e.preventDefault();
 
-    } catch (error) {
+        const email =
+          document.getElementById("email").value.trim();
 
-      showLoginError(
-        "Supabase connection error: " + error.message
-      );
-    }
-  }
+        const password =
+          document.getElementById("password").value;
 
+        const errorBox =
+          document.getElementById("loginError");
 
-  /* =========================================================
-     LOGIN
-  ========================================================= */
+        errorBox.textContent = "";
 
-  document
-    .getElementById("loginForm")
-    .addEventListener("submit", async function(event) {
-
-      event.preventDefault();
-
-      if (!supabaseClient) {
-
-        if (!initializeSupabase()) {
+        if (!supabaseClient) {
+          errorBox.textContent =
+            "Supabase connection is not available.";
           return;
         }
-      }
 
-      const email =
-        document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
-
-      if (!email || !password) {
-        showLoginError("Please enter email and password.");
-        return;
-      }
-
-      showLoginSuccess("Signing in...");
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
+        const { error } =
+          await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
 
         if (error) {
 
-          showLoginError(
-            "Login failed: " + error.message
-          );
+          errorBox.textContent =
+            error.message;
 
           return;
         }
 
-        if (!data || !data.session) {
+        showApp();
 
-          showLoginError(
-            "Login completed but no session was created."
-          );
+      });
 
-          return;
-        }
 
-        showAdmin();
+    async function checkSession() {
 
-      } catch (error) {
+      if (!supabaseClient) return;
 
-        showLoginError(
-          "Login error: " + error.message
-        );
+      const {
+        data
+      } = await supabaseClient.auth.getSession();
+
+      if (data.session) {
+        showApp();
       }
 
-    });
+    }
 
 
-  /* =========================================================
-     SHOW ADMIN
-  ========================================================= */
-
-  function showAdmin() {
-
-    loginScreen.style.display = "none";
-    app.style.display = "block";
-
-    loadSavedSettings();
-    loadMenu();
-  }
-
-
-  /* =========================================================
-     LOGOUT
-  ========================================================= */
-
-  document
-    .getElementById("logoutBtn")
-    .addEventListener("click", async function() {
-
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-      }
-
-      app.style.display = "none";
-      loginScreen.style.display = "flex";
+    function showApp() {
 
       document
-        .getElementById("password")
-        .value = "";
+        .getElementById("loginScreen")
+        .style.display = "none";
 
-    });
+      document
+        .getElementById("app")
+        .style.display = "block";
+
+      loadMenu();
+
+    }
 
 
-  /* =========================================================
-     NAVIGATION
-  ========================================================= */
+    /* =========================
+       LOGOUT
+    ========================= */
 
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach(function(button) {
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", async function() {
+
+        if (supabaseClient) {
+          await supabaseClient.auth.signOut();
+        }
+
+        location.reload();
+
+      });
+
+
+    /* =========================
+       NAVIGATION
+    ========================= */
+
+    const sideButtons =
+      document.querySelectorAll(".side-btn[data-page]");
+
+    sideButtons.forEach(button => {
 
       button.addEventListener("click", function() {
 
-        document
-          .querySelectorAll(".nav-btn")
-          .forEach(function(btn) {
-            btn.classList.remove("active");
-          });
-
-        button.classList.add("active");
+        openPage(this.dataset.page);
 
         document
-          .querySelectorAll(".section")
-          .forEach(function(section) {
-            section.classList.remove("active");
-          });
-
-        const section =
-          document.getElementById(
-            button.dataset.section
+          .querySelectorAll(".side-btn")
+          .forEach(btn =>
+            btn.classList.remove("active")
           );
 
-        if (section) {
-          section.classList.add("active");
-        }
-
-        document.getElementById("pageTitle").textContent =
-          button.textContent.trim();
+        this.classList.add("active");
 
       });
 
     });
 
 
-  /* =========================================================
-     LOCAL SETTINGS
-  ========================================================= */
-
-  function saveLocal(key, value) {
-    localStorage.setItem(
-      "nababi_" + key,
-      value
-    );
-  }
-
-  function loadLocal(key, fallback = "") {
-    return localStorage.getItem(
-      "nababi_" + key
-    ) || fallback;
-  }
-
-  function showMessage(id, text, success = true) {
-
-    const el = document.getElementById(id);
-
-    if (!el) return;
-
-    el.className =
-      success
-        ? "message success"
-        : "message error";
-
-    el.textContent = text;
-
-  }
-
-
-  function loadSavedSettings() {
-
-    document.getElementById("heroTitle").value =
-      loadLocal("heroTitle", "Nababi Ristorante");
-
-    document.getElementById("heroText").value =
-      loadLocal("heroText", "");
-
-    document.getElementById("heroImage").value =
-      loadLocal("heroImage", "");
-
-    document.getElementById("logoUrl").value =
-      loadLocal("logoUrl", "");
-
-    document.getElementById("video1").value =
-      loadLocal("video1", "");
-
-    document.getElementById("video2").value =
-      loadLocal("video2", "");
-
-    document.getElementById("contactAddress").value =
-      loadLocal(
-        "contactAddress",
-        "Via Vespasiano 73/75/77 Roma"
-      );
-
-    document.getElementById("contactPhone").value =
-      loadLocal(
-        "contactPhone",
-        "+39 333 7687319"
-      );
-
-    document.getElementById("contactWhatsapp").value =
-      loadLocal(
-        "contactWhatsapp",
-        "+39 333 7687319"
-      );
-
-    document.getElementById("facebookUrl").value =
-      loadLocal("facebookUrl", "");
-
-    document.getElementById("instagramUrl").value =
-      loadLocal("instagramUrl", "");
-
-    document.getElementById("tiktokUrl").value =
-      loadLocal("tiktokUrl", "");
-
-    document.getElementById("openingHours").value =
-      loadLocal("openingHours", "");
-
-  }
-
-
-  document
-    .getElementById("saveHero")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "heroTitle",
-        document.getElementById("heroTitle").value
-      );
-
-      saveLocal(
-        "heroText",
-        document.getElementById("heroText").value
-      );
-
-      saveLocal(
-        "heroImage",
-        document.getElementById("heroImage").value
-      );
-
-      showMessage(
-        "heroMessage",
-        "Hero saved successfully."
-      );
-
-    });
-
-
-  document
-    .getElementById("saveLogo")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "logoUrl",
-        document.getElementById("logoUrl").value
-      );
-
-      showMessage(
-        "logoMessage",
-        "Logo saved successfully."
-      );
-
-    });
-
-
-  document
-    .getElementById("saveVideo1")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "video1",
-        document.getElementById("video1").value
-      );
-
-      showMessage(
-        "video1Message",
-        "Video 1 saved successfully."
-      );
-
-    });
-
-
-  document
-    .getElementById("saveVideo2")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "video2",
-        document.getElementById("video2").value
-      );
-
-      showMessage(
-        "video2Message",
-        "Video 2 saved successfully."
-      );
-
-    });
-
-
-  document
-    .getElementById("saveContact")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "contactAddress",
-        document.getElementById("contactAddress").value
-      );
-
-      saveLocal(
-        "contactPhone",
-        document.getElementById("contactPhone").value
-      );
-
-      saveLocal(
-        "contactWhatsapp",
-        document.getElementById("contactWhatsapp").value
-      );
-
-      showMessage(
-        "contactMessage",
-        "Contact information saved."
-      );
-
-    });
-
-
-  document
-    .getElementById("saveSocial")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "facebookUrl",
-        document.getElementById("facebookUrl").value
-      );
-
-      saveLocal(
-        "instagramUrl",
-        document.getElementById("instagramUrl").value
-      );
-
-      saveLocal(
-        "tiktokUrl",
-        document.getElementById("tiktokUrl").value
-      );
-
-      showMessage(
-        "socialMessage",
-        "Social media saved."
-      );
-
-    });
-
-
-  document
-    .getElementById("saveHours")
-    .addEventListener("click", function() {
-
-      saveLocal(
-        "openingHours",
-        document.getElementById("openingHours").value
-      );
-
-      showMessage(
-        "hoursMessage",
-        "Opening hours saved."
-      );
-
-    });
-
-
-  /* =========================================================
-     GALLERY
-  ========================================================= */
-
-  document
-    .getElementById("galleryButton")
-    .addEventListener("click", function() {
-
-      const file =
-        document.getElementById("galleryFile").files[0];
-
-      if (!file) {
-
-        showMessage(
-          "galleryMessage",
-          "Please select an image first.",
-          false
+    function openPage(pageName) {
+
+      document
+        .querySelectorAll(".page")
+        .forEach(page =>
+          page.classList.remove("active")
         );
 
-        return;
-      }
-
-      showMessage(
-        "galleryMessage",
-        "File selected: " + file.name +
-        ". Storage upload will be connected next."
-      );
-
-    });
-
-
-  /* =========================================================
-     CATEGORIES
-  ========================================================= */
-
-  let categories = [];
-
-  function getCategories() {
-
-    try {
-
-      const saved =
-        JSON.parse(
-          localStorage.getItem("nababi_categories") || "[]"
+      const target =
+        document.getElementById(
+          "page-" + pageName
         );
 
-      if (Array.isArray(saved)) {
-        categories = saved;
+      if (target) {
+        target.classList.add("active");
       }
 
-    } catch (e) {
-      categories = [];
+      const titles = {
+        dashboard: "Dashboard",
+        hero: "Home / Hero",
+        about: "About Us",
+        logo: "Restaurant Logo",
+        gallery: "Gallery",
+        videos: "Videos",
+        menu: "Menu Manager",
+        contact: "Contact",
+        social: "Social Media",
+        hours: "Opening Hours"
+      };
+
+      document
+        .getElementById("pageHeading")
+        .textContent =
+        titles[pageName] || "Admin Panel";
+
+      document
+        .getElementById("sidebar")
+        .classList.remove("open");
+
+      if (pageName === "menu") {
+        loadMenu();
+      }
+
     }
 
-  }
+
+    document
+      .getElementById("mobileMenu")
+      .addEventListener("click", function() {
+
+        document
+          .getElementById("sidebar")
+          .classList.toggle("open");
+
+      });
 
 
-  function saveCategories() {
+    /* =========================
+       MENU
+    ========================= */
 
-    localStorage.setItem(
-      "nababi_categories",
-      JSON.stringify(categories)
-    );
+    async function loadMenu() {
 
-  }
+      if (!supabaseClient) return;
 
+      const list =
+        document.getElementById("menuList");
 
-  function populateCategories(existingMenu = []) {
-
-    const found = new Set();
-
-    categories.forEach(function(category) {
-      if (category) found.add(category);
-    });
-
-    existingMenu.forEach(function(item) {
-
-      if (item.category) {
-        found.add(item.category);
-      }
-
-    });
-
-    categories = Array.from(found).sort();
-
-    saveCategories();
-
-    const select =
-      document.getElementById("menuCategory");
-
-    const filter =
-      document.getElementById("categoryFilter");
-
-    select.innerHTML =
-      '<option value="">Select Category</option>';
-
-    filter.innerHTML =
-      '<option value="">All Categories</option>';
-
-    categories.forEach(function(category) {
-
-      const option =
-        document.createElement("option");
-
-      option.value = category;
-      option.textContent = category;
-
-      select.appendChild(option.cloneNode(true));
-      filter.appendChild(option);
-
-    });
-
-  }
-
-
-  document
-    .getElementById("addCategory")
-    .addEventListener("click", function() {
-
-      const input =
-        document.getElementById("newCategory");
-
-      const name =
-        input.value.trim();
-
-      if (!name) {
-
-        showMessage(
-          "menuMessage",
-          "Enter a category name.",
-          false
-        );
-
-        return;
-      }
-
-      const exists =
-        categories.some(function(category) {
-          return category.toLowerCase() === name.toLowerCase();
-        });
-
-      if (exists) {
-
-        showMessage(
-          "menuMessage",
-          "This category already exists.",
-          false
-        );
-
-        return;
-      }
-
-      categories.push(name);
-      saveCategories();
-
-      populateCategories([]);
-
-      document.getElementById("menuCategory").value = name;
-
-      input.value = "";
-
-      showMessage(
-        "menuMessage",
-        "Category added successfully."
-      );
-
-    });
-
-
-  /* =========================================================
-     MENU LOAD
-  ========================================================= */
-
-  let allMenuItems = [];
-
-  async function loadMenu() {
-
-    if (!supabaseClient) return;
-
-    const list =
-      document.getElementById("menuList");
-
-    list.innerHTML =
-      '<div class="empty">Loading menu...</div>';
-
-    try {
+      list.innerHTML = "Loading menu...";
 
       const {
         data,
@@ -1484,458 +1817,363 @@
       } = await supabaseClient
         .from("Menu")
         .select("*")
-        .order("id", { ascending: true });
+        .order("id", {
+          ascending: false
+        });
 
       if (error) {
 
         list.innerHTML =
-          '<div class="empty">Menu error: ' +
-          escapeHtml(error.message) +
-          '</div>';
+          `<p style="color:#f77;">
+            ${escapeHtml(error.message)}
+          </p>`;
 
         return;
       }
 
-      allMenuItems = data || [];
+      currentMenu = data || [];
 
-      getCategories();
-      populateCategories(allMenuItems);
+      document
+        .getElementById("statMenu")
+        .textContent =
+        currentMenu.length;
+
+      buildCategories();
 
       renderMenu();
 
-    } catch (error) {
+    }
 
-      list.innerHTML =
-        '<div class="empty">Menu error: ' +
-        escapeHtml(error.message) +
-        '</div>';
+
+    function buildCategories() {
+
+      const saved =
+        JSON.parse(
+          localStorage.getItem("nababi_categories") ||
+          "[]"
+        );
+
+      const fromMenu =
+        currentMenu
+          .map(item => item.category)
+          .filter(Boolean);
+
+      categories =
+        [...new Set([
+          ...saved,
+          ...fromMenu
+        ])];
+
+      if (!categories.length) {
+        categories = [
+          "Starters",
+          "Main Course",
+          "Rice",
+          "Breads",
+          "Desserts",
+          "Drinks"
+        ];
+      }
+
+      localStorage.setItem(
+        "nababi_categories",
+        JSON.stringify(categories)
+      );
+
+      updateCategorySelects();
+      renderCategories();
 
     }
 
-  }
 
+    function updateCategorySelects() {
 
-  function renderMenu() {
+      const filter =
+        document.getElementById("categoryFilter");
 
-    const list =
-      document.getElementById("menuList");
+      const select =
+        document.getElementById("menuCategory");
 
-    const filter =
-      document.getElementById("categoryFilter").value;
+      filter.innerHTML =
+        `<option value="all">All Categories</option>`;
 
-    let items = allMenuItems;
+      select.innerHTML = "";
 
-    if (filter) {
+      categories.forEach(category => {
 
-      items =
-        items.filter(function(item) {
-          return item.category === filter;
-        });
+        filter.innerHTML +=
+          `<option value="${escapeAttr(category)}">
+            ${escapeHtml(category)}
+          </option>`;
+
+        select.innerHTML +=
+          `<option value="${escapeAttr(category)}">
+            ${escapeHtml(category)}
+          </option>`;
+
+      });
 
     }
 
-    if (!items.length) {
 
-      list.innerHTML =
-        '<div class="empty">No menu items found.</div>';
+    document
+      .getElementById("categoryFilter")
+      .addEventListener("change", renderMenu);
 
-      return;
+
+    function renderMenu() {
+
+      const list =
+        document.getElementById("menuList");
+
+      const filter =
+        document.getElementById("categoryFilter").value;
+
+      let items = currentMenu;
+
+      if (filter !== "all") {
+        items =
+          items.filter(
+            item => item.category === filter
+          );
+      }
+
+      if (!items.length) {
+
+        list.innerHTML =
+          `<p style="color:#777;">
+            No menu items found.
+          </p>`;
+
+        return;
+      }
+
+      list.innerHTML = items.map(item => {
+
+        const image =
+          item.image_url ||
+          "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=300&q=70";
+
+        return `
+          <div class="menu-item">
+
+            <div class="menu-info">
+
+              <img
+                class="menu-photo"
+                src="${escapeAttr(image)}"
+                alt=""
+              >
+
+              <div>
+
+                <h4>
+                  ${escapeHtml(item.name || "")}
+                </h4>
+
+                <p>
+                  ${escapeHtml(item.category || "Uncategorized")}
+                </p>
+
+              </div>
+
+            </div>
+
+            <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
+
+              <span class="menu-price">
+                €${escapeHtml(String(item.price || ""))}
+              </span>
+
+              <div class="actions">
+
+                <button
+                  class="small-btn"
+                  onclick="editMenu('${escapeAttr(String(item.id))}')"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="small-btn"
+                  onclick="changePrice('${escapeAttr(String(item.id))}')"
+                >
+                  Price
+                </button>
+
+                <button
+                  class="small-btn"
+                  onclick="changeCategory('${escapeAttr(String(item.id))}')"
+                >
+                  Category
+                </button>
+
+                <button
+                  class="small-btn"
+                  onclick="changePhoto('${escapeAttr(String(item.id))}')"
+                >
+                  Photo
+                </button>
+
+                <button
+                  class="small-btn delete-btn"
+                  onclick="deleteMenu('${escapeAttr(String(item.id))}')"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        `;
+
+      }).join("");
+
     }
 
-    list.innerHTML = "";
 
-    items.forEach(function(item) {
+    function showAddMenu() {
 
-      const row =
-        document.createElement("div");
+      document
+        .getElementById("menuForm")
+        .style.display = "block";
 
-      row.className = "menu-item";
+      document
+        .getElementById("editMenuId")
+        .value = "";
 
-      row.innerHTML = `
-        <div class="menu-info">
-          <h4>${escapeHtml(item.name || "Unnamed item")}</h4>
-          <span>
-            ${escapeHtml(item.category || "No category")}
-            · ${escapeHtml(String(item.price ?? ""))}
-          </span>
-        </div>
+      document
+        .getElementById("menuName")
+        .value = "";
 
-        <div class="menu-actions">
+      document
+        .getElementById("menuPrice")
+        .value = "";
 
-          <button
-            class="small-btn gold-btn"
-            onclick="editMenu(${Number(item.id)})">
-            Edit
-          </button>
+      document
+        .getElementById("menuPhoto")
+        .value = "";
 
-          <button
-            class="small-btn"
-            onclick="changePrice(${Number(item.id)})">
-            Price
-          </button>
+      updateCategorySelects();
 
-          <button
-            class="small-btn"
-            onclick="changeCategory(${Number(item.id)})">
-            Category
-          </button>
-
-          <button
-            class="small-btn"
-            onclick="changePhoto(${Number(item.id)})">
-            Photo
-          </button>
-
-          <button
-            class="small-btn"
-            onclick="deleteMenu(${Number(item.id)})">
-            Delete
-          </button>
-
-        </div>
-      `;
-
-      list.appendChild(row);
-
-    });
-
-  }
+    }
 
 
-  document
-    .getElementById("categoryFilter")
-    .addEventListener("change", renderMenu);
+    function hideMenuForm() {
+
+      document
+        .getElementById("menuForm")
+        .style.display = "none";
+
+    }
 
 
-  document
-    .getElementById("refreshMenu")
-    .addEventListener("click", loadMenu);
+    function editMenu(id) {
+
+      const item =
+        currentMenu.find(
+          x => String(x.id) === String(id)
+        );
+
+      if (!item) return;
+
+      document
+        .getElementById("menuForm")
+        .style.display = "block";
+
+      document
+        .getElementById("editMenuId")
+        .value = item.id;
+
+      document
+        .getElementById("menuName")
+        .value = item.name || "";
+
+      document
+        .getElementById("menuPrice")
+        .value = item.price || "";
+
+      updateCategorySelects();
+
+      document
+        .getElementById("menuCategory")
+        .value =
+        item.category || categories[0];
+
+      document
+        .getElementById("menuPhoto")
+        .value = "";
+
+    }
 
 
-  /* =========================================================
-     ADD MENU
-  ========================================================= */
+    async function saveMenuItem() {
 
-  document
-    .getElementById("addMenu")
-    .addEventListener("click", async function() {
+      const id =
+        document.getElementById("editMenuId").value;
 
       const name =
         document.getElementById("menuName").value.trim();
 
       const price =
-        document.getElementById("menuPrice").value.trim();
+        document.getElementById("menuPrice").value;
 
       const category =
-        document.getElementById("menuCategory").value.trim();
+        document.getElementById("menuCategory").value;
 
-      const image =
-        document.getElementById("menuImage").value.trim();
-
-      if (!name || !price || !category) {
-
-        showMessage(
-          "menuMessage",
-          "Name, price and category are required.",
-          false
-        );
-
+      if (!name || !price) {
+        showMessage("Please enter name and price.");
         return;
       }
 
-      try {
+      const payload = {
+        name,
+        price,
+        category
+      };
 
-        const {
-          error
-        } = await supabaseClient
-          .from("Menu")
-          .insert([{
-            name: name,
-            price: price,
-            category: category,
-            image_url: image
-          }]);
+      let result;
 
-        if (error) {
+      if (id) {
 
-          showMessage(
-            "menuMessage",
-            "Add failed: " + error.message,
-            false
-          );
+        result =
+          await supabaseClient
+            .from("Menu")
+            .update(payload)
+            .eq("id", id);
 
-          return;
-        }
+      } else {
 
-        document.getElementById("menuName").value = "";
-        document.getElementById("menuPrice").value = "";
-        document.getElementById("menuImage").value = "";
-
-        showMessage(
-          "menuMessage",
-          "Menu item added successfully."
-        );
-
-        await loadMenu();
-
-      } catch (error) {
-
-        showMessage(
-          "menuMessage",
-          error.message,
-          false
-        );
+        result =
+          await supabaseClient
+            .from("Menu")
+            .insert(payload);
 
       }
 
-    });
+      if (result.error) {
+
+        showMessage(result.error.message);
+        return;
+
+      }
+
+      hideMenuForm();
+
+      showMessage("Menu item saved.");
+
+      loadMenu();
+
+    }
 
 
-  /* =========================================================
-     EDIT MENU
-  ========================================================= */
+    async function deleteMenu(id) {
 
-  window.editMenu = async function(id) {
-
-    const item =
-      allMenuItems.find(function(x) {
-        return Number(x.id) === Number(id);
-      });
-
-    if (!item) return;
-
-    const name =
-      prompt("Menu name:", item.name || "");
-
-    if (name === null) return;
-
-    const price =
-      prompt("Price:", item.price || "");
-
-    if (price === null) return;
-
-    const category =
-      prompt(
-        "Category:",
-        item.category || ""
-      );
-
-    if (category === null) return;
-
-    try {
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .update({
-          name: name.trim(),
-          price: price.trim(),
-          category: category.trim()
-        })
-        .eq("id", id);
-
-      if (error) {
-
-        alert(
-          "Update failed: " +
-          error.message
-        );
-
+      if (!confirm("Delete this menu item?")) {
         return;
       }
-
-      await loadMenu();
-
-    } catch (error) {
-
-      alert(error.message);
-
-    }
-
-  };
-
-
-  /* =========================================================
-     CHANGE PRICE
-  ========================================================= */
-
-  window.changePrice = async function(id) {
-
-    const item =
-      allMenuItems.find(function(x) {
-        return Number(x.id) === Number(id);
-      });
-
-    if (!item) return;
-
-    const price =
-      prompt(
-        "New price:",
-        item.price || ""
-      );
-
-    if (price === null) return;
-
-    try {
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .update({
-          price: price.trim()
-        })
-        .eq("id", id);
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
-      await loadMenu();
-
-    } catch (error) {
-      alert(error.message);
-    }
-
-  };
-
-
-  /* =========================================================
-     CHANGE CATEGORY
-  ========================================================= */
-
-  window.changeCategory = async function(id) {
-
-    const item =
-      allMenuItems.find(function(x) {
-        return Number(x.id) === Number(id);
-      });
-
-    if (!item) return;
-
-    getCategories();
-
-    const category =
-      prompt(
-        "New category:\n\n" +
-        categories.join(", "),
-        item.category || ""
-      );
-
-    if (category === null) return;
-
-    const clean =
-      category.trim();
-
-    if (!clean) return;
-
-    if (
-      !categories.some(function(x) {
-        return x.toLowerCase() === clean.toLowerCase();
-      })
-    ) {
-
-      categories.push(clean);
-      saveCategories();
-
-    }
-
-    try {
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .update({
-          category: clean
-        })
-        .eq("id", id);
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
-      await loadMenu();
-
-    } catch (error) {
-      alert(error.message);
-    }
-
-  };
-
-
-  /* =========================================================
-     CHANGE PHOTO
-  ========================================================= */
-
-  window.changePhoto = async function(id) {
-
-    const item =
-      allMenuItems.find(function(x) {
-        return Number(x.id) === Number(id);
-      });
-
-    if (!item) return;
-
-    const image =
-      prompt(
-        "New image URL:",
-        item.image_url || ""
-      );
-
-    if (image === null) return;
-
-    try {
-
-      const {
-        error
-      } = await supabaseClient
-        .from("Menu")
-        .update({
-          image_url: image.trim()
-        })
-        .eq("id", id);
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
-      await loadMenu();
-
-    } catch (error) {
-      alert(error.message);
-    }
-
-  };
-
-
-  /* =========================================================
-     DELETE MENU
-  ========================================================= */
-
-  window.deleteMenu = async function(id) {
-
-    const item =
-      allMenuItems.find(function(x) {
-        return Number(x.id) === Number(id);
-      });
-
-    if (!item) return;
-
-    const ok =
-      confirm(
-        "Delete '" +
-        (item.name || "this item") +
-        "'?"
-      );
-
-    if (!ok) return;
-
-    try {
 
       const {
         error
@@ -1946,48 +2184,441 @@
 
       if (error) {
 
-        alert(
-          "Delete failed: " +
-          error.message
+        showMessage(error.message);
+        return;
+
+      }
+
+      showMessage("Menu item deleted.");
+
+      loadMenu();
+
+    }
+
+
+    async function changePrice(id) {
+
+      const item =
+        currentMenu.find(
+          x => String(x.id) === String(id)
+        );
+
+      if (!item) return;
+
+      const value =
+        prompt(
+          "Enter new price:",
+          item.price || ""
+        );
+
+      if (value === null) return;
+
+      const {
+        error
+      } = await supabaseClient
+        .from("Menu")
+        .update({
+          price: value
+        })
+        .eq("id", id);
+
+      if (error) {
+
+        showMessage(error.message);
+        return;
+
+      }
+
+      showMessage("Price updated.");
+
+      loadMenu();
+
+    }
+
+
+    async function changeCategory(id) {
+
+      const item =
+        currentMenu.find(
+          x => String(x.id) === String(id)
+        );
+
+      if (!item) return;
+
+      const value =
+        prompt(
+          "Enter category:\n\n" +
+          categories.join(", "),
+          item.category || ""
+        );
+
+      if (value === null || !value.trim()) {
+        return;
+      }
+
+      const {
+        error
+      } = await supabaseClient
+        .from("Menu")
+        .update({
+          category: value.trim()
+        })
+        .eq("id", id);
+
+      if (error) {
+
+        showMessage(error.message);
+        return;
+
+      }
+
+      if (!categories.includes(value.trim())) {
+
+        categories.push(value.trim());
+
+        localStorage.setItem(
+          "nababi_categories",
+          JSON.stringify(categories)
+        );
+
+      }
+
+      showMessage("Category updated.");
+
+      loadMenu();
+
+    }
+
+
+    async function changePhoto(id) {
+
+      showMessage(
+        "Photo upload connection will be enabled next."
+      );
+
+    }
+
+
+    function addCategory() {
+
+      const input =
+        document.getElementById("newCategory");
+
+      const value =
+        input.value.trim();
+
+      if (!value) {
+        showMessage("Enter a category name.");
+        return;
+      }
+
+      if (!categories.includes(value)) {
+
+        categories.push(value);
+
+        localStorage.setItem(
+          "nababi_categories",
+          JSON.stringify(categories)
+        );
+
+        updateCategorySelects();
+        renderCategories();
+
+        showMessage(
+          "Category added."
+        );
+
+      } else {
+
+        showMessage(
+          "Category already exists."
+        );
+
+      }
+
+      input.value = "";
+
+    }
+
+
+    function renderCategories() {
+
+      const box =
+        document.getElementById("categoryList");
+
+      box.innerHTML =
+        categories.map(category => `
+          <span class="category-tag">
+            ${escapeHtml(category)}
+          </span>
+        `).join("");
+
+    }
+
+
+    /* =========================
+       SAVE SETTINGS
+    ========================= */
+
+    function saveHero() {
+
+      localStorage.setItem(
+        "nababi_hero",
+        JSON.stringify({
+          small:
+            document.getElementById("heroSmall").value,
+          title:
+            document.getElementById("heroTitle").value,
+          text:
+            document.getElementById("heroText").value,
+          image:
+            document.getElementById("heroImage").value
+        })
+      );
+
+      showMessage("Hero saved.");
+
+    }
+
+
+    function saveAbout() {
+
+      localStorage.setItem(
+        "nababi_about",
+        JSON.stringify({
+          title:
+            document.getElementById("aboutTitle").value,
+          text:
+            document.getElementById("aboutText").value
+        })
+      );
+
+      showMessage("About section saved.");
+
+    }
+
+
+    function saveLogo() {
+
+      const file =
+        document.getElementById("logoFile").files[0];
+
+      if (!file) {
+
+        showMessage(
+          "Please select a logo."
         );
 
         return;
       }
 
-      await loadMenu();
-
-    } catch (error) {
-
-      alert(error.message);
+      showMessage(
+        "Logo upload connection will be enabled next."
+      );
 
     }
 
-  };
+
+    function uploadGallery() {
+
+      const files =
+        document.getElementById("galleryFiles").files;
+
+      if (!files.length) {
+
+        showMessage(
+          "Please select photos."
+        );
+
+        return;
+      }
+
+      showMessage(
+        files.length +
+        " photo(s) selected. Storage upload will be connected next."
+      );
+
+    }
 
 
-  /* =========================================================
-     ESCAPE HTML
-  ========================================================= */
+    function saveVideo(number) {
 
-  function escapeHtml(value) {
+      const id =
+        number === 1
+          ? "videoOne"
+          : "videoTwo";
 
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+      const file =
+        document.getElementById(id).files[0];
 
-  }
+      if (!file) {
+
+        showMessage(
+          "Please select a video."
+        );
+
+        return;
+      }
+
+      showMessage(
+        "Video " +
+        number +
+        " selected. Storage upload will be connected next."
+      );
+
+    }
 
 
-  /* =========================================================
-     START
-  ========================================================= */
+    function saveContact() {
 
-  startAdmin();
+      localStorage.setItem(
+        "nababi_contact",
+        JSON.stringify({
+          address:
+            document.getElementById("contactAddress").value,
+          phone1:
+            document.getElementById("phoneOne").value,
+          phone2:
+            document.getElementById("phoneTwo").value
+        })
+      );
 
-</script>
+      showMessage("Contact saved.");
+
+    }
+
+
+    function saveSocial() {
+
+      localStorage.setItem(
+        "nababi_social",
+        JSON.stringify({
+          facebook:
+            document.getElementById("facebook").value,
+          tiktok:
+            document.getElementById("tiktok").value,
+          instagram:
+            document.getElementById("instagram").value
+        })
+      );
+
+      showMessage("Social media saved.");
+
+    }
+
+
+    function saveHours() {
+
+      const ids = [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ];
+
+      const data = {};
+
+      ids.forEach(id => {
+        data[id] =
+          document.getElementById(id).value;
+      });
+
+      localStorage.setItem(
+        "nababi_hours",
+        JSON.stringify(data)
+      );
+
+      showMessage("Opening hours saved.");
+
+    }
+
+
+    /* =========================
+       LOGO PREVIEW
+    ========================= */
+
+    document
+      .getElementById("logoFile")
+      .addEventListener("change", function() {
+
+        const file = this.files[0];
+
+        if (!file) return;
+
+        const reader =
+          new FileReader();
+
+        reader.onload = function(e) {
+
+          const preview =
+            document.getElementById("logoPreview");
+
+          preview.src = e.target.result;
+
+          preview.style.display = "block";
+
+        };
+
+        reader.readAsDataURL(file);
+
+      });
+
+
+    /* =========================
+       MESSAGE
+    ========================= */
+
+    function showMessage(message) {
+
+      const box =
+        document.getElementById("message");
+
+      box.textContent = message;
+
+      box.style.display = "block";
+
+      setTimeout(() => {
+
+        box.style.display = "none";
+
+      }, 3000);
+
+    }
+
+
+    /* =========================
+       SECURITY HELPERS
+    ========================= */
+
+    function escapeHtml(value) {
+
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
+
+    /* =========================
+       START
+    ========================= */
+
+    if (initializeSupabase()) {
+      checkSession();
+    }
+
+  </script>
 
 </body>
 </html>
