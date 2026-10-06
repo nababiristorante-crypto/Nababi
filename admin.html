@@ -1,652 +1,571 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Nababi Ristorante — Admin</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:#090909;
-  color:#fff;
-}
-
-/* =========================
-   LOGIN
-========================= */
-
-#loginScreen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-
-  background:
-    radial-gradient(circle at top,#2a2412 0,#090909 45%,#050505 100%);
-}
-
-.login-card{
-  width:100%;
-  max-width:430px;
-  padding:38px 30px;
-  background:#111;
-  border:1px solid rgba(212,175,55,.35);
-  border-radius:20px;
-  box-shadow:0 25px 80px rgba(0,0,0,.7);
-}
-
-.login-logo{
-  text-align:center;
-  color:#d4af37;
-  font-family:Georgia,serif;
-  font-size:30px;
-  font-weight:bold;
-  letter-spacing:3px;
-}
-
-.login-sub{
-  text-align:center;
-  color:#777;
-  margin-top:6px;
-  margin-bottom:30px;
-  font-size:12px;
-  letter-spacing:2px;
-}
-
-label{
-  display:block;
-  color:#bbb;
-  font-size:13px;
-  margin:16px 0 7px;
-}
-
-input,
-textarea,
-select{
-  width:100%;
-  padding:13px 14px;
-  background:#080808;
-  color:#fff;
-  border:1px solid #333;
-  border-radius:9px;
-  outline:none;
-  font-size:14px;
-}
-
-input:focus,
-textarea:focus,
-select:focus{
-  border-color:#d4af37;
-}
-
-textarea{
-  min-height:110px;
-  resize:vertical;
-}
-
-select{
-  appearance:auto;
-}
-
-.primary-btn{
-  width:100%;
-  border:0;
-  background:#d4af37;
-  color:#000;
-  padding:14px;
-  border-radius:30px;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:22px;
-  font-size:14px;
-}
-
-.primary-btn:hover{
-  background:#f0d46a;
-}
-
-.message{
-  text-align:center;
-  margin-top:15px;
-  font-size:13px;
-  min-height:18px;
-}
-
-/* =========================
-   ADMIN APP
-========================= */
-
-#adminApp{
-  display:none;
-  min-height:100vh;
-}
-
-.sidebar{
-  position:fixed;
-  left:0;
-  top:0;
-  bottom:0;
-  width:260px;
-  background:#0d0d0d;
-  border-right:1px solid #222;
-  padding:25px 18px;
-  z-index:1000;
-  overflow-y:auto;
-}
-
-.brand{
-  padding:5px 10px 25px;
-  border-bottom:1px solid #222;
-  margin-bottom:20px;
-}
-
-.brand h1{
-  color:#d4af37;
-  font-family:Georgia,serif;
-  font-size:22px;
-  letter-spacing:2px;
-}
-
-.brand p{
-  color:#666;
-  font-size:11px;
-  margin-top:5px;
-  letter-spacing:1px;
-}
-
-.nav-btn{
-  width:100%;
-  border:0;
-  background:transparent;
-  color:#aaa;
-  text-align:left;
-  padding:13px 14px;
-  border-radius:9px;
-  margin-bottom:5px;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.nav-btn:hover,
-.nav-btn.active{
-  background:#19160c;
-  color:#d4af37;
-}
-
-.logout{
-  margin-top:25px;
-  color:#ff7777;
-}
-
-.main{
-  margin-left:260px;
-  min-height:100vh;
-  padding:30px;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:20px;
-  margin-bottom:30px;
-}
-
-.topbar h2{
-  font-family:Georgia,serif;
-  font-size:30px;
-}
-
-.preview-btn{
-  border:1px solid #d4af37;
-  color:#d4af37;
-  background:transparent;
-  padding:10px 17px;
-  border-radius:25px;
-  cursor:pointer;
-}
-
-.preview-btn:hover{
-  background:#d4af37;
-  color:#000;
-}
-
-/* =========================
-   SECTIONS
-========================= */
-
-.panel{
-  display:none;
-}
-
-.panel.active{
-  display:block;
-}
-
-.card{
-  background:#111;
-  border:1px solid #222;
-  border-radius:16px;
-  padding:25px;
-  margin-bottom:22px;
-}
-
-.card-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:20px;
-}
-
-.card-title h3{
-  font-family:Georgia,serif;
-  font-size:22px;
-}
-
-.card-title span{
-  color:#d4af37;
-  font-size:12px;
-}
-
-.grid-2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
-}
-
-.grid-3{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
-}
-
-.save-btn{
-  background:#d4af37;
-  color:#000;
-  border:0;
-  padding:12px 22px;
-  border-radius:25px;
-  cursor:pointer;
-  font-weight:bold;
-  margin-top:20px;
-}
-
-.save-btn:hover{
-  background:#f0d46a;
-}
-
-/* =========================
-   DASHBOARD
-========================= */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:16px;
-  margin-bottom:25px;
-}
-
-.stat{
-  background:#111;
-  border:1px solid #222;
-  border-radius:15px;
-  padding:22px;
-}
-
-.stat .icon{
-  font-size:25px;
-}
-
-.stat h3{
-  color:#d4af37;
-  font-size:28px;
-  margin-top:10px;
-}
-
-.stat p{
-  color:#777;
-  font-size:12px;
-}
-
-/* =========================
-   MENU
-========================= */
-
-.menu-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.small-btn{
-  padding:9px 14px;
-  border-radius:20px;
-  border:1px solid #444;
-  background:#171717;
-  color:#ddd;
-  cursor:pointer;
-}
-
-.small-btn:hover{
-  border-color:#d4af37;
-  color:#d4af37;
-}
-
-.menu-list{
-  margin-top:20px;
-}
-
-.menu-row{
-  display:grid;
-  grid-template-columns:70px 1fr 110px 140px 90px;
-  gap:15px;
-  align-items:center;
-  padding:14px 0;
-  border-bottom:1px solid #222;
-}
-
-.menu-thumb{
-  width:60px;
-  height:60px;
-  border-radius:9px;
-  object-fit:cover;
-  background:#222;
-}
-
-.menu-name{
-  font-weight:bold;
-}
-
-.menu-category{
-  color:#999;
-  font-size:12px;
-}
-
-.menu-price{
-  color:#d4af37;
-}
-
-.delete-btn{
-  background:#2a1111;
-  border:1px solid #552222;
-  color:#ff7777;
-  padding:8px 10px;
-  border-radius:7px;
-  cursor:pointer;
-}
-
-.edit-btn{
-  background:#18160e;
-  border:1px solid #66551d;
-  color:#d4af37;
-  padding:8px 10px;
-  border-radius:7px;
-  cursor:pointer;
-}
-
-/* =========================
-   CATEGORY
-========================= */
-
-.category-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:15px;
-}
-
-.category-pill{
-  padding:9px 14px;
-  background:#19160c;
-  color:#d4af37;
-  border:1px solid #4c401b;
-  border-radius:20px;
-  font-size:13px;
-}
-
-/* =========================
-   UPLOAD BOX
-========================= */
-
-.upload-box{
-  border:1px dashed #555;
-  border-radius:12px;
-  padding:25px;
-  text-align:center;
-  margin-top:12px;
-  color:#888;
-}
-
-.upload-box strong{
-  display:block;
-  color:#d4af37;
-  margin-bottom:6px;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-.mobile-menu{
-  display:none;
-}
-
-@media(max-width:900px){
-
-  .sidebar{
-    width:220px;
-  }
-
-  .main{
-    margin-left:220px;
-    padding:20px;
-  }
-
-  .stats{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .grid-3{
-    grid-template-columns:1fr;
-  }
-
-  .menu-row{
-    grid-template-columns:55px 1fr 80px;
-  }
-
-  .menu-row .desktop-only{
-    display:none;
-  }
-}
-
-@media(max-width:650px){
-
-  .sidebar{
-    position:fixed;
-    transform:translateX(-100%);
-    width:280px;
-    transition:.3s;
-  }
-
-  .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .main{
-    margin-left:0;
-    padding:15px;
-  }
-
-  .mobile-menu{
-    display:block;
-    background:#111;
-    border:1px solid #333;
-    color:#d4af37;
-    width:42px;
-    height:42px;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:20px;
-  }
-
-  .topbar{
-    align-items:center;
-  }
-
-  .topbar h2{
-    font-size:23px;
-  }
-
-  .stats{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .grid-2{
-    grid-template-columns:1fr;
-  }
-
-  .card{
-    padding:18px;
-  }
-
-  .menu-row{
-    grid-template-columns:55px 1fr 75px;
-  }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Nababi Ristorante — Admin Panel</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0b0b0b;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* LOGIN */
+
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px;
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,.18), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(212,175,55,.10), transparent 35%),
+        #070707;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: #111;
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: 22px;
+      padding: 40px 30px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.65);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .login-logo .brand {
+      color: #d4af37;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .login-logo p {
+      color: #aaa;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #181818;
+      color: white;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #d4af37;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#d4af37,#f1d477);
+      color: #111;
+      font-weight: 800;
+      font-size: 15px;
+      margin-top: 5px;
+    }
+
+    .primary-btn:hover {
+      opacity: .9;
+    }
+
+    .login-message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .login-message.error {
+      display: block;
+      background: rgba(255,70,70,.12);
+      border: 1px solid rgba(255,70,70,.4);
+      color: #ff9d9d;
+    }
+
+    .login-message.success {
+      display: block;
+      background: rgba(80,200,120,.12);
+      border: 1px solid rgba(80,200,120,.4);
+      color: #8ef0ad;
+    }
+
+    /* APP */
+
+    #adminApp {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: #0e0e0e;
+      border-right: 1px solid #242424;
+      padding: 25px 15px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 10px 12px 25px;
+      border-bottom: 1px solid #252525;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-brand strong {
+      display: block;
+      color: #d4af37;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
+    .sidebar-brand span {
+      color: #777;
+      font-size: 12px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      padding: 13px 14px;
+      margin-bottom: 6px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: #bbb;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(212,175,55,.12);
+      color: #d4af37;
+    }
+
+    .logout-btn {
+      margin-top: 20px;
+      color: #ff7777;
+    }
+
+    .main {
+      margin-left: 260px;
+      width: calc(100% - 260px);
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #222;
+      padding-bottom: 20px;
+    }
+
+    .topbar h1 {
+      font-size: 28px;
+    }
+
+    .user-email {
+      color: #aaa;
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .page-title {
+      margin-bottom: 20px;
+    }
+
+    .page-title h2 {
+      color: #d4af37;
+      margin-bottom: 6px;
+    }
+
+    .page-title p {
+      color: #888;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 18px;
+    }
+
+    .stat-card {
+      background: #111;
+      border: 1px solid #252525;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .stat-card span {
+      color: #888;
+      font-size: 13px;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 30px;
+      margin-top: 8px;
+      color: #d4af37;
+    }
+
+    .panel {
+      background: #111;
+      border: 1px solid #252525;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .panel h3 {
+      margin-bottom: 18px;
+      color: #eee;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .save-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 9px;
+      background: #d4af37;
+      color: #111;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .danger-btn {
+      padding: 9px 13px;
+      border: none;
+      border-radius: 8px;
+      background: #7d2222;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .edit-btn {
+      padding: 9px 13px;
+      border: none;
+      border-radius: 8px;
+      background: #d4af37;
+      color: #111;
+      font-weight: 700;
+    }
+
+    .menu-table-wrap {
+      overflow-x: auto;
+    }
+
+    .menu-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    .menu-table th,
+    .menu-table td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #252525;
+      text-align: left;
+    }
+
+    .menu-table th {
+      color: #d4af37;
+      font-size: 13px;
+    }
+
+    .menu-table td {
+      color: #ddd;
+      font-size: 14px;
+    }
+
+    .menu-img {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #222;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .category-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .category-row .field {
+      flex: 1;
+    }
+
+    .small-btn {
+      padding: 12px 15px;
+      border: 1px solid #d4af37;
+      border-radius: 9px;
+      background: transparent;
+      color: #d4af37;
+      font-weight: 700;
+      margin-bottom: 18px;
+      white-space: nowrap;
+    }
+
+    .status {
+      margin-top: 12px;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .gallery-box {
+      border: 1px dashed #444;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      color: #888;
+    }
+
+    .mobile-menu {
+      display: none;
+    }
+
+    @media(max-width:900px) {
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: .25s;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .mobile-menu {
+        display: block;
+        background: #111;
+        border: 1px solid #333;
+        color: #d4af37;
+        padding: 10px 14px;
+        border-radius: 8px;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width:600px) {
+
+      .main {
+        padding: 15px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .topbar h1 {
+        font-size: 22px;
+      }
+
+      .login-card {
+        padding: 30px 20px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- =====================================================
-     LOGIN SCREEN
-===================================================== -->
+<!-- ================= LOGIN ================= -->
 
 <div id="loginScreen">
 
   <div class="login-card">
 
     <div class="login-logo">
-      NABABI
+      <div class="brand">NABABI RISTORANTE</div>
+      <p>Administrator Login</p>
     </div>
 
-    <div class="login-sub">
-      RISTORANTE ADMIN PANEL
-    </div>
+    <form id="loginForm">
 
-    <label>Email Address</label>
-    <input
-      type="email"
-      id="loginEmail"
-      placeholder="Admin email">
+      <div class="field">
+        <label>Email Address</label>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="Enter admin email"
+          autocomplete="email"
+          required
+        >
+      </div>
 
-    <label>Password</label>
-    <input
-      type="password"
-      id="loginPassword"
-      placeholder="Password">
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Enter password"
+          autocomplete="current-password"
+          required
+        >
+      </div>
 
-    <button
-      class="primary-btn"
-      onclick="loginAdmin()">
-      🔐 LOGIN
-    </button>
+      <button type="submit" class="primary-btn">
+        LOGIN TO ADMIN PANEL
+      </button>
 
-    <div
-      class="message"
-      id="loginMessage">
-    </div>
+    </form>
+
+    <div id="loginMessage" class="login-message"></div>
 
   </div>
 
 </div>
 
 
-<!-- =====================================================
-     ADMIN APP
-===================================================== -->
+<!-- ================= ADMIN APP ================= -->
 
-<div id="adminApp">
+<div id="adminApp" class="hidden">
 
   <!-- SIDEBAR -->
 
   <aside class="sidebar" id="sidebar">
 
-    <div class="brand">
-      <h1>NABABI</h1>
-      <p>RISTORANTE ADMIN</p>
+    <div class="sidebar-brand">
+      <strong>NABABI RISTORANTE</strong>
+      <span>Premium Admin Panel</span>
     </div>
 
-    <button
-      class="nav-btn active"
-      onclick="showPanel('dashboard',this)">
+    <button class="nav-btn active" data-section="dashboard">
       🏠 Dashboard
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('home',this)">
+    <button class="nav-btn" data-section="hero">
       ✨ Home / Hero
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('logo',this)">
-      🏷️ Logo
+    <button class="nav-btn" data-section="logo">
+      🏷️ Restaurant Logo
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('gallery',this)">
+    <button class="nav-btn" data-section="gallery">
       🖼️ Gallery
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('videos',this)">
-      🎥 Videos
+    <button class="nav-btn" data-section="videos">
+      🎬 Hero Videos
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('menu',this)">
+    <button class="nav-btn" data-section="menu">
       🍽️ Menu Manager
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('contact',this)">
+    <button class="nav-btn" data-section="contact">
       📞 Contact
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('social',this)">
+    <button class="nav-btn" data-section="social">
       📱 Social Media
     </button>
 
-    <button
-      class="nav-btn"
-      onclick="showPanel('hours',this)">
+    <button class="nav-btn" data-section="hours">
       🕐 Opening Hours
     </button>
 
-    <button
-      class="nav-btn logout"
-      onclick="logoutAdmin()">
+    <button class="nav-btn logout-btn" id="logoutBtn">
       🚪 Logout
     </button>
 
@@ -659,122 +578,44 @@ select{
 
     <div class="topbar">
 
-      <div style="display:flex;align-items:center;gap:12px;">
-
-        <button
-          class="mobile-menu"
-          onclick="toggleSidebar()">
-          ☰
+      <div>
+        <button class="mobile-menu" id="mobileMenu">
+          ☰ Menu
         </button>
-
-        <div>
-          <h2 id="pageTitle">
-            Dashboard
-          </h2>
-
-          <div
-            style="color:#666;font-size:12px;margin-top:4px;">
-            Manage your restaurant website
-          </div>
-        </div>
-
+        <h1>Admin Panel</h1>
       </div>
 
-      <button
-        class="preview-btn"
-        onclick="window.location.href='index.html'">
-        👁 Preview Website
-      </button>
+      <div class="user-email" id="currentUser">
+        Checking login...
+      </div>
 
     </div>
 
 
-    <!-- =================================================
-         DASHBOARD
-    ================================================= -->
+    <!-- DASHBOARD -->
 
-    <section
-      class="panel active"
-      id="panel-dashboard">
+    <section class="section active" id="section-dashboard">
 
-      <div class="stats">
-
-        <div class="stat">
-          <div class="icon">🍽️</div>
-          <h3 id="statMenu">0</h3>
-          <p>Menu Items</p>
-        </div>
-
-        <div class="stat">
-          <div class="icon">🏷️</div>
-          <h3 id="statCategory">0</h3>
-          <p>Categories</p>
-        </div>
-
-        <div class="stat">
-          <div class="icon">🖼️</div>
-          <h3>Gallery</h3>
-          <p>Image Manager</p>
-        </div>
-
-        <div class="stat">
-          <div class="icon">🎥</div>
-          <h3>2</h3>
-          <p>Video Slots</p>
-        </div>
-
+      <div class="page-title">
+        <h2>Dashboard</h2>
+        <p>Welcome to Nababi Ristorante administration.</p>
       </div>
 
+      <div class="card-grid">
 
-      <div class="card">
-
-        <div class="card-title">
-          <h3>Welcome to Admin Panel</h3>
-          <span>PREMIUM</span>
+        <div class="stat-card">
+          <span>Menu Items</span>
+          <strong id="menuCount">0</strong>
         </div>
 
-        <p style="color:#999;line-height:1.8;">
-          From here you can manage your Nababi Ristorante
-          website. Update your hero section, logo, gallery,
-          videos, menu, contact information, social media
-          and opening hours.
-        </p>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="card-title">
-          <h3>Quick Actions</h3>
+        <div class="stat-card">
+          <span>Categories</span>
+          <strong id="categoryCount">0</strong>
         </div>
 
-        <div class="menu-actions">
-
-          <button
-            class="small-btn"
-            onclick="quickPanel('home')">
-            ✨ Edit Home
-          </button>
-
-          <button
-            class="small-btn"
-            onclick="quickPanel('menu')">
-            🍽️ Manage Menu
-          </button>
-
-          <button
-            class="small-btn"
-            onclick="quickPanel('gallery')">
-            🖼️ Gallery
-          </button>
-
-          <button
-            class="small-btn"
-            onclick="quickPanel('videos')">
-            🎥 Videos
-          </button>
-
+        <div class="stat-card">
+          <span>Admin Status</span>
+          <strong style="font-size:20px;">ONLINE</strong>
         </div>
 
       </div>
@@ -782,177 +623,96 @@ select{
     </section>
 
 
-    <!-- =================================================
-         HOME / HERO
-    ================================================= -->
+    <!-- HERO -->
 
-    <section
-      class="panel"
-      id="panel-home">
+    <section class="section" id="section-hero">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Home / Hero</h2>
+        <p>Edit the main restaurant hero section.</p>
+      </div>
 
-        <div class="card-title">
-          <h3>Hero Section</h3>
-          <span>HOME</span>
+      <div class="panel">
+
+        <div class="field">
+          <label>Hero Title</label>
+          <input id="heroTitle" type="text">
         </div>
 
-        <div class="grid-2">
-
-          <div>
-
-            <label>Hero Title</label>
-
-            <input
-              id="heroTitle"
-              placeholder="Taste of Royal Dining">
-
-          </div>
-
-          <div>
-
-            <label>Small Heading</label>
-
-            <input
-              id="heroSmallTitle"
-              placeholder="Welcome to Nababi Ristorante">
-
-          </div>
-
+        <div class="field">
+          <label>Hero Text</label>
+          <textarea id="heroText" rows="4"></textarea>
         </div>
 
-        <label>Hero Description</label>
+        <div class="field">
+          <label>Hero Image URL</label>
+          <input id="heroImage" type="url">
+        </div>
 
-        <textarea
-          id="heroText"
-          placeholder="Write your restaurant introduction...">
-        </textarea>
-
-        <label>Hero Image URL</label>
-
-        <input
-          id="heroImage"
-          placeholder="Paste image URL">
-
-        <button
-          class="save-btn"
-          onclick="saveHero()">
-          💾 Save Hero
+        <button class="save-btn" id="saveHero">
+          SAVE HERO
         </button>
 
-        <div
-          class="message"
-          id="heroMessage">
-        </div>
+        <div class="status" id="heroStatus"></div>
 
       </div>
 
     </section>
 
 
-    <!-- =================================================
-         LOGO
-    ================================================= -->
+    <!-- LOGO -->
 
-    <section
-      class="panel"
-      id="panel-logo">
+    <section class="section" id="section-logo">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Restaurant Logo</h2>
+        <p>Change the logo used by the website.</p>
+      </div>
 
-        <div class="card-title">
-          <h3>Restaurant Logo</h3>
-          <span>BRANDING</span>
+      <div class="panel">
+
+        <div class="field">
+          <label>Logo Image URL</label>
+          <input id="logoImage" type="url" placeholder="https://...">
         </div>
 
-        <p style="color:#888;">
-          Change the restaurant logo used on the website.
-        </p>
-
-        <label>Logo Image URL</label>
-
-        <input
-          id="logoUrl"
-          placeholder="Paste logo image URL">
-
-        <div class="upload-box">
-          <strong>📷 Logo Upload</strong>
-          Upload functionality will connect to Supabase
-          Storage.
-        </div>
-
-        <button
-          class="save-btn"
-          onclick="saveLogo()">
-          💾 Save Logo
+        <button class="save-btn" id="saveLogo">
+          SAVE LOGO
         </button>
 
-        <div
-          class="message"
-          id="logoMessage">
-        </div>
+        <div class="status" id="logoStatus"></div>
 
       </div>
 
     </section>
 
 
-    <!-- =================================================
-         GALLERY
-    ================================================= -->
+    <!-- GALLERY -->
 
-    <section
-      class="panel"
-      id="panel-gallery">
+    <section class="section" id="section-gallery">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Gallery</h2>
+        <p>Restaurant photo management.</p>
+      </div>
 
-        <div class="card-title">
-          <h3>Gallery Manager</h3>
-          <span>PHOTOS</span>
-        </div>
+      <div class="panel">
 
-        <p style="color:#888;">
-          Add restaurant photos here. You will be able
-          to upload and remove gallery images.
-        </p>
+        <div class="gallery-box">
 
-        <div class="upload-box">
+          <h3>Upload Gallery Photo</h3>
 
-          <strong>🖼️ Upload Gallery Image</strong>
+          <p style="margin-bottom:18px;">
+            Select a restaurant photo from your device.
+          </p>
 
           <input
             type="file"
             id="galleryFile"
-            accept="image/*">
+            accept="image/*"
+          >
 
-        </div>
-
-        <button
-          class="save-btn"
-          onclick="uploadGallery()">
-          ⬆️ Upload Image
-        </button>
-
-        <div
-          class="message"
-          id="galleryMessage">
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="card-title">
-          <h3>Gallery Images</h3>
-        </div>
-
-        <div id="galleryList">
-
-          <p style="color:#777;">
-            Gallery images will appear here.
-          </p>
+          <div class="status" id="galleryStatus"></div>
 
         </div>
 
@@ -961,255 +721,168 @@ select{
     </section>
 
 
-    <!-- =================================================
-         VIDEOS
-    ================================================= -->
+    <!-- VIDEOS -->
 
-    <section
-      class="panel"
-      id="panel-videos">
+    <section class="section" id="section-videos">
 
-      <div class="grid-2">
+      <div class="page-title">
+        <h2>Hero Videos</h2>
+        <p>Two separate video slots for the website.</p>
+      </div>
 
-        <div class="card">
+      <div class="two-col">
 
-          <div class="card-title">
-            <h3>Video Slot 01</h3>
-            <span>HERO VIDEO</span>
+        <div class="panel">
+
+          <h3>Video Slot 1</h3>
+
+          <div class="field">
+            <label>Video URL</label>
+            <input id="video1" type="url">
           </div>
 
-          <label>Video URL</label>
-
-          <input
-            id="video1"
-            placeholder="Paste video URL">
-
-          <div class="upload-box">
-            <strong>🎥 Video 01</strong>
-            Upload / change the first video.
-          </div>
-
-          <button
-            class="save-btn"
-            onclick="saveVideo(1)">
-            💾 Save Video 01
+          <button class="save-btn" id="saveVideo1">
+            SAVE VIDEO 1
           </button>
 
         </div>
 
+        <div class="panel">
 
-        <div class="card">
+          <h3>Video Slot 2</h3>
 
-          <div class="card-title">
-            <h3>Video Slot 02</h3>
-            <span>SECOND VIDEO</span>
+          <div class="field">
+            <label>Video URL</label>
+            <input id="video2" type="url">
           </div>
 
-          <label>Video URL</label>
-
-          <input
-            id="video2"
-            placeholder="Paste video URL">
-
-          <div class="upload-box">
-            <strong>🎥 Video 02</strong>
-            Upload / change the second video.
-          </div>
-
-          <button
-            class="save-btn"
-            onclick="saveVideo(2)">
-            💾 Save Video 02
+          <button class="save-btn" id="saveVideo2">
+            SAVE VIDEO 2
           </button>
 
         </div>
 
       </div>
 
+      <div class="status">
+        Video upload/storage connection can be added separately to Supabase Storage.
+      </div>
+
     </section>
 
 
-    <!-- =================================================
-         MENU
-    ================================================= -->
+    <!-- MENU -->
 
-    <section
-      class="panel"
-      id="panel-menu">
+    <section class="section" id="section-menu">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Menu Manager</h2>
+        <p>Add, edit, change category, change price and delete menu items.</p>
+      </div>
 
-        <div class="card-title">
 
-          <h3>Menu Manager</h3>
+      <div class="panel">
 
-          <div class="menu-actions">
+        <h3 id="menuFormTitle">Add New Menu Item</h3>
 
-            <button
-              class="small-btn"
-              onclick="openMenuForm()">
-              ➕ Add Menu Item
-            </button>
+        <input type="hidden" id="menuId">
 
+        <div class="two-col">
+
+          <div class="field">
+            <label>Dish Name</label>
+            <input id="menuName" type="text" placeholder="Chicken Tikka">
+          </div>
+
+          <div class="field">
+            <label>Price</label>
+            <input id="menuPrice" type="number" step="0.01" placeholder="12.00">
           </div>
 
         </div>
 
 
-        <!-- MENU FORM -->
+        <div class="category-row">
 
-        <div
-          id="menuForm"
-          style="display:none;">
+          <div class="field">
 
-          <div class="grid-2">
+            <label>Category</label>
 
-            <div>
-
-              <label>Food Name</label>
-
-              <input
-                id="menuName"
-                placeholder="Pizza Margherita">
-
-            </div>
-
-            <div>
-
-              <label>Price</label>
-
-              <input
-                id="menuPrice"
-                type="number"
-                step="0.01"
-                placeholder="12.00">
-
-            </div>
+            <select id="menuCategory">
+              <option value="">Select Category</option>
+            </select>
 
           </div>
 
+          <button
+            type="button"
+            class="small-btn"
+            id="addCategoryBtn"
+          >
+            + Add Category
+          </button>
 
-          <label>Category</label>
-
-          <select id="menuCategory">
-
-            <option value="">
-              Select Category
-            </option>
-
-          </select>
+        </div>
 
 
-          <label>Food Image URL</label>
-
+        <div class="field">
+          <label>Dish Image URL</label>
           <input
             id="menuImage"
-            placeholder="Paste food image URL">
-
-
-          <div class="upload-box">
-
-            <strong>📷 Food Photo</strong>
-
-            Upload functionality will connect
-            to Supabase Storage.
-
-          </div>
-
-
-          <div class="menu-actions"
-               style="margin-top:20px;">
-
-            <button
-              class="save-btn"
-              onclick="saveMenuItem()">
-              💾 Save Menu Item
-            </button>
-
-            <button
-              class="small-btn"
-              onclick="closeMenuForm()">
-              Cancel
-            </button>
-
-          </div>
-
-          <div
-            class="message"
-            id="menuMessage">
-          </div>
-
+            type="url"
+            placeholder="https://..."
+          >
         </div>
+
+
+        <button class="save-btn" id="saveMenu">
+          SAVE MENU ITEM
+        </button>
+
+        <button
+          class="small-btn hidden"
+          id="cancelEdit"
+          type="button"
+        >
+          CANCEL EDIT
+        </button>
+
+        <div class="status" id="menuStatus"></div>
 
       </div>
 
 
-      <!-- CATEGORY -->
+      <div class="panel">
 
-      <div class="card">
+        <h3>Menu Items</h3>
 
-        <div class="card-title">
+        <div class="menu-table-wrap">
 
-          <h3>Categories</h3>
-          <span>CREATE NEW</span>
+          <table class="menu-table">
 
-        </div>
+            <thead>
 
-        <div class="grid-2">
+              <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Actions</th>
+              </tr>
 
-          <div>
+            </thead>
 
-            <label>New Category Name</label>
+            <tbody id="menuTableBody">
 
-            <input
-              id="newCategory"
-              placeholder="Desserts">
+              <tr>
+                <td colspan="5">
+                  Loading menu...
+                </td>
+              </tr>
 
-          </div>
+            </tbody>
 
-          <div
-            style="display:flex;align-items:end;">
-
-            <button
-              class="save-btn"
-              onclick="addCategory()"
-              style="margin-top:0;">
-              ➕ Add Category
-            </button>
-
-          </div>
-
-        </div>
-
-        <div
-          class="category-list"
-          id="categoryList">
-        </div>
-
-      </div>
-
-
-      <!-- MENU LIST -->
-
-      <div class="card">
-
-        <div class="card-title">
-
-          <h3>All Menu Items</h3>
-
-          <span id="menuCount">
-            0 ITEMS
-          </span>
-
-        </div>
-
-        <div
-          class="menu-list"
-          id="menuList">
-
-          <p style="color:#777;">
-            Loading menu...
-          </p>
+          </table>
 
         </div>
 
@@ -1218,183 +891,111 @@ select{
     </section>
 
 
-    <!-- =================================================
-         CONTACT
-    ================================================= -->
+    <!-- CONTACT -->
 
-    <section
-      class="panel"
-      id="panel-contact">
+    <section class="section" id="section-contact">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Contact</h2>
+        <p>Restaurant contact information.</p>
+      </div>
 
-        <div class="card-title">
-          <h3>Contact Information</h3>
-          <span>CONTACT</span>
+      <div class="panel">
+
+        <div class="field">
+          <label>Address</label>
+          <textarea id="contactAddress" rows="3"></textarea>
         </div>
 
-        <div class="grid-2">
+        <div class="two-col">
 
-          <div>
-
-            <label>Restaurant Address</label>
-
-            <textarea
-              id="address">Via Vespasiano 73/75/77
-Roma, Italy</textarea>
-
+          <div class="field">
+            <label>Phone 1</label>
+            <input id="phone1" type="text">
           </div>
 
-          <div>
-
-            <label>Phone Number 1</label>
-
-            <input
-              id="phone1"
-              value="+39 333 7687319">
-
-            <label>Phone Number 2</label>
-
-            <input
-              id="phone2"
-              value="+39 393 3805350">
-
+          <div class="field">
+            <label>Phone 2</label>
+            <input id="phone2" type="text">
           </div>
 
         </div>
 
-        <label>WhatsApp Number</label>
-
-        <input
-          id="whatsapp"
-          value="+39 333 7687319">
-
-        <button
-          class="save-btn"
-          onclick="saveContact()">
-          💾 Save Contact
+        <button class="save-btn" id="saveContact">
+          SAVE CONTACT
         </button>
 
-        <div
-          class="message"
-          id="contactMessage">
-        </div>
+        <div class="status" id="contactStatus"></div>
 
       </div>
 
     </section>
 
 
-    <!-- =================================================
-         SOCIAL
-    ================================================= -->
+    <!-- SOCIAL -->
 
-    <section
-      class="panel"
-      id="panel-social">
+    <section class="section" id="section-social">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Social Media</h2>
+        <p>Manage restaurant social links.</p>
+      </div>
 
-        <div class="card-title">
-          <h3>Social Media</h3>
-          <span>SOCIAL</span>
+      <div class="panel">
+
+        <div class="field">
+          <label>Facebook URL</label>
+          <input id="facebookUrl" type="url">
         </div>
 
-        <label>Facebook</label>
+        <div class="field">
+          <label>Instagram URL</label>
+          <input id="instagramUrl" type="url">
+        </div>
 
-        <input
-          id="facebook"
-          value="https://www.facebook.com/share/19eKdKRhLL/?mibextid=wwXIfr">
+        <div class="field">
+          <label>TikTok URL</label>
+          <input id="tiktokUrl" type="url">
+        </div>
 
-
-        <label>Instagram</label>
-
-        <input
-          id="instagram"
-          placeholder="Instagram profile URL">
-
-
-        <label>TikTok</label>
-
-        <input
-          id="tiktok"
-          value="https://www.tiktok.com/@nababiristorante">
-
-
-        <button
-          class="save-btn"
-          onclick="saveSocial()">
-          💾 Save Social Media
+        <button class="save-btn" id="saveSocial">
+          SAVE SOCIAL MEDIA
         </button>
 
-        <div
-          class="message"
-          id="socialMessage">
-        </div>
+        <div class="status" id="socialStatus"></div>
 
       </div>
 
     </section>
 
 
-    <!-- =================================================
-         OPENING HOURS
-    ================================================= -->
+    <!-- HOURS -->
 
-    <section
-      class="panel"
-      id="panel-hours">
+    <section class="section" id="section-hours">
 
-      <div class="card">
+      <div class="page-title">
+        <h2>Opening Hours</h2>
+        <p>Update restaurant opening hours.</p>
+      </div>
 
-        <div class="card-title">
-          <h3>Opening Hours</h3>
-          <span>BUSINESS HOURS</span>
-        </div>
+      <div class="panel">
 
-        <div class="grid-2">
+        <div class="field">
+          <label>Opening Hours</label>
 
-          <div>
-
-            <label>Monday</label>
-            <input id="monday" placeholder="12:00 - 23:00">
-
-            <label>Tuesday</label>
-            <input id="tuesday" placeholder="12:00 - 23:00">
-
-            <label>Wednesday</label>
-            <input id="wednesday" placeholder="12:00 - 23:00">
-
-            <label>Thursday</label>
-            <input id="thursday" placeholder="12:00 - 23:00">
-
-          </div>
-
-          <div>
-
-            <label>Friday</label>
-            <input id="friday" placeholder="12:00 - 23:30">
-
-            <label>Saturday</label>
-            <input id="saturday" placeholder="12:00 - 23:30">
-
-            <label>Sunday</label>
-            <input id="sunday" placeholder="12:00 - 23:00">
-
-          </div>
+          <textarea
+            id="openingHours"
+            rows="8"
+            placeholder="Monday: 12:00 - 23:00&#10;Tuesday: 12:00 - 23:00"
+          ></textarea>
 
         </div>
 
-        <button
-          class="save-btn"
-          onclick="saveHours()">
-          💾 Save Opening Hours
+        <button class="save-btn" id="saveHours">
+          SAVE OPENING HOURS
         </button>
 
-        <div
-          class="message"
-          id="hoursMessage">
-        </div>
+        <div class="status" id="hoursStatus"></div>
 
       </div>
 
@@ -1407,1097 +1008,1024 @@ Roma, Italy</textarea>
 
 <script>
 
-/* =====================================================
-   SUPABASE
-===================================================== */
+  /* ==========================================
+     SUPABASE CONNECTION
+     ========================================== */
 
-let supabaseClient = null;
+  let supabaseClient = null;
 
-try{
+  try {
 
-  if(
-    typeof SUPABASE_URL !== "undefined" &&
-    typeof SUPABASE_ANON_KEY !== "undefined"
-  ){
-
-    supabaseClient =
-      supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
+    if (
+      typeof SUPABASE_URL === "undefined" ||
+      typeof SUPABASE_ANON_KEY === "undefined"
+    ) {
+      throw new Error(
+        "SUPABASE_URL or SUPABASE_ANON_KEY is missing in config.js"
       );
+    }
 
-  }
-
-}catch(error){
-
-  console.error(error);
-
-}
-
-
-/* =====================================================
-   AUTH
-===================================================== */
-
-async function checkSession(){
-
-  if(!supabaseClient){
-
-    showLogin();
-
-    return;
-  }
-
-  const {
-    data
-  } =
-  await supabaseClient.auth.getSession();
-
-  if(
-    data &&
-    data.session
-  ){
-
-    showAdmin();
-
-  }else{
-
-    showLogin();
-
-  }
-
-}
-
-
-function showLogin(){
-
-  document
-    .getElementById("loginScreen")
-    .style.display="flex";
-
-  document
-    .getElementById("adminApp")
-    .style.display="none";
-
-}
-
-
-function showAdmin(){
-
-  document
-    .getElementById("loginScreen")
-    .style.display="none";
-
-  document
-    .getElementById("adminApp")
-    .style.display="block";
-
-  loadMenu();
-
-}
-
-
-async function loginAdmin(){
-
-  const email =
-    document
-      .getElementById("loginEmail")
-      .value
-      .trim();
-
-  const password =
-    document
-      .getElementById("loginPassword")
-      .value;
-
-  const message =
-    document
-      .getElementById("loginMessage");
-
-
-  if(!supabaseClient){
-
-    message.style.color="#ff7777";
-
-    message.textContent=
-      "Supabase configuration not found.";
-
-    return;
-  }
-
-
-  if(!email || !password){
-
-    message.style.color="#ff7777";
-
-    message.textContent=
-      "Please enter email and password.";
-
-    return;
-  }
-
-
-  message.style.color="#aaa";
-
-  message.textContent=
-    "Logging in...";
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.auth
-    .signInWithPassword({
-      email,
-      password
-    });
-
-
-  if(error){
-
-    message.style.color="#ff7777";
-
-    message.textContent=
-      error.message;
-
-    return;
-  }
-
-
-  if(data.session){
-
-    message.style.color="#7CFC00";
-
-    message.textContent=
-      "Login successful.";
-
-    setTimeout(
-      showAdmin,
-      500
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
     );
 
-  }
+  } catch (error) {
 
-}
+    console.error(error);
 
+    const msg = document.getElementById("loginMessage");
 
-async function logoutAdmin(){
+    msg.textContent =
+      "Supabase configuration error. Please check config.js";
 
-  if(supabaseClient){
-
-    await supabaseClient.auth.signOut();
-
-  }
-
-  showLogin();
-
-}
-
-
-/* =====================================================
-   NAVIGATION
-===================================================== */
-
-const titles={
-  dashboard:"Dashboard",
-  home:"Home / Hero",
-  logo:"Logo",
-  gallery:"Gallery",
-  videos:"Videos",
-  menu:"Menu Manager",
-  contact:"Contact",
-  social:"Social Media",
-  hours:"Opening Hours"
-};
-
-
-function showPanel(name,button){
-
-  document
-    .querySelectorAll(".panel")
-    .forEach(
-      p=>p.classList.remove("active")
-    );
-
-
-  const target =
-    document.getElementById(
-      "panel-"+name
-    );
-
-  if(target){
-
-    target.classList.add("active");
-
+    msg.className = "login-message error";
   }
 
 
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach(
-      b=>b.classList.remove("active")
-    );
+  /* ==========================================
+     LOGIN
+     ========================================== */
 
+  const loginForm = document.getElementById("loginForm");
+  const loginMessage = document.getElementById("loginMessage");
 
-  if(button){
+  loginForm.addEventListener("submit", async function(event) {
 
-    button.classList.add("active");
+    event.preventDefault();
 
-  }
+    if (!supabaseClient) {
+      showLoginError("Supabase connection is not available.");
+      return;
+    }
 
+    const email =
+      document.getElementById("loginEmail").value.trim();
 
-  document
-    .getElementById("pageTitle")
-    .textContent=
-    titles[name] || "Admin";
+    const password =
+      document.getElementById("loginPassword").value;
 
+    if (!email || !password) {
+      showLoginError("Please enter email and password.");
+      return;
+    }
 
-  if(window.innerWidth<=650){
+    const button =
+      loginForm.querySelector("button");
 
-    document
-      .getElementById("sidebar")
-      .classList.remove("open");
+    button.disabled = true;
+    button.textContent = "LOGGING IN...";
 
-  }
+    loginMessage.className = "login-message";
+    loginMessage.textContent = "";
 
-}
+    try {
 
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
 
-function quickPanel(name){
+      if (error) {
+        throw error;
+      }
 
-  const buttons =
-    document.querySelectorAll(".nav-btn");
+      if (!data.session) {
+        throw new Error("Login session was not created.");
+      }
 
-  buttons.forEach(btn=>{
+      loginMessage.textContent =
+        "Login successful. Opening Admin Panel...";
 
-    if(
-      btn.getAttribute("onclick") &&
-      btn.getAttribute("onclick")
-        .includes("'" + name + "'")
-    ){
+      loginMessage.className =
+        "login-message success";
 
-      showPanel(name,btn);
+      setTimeout(() => {
+        showAdminPanel(data.user);
+      }, 500);
+
+    } catch (error) {
+
+      console.error("Login error:", error);
+
+      let message = error.message || "Login failed.";
+
+      if (
+        message.toLowerCase().includes("invalid login credentials")
+      ) {
+        message =
+          "Invalid email or password. Please check your Supabase Authentication user.";
+      }
+
+      if (
+        message.toLowerCase().includes("email not confirmed")
+      ) {
+        message =
+          "Email is not confirmed. Please confirm this user in Supabase Authentication.";
+      }
+
+      showLoginError(message);
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = "LOGIN TO ADMIN PANEL";
 
     }
 
   });
 
-}
 
+  function showLoginError(message) {
 
-function toggleSidebar(){
+    loginMessage.textContent = message;
+    loginMessage.className =
+      "login-message error";
 
-  document
-    .getElementById("sidebar")
-    .classList.toggle("open");
-
-}
-
-
-/* =====================================================
-   MENU
-===================================================== */
-
-let allMenuItems=[];
-let editingMenuId=null;
-
-
-async function loadMenu(){
-
-  if(!supabaseClient){
-
-    return;
   }
 
 
-  try{
+  /* ==========================================
+     CHECK EXISTING SESSION
+     ========================================== */
+
+  async function checkSession() {
+
+    if (!supabaseClient) return;
+
+    try {
+
+      const {
+        data: { session }
+      } = await supabaseClient.auth.getSession();
+
+      if (session && session.user) {
+        showAdminPanel(session.user);
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  /* ==========================================
+     SHOW ADMIN PANEL
+     ========================================== */
+
+  function showAdminPanel(user) {
+
+    document
+      .getElementById("loginScreen")
+      .classList.add("hidden");
+
+    document
+      .getElementById("adminApp")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("currentUser")
+      .textContent = user.email || "";
+
+    loadSavedSettings();
+    loadMenu();
+
+  }
+
+
+  /* ==========================================
+     LOGOUT
+     ========================================== */
+
+  document
+    .getElementById("logoutBtn")
+    .addEventListener("click", async function() {
+
+      if (!supabaseClient) return;
+
+      await supabaseClient.auth.signOut();
+
+      location.reload();
+
+    });
+
+
+  /* ==========================================
+     SIDEBAR NAVIGATION
+     ========================================== */
+
+  document
+    .querySelectorAll(".nav-btn[data-section]")
+    .forEach(button => {
+
+      button.addEventListener("click", function() {
+
+        const section =
+          this.dataset.section;
+
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach(btn =>
+            btn.classList.remove("active")
+          );
+
+        this.classList.add("active");
+
+        document
+          .querySelectorAll(".section")
+          .forEach(item =>
+            item.classList.remove("active")
+          );
+
+        document
+          .getElementById("section-" + section)
+          .classList.add("active");
+
+        document
+          .getElementById("sidebar")
+          .classList.remove("open");
+
+      });
+
+    });
+
+
+  /* ==========================================
+     MOBILE MENU
+     ========================================== */
+
+  document
+    .getElementById("mobileMenu")
+    .addEventListener("click", function() {
+
+      document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
+    });
+
+
+  /* ==========================================
+     LOCAL SETTINGS
+     ========================================== */
+
+  function loadSavedSettings() {
+
+    const settings =
+      JSON.parse(
+        localStorage.getItem("nababiAdminSettings") || "{}"
+      );
+
+    document.getElementById("heroTitle").value =
+      settings.heroTitle || "Welcome to Nababi Ristorante";
+
+    document.getElementById("heroText").value =
+      settings.heroText || "Authentic Indian cuisine in Rome.";
+
+    document.getElementById("heroImage").value =
+      settings.heroImage || "";
+
+    document.getElementById("logoImage").value =
+      settings.logoImage || "";
+
+    document.getElementById("video1").value =
+      settings.video1 || "";
+
+    document.getElementById("video2").value =
+      settings.video2 || "";
+
+    document.getElementById("contactAddress").value =
+      settings.contactAddress ||
+      "Via Vespasiano 73/75/77 Roma";
+
+    document.getElementById("phone1").value =
+      settings.phone1 ||
+      "+39 333 7687319";
+
+    document.getElementById("phone2").value =
+      settings.phone2 ||
+      "+39 393 3805350";
+
+    document.getElementById("facebookUrl").value =
+      settings.facebookUrl || "";
+
+    document.getElementById("instagramUrl").value =
+      settings.instagramUrl || "";
+
+    document.getElementById("tiktokUrl").value =
+      settings.tiktokUrl || "";
+
+    document.getElementById("openingHours").value =
+      settings.openingHours || "";
+
+  }
+
+
+  function saveSetting(key, value, statusId) {
+
+    const settings =
+      JSON.parse(
+        localStorage.getItem("nababiAdminSettings") || "{}"
+      );
+
+    settings[key] = value;
+
+    localStorage.setItem(
+      "nababiAdminSettings",
+      JSON.stringify(settings)
+    );
+
+    document.getElementById(statusId).textContent =
+      "Saved successfully.";
+
+  }
+
+
+  /* HERO */
+
+  document
+    .getElementById("saveHero")
+    .addEventListener("click", function() {
+
+      saveSetting(
+        "heroTitle",
+        document.getElementById("heroTitle").value,
+        "heroStatus"
+      );
+
+      const settings =
+        JSON.parse(
+          localStorage.getItem("nababiAdminSettings") || "{}"
+        );
+
+      settings.heroText =
+        document.getElementById("heroText").value;
+
+      settings.heroImage =
+        document.getElementById("heroImage").value;
+
+      localStorage.setItem(
+        "nababiAdminSettings",
+        JSON.stringify(settings)
+      );
+
+      document.getElementById("heroStatus").textContent =
+        "Hero settings saved successfully.";
+
+    });
+
+
+  /* LOGO */
+
+  document
+    .getElementById("saveLogo")
+    .addEventListener("click", function() {
+
+      saveSetting(
+        "logoImage",
+        document.getElementById("logoImage").value,
+        "logoStatus"
+      );
+
+    });
+
+
+  /* VIDEOS */
+
+  document
+    .getElementById("saveVideo1")
+    .addEventListener("click", function() {
+
+      saveSetting(
+        "video1",
+        document.getElementById("video1").value,
+        "heroStatus"
+      );
+
+      alert("Video 1 saved.");
+
+    });
+
+
+  document
+    .getElementById("saveVideo2")
+    .addEventListener("click", function() {
+
+      saveSetting(
+        "video2",
+        document.getElementById("video2").value,
+        "heroStatus"
+      );
+
+      alert("Video 2 saved.");
+
+    });
+
+
+  /* CONTACT */
+
+  document
+    .getElementById("saveContact")
+    .addEventListener("click", function() {
+
+      const settings =
+        JSON.parse(
+          localStorage.getItem("nababiAdminSettings") || "{}"
+        );
+
+      settings.contactAddress =
+        document.getElementById("contactAddress").value;
+
+      settings.phone1 =
+        document.getElementById("phone1").value;
+
+      settings.phone2 =
+        document.getElementById("phone2").value;
+
+      localStorage.setItem(
+        "nababiAdminSettings",
+        JSON.stringify(settings)
+      );
+
+      document.getElementById("contactStatus").textContent =
+        "Contact information saved successfully.";
+
+    });
+
+
+  /* SOCIAL */
+
+  document
+    .getElementById("saveSocial")
+    .addEventListener("click", function() {
+
+      const settings =
+        JSON.parse(
+          localStorage.getItem("nababiAdminSettings") || "{}"
+        );
+
+      settings.facebookUrl =
+        document.getElementById("facebookUrl").value;
+
+      settings.instagramUrl =
+        document.getElementById("instagramUrl").value;
+
+      settings.tiktokUrl =
+        document.getElementById("tiktokUrl").value;
+
+      localStorage.setItem(
+        "nababiAdminSettings",
+        JSON.stringify(settings)
+      );
+
+      document.getElementById("socialStatus").textContent =
+        "Social media links saved successfully.";
+
+    });
+
+
+  /* HOURS */
+
+  document
+    .getElementById("saveHours")
+    .addEventListener("click", function() {
+
+      saveSetting(
+        "openingHours",
+        document.getElementById("openingHours").value,
+        "hoursStatus"
+      );
+
+    });
+
+
+  /* ==========================================
+     MENU DATA
+     ========================================== */
+
+  let menuItems = [];
+
+  let browserCategories =
+    JSON.parse(
+      localStorage.getItem("nababiCategories") || "[]"
+    );
+
+
+  async function loadMenu() {
+
+    if (!supabaseClient) return;
 
     const {
       data,
       error
-    } =
-    await supabaseClient
+    } = await supabaseClient
       .from("Menu")
       .select("*")
-      .order("id",{ascending:true});
+      .order("id", { ascending: true });
 
-
-    if(error){
+    if (error) {
 
       console.error(error);
 
+      document.getElementById("menuTableBody").innerHTML =
+        `<tr>
+          <td colspan="5">
+            Error loading menu: ${escapeHtml(error.message)}
+          </td>
+        </tr>`;
+
       return;
+
     }
 
-
-    allMenuItems =
-      data || [];
-
-
-    renderMenu();
+    menuItems = data || [];
 
     buildCategories();
-
-  }catch(error){
-
-    console.error(error);
-
-  }
-
-}
-
-
-function renderMenu(){
-
-  const list =
-    document.getElementById(
-      "menuList"
-    );
-
-
-  const count =
-    document.getElementById(
-      "menuCount"
-    );
-
-
-  const stat =
-    document.getElementById(
-      "statMenu"
-    );
-
-
-  if(count){
-
-    count.textContent =
-      allMenuItems.length +
-      " ITEMS";
+    renderMenu();
+    updateDashboard();
 
   }
 
 
-  if(stat){
+  /* ==========================================
+     CATEGORY SYSTEM
+     ========================================== */
 
-    stat.textContent =
-      allMenuItems.length;
+  function buildCategories() {
+
+    const select =
+      document.getElementById("menuCategory");
+
+    const current =
+      select.value;
+
+    const categories = new Set();
+
+    menuItems.forEach(item => {
+
+      if (item.category) {
+        categories.add(item.category);
+      }
+
+    });
+
+    browserCategories.forEach(category => {
+
+      if (category) {
+        categories.add(category);
+      }
+
+    });
+
+    select.innerHTML =
+      `<option value="">Select Category</option>`;
+
+    [...categories]
+      .sort()
+      .forEach(category => {
+
+        const option =
+          document.createElement("option");
+
+        option.value = category;
+        option.textContent = category;
+
+        select.appendChild(option);
+
+      });
+
+    if (current) {
+      select.value = current;
+    }
 
   }
 
 
-  if(!allMenuItems.length){
-
-    list.innerHTML=
-      '<p style="color:#777;">No menu items yet.</p>';
-
-    return;
-
-  }
-
-
-  list.innerHTML="";
-
-
-  allMenuItems.forEach(item=>{
-
-    const row =
-      document.createElement("div");
-
-    row.className="menu-row";
-
-
-    const image =
-      item.image_url ||
-      "https://via.placeholder.com/100";
-
-
-    row.innerHTML=`
-
-      <img
-        class="menu-thumb"
-        src="${image}"
-        alt="">
-
-      <div>
-        <div class="menu-name">
-          ${escapeHTML(item.name || "")}
-        </div>
-
-        <div class="menu-category">
-          ${escapeHTML(item.category || "No category")}
-        </div>
-      </div>
-
-      <div class="menu-price">
-        €${escapeHTML(item.price ?? "")}
-      </div>
-
-      <div class="desktop-only">
-
-        <button
-          class="edit-btn"
-          onclick="editMenuItem(${item.id})">
-          Edit
-        </button>
-
-      </div>
-
-      <div>
-
-        <button
-          class="delete-btn"
-          onclick="deleteMenuItem(${item.id})">
-          Delete
-        </button>
-
-      </div>
-
-    `;
-
-
-    list.appendChild(row);
-
-  });
-
-}
-
-
-function buildCategories(){
-
-  const select =
-    document.getElementById(
-      "menuCategory"
-    );
-
-  const list =
-    document.getElementById(
-      "categoryList"
-    );
-
-
-  const categories =
-    [...new Set(
-      allMenuItems
-        .map(item=>item.category)
-        .filter(Boolean)
-    )];
-
-
-  select.innerHTML=
-    '<option value="">Select Category</option>';
-
-
-  categories.forEach(category=>{
-
-    const option =
-      document.createElement("option");
-
-    option.value=category;
-    option.textContent=category;
-
-    select.appendChild(option);
-
-  });
-
-
-  list.innerHTML="";
-
-
-  categories.forEach(category=>{
-
-    const pill =
-      document.createElement("div");
-
-    pill.className="category-pill";
-
-    pill.textContent=category;
-
-    list.appendChild(pill);
-
-  });
-
-
   document
-    .getElementById("statCategory")
-    .textContent=
-    categories.length;
+    .getElementById("addCategoryBtn")
+    .addEventListener("click", function() {
 
-}
+      const category =
+        prompt("Enter new category name:");
 
+      if (!category) return;
 
-function openMenuForm(){
+      const clean =
+        category.trim();
 
-  editingMenuId=null;
+      if (!clean) return;
 
-  document
-    .getElementById("menuForm")
-    .style.display="block";
+      if (
+        !browserCategories.some(
+          item =>
+            item.toLowerCase() === clean.toLowerCase()
+        )
+      ) {
 
-  document
-    .getElementById("menuName")
-    .value="";
+        browserCategories.push(clean);
 
-  document
-    .getElementById("menuPrice")
-    .value="";
-
-  document
-    .getElementById("menuImage")
-    .value="";
-
-  document
-    .getElementById("menuCategory")
-    .value="";
-
-}
-
-
-function closeMenuForm(){
-
-  document
-    .getElementById("menuForm")
-    .style.display="none";
-
-}
-
-
-function editMenuItem(id){
-
-  const item =
-    allMenuItems.find(
-      x=>x.id===id
-    );
-
-  if(!item){
-
-    return;
-
-  }
-
-
-  editingMenuId=id;
-
-  document
-    .getElementById("menuForm")
-    .style.display="block";
-
-
-  document
-    .getElementById("menuName")
-    .value=
-    item.name || "";
-
-
-  document
-    .getElementById("menuPrice")
-    .value=
-    item.price ?? "";
-
-
-  document
-    .getElementById("menuCategory")
-    .value=
-    item.category || "";
-
-
-  document
-    .getElementById("menuImage")
-    .value=
-    item.image_url || "";
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-}
-
-
-async function saveMenuItem(){
-
-  if(!supabaseClient){
-
-    return;
-  }
-
-
-  const name =
-    document
-      .getElementById("menuName")
-      .value
-      .trim();
-
-  const price =
-    document
-      .getElementById("menuPrice")
-      .value;
-
-  const category =
-    document
-      .getElementById("menuCategory")
-      .value
-      .trim();
-
-  const image_url =
-    document
-      .getElementById("menuImage")
-      .value
-      .trim();
-
-
-  if(!name){
-
-    alert("Please enter food name.");
-
-    return;
-  }
-
-
-  const payload={
-    name,
-    price,
-    category,
-    image_url
-  };
-
-
-  let result;
-
-
-  if(editingMenuId){
-
-    result =
-      await supabaseClient
-        .from("Menu")
-        .update(payload)
-        .eq("id",editingMenuId);
-
-  }else{
-
-    result =
-      await supabaseClient
-        .from("Menu")
-        .insert([payload]);
-
-  }
-
-
-  if(result.error){
-
-    alert(result.error.message);
-
-    return;
-  }
-
-
-  alert(
-    editingMenuId
-      ? "Menu item updated successfully!"
-      : "Menu item added successfully!"
-  );
-
-
-  closeMenuForm();
-
-  loadMenu();
-
-}
-
-
-async function deleteMenuItem(id){
-
-  if(
-    !confirm(
-      "Are you sure you want to delete this menu item?"
-    )
-  ){
-
-    return;
-
-  }
-
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("Menu")
-    .delete()
-    .eq("id",id);
-
-
-  if(error){
-
-    alert(error.message);
-
-    return;
-
-  }
-
-
-  loadMenu();
-
-}
-
-
-/* =====================================================
-   ADD CATEGORY
-===================================================== */
-
-function addCategory(){
-
-  const input =
-    document.getElementById(
-      "newCategory"
-    );
-
-  const name =
-    input.value.trim();
-
-
-  if(!name){
-
-    alert("Enter a category name.");
-
-    return;
-
-  }
-
-
-  const exists =
-    allMenuItems.some(
-      item=>
-        String(item.category || "")
-          .toLowerCase() ===
-        name.toLowerCase()
-    );
-
-
-  if(exists){
-
-    alert("This category already exists.");
-
-    return;
-
-  }
-
-
-  /*
-    A category is stored when a menu item
-    uses it. Select it from the menu form.
-  */
-
-  const select =
-    document.getElementById(
-      "menuCategory"
-    );
-
-
-  const option =
-    document.createElement("option");
-
-  option.value=name;
-  option.textContent=name;
-
-  select.appendChild(option);
-
-  select.value=name;
-
-
-  const list =
-    document.getElementById(
-      "categoryList"
-    );
-
-
-  const pill =
-    document.createElement("div");
-
-  pill.className="category-pill";
-
-  pill.textContent=name;
-
-  list.appendChild(pill);
-
-
-  input.value="";
-
-
-  alert(
-    "Category created. Now add a menu item using this category and save it."
-  );
-
-}
-
-
-/* =====================================================
-   HERO
-===================================================== */
-
-function saveHero(){
-
-  localStorage.setItem(
-    "nababiHeroTitle",
-    document.getElementById("heroTitle").value
-  );
-
-  localStorage.setItem(
-    "nababiHeroSmallTitle",
-    document.getElementById("heroSmallTitle").value
-  );
-
-  localStorage.setItem(
-    "nababiHeroText",
-    document.getElementById("heroText").value
-  );
-
-  localStorage.setItem(
-    "nababiHeroImage",
-    document.getElementById("heroImage").value
-  );
-
-
-  document
-    .getElementById("heroMessage")
-    .textContent=
-    "Saved successfully!";
-
-
-  document
-    .getElementById("heroMessage")
-    .style.color=
-    "#7CFC00";
-
-}
-
-
-function saveLogo(){
-
-  localStorage.setItem(
-    "nababiLogo",
-    document.getElementById("logoUrl").value
-  );
-
-
-  document
-    .getElementById("logoMessage")
-    .textContent=
-    "Logo settings saved successfully!";
-
-
-  document
-    .getElementById("logoMessage")
-    .style.color=
-    "#7CFC00";
-
-}
-
-
-function saveContact(){
-
-  localStorage.setItem(
-    "nababiAddress",
-    document.getElementById("address").value
-  );
-
-  localStorage.setItem(
-    "nababiPhone1",
-    document.getElementById("phone1").value
-  );
-
-  localStorage.setItem(
-    "nababiPhone2",
-    document.getElementById("phone2").value
-  );
-
-  localStorage.setItem(
-    "nababiWhatsapp",
-    document.getElementById("whatsapp").value
-  );
-
-
-  const msg =
-    document.getElementById(
-      "contactMessage"
-    );
-
-  msg.textContent=
-    "Contact information saved!";
-
-  msg.style.color=
-    "#7CFC00";
-
-}
-
-
-function saveSocial(){
-
-  localStorage.setItem(
-    "nababiFacebook",
-    document.getElementById("facebook").value
-  );
-
-  localStorage.setItem(
-    "nababiInstagram",
-    document.getElementById("instagram").value
-  );
-
-  localStorage.setItem(
-    "nababiTikTok",
-    document.getElementById("tiktok").value
-  );
-
-
-  const msg =
-    document.getElementById(
-      "socialMessage"
-    );
-
-  msg.textContent=
-    "Social media saved!";
-
-  msg.style.color=
-    "#7CFC00";
-
-}
-
-
-function saveHours(){
-
-  const days=[
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-    "sunday"
-  ];
-
-
-  days.forEach(day=>{
-
-    localStorage.setItem(
-      "nababi_"+day,
-      document.getElementById(day).value
-    );
-
-  });
-
-
-  const msg =
-    document.getElementById(
-      "hoursMessage"
-    );
-
-  msg.textContent=
-    "Opening hours saved!";
-
-  msg.style.color=
-    "#7CFC00";
-
-}
-
-
-function saveVideo(number){
-
-  const input =
-    document.getElementById(
-      "video"+number
-    );
-
-  localStorage.setItem(
-    "nababiVideo"+number,
-    input.value
-  );
-
-
-  alert(
-    "Video "+number+" settings saved!"
-  );
-
-}
-
-
-async function uploadGallery(){
-
-  const file =
-    document.getElementById(
-      "galleryFile"
-    ).files[0];
-
-
-  if(!file){
-
-    alert("Please choose an image first.");
-
-    return;
-
-  }
-
-
-  /*
-    Storage upload will be connected
-    to the existing menu-images bucket
-    in the next storage step.
-  */
-
-  document
-    .getElementById("galleryMessage")
-    .textContent=
-    "Image selected. Storage connection is ready for the next step.";
-
-  document
-    .getElementById("galleryMessage")
-    .style.color=
-    "#d4af37";
-
-}
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(value){
-
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-
-/* =====================================================
-   START
-===================================================== */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  checkSession
-);
-
-
-/* ENTER KEY LOGIN */
-
-document
-  .getElementById("loginPassword")
-  .addEventListener(
-    "keydown",
-    event=>{
-
-      if(event.key==="Enter"){
-
-        loginAdmin();
+        localStorage.setItem(
+          "nababiCategories",
+          JSON.stringify(browserCategories)
+        );
 
       }
 
+      buildCategories();
+
+      document.getElementById("menuCategory").value =
+        clean;
+
+    });
+
+
+  /* ==========================================
+     ADD / UPDATE MENU
+     ========================================== */
+
+  document
+    .getElementById("saveMenu")
+    .addEventListener("click", async function() {
+
+      const id =
+        document.getElementById("menuId").value;
+
+      const name =
+        document.getElementById("menuName").value.trim();
+
+      const price =
+        document.getElementById("menuPrice").value;
+
+      const category =
+        document.getElementById("menuCategory").value;
+
+      const image =
+        document.getElementById("menuImage").value.trim();
+
+      if (!name) {
+        alert("Please enter dish name.");
+        return;
+      }
+
+      if (!price) {
+        alert("Please enter price.");
+        return;
+      }
+
+      if (!category) {
+        alert("Please select a category.");
+        return;
+      }
+
+      const payload = {
+        name: name,
+        price: Number(price),
+        category: category,
+        image_url: image || null
+      };
+
+      const button =
+        document.getElementById("saveMenu");
+
+      button.disabled = true;
+      button.textContent = "SAVING...";
+
+      try {
+
+        let result;
+
+        if (id) {
+
+          result =
+            await supabaseClient
+              .from("Menu")
+              .update(payload)
+              .eq("id", id)
+              .select();
+
+        } else {
+
+          result =
+            await supabaseClient
+              .from("Menu")
+              .insert([payload])
+              .select();
+
+        }
+
+        if (result.error) {
+          throw result.error;
+        }
+
+        document.getElementById("menuStatus").textContent =
+          id
+            ? "Menu item updated successfully."
+            : "Menu item added successfully.";
+
+        resetMenuForm();
+
+        await loadMenu();
+
+      } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("menuStatus").textContent =
+          "Error: " + error.message;
+
+      } finally {
+
+        button.disabled = false;
+        button.textContent = "SAVE MENU ITEM";
+
+      }
+
+    });
+
+
+  /* ==========================================
+     EDIT MENU
+     ========================================== */
+
+  window.editMenu = function(id) {
+
+    const item =
+      menuItems.find(
+        menu => String(menu.id) === String(id)
+      );
+
+    if (!item) return;
+
+    document.getElementById("menuId").value =
+      item.id;
+
+    document.getElementById("menuName").value =
+      item.name || "";
+
+    document.getElementById("menuPrice").value =
+      item.price || "";
+
+    buildCategories();
+
+    document.getElementById("menuCategory").value =
+      item.category || "";
+
+    document.getElementById("menuImage").value =
+      item.image_url || "";
+
+    document.getElementById("menuFormTitle").textContent =
+      "Edit Menu Item";
+
+    document.getElementById("cancelEdit")
+      .classList.remove("hidden");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  };
+
+
+  /* ==========================================
+     DELETE MENU
+     ========================================== */
+
+  window.deleteMenu = async function(id) {
+
+    if (
+      !confirm(
+        "Are you sure you want to delete this menu item?"
+      )
+    ) {
+      return;
     }
-  );
+
+    try {
+
+      const {
+        error
+      } = await supabaseClient
+        .from("Menu")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        throw error;
+      }
+
+      await loadMenu();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Delete failed: " + error.message
+      );
+
+    }
+
+  };
+
+
+  /* ==========================================
+     RESET MENU FORM
+     ========================================== */
+
+  function resetMenuForm() {
+
+    document.getElementById("menuId").value = "";
+
+    document.getElementById("menuName").value = "";
+
+    document.getElementById("menuPrice").value = "";
+
+    document.getElementById("menuCategory").value = "";
+
+    document.getElementById("menuImage").value = "";
+
+    document.getElementById("menuFormTitle").textContent =
+      "Add New Menu Item";
+
+    document.getElementById("cancelEdit")
+      .classList.add("hidden");
+
+  }
+
+
+  document
+    .getElementById("cancelEdit")
+    .addEventListener("click", function() {
+
+      resetMenuForm();
+
+    });
+
+
+  /* ==========================================
+     RENDER MENU
+     ========================================== */
+
+  function renderMenu() {
+
+    const tbody =
+      document.getElementById("menuTableBody");
+
+    if (!menuItems.length) {
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="5">
+            No menu items found.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+    tbody.innerHTML =
+      menuItems.map(item => {
+
+        const image =
+          item.image_url
+            ? `<img
+                class="menu-img"
+                src="${escapeAttribute(item.image_url)}"
+                alt=""
+                onerror="this.style.display='none'"
+              >`
+            : `<div class="menu-img"></div>`;
+
+        return `
+          <tr>
+
+            <td>${image}</td>
+
+            <td>
+              ${escapeHtml(item.name || "")}
+            </td>
+
+            <td>
+              €${escapeHtml(String(item.price ?? ""))}
+            </td>
+
+            <td>
+              ${escapeHtml(item.category || "")}
+            </td>
+
+            <td>
+
+              <div class="action-row">
+
+                <button
+                  class="edit-btn"
+                  onclick="editMenu('${escapeAttribute(String(item.id))}')"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="danger-btn"
+                  onclick="deleteMenu('${escapeAttribute(String(item.id))}')"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+        `;
+
+      }).join("");
+
+  }
+
+
+  /* ==========================================
+     DASHBOARD COUNTS
+     ========================================== */
+
+  function updateDashboard() {
+
+    document.getElementById("menuCount").textContent =
+      menuItems.length;
+
+    const categories =
+      new Set();
+
+    menuItems.forEach(item => {
+
+      if (item.category) {
+        categories.add(item.category);
+      }
+
+    });
+
+    browserCategories.forEach(category => {
+      categories.add(category);
+    });
+
+    document.getElementById("categoryCount").textContent =
+      categories.size;
+
+  }
+
+
+  /* ==========================================
+     GALLERY FILE
+     ========================================== */
+
+  document
+    .getElementById("galleryFile")
+    .addEventListener("change", function() {
+
+      const file = this.files[0];
+
+      if (!file) return;
+
+      document.getElementById("galleryStatus").textContent =
+        "Selected: " + file.name +
+        ". Supabase Storage upload will be connected next.";
+
+    });
+
+
+  /* ==========================================
+     SECURITY HELPERS
+     ========================================== */
+
+  function escapeHtml(value) {
+
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
+
+
+  function escapeAttribute(value) {
+
+    return escapeHtml(value);
+
+  }
+
+
+  /* ==========================================
+     START
+     ========================================== */
+
+  checkSession();
 
 </script>
 
