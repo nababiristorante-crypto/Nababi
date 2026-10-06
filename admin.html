@@ -1076,7 +1076,73 @@ let currentUser = null;
 let currentRole = "";
 let currentStaff = null;
 
-const ADMIN_FUNCTION_NAME = "create-staff";
+const ADMIN_FUNCTION_NAME = "admin-user-manager";
+
+/* ================= SUPABASE INIT ================= */
+
+function initSupabase(){
+
+  try{
+
+    if(
+      !window.SUPABASE_URL ||
+      !window.SUPABASE_ANON_KEY
+    ){
+
+      throw new Error(
+        "Supabase configuration is missing."
+      );
+
+    }
+
+    if(
+      !window.supabase ||
+      typeof window.supabase.createClient !== "function"
+    ){
+
+      throw new Error(
+        "Supabase library is not loaded."
+      );
+
+    }
+
+    sb = window.supabase.createClient(
+      window.SUPABASE_URL,
+      window.SUPABASE_ANON_KEY
+    );
+
+    return true;
+
+  }catch(error){
+
+    console.error(
+      "Supabase initialization error:",
+      error
+    );
+
+    sb = null;
+
+    return false;
+
+  }
+
+}
+
+
+/* Initialize immediately */
+
+const supabaseReady = initSupabase();
+
+if(!supabaseReady){
+
+  window.addEventListener(
+    "load",
+    ()=>{
+      initSupabase();
+    }
+  );
+
+}
 
 
 /* =========================================================
