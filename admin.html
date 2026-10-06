@@ -9,381 +9,637 @@
 <script src="config.js"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
 :root{
   --gold:#d4af37;
   --gold2:#f1d77a;
-  --black:#080808;
-  --dark:#111;
-  --card:#171717;
-  --line:#292929;
-  --text:#f5f5f5;
+  --bg:#080808;
+  --panel:#111;
+  --panel2:#171717;
+  --border:#292929;
+  --text:#fff;
   --muted:#aaa;
   --danger:#e74c3c;
-  --green:#35c978;
+  --success:#27ae60;
 }
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
 body{
   font-family:Arial,Helvetica,sans-serif;
-  background:#090909;
+  background:var(--bg);
   color:var(--text);
-  min-height:100vh;
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
 
-.hidden{display:none!important}
+button,input,textarea,select{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
 
 /* LOGIN */
-#loginPage{
+
+#loginScreen{
   min-height:100vh;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   padding:20px;
   background:
-    radial-gradient(circle at top right,#3b2b08 0,transparent 35%),
-    radial-gradient(circle at bottom left,#201804 0,transparent 30%),
-    #070707;
+    radial-gradient(circle at top,#33270b 0%,transparent 35%),
+    #080808;
 }
-.login-box{
+
+.login-card{
   width:100%;
-  max-width:440px;
-  background:rgba(20,20,20,.96);
-  border:1px solid #3a301a;
-  border-radius:24px;
-  padding:38px 30px;
-  box-shadow:0 25px 80px rgba(0,0,0,.65);
+  max-width:430px;
+  background:rgba(18,18,18,.96);
+  border:1px solid #3b3117;
+  border-radius:22px;
+  padding:35px;
+  box-shadow:0 25px 80px rgba(0,0,0,.7);
 }
-.logo-circle{
-  width:90px;
-  height:90px;
-  border:2px solid var(--gold);
+
+.login-logo{
+  width:85px;
+  height:85px;
   border-radius:50%;
   margin:0 auto 20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:var(--gold);
-  font-size:30px;
-  font-weight:bold;
+  object-fit:cover;
+  border:2px solid var(--gold);
+  display:block;
 }
-.login-box h1{
+
+.login-card h1{
   text-align:center;
   color:var(--gold2);
-  font-size:27px;
   margin-bottom:8px;
 }
-.login-box p{
+
+.login-card p{
   text-align:center;
   color:var(--muted);
   margin-bottom:28px;
 }
-.field{margin-bottom:16px}
-.field label{
-  display:block;
-  color:#ddd;
-  font-size:13px;
-  margin-bottom:7px;
-}
-input,textarea,select{
-  width:100%;
-  background:#0d0d0d;
-  color:white;
-  border:1px solid #333;
-  border-radius:10px;
-  padding:12px 13px;
-  outline:none;
-}
-input:focus,textarea:focus,select:focus{
-  border-color:var(--gold);
-}
-textarea{
-  min-height:120px;
-  resize:vertical;
-}
-.btn{
-  border:0;
-  border-radius:10px;
-  padding:11px 17px;
-  background:var(--gold);
-  color:#090909;
-  font-weight:bold;
-}
-.btn:hover{background:var(--gold2)}
-.btn.full{width:100%}
-.btn.dark{
-  background:#242424;
-  color:white;
-  border:1px solid #3b3b3b;
-}
-.btn.danger{
-  background:#451815;
-  color:#ffaaa2;
-  border:1px solid #70332d;
-}
-.btn.green{
-  background:#143b27;
-  color:#78e6a5;
-  border:1px solid #246440;
-}
-.message{
-  margin-top:15px;
-  text-align:center;
-  font-size:14px;
-  min-height:20px;
-}
 
 /* APP */
-#app{display:none;min-height:100vh}
-#app.show{display:flex}
 
-.sidebar{
-  width:270px;
-  background:#0d0d0d;
-  border-right:1px solid var(--line);
-  position:fixed;
-  left:0;
-  top:0;
-  bottom:0;
-  z-index:50;
-  overflow-y:auto;
-}
-.brand{
-  padding:25px 20px;
-  border-bottom:1px solid var(--line);
-}
-.brand h2{color:var(--gold);font-size:20px}
-.brand small{color:#888}
-
-.nav{padding:14px 10px}
-.nav button{
-  width:100%;
-  text-align:left;
-  border:0;
-  background:transparent;
-  color:#bbb;
-  padding:12px 13px;
-  border-radius:9px;
-  margin-bottom:4px;
-}
-.nav button:hover,.nav button.active{
-  background:#201c10;
-  color:var(--gold2);
-}
-.nav-section{
-  color:#666;
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:1.5px;
-  padding:15px 13px 7px;
-}
-.logout{
-  margin:15px 10px 25px;
-  width:calc(100% - 20px);
-}
-
-.main{
-  margin-left:270px;
-  width:calc(100% - 270px);
+#app{
   min-height:100vh;
 }
+
 .topbar{
   height:70px;
+  background:#0d0d0d;
+  border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 28px;
-  border-bottom:1px solid var(--line);
-  background:#0c0c0c;
+  padding:0 22px;
   position:sticky;
   top:0;
-  z-index:30;
+  z-index:100;
 }
-.topbar h1{font-size:20px}
-.admin-email{color:#999;font-size:12px}
-.menu-toggle{
-  display:none;
-  background:#222;
-  color:white;
-  border:1px solid #444;
-  padding:8px 11px;
-  border-radius:8px;
-}
-.content{padding:25px;max-width:1500px;margin:auto}
 
-.section{display:none}
-.section.active{display:block}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.brand img{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid var(--gold);
+}
+
+.brand strong{
+  color:var(--gold2);
+  font-size:17px;
+}
+
+.top-actions{
+  display:flex;
+  gap:8px;
+}
+
+.layout{
+  display:flex;
+  min-height:calc(100vh - 70px);
+}
+
+/* SIDEBAR */
+
+.sidebar{
+  width:245px;
+  background:#0d0d0d;
+  border-right:1px solid var(--border);
+  padding:18px 12px;
+  position:fixed;
+  top:70px;
+  bottom:0;
+  left:0;
+  overflow-y:auto;
+  z-index:90;
+}
+
+.nav-title{
+  color:#777;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  padding:10px 13px;
+}
+
+.nav-btn{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:#ccc;
+  border:0;
+  padding:13px 14px;
+  border-radius:10px;
+  margin-bottom:4px;
+  font-size:14px;
+}
+
+.nav-btn:hover,
+.nav-btn.active{
+  background:linear-gradient(90deg,#211b09,#171717);
+  color:var(--gold2);
+}
+
+.logout{
+  color:#ff8d82!important;
+}
+
+/* CONTENT */
+
+.content{
+  margin-left:245px;
+  width:calc(100% - 245px);
+  padding:25px;
+}
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
 
 .section-title{
-  margin-bottom:20px;
+  font-size:28px;
+  margin-bottom:7px;
 }
-.section-title h2{
-  color:var(--gold2);
-  margin-bottom:5px;
+
+.section-subtitle{
+  color:var(--muted);
+  margin-bottom:25px;
 }
-.section-title p{color:#888;font-size:14px}
 
 .card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:20px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:22px;
+  margin-bottom:20px;
+}
+
+.card h3{
+  color:var(--gold2);
   margin-bottom:18px;
 }
-.card h3{
-  color:var(--gold);
-  margin-bottom:17px;
-}
-.grid2{
+
+.grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:18px;
 }
+
 .grid3{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:15px;
 }
 
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:15px;
+/* DASHBOARD */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px;
 }
-.small{font-size:12px;color:#888}
-.preview{
+
+.stat{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+}
+
+.stat .number{
+  font-size:28px;
+  color:var(--gold2);
+  font-weight:bold;
+}
+
+.stat .label{
+  color:#aaa;
+  margin-top:5px;
+  font-size:12px;
+}
+
+/* FORMS */
+
+label{
+  display:block;
+  color:#bbb;
+  font-size:13px;
+  margin-bottom:7px;
+}
+
+input,
+textarea,
+select{
   width:100%;
-  max-height:260px;
-  object-fit:cover;
-  border-radius:12px;
-  margin-top:10px;
-  border:1px solid #333;
+  background:#0b0b0b;
+  border:1px solid #303030;
+  color:#fff;
+  border-radius:10px;
+  padding:12px;
+  outline:none;
 }
-.thumb{
-  width:110px;
-  height:85px;
-  object-fit:cover;
-  border-radius:8px;
-  border:1px solid #333;
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--gold);
 }
-.item{
-  border:1px solid #292929;
-  background:#111;
-  border-radius:12px;
-  padding:14px;
-  margin-bottom:10px;
+
+textarea{
+  min-height:120px;
+  resize:vertical;
 }
-.item-head{
+
+.form-group{
+  margin-bottom:15px;
+}
+
+.btn{
+  border:0;
+  border-radius:10px;
+  padding:11px 16px;
+  background:var(--gold);
+  color:#090909;
+  font-weight:bold;
+  margin:4px;
+}
+
+.btn:hover{
+  background:var(--gold2);
+}
+
+.btn.dark{
+  background:#292929;
+  color:#fff;
+}
+
+.btn.danger{
+  background:#461715;
+  color:#ffaaa3;
+}
+
+.btn.success{
+  background:#123a23;
+  color:#75e9a0;
+}
+
+.btn.small{
+  padding:8px 11px;
+  font-size:12px;
+}
+
+/* UPLOAD */
+
+.upload-box{
+  border:1px dashed #4b4b4b;
+  border-radius:14px;
+  padding:18px;
+  background:#0b0b0b;
+}
+
+.upload-box input[type=file]{
+  margin-bottom:12px;
+}
+
+.progress-wrap{
+  display:none;
+  margin-top:12px;
+}
+
+.progress-info{
   display:flex;
   justify-content:space-between;
-  gap:10px;
-  align-items:flex-start;
+  color:#aaa;
+  font-size:12px;
+  margin-bottom:6px;
 }
-.item-title{font-weight:bold;color:#eee}
-.badge{
-  display:inline-block;
-  padding:4px 8px;
+
+.progress{
+  height:8px;
+  background:#252525;
   border-radius:20px;
-  font-size:11px;
-  background:#29220e;
+  overflow:hidden;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transition:width .15s;
+}
+
+.preview{
+  margin-top:15px;
+  border-radius:12px;
+  overflow:hidden;
+  background:#050505;
+  min-height:50px;
+}
+
+.preview img,
+.preview video{
+  width:100%;
+  max-height:300px;
+  object-fit:cover;
+  display:block;
+}
+
+.current-media{
+  margin-top:15px;
+}
+
+.current-media img,
+.current-media video{
+  width:100%;
+  max-height:280px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+/* TABLE */
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  padding:12px;
+  border-bottom:1px solid #262626;
+  text-align:left;
+  font-size:13px;
+  vertical-align:top;
+}
+
+th{
   color:var(--gold2);
 }
-.stat{
-  background:#151515;
-  border:1px solid var(--line);
-  padding:22px;
-  border-radius:15px;
-}
-.stat b{
-  display:block;
-  font-size:31px;
-  color:var(--gold);
-  margin-top:8px;
-}
-.stat span{color:#888;font-size:13px}
 
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:700px}
-th,td{
-  padding:12px 10px;
-  border-bottom:1px solid #292929;
-  text-align:left;
-  vertical-align:top;
-  font-size:13px;
+td{
+  color:#ddd;
 }
-th{color:var(--gold);font-weight:bold}
-td{color:#ccc}
+
+.thumb{
+  width:65px;
+  height:50px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+/* CATEGORY */
 
 .category-list{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
+  margin-top:12px;
 }
-.category{
+
+.category-item{
   display:flex;
   align-items:center;
   gap:7px;
-  background:#201c10;
-  border:1px solid #493d1c;
-  color:var(--gold2);
   padding:8px 10px;
+  background:#191919;
+  border:1px solid #303030;
   border-radius:20px;
-}
-.category button{
-  background:none;
-  border:0;
-  color:#d98b83;
-  font-size:14px;
+  color:#ddd;
 }
 
-.notice{
-  padding:12px;
-  background:#18150d;
-  border:1px solid #493d1c;
-  color:#cbbd91;
-  border-radius:10px;
+.category-item button{
+  border:0;
+  background:none;
+  color:#ff7770;
+}
+
+/* MENU */
+
+.menu-editor{
+  background:#0d0d0d;
+  border:1px solid #272727;
+  border-radius:14px;
+  padding:18px;
+  margin-top:15px;
+}
+
+/* NEWS */
+
+.news-media-choice{
+  display:flex;
+  gap:10px;
   margin-bottom:15px;
 }
 
-/* TOAST */
-#toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  z-index:100;
-  background:#191919;
-  border:1px solid var(--gold);
-  color:white;
-  padding:13px 18px;
-  border-radius:10px;
-  transform:translateY(120px);
-  opacity:0;
-  transition:.25s;
+.choice{
+  flex:1;
+  border:1px solid #333;
+  border-radius:12px;
+  padding:13px;
+  text-align:center;
+  color:#aaa;
+  cursor:pointer;
 }
-#toast.show{
-  transform:translateY(0);
-  opacity:1;
+
+.choice.active{
+  border-color:var(--gold);
+  color:var(--gold2);
+  background:#191507;
+}
+
+.news-preview{
+  margin-top:15px;
+  border:1px solid #2b2b2b;
+  border-radius:14px;
+  padding:12px;
+  display:none;
+}
+
+.news-preview img,
+.news-preview video{
+  width:100%;
+  max-height:350px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+/* GALLERY */
+
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.gallery-item{
+  background:#101010;
+  border:1px solid #292929;
+  border-radius:13px;
+  overflow:hidden;
+}
+
+.gallery-item img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+}
+
+.gallery-info{
+  padding:10px;
 }
 
 /* MOBILE */
-@media(max-width:850px){
-  .sidebar{
-    transform:translateX(-100%);
-    transition:.25s;
-    width:270px;
+
+.mobile-menu{
+  display:none;
+}
+
+@media(max-width:1000px){
+  .stats{
+    grid-template-columns:repeat(3,1fr);
   }
-  .sidebar.open{transform:translateX(0)}
-  .main{
+
+  .gallery-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+
+@media(max-width:750px){
+  .topbar{
+    height:62px;
+  }
+
+  .mobile-menu{
+    display:block;
+    background:#171717;
+    color:var(--gold2);
+    border:1px solid #333;
+    border-radius:8px;
+    padding:8px 11px;
+  }
+
+  .sidebar{
+    top:62px;
+    left:-270px;
+    transition:.25s;
+  }
+
+  .sidebar.open{
+    left:0;
+  }
+
+  .content{
     margin-left:0;
     width:100%;
+    padding:16px;
   }
-  .menu-toggle{display:block}
-  .topbar{padding:0 15px}
-  .admin-email{display:none}
-  .content{padding:15px}
-  .grid2,.grid3{grid-template-columns:1fr}
-  .card{padding:15px}
+
+  .grid,
+  .grid3{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .gallery-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .section-title{
+    font-size:23px;
+  }
+
+  .brand strong{
+    display:none;
+  }
+}
+
+@media(max-width:450px){
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .gallery-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .card{
+    padding:15px;
+  }
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#181818;
+  border:1px solid var(--gold);
+  color:#fff;
+  padding:14px 18px;
+  border-radius:12px;
+  z-index:9999;
+  display:none;
+  max-width:340px;
+}
+
+.toast.success{
+  border-color:#39c878;
+}
+
+.toast.error{
+  border-color:#e74c3c;
 }
 </style>
 </head>
@@ -391,631 +647,1412 @@ td{color:#ccc}
 <body>
 
 <!-- LOGIN -->
-<div id="loginPage">
-  <div class="login-box">
-    <div class="logo-circle">N</div>
+
+<div id="loginScreen">
+
+  <div class="login-card">
+
+    <img
+      class="login-logo"
+      src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300"
+      alt="Nababi"
+    >
+
     <h1>Nababi Ristorante</h1>
     <p>Premium Admin Panel</p>
 
-    <div class="field">
+    <div class="form-group">
       <label>Email</label>
       <input id="loginEmail" type="email" placeholder="Admin email">
     </div>
 
-    <div class="field">
+    <div class="form-group">
       <label>Password</label>
       <input id="loginPassword" type="password" placeholder="Password">
     </div>
 
-    <button class="btn full" onclick="login()">LOGIN</button>
-    <div id="loginMessage" class="message"></div>
+    <button class="btn" style="width:100%" onclick="login()">
+      Login
+    </button>
+
+    <p id="loginError" style="color:#ff7770;margin-top:15px;"></p>
+
   </div>
+
 </div>
 
 
 <!-- APP -->
-<div id="app">
 
-  <aside class="sidebar" id="sidebar">
+<div id="app" class="hidden">
+
+  <header class="topbar">
+
     <div class="brand">
-      <h2>NABABI RISTORANTE</h2>
-      <small>Premium Control Panel</small>
+      <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+
+      <img
+        id="topLogo"
+        src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200"
+      >
+
+      <strong>Nababi Ristorante Admin</strong>
     </div>
 
-    <nav class="nav">
+    <div class="top-actions">
+      <button class="btn small" onclick="openHome()">
+        🌐 Website
+      </button>
 
-      <div class="nav-section">Main</div>
+      <button class="btn small dark" onclick="logout()">
+        Logout
+      </button>
+    </div>
 
-      <button class="nav-btn active" data-section="dashboard">
+  </header>
+
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+      <div class="nav-title">Main</div>
+
+      <button class="nav-btn active" onclick="showSection('dashboard',this)">
         📊 Dashboard
       </button>
 
-      <button class="nav-btn" data-section="home">
+      <button class="nav-btn" onclick="showSection('hero',this)">
         🏠 Home / Hero
       </button>
 
-      <button class="nav-btn" data-section="news">
-        📰 Breaking News
+      <button class="nav-btn" onclick="showSection('news',this)">
+        🚨 Breaking News
       </button>
 
-      <button class="nav-btn" data-section="logo">
+      <button class="nav-btn" onclick="showSection('logo',this)">
         🏷️ Logo
       </button>
 
-      <button class="nav-btn" data-section="about">
+      <button class="nav-btn" onclick="showSection('about',this)">
         ℹ️ About Us
       </button>
 
-      <div class="nav-section">Restaurant</div>
-
-      <button class="nav-btn" data-section="menu">
+      <button class="nav-btn" onclick="showSection('menu',this)">
         🍽️ Menu Manager
       </button>
 
-      <button class="nav-btn" data-section="gallery">
+      <button class="nav-btn" onclick="showSection('gallery',this)">
         🖼️ Gallery
       </button>
 
-      <button class="nav-btn" data-section="videos">
+      <button class="nav-btn" onclick="showSection('videos',this)">
         🎬 Videos
       </button>
 
-      <button class="nav-btn" data-section="bookings">
+      <div class="nav-title">Customers</div>
+
+      <button class="nav-btn" onclick="showSection('bookings',this)">
         📅 Table Bookings
       </button>
 
-      <button class="nav-btn" data-section="reviews">
+      <button class="nav-btn" onclick="showSection('reviews',this)">
         ⭐ Reviews
       </button>
 
-      <button class="nav-btn" data-section="reports">
-        📩 Reports / Feedback
+      <button class="nav-btn" onclick="showSection('reports',this)">
+        🚨 Reports
       </button>
 
-      <div class="nav-section">Information</div>
+      <div class="nav-title">Restaurant</div>
 
-      <button class="nav-btn" data-section="contact">
+      <button class="nav-btn" onclick="showSection('contact',this)">
         📞 Contact
       </button>
 
-      <button class="nav-btn" data-section="social">
-        🌐 Social Media
+      <button class="nav-btn" onclick="showSection('social',this)">
+        📱 Social Media
       </button>
 
-      <button class="nav-btn" data-section="hours">
+      <button class="nav-btn" onclick="showSection('hours',this)">
         🕐 Opening Hours
       </button>
 
-    </nav>
+      <button class="nav-btn logout" onclick="logout()">
+        🚪 Logout
+      </button>
 
-    <button class="btn danger logout" onclick="logout()">Logout</button>
-  </aside>
+    </aside>
 
 
-  <main class="main">
+    <!-- CONTENT -->
 
-    <header class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-        <h1 id="pageTitle">Dashboard</h1>
-      </div>
-      <div class="admin-email" id="adminEmail"></div>
-    </header>
+    <main class="content">
 
-    <div class="content">
 
       <!-- DASHBOARD -->
+
       <section id="dashboard" class="section active">
-        <div class="section-title">
-          <h2>Dashboard</h2>
-          <p>Welcome to your Nababi Ristorante control panel.</p>
+
+        <h1 class="section-title">Dashboard</h1>
+        <p class="section-subtitle">
+          Welcome to Nababi Ristorante Admin Panel.
+        </p>
+
+        <div class="stats">
+
+          <div class="stat">
+            <div class="number" id="countMenu">0</div>
+            <div class="label">Menu Items</div>
+          </div>
+
+          <div class="stat">
+            <div class="number" id="countGallery">0</div>
+            <div class="label">Gallery</div>
+          </div>
+
+          <div class="stat">
+            <div class="number" id="countBookings">0</div>
+            <div class="label">Bookings</div>
+          </div>
+
+          <div class="stat">
+            <div class="number" id="countReviews">0</div>
+            <div class="label">Reviews</div>
+          </div>
+
+          <div class="stat">
+            <div class="number" id="countReports">0</div>
+            <div class="label">Reports</div>
+          </div>
+
+          <div class="stat">
+            <div class="number" id="countCategories">0</div>
+            <div class="label">Categories</div>
+          </div>
+
         </div>
 
-        <div class="grid3">
-          <div class="stat">
-            <span>Menu Items</span>
-            <b id="statMenu">0</b>
-          </div>
-          <div class="stat">
-            <span>Gallery Photos</span>
-            <b id="statGallery">0</b>
-          </div>
-          <div class="stat">
-            <span>Bookings</span>
-            <b id="statBookings">0</b>
-          </div>
-          <div class="stat">
-            <span>Reviews</span>
-            <b id="statReviews">0</b>
-          </div>
-          <div class="stat">
-            <span>Reports</span>
-            <b id="statReports">0</b>
-          </div>
-          <div class="stat">
-            <span>Categories</span>
-            <b id="statCategories">0</b>
-          </div>
-        </div>
+        <div class="card" style="margin-top:22px;">
 
-        <div class="card" style="margin-top:20px">
           <h3>Quick Actions</h3>
-          <div class="actions">
-            <button class="btn" onclick="showSection('menu')">+ Add Menu Item</button>
-            <button class="btn" onclick="showSection('gallery')">+ Add Gallery Photos</button>
-            <button class="btn" onclick="showSection('videos')">🎬 Manage Videos</button>
-            <button class="btn" onclick="showSection('bookings')">📅 View Bookings</button>
-          </div>
+
+          <button class="btn" onclick="showSection('menu')">
+            + Add Menu
+          </button>
+
+          <button class="btn" onclick="showSection('gallery')">
+            + Add Gallery
+          </button>
+
+          <button class="btn" onclick="showSection('news')">
+            + Breaking News
+          </button>
+
+          <button class="btn" onclick="showSection('hero')">
+            Edit Home
+          </button>
+
         </div>
+
       </section>
 
 
-      <!-- HOME / HERO -->
-      <section id="home" class="section">
-        <div class="section-title">
-          <h2>Home / Hero</h2>
-          <p>Control the main screen of your website.</p>
-        </div>
+      <!-- HERO -->
+
+      <section id="hero" class="section">
+
+        <h1 class="section-title">Home / Hero</h1>
+        <p class="section-subtitle">
+          Manage your homepage hero title, image and video.
+        </p>
 
         <div class="card">
-          <h3>Hero Content</h3>
 
-          <div class="field">
+          <h3>Hero Text</h3>
+
+          <div class="form-group">
             <label>Hero Title</label>
             <input id="heroTitle">
           </div>
 
-          <div class="field">
+          <div class="form-group">
             <label>Hero Text</label>
             <textarea id="heroText"></textarea>
           </div>
 
-          <div class="grid2">
-            <div>
-              <label>Hero Image</label>
-              <input id="heroImage" type="file" accept="image/*">
-              <img id="heroPreview" class="preview hidden">
-            </div>
+          <button class="btn" onclick="saveHeroText()">
+            Save Hero Text
+          </button>
 
-            <div>
-              <label>Hero Video</label>
-              <input id="heroVideo" type="file" accept="video/*">
-              <video id="heroVideoPreview" class="preview hidden" controls muted></video>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn" onclick="saveHero()">Save Home / Hero</button>
-            <button class="btn danger" onclick="deleteHeroMedia()">Delete Hero Media</button>
-          </div>
         </div>
 
-        <div class="notice">
-          The homepage can use the Hero image or Hero video. Your separate Video 1 and Video 2 are managed from the Videos section.
+
+        <div class="grid">
+
+          <!-- IMAGE -->
+
+          <div class="card">
+
+            <h3>Hero Image</h3>
+
+            <div class="upload-box">
+
+              <input
+                id="heroImage"
+                type="file"
+                accept="image/*"
+              >
+
+              <button class="btn" onclick="uploadHeroImage()">
+                Upload / Change Image
+              </button>
+
+              <div class="progress-wrap" id="heroImageProgressWrap">
+
+                <div class="progress-info">
+                  <span>Uploading...</span>
+                  <span id="heroImagePercent">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    id="heroImageProgress"
+                  ></div>
+                </div>
+
+              </div>
+
+              <div id="heroImagePreview" class="preview"></div>
+
+            </div>
+
+            <div id="heroImageDelete"></div>
+
+          </div>
+
+
+          <!-- VIDEO -->
+
+          <div class="card">
+
+            <h3>Hero Video</h3>
+
+            <div class="upload-box">
+
+              <input
+                id="heroVideo"
+                type="file"
+                accept="video/*"
+              >
+
+              <button class="btn" onclick="uploadHeroVideo()">
+                Upload / Change Video
+              </button>
+
+              <div class="progress-wrap" id="heroVideoProgressWrap">
+
+                <div class="progress-info">
+                  <span>Uploading...</span>
+                  <span id="heroVideoPercent">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    id="heroVideoProgress"
+                  ></div>
+                </div>
+
+              </div>
+
+              <div id="heroVideoPreview" class="preview"></div>
+
+            </div>
+
+            <div id="heroVideoDelete"></div>
+
+          </div>
+
         </div>
+
       </section>
 
 
-      <!-- NEWS -->
+      <!-- BREAKING NEWS -->
+
       <section id="news" class="section">
-        <div class="section-title">
-          <h2>Breaking News</h2>
-          <p>Show or hide the announcement bar on the homepage.</p>
-        </div>
+
+        <h1 class="section-title">Breaking News</h1>
+
+        <p class="section-subtitle">
+          News will automatically appear on the website only during the selected time.
+        </p>
+
 
         <div class="card">
-          <div class="field">
-            <label>
-              <input id="newsEnabled" type="checkbox" style="width:auto">
-              Show Breaking News
-            </label>
-          </div>
 
-          <div class="field">
+          <h3>Breaking News Settings</h3>
+
+          <div class="form-group">
             <label>News Text</label>
-            <textarea id="newsText"></textarea>
+            <textarea
+              id="newsText"
+              placeholder="Write your breaking news..."
+            ></textarea>
           </div>
 
-          <div class="grid2">
-            <div class="field">
-              <label>Start Date</label>
-              <input id="newsStart" type="datetime-local">
+
+          <div class="grid">
+
+            <div class="form-group">
+
+              <label>Start Date & Time</label>
+
+              <input
+                id="newsStart"
+                type="datetime-local"
+              >
+
             </div>
-            <div class="field">
-              <label>End Date</label>
-              <input id="newsEnd" type="datetime-local">
+
+            <div class="form-group">
+
+              <label>End Date & Time</label>
+
+              <input
+                id="newsEnd"
+                type="datetime-local"
+              >
+
             </div>
+
           </div>
 
-          <button class="btn" onclick="saveNews()">Save Breaking News</button>
+
+          <div class="form-group">
+
+            <label>Publish Breaking News</label>
+
+            <select id="newsEnabled">
+
+              <option value="true">
+                Published / Active
+              </option>
+
+              <option value="false">
+                Hidden / Off
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <h3 style="margin-top:25px;">
+            Media — Choose Image OR Video
+          </h3>
+
+
+          <div class="news-media-choice">
+
+            <div
+              class="choice active"
+              id="newsImageChoice"
+              onclick="selectNewsMedia('image')"
+            >
+              🖼️ Upload Image
+            </div>
+
+            <div
+              class="choice"
+              id="newsVideoChoice"
+              onclick="selectNewsMedia('video')"
+            >
+              🎬 Upload Video
+            </div>
+
+          </div>
+
+
+          <div id="newsImageUpload">
+
+            <div class="upload-box">
+
+              <input
+                id="newsImage"
+                type="file"
+                accept="image/*"
+                onchange="previewNewsImage()"
+              >
+
+              <button
+                class="btn"
+                onclick="uploadNewsImage()"
+              >
+                Upload Image
+              </button>
+
+              <div
+                class="progress-wrap"
+                id="newsImageProgressWrap"
+              >
+
+                <div class="progress-info">
+                  <span>Uploading...</span>
+                  <span id="newsImagePercent">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    id="newsImageProgress"
+                  ></div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="newsVideoUpload"
+            class="hidden"
+          >
+
+            <div class="upload-box">
+
+              <input
+                id="newsVideo"
+                type="file"
+                accept="video/*"
+                onchange="previewNewsVideo()"
+              >
+
+              <button
+                class="btn"
+                onclick="uploadNewsVideo()"
+              >
+                Upload Video
+              </button>
+
+              <div
+                class="progress-wrap"
+                id="newsVideoProgressWrap"
+              >
+
+                <div class="progress-info">
+                  <span>Uploading...</span>
+                  <span id="newsVideoPercent">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    id="newsVideoProgress"
+                  ></div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="newsPreview"
+            class="news-preview"
+          ></div>
+
+
+          <div
+            id="newsCurrent"
+            class="current-media"
+          ></div>
+
+
+          <div style="margin-top:20px;">
+
+            <button
+              class="btn"
+              onclick="saveNews()"
+            >
+              💾 Save / Publish Breaking News
+            </button>
+
+            <button
+              class="btn dark"
+              onclick="deleteNews()"
+            >
+              🗑️ Delete Breaking News
+            </button>
+
+            <button
+              class="btn success"
+              onclick="openHome()"
+            >
+              🌐 View Home Page
+            </button>
+
+          </div>
+
         </div>
+
       </section>
 
 
       <!-- LOGO -->
+
       <section id="logo" class="section">
-        <div class="section-title">
-          <h2>Restaurant Logo</h2>
-          <p>Upload and change the logo directly from your phone or computer.</p>
-        </div>
+
+        <h1 class="section-title">Restaurant Logo</h1>
+
+        <p class="section-subtitle">
+          Change the logo shown on your website.
+        </p>
 
         <div class="card">
-          <h3>Current Logo</h3>
 
-          <img id="logoPreview" class="preview hidden"
-               style="max-width:350px;object-fit:contain;background:#090909">
+          <div class="upload-box">
 
-          <div class="field" style="margin-top:15px">
-            <label>Choose New Logo</label>
-            <input id="logoFile" type="file" accept="image/*">
+            <input
+              id="logoFile"
+              type="file"
+              accept="image/*"
+            >
+
+            <button
+              class="btn"
+              onclick="uploadLogo()"
+            >
+              Upload / Change Logo
+            </button>
+
+            <div
+              class="progress-wrap"
+              id="logoProgressWrap"
+            >
+
+              <div class="progress-info">
+                <span>Uploading...</span>
+                <span id="logoPercent">0%</span>
+              </div>
+
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="logoProgress"
+                ></div>
+              </div>
+
+            </div>
+
+            <div
+              id="logoPreview"
+              class="preview"
+            ></div>
+
           </div>
 
-          <div class="actions">
-            <button class="btn" onclick="saveLogo()">Upload / Change Logo</button>
-            <button class="btn danger" onclick="deleteLogo()">Delete Logo</button>
-          </div>
+          <div id="logoDelete"></div>
+
         </div>
+
       </section>
 
 
       <!-- ABOUT -->
+
       <section id="about" class="section">
-        <div class="section-title">
-          <h2>About Us</h2>
-          <p>Edit your restaurant introduction.</p>
-        </div>
+
+        <h1 class="section-title">About Us</h1>
+
+        <p class="section-subtitle">
+          Manage the restaurant story shown on the homepage.
+        </p>
 
         <div class="card">
-          <div class="field">
+
+          <div class="form-group">
+
             <label>About Title</label>
+
             <input id="aboutTitle">
+
           </div>
 
-          <div class="field">
+          <div class="form-group">
+
             <label>About Text</label>
+
             <textarea id="aboutText"></textarea>
+
           </div>
 
-          <button class="btn" onclick="saveAbout()">Save About Us</button>
+          <button
+            class="btn"
+            onclick="saveAbout()"
+          >
+            Save About Us
+          </button>
+
         </div>
+
       </section>
 
 
       <!-- MENU -->
+
       <section id="menu" class="section">
-        <div class="section-title">
-          <h2>Menu Manager</h2>
-          <p>Add, edit, change photo, price, category and delete food items.</p>
-        </div>
+
+        <h1 class="section-title">Menu Manager</h1>
+
+        <p class="section-subtitle">
+          Add categories and manage your restaurant menu.
+        </p>
+
+
+        <!-- CATEGORY -->
 
         <div class="card">
+
           <h3>Categories</h3>
 
-          <div class="grid2">
+          <div class="grid">
+
             <div>
-              <div class="field">
-                <label>New Category Name</label>
-                <input id="newCategory" placeholder="Example: Special Offers">
-              </div>
-              <button class="btn" onclick="addCategory()">+ Add Category</button>
+
+              <label>New Category</label>
+
+              <input
+                id="newCategory"
+                placeholder="e.g. Pizza"
+              >
+
+              <button
+                class="btn"
+                onclick="addCategory()"
+              >
+                + Add Category
+              </button>
+
             </div>
 
             <div>
-              <div class="category-list" id="categoryList"></div>
+
+              <label>Existing Categories</label>
+
+              <div
+                id="categoryList"
+                class="category-list"
+              ></div>
+
             </div>
+
           </div>
+
         </div>
 
+
+        <!-- ADD MENU -->
+
         <div class="card">
-          <h3 id="menuFormTitle">Add New Food</h3>
 
-          <input type="hidden" id="menuId">
+          <h3 id="menuFormTitle">
+            Add Menu Item
+          </h3>
 
-          <div class="grid2">
-            <div class="field">
+          <input
+            type="hidden"
+            id="menuEditId"
+          >
+
+          <div class="grid">
+
+            <div class="form-group">
+
               <label>Food Name</label>
-              <input id="menuName" placeholder="Chicken Biryani">
+
+              <input
+                id="menuName"
+                placeholder="Chicken Biryani"
+              >
+
             </div>
 
-            <div class="field">
+            <div class="form-group">
+
               <label>Price</label>
-              <input id="menuPrice" placeholder="€12.90">
+
+              <input
+                id="menuPrice"
+                placeholder="12.00 €"
+              >
+
             </div>
+
           </div>
 
-          <div class="field">
+
+          <div class="form-group">
+
             <label>Category</label>
+
             <select id="menuCategory">
-              <option value="">Select Category</option>
+
+              <option value="">
+                Select Category
+              </option>
+
             </select>
+
           </div>
 
-          <div class="field">
+
+          <div class="form-group">
+
             <label>Description</label>
-            <textarea id="menuDescription" placeholder="Food description"></textarea>
+
+            <textarea
+              id="menuDescription"
+              placeholder="Food description..."
+            ></textarea>
+
           </div>
 
-          <div class="field">
+
+          <div class="upload-box">
+
             <label>Food Photo</label>
-            <input id="menuImage" type="file" accept="image/*">
+
+            <input
+              id="menuImage"
+              type="file"
+              accept="image/*"
+            >
+
+            <button
+              class="btn"
+              onclick="saveMenuItem()"
+            >
+              💾 Save Menu Item
+            </button>
+
+            <div
+              class="progress-wrap"
+              id="menuProgressWrap"
+            >
+
+              <div class="progress-info">
+                <span>Uploading...</span>
+                <span id="menuPercent">0%</span>
+              </div>
+
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="menuProgress"
+                ></div>
+              </div>
+
+            </div>
+
           </div>
 
-          <div id="menuImagePreviewBox"></div>
 
-          <div class="actions">
-            <button class="btn" onclick="saveMenuItem()">Save Food</button>
-            <button class="btn dark" onclick="resetMenuForm()">Clear Form</button>
-          </div>
+          <button
+            class="btn dark"
+            onclick="resetMenuForm()"
+          >
+            Clear Form
+          </button>
+
         </div>
+
+
+        <!-- MENU TABLE -->
 
         <div class="card">
+
           <h3>Menu Items</h3>
-          <div id="menuList"></div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Photo</th>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Category</th>
+                  <th>Actions</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="menuTable"></tbody>
+
+            </table>
+
+          </div>
+
         </div>
+
       </section>
 
 
       <!-- GALLERY -->
+
       <section id="gallery" class="section">
-        <div class="section-title">
-          <h2>Gallery</h2>
-          <p>Upload multiple restaurant photos from your phone.</p>
-        </div>
+
+        <h1 class="section-title">Gallery</h1>
+
+        <p class="section-subtitle">
+          Upload restaurant photos.
+        </p>
 
         <div class="card">
+
           <h3>Upload Photos</h3>
 
-          <div class="grid2">
-            <div class="field">
-              <label>Photos</label>
-              <input id="galleryFiles" type="file" accept="image/*" multiple>
-            </div>
+          <div class="form-group">
 
-            <div class="field">
-              <label>Gallery Category</label>
-              <input id="galleryCategory" value="Restaurant">
-            </div>
+            <label>Title</label>
+
+            <input id="galleryTitle">
+
           </div>
 
-          <div class="field">
-            <label>Title (optional)</label>
-            <input id="galleryTitle" placeholder="Restaurant Interior">
+          <div class="form-group">
+
+            <label>Category</label>
+
+            <input
+              id="galleryCategory"
+              value="Restaurant"
+            >
+
           </div>
 
-          <button class="btn" onclick="uploadGallery()">Upload Photos</button>
+          <div class="upload-box">
+
+            <input
+              id="galleryFiles"
+              type="file"
+              accept="image/*"
+              multiple
+            >
+
+            <button
+              class="btn"
+              onclick="uploadGallery()"
+            >
+              Upload Photos
+            </button>
+
+          </div>
+
+          <div id="galleryProgress"></div>
+
         </div>
+
 
         <div class="card">
+
           <h3>Gallery Photos</h3>
-          <div id="galleryList"></div>
+
+          <div
+            id="galleryGrid"
+            class="gallery-grid"
+          ></div>
+
         </div>
+
       </section>
 
 
       <!-- VIDEOS -->
+
       <section id="videos" class="section">
-        <div class="section-title">
-          <h2>Videos</h2>
-          <p>Video 1 and Video 2 are completely separate.</p>
-        </div>
 
-        <div class="grid2">
+        <h1 class="section-title">Homepage Videos</h1>
 
-          <div class="card">
-            <h3>🎬 Video 1</h3>
+        <p class="section-subtitle">
+          Video 1 and Video 2 are separate video slots.
+        </p>
 
-            <video id="video1Preview" class="preview hidden" controls muted></video>
+        <div class="grid">
 
-            <div class="field" style="margin-top:15px">
-              <label>Upload Video 1</label>
-              <input id="video1File" type="file" accept="video/*">
-            </div>
-
-            <div class="actions">
-              <button class="btn" onclick="saveVideo(1)">Upload Video 1</button>
-              <button class="btn danger" onclick="deleteVideo(1)">Delete</button>
-            </div>
-          </div>
+          <!-- VIDEO 1 -->
 
           <div class="card">
-            <h3>🎬 Video 2</h3>
 
-            <video id="video2Preview" class="preview hidden" controls muted></video>
+            <h3>Video 1</h3>
 
-            <div class="field" style="margin-top:15px">
-              <label>Upload Video 2</label>
-              <input id="video2File" type="file" accept="video/*">
+            <div class="upload-box">
+
+              <input
+                id="video1File"
+                type="file"
+                accept="video/*"
+              >
+
+              <button
+                class="btn"
+                onclick="uploadSiteVideo(1)"
+              >
+                Upload / Change Video 1
+              </button>
+
+              <div
+                class="progress-wrap"
+                id="video1ProgressWrap"
+              >
+
+                <div class="progress-info">
+                  <span>Uploading...</span>
+                  <span id="video1Percent">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    id="video1Progress"
+                  ></div>
+                </div>
+
+              </div>
+
+              <div
+                id="video1Preview"
+                class="preview"
+              ></div>
+
             </div>
 
-            <div class="actions">
-              <button class="btn" onclick="saveVideo(2)">Upload Video 2</button>
-              <button class="btn danger" onclick="deleteVideo(2)">Delete</button>
+            <div id="video1Delete"></div>
+
+          </div>
+
+
+          <!-- VIDEO 2 -->
+
+          <div class="card">
+
+            <h3>Video 2</h3>
+
+            <div class="upload-box">
+
+              <input
+                id="video2File"
+                type="file"
+                accept="video/*"
+              >
+
+              <button
+                class="btn"
+                onclick="uploadSiteVideo(2)"
+              >
+                Upload / Change Video 2
+              </button>
+
+              <div
+                class="progress-wrap"
+                id="video2ProgressWrap"
+              >
+
+                <div class="progress-info">
+                  <span>Uploading...</span>
+                  <span id="video2Percent">0%</span>
+                </div>
+
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    id="video2Progress"
+                  ></div>
+                </div>
+
+              </div>
+
+              <div
+                id="video2Preview"
+                class="preview"
+              ></div>
+
             </div>
+
+            <div id="video2Delete"></div>
+
           </div>
 
         </div>
+
       </section>
 
 
       <!-- BOOKINGS -->
+
       <section id="bookings" class="section">
-        <div class="section-title">
-          <h2>Table Bookings</h2>
-          <p>Manage customer reservation requests.</p>
-        </div>
+
+        <h1 class="section-title">Table Bookings</h1>
+
+        <p class="section-subtitle">
+          Manage customer table reservations.
+        </p>
 
         <div class="card">
+
           <div class="table-wrap">
+
             <table>
+
               <thead>
+
                 <tr>
-                  <th>Customer</th>
+                  <th>Name</th>
                   <th>Phone</th>
+                  <th>Email</th>
                   <th>Date</th>
                   <th>Time</th>
                   <th>Guests</th>
-                  <th>Request</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
+
               </thead>
-              <tbody id="bookingsList"></tbody>
+
+              <tbody id="bookingsTable"></tbody>
+
             </table>
+
           </div>
+
         </div>
+
       </section>
 
 
       <!-- REVIEWS -->
+
       <section id="reviews" class="section">
-        <div class="section-title">
-          <h2>Reviews</h2>
-          <p>Approve, hide, feature or delete customer reviews.</p>
-        </div>
+
+        <h1 class="section-title">Reviews</h1>
+
+        <p class="section-subtitle">
+          Approve, feature or delete customer reviews.
+        </p>
 
         <div class="card">
-          <div id="reviewsList"></div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Name</th>
+                  <th>Rating</th>
+                  <th>Review</th>
+                  <th>Status</th>
+                  <th>Featured</th>
+                  <th>Action</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="reviewsTable"></tbody>
+
+            </table>
+
+          </div>
+
         </div>
+
       </section>
 
 
       <!-- REPORTS -->
+
       <section id="reports" class="section">
-        <div class="section-title">
-          <h2>Reports / Feedback</h2>
-          <p>Manage customer reports and feedback.</p>
-        </div>
+
+        <h1 class="section-title">Reports</h1>
+
+        <p class="section-subtitle">
+          Customer complaints and reports.
+        </p>
 
         <div class="card">
-          <div id="reportsList"></div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="reportsTable"></tbody>
+
+            </table>
+
+          </div>
+
         </div>
+
       </section>
 
 
       <!-- CONTACT -->
+
       <section id="contact" class="section">
-        <div class="section-title">
-          <h2>Contact</h2>
-          <p>Edit address, phones, WhatsApp and Google Maps.</p>
-        </div>
+
+        <h1 class="section-title">Contact</h1>
 
         <div class="card">
-          <div class="field">
+
+          <div class="form-group">
+
             <label>Address</label>
+
             <input id="contactAddress">
+
           </div>
 
-          <div class="grid2">
-            <div class="field">
+          <div class="grid">
+
+            <div class="form-group">
+
               <label>Phone 1</label>
+
               <input id="contactPhone1">
+
             </div>
 
-            <div class="field">
+            <div class="form-group">
+
               <label>Phone 2</label>
+
               <input id="contactPhone2">
+
             </div>
+
           </div>
 
-          <div class="field">
+          <div class="form-group">
+
             <label>WhatsApp</label>
+
             <input id="contactWhatsapp">
+
           </div>
 
-          <div class="field">
+          <div class="form-group">
+
             <label>Google Maps URL</label>
+
             <input id="contactMaps">
+
           </div>
 
-          <button class="btn" onclick="saveContact()">Save Contact</button>
+          <button
+            class="btn"
+            onclick="saveContact()"
+          >
+            Save Contact
+          </button>
+
         </div>
+
       </section>
 
 
       <!-- SOCIAL -->
+
       <section id="social" class="section">
-        <div class="section-title">
-          <h2>Social Media</h2>
-          <p>Manage your restaurant's social links.</p>
-        </div>
+
+        <h1 class="section-title">Social Media</h1>
 
         <div class="card">
-          <div class="field">
+
+          <div class="form-group">
+
             <label>Facebook</label>
+
             <input id="socialFacebook">
+
           </div>
 
-          <div class="field">
+          <div class="form-group">
+
             <label>Instagram</label>
+
             <input id="socialInstagram">
+
           </div>
 
-          <div class="field">
+          <div class="form-group">
+
             <label>TikTok</label>
+
             <input id="socialTikTok">
+
           </div>
 
-          <button class="btn" onclick="saveSocial()">Save Social Media</button>
+          <div class="form-group">
+
+            <label>YouTube</label>
+
+            <input id="socialYoutube">
+
+          </div>
+
+          <button
+            class="btn"
+            onclick="saveSocial()"
+          >
+            Save Social Media
+          </button>
+
         </div>
+
       </section>
 
 
       <!-- HOURS -->
+
       <section id="hours" class="section">
-        <div class="section-title">
-          <h2>Opening Hours</h2>
-          <p>Set the restaurant opening hours.</p>
-        </div>
+
+        <h1 class="section-title">Opening Hours</h1>
 
         <div class="card">
-          <div id="hoursForm"></div>
-          <button class="btn" onclick="saveHours()">Save Opening Hours</button>
+
+          <div class="grid">
+
+            <div class="form-group">
+              <label>Monday</label>
+              <input id="hoursMonday">
+            </div>
+
+            <div class="form-group">
+              <label>Tuesday</label>
+              <input id="hoursTuesday">
+            </div>
+
+            <div class="form-group">
+              <label>Wednesday</label>
+              <input id="hoursWednesday">
+            </div>
+
+            <div class="form-group">
+              <label>Thursday</label>
+              <input id="hoursThursday">
+            </div>
+
+            <div class="form-group">
+              <label>Friday</label>
+              <input id="hoursFriday">
+            </div>
+
+            <div class="form-group">
+              <label>Saturday</label>
+              <input id="hoursSaturday">
+            </div>
+
+            <div class="form-group">
+              <label>Sunday</label>
+              <input id="hoursSunday">
+            </div>
+
+          </div>
+
+          <button
+            class="btn"
+            onclick="saveHours()"
+          >
+            Save Opening Hours
+          </button>
+
         </div>
+
       </section>
 
-    </div>
-  </main>
+
+    </main>
+
+  </div>
+
 </div>
 
-<div id="toast"></div>
+
+<div id="toast" class="toast"></div>
 
 
 <script>
-/* ==========================================
-   SUPABASE
-========================================== */
 
-const supabaseClient = window.supabase.createClient(
+const {
+  createClient
+} = supabase;
+
+const supabaseClient = createClient(
   window.SUPABASE_URL,
   window.SUPABASE_ANON_KEY
 );
 
-const SITE_BUCKET = "site-media";
-const MENU_BUCKET = "menu-images";
+const SUPABASE_URL = window.SUPABASE_URL;
 
-let settings = {};
-let categories = [];
-let menuItems = [];
-let galleryItems = [];
+let currentNewsMediaType = "image";
+let currentNewsData = {};
 let currentLogoPath = "";
 let currentHeroImagePath = "";
 let currentHeroVideoPath = "";
-let videoPaths = {video1:"",video2:""};
+let currentVideo1Path = "";
+let currentVideo2Path = "";
+
+let menuItems = [];
+let categories = [];
 
 
-/* ==========================================
+/* =========================
    HELPERS
-========================================== */
+========================= */
 
-function toast(message){
+function toast(message,type=""){
   const el=document.getElementById("toast");
+
   el.textContent=message;
-  el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"),3000);
+  el.className="toast "+type;
+  el.style.display="block";
+
+  setTimeout(()=>{
+    el.style.display="none";
+  },3500);
 }
 
+
 function escapeHtml(value){
-  return String(value ?? "")
+  if(value===null || value===undefined) return "";
+
+  return String(value)
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
     .replaceAll(">","&gt;")
@@ -1023,50 +2060,374 @@ function escapeHtml(value){
     .replaceAll("'","&#039;");
 }
 
-function fileName(file){
-  return Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
+
+function openHome(){
+  window.open("./","_blank");
 }
+
+
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+
+function showSection(id,button=null){
+
+  document.querySelectorAll(".section")
+    .forEach(x=>x.classList.remove("active"));
+
+  const section=document.getElementById(id);
+
+  if(section){
+    section.classList.add("active");
+  }
+
+  document.querySelectorAll(".nav-btn")
+    .forEach(x=>x.classList.remove("active"));
+
+  if(button){
+    button.classList.add("active");
+  }
+
+  document.getElementById("sidebar")
+    .classList.remove("open");
+
+  if(id==="dashboard"){
+    loadDashboard();
+  }
+
+  if(id==="hero"){
+    loadHero();
+  }
+
+  if(id==="news"){
+    loadNews();
+  }
+
+  if(id==="logo"){
+    loadLogo();
+  }
+
+  if(id==="about"){
+    loadAbout();
+  }
+
+  if(id==="menu"){
+    loadCategories();
+    loadMenu();
+  }
+
+  if(id==="gallery"){
+    loadGallery();
+  }
+
+  if(id==="videos"){
+    loadVideos();
+  }
+
+  if(id==="bookings"){
+    loadBookings();
+  }
+
+  if(id==="reviews"){
+    loadReviews();
+  }
+
+  if(id==="reports"){
+    loadReports();
+  }
+
+  if(id==="contact"){
+    loadContact();
+  }
+
+  if(id==="social"){
+    loadSocial();
+  }
+
+  if(id==="hours"){
+    loadHours();
+  }
+}
+
+
+/* =========================
+   AUTH
+========================= */
+
+async function checkAuth(){
+
+  const {
+    data
+  }=await supabaseClient.auth.getSession();
+
+  if(data.session){
+
+    document.getElementById("loginScreen")
+      .classList.add("hidden");
+
+    document.getElementById("app")
+      .classList.remove("hidden");
+
+    await initialize();
+
+  }else{
+
+    document.getElementById("loginScreen")
+      .classList.remove("hidden");
+
+    document.getElementById("app")
+      .classList.add("hidden");
+
+  }
+}
+
+
+async function login(){
+
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+
+  if(!email || !password){
+
+    document.getElementById("loginError")
+      .textContent="Please enter email and password.";
+
+    return;
+  }
+
+  const {
+    error
+  }=await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+
+    document.getElementById("loginError")
+      .textContent=error.message;
+
+    return;
+  }
+
+  document.getElementById("loginError")
+    .textContent="";
+
+  await checkAuth();
+}
+
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  location.reload();
+}
+
+
+/* =========================
+   REAL UPLOAD WITH PROGRESS
+========================= */
+
+async function uploadWithProgress(
+  bucket,
+  path,
+  file,
+  progressCallback
+){
+
+  const {
+    data:sessionData
+  }=await supabaseClient.auth.getSession();
+
+  const session=sessionData.session;
+
+  if(!session){
+    throw new Error("You are not logged in.");
+  }
+
+  const encodedPath=path
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/");
+
+  const url=
+    SUPABASE_URL+
+    "/storage/v1/object/"+
+    encodeURIComponent(bucket)+
+    "/"+
+    encodedPath;
+
+  return new Promise((resolve,reject)=>{
+
+    const xhr=new XMLHttpRequest();
+
+    xhr.open("POST",url,true);
+
+    xhr.setRequestHeader(
+      "apikey",
+      window.SUPABASE_ANON_KEY
+    );
+
+    xhr.setRequestHeader(
+      "Authorization",
+      "Bearer "+session.access_token
+    );
+
+    xhr.setRequestHeader(
+      "Content-Type",
+      file.type || "application/octet-stream"
+    );
+
+    xhr.setRequestHeader(
+      "x-upsert",
+      "true"
+    );
+
+    xhr.upload.onprogress=function(event){
+
+      if(event.lengthComputable){
+
+        const percent=Math.round(
+          (event.loaded/event.total)*100
+        );
+
+        if(progressCallback){
+          progressCallback(percent);
+        }
+
+      }
+
+    };
+
+    xhr.onload=function(){
+
+      if(xhr.status>=200 && xhr.status<300){
+
+        if(progressCallback){
+          progressCallback(100);
+        }
+
+        resolve(true);
+
+      }else{
+
+        reject(
+          new Error(
+            xhr.responseText ||
+            "Upload failed."
+          )
+        );
+
+      }
+
+    };
+
+    xhr.onerror=function(){
+
+      reject(
+        new Error("Network error during upload.")
+      );
+
+    };
+
+    xhr.send(file);
+
+  });
+}
+
 
 function publicUrl(bucket,path){
-  if(!path)return "";
-  return supabaseClient.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+
+  if(!path) return "";
+
+  return SUPABASE_URL+
+    "/storage/v1/object/public/"+
+    bucket+
+    "/"+
+    path
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/");
 }
 
-async function uploadFile(bucket,folder,file){
-  const path=folder+"/"+fileName(file);
-
-  const {error}=await supabaseClient.storage
-    .from(bucket)
-    .upload(path,file,{upsert:false});
-
-  if(error)throw error;
-
-  return path;
-}
 
 async function deleteStorage(bucket,path){
-  if(!path)return;
-  const {error}=await supabaseClient.storage
+
+  if(!path) return;
+
+  const {
+    error
+  }=await supabaseClient
+    .storage
     .from(bucket)
     .remove([path]);
 
-  if(error)console.warn(error);
+  if(error){
+    console.warn(error);
+  }
 }
 
+
+function setProgress(
+  wrapId,
+  barId,
+  percentId,
+  percent
+){
+
+  const wrap=document.getElementById(wrapId);
+  const bar=document.getElementById(barId);
+  const label=document.getElementById(percentId);
+
+  if(!wrap || !bar || !label) return;
+
+  wrap.style.display="block";
+
+  bar.style.width=percent+"%";
+  label.textContent=percent+"%";
+
+  if(percent>=100){
+
+    setTimeout(()=>{
+      wrap.style.display="none";
+    },1000);
+
+  }
+
+}
+
+
+/* =========================
+   SITE SETTINGS
+========================= */
+
 async function getSetting(key){
-  const {data,error}=await supabaseClient
+
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("site_settings")
-    .select("*")
+    .select("value")
     .eq("key",key)
     .maybeSingle();
 
-  if(error)throw error;
+  if(error){
+    console.error(error);
+    return {};
+  }
 
   return data?.value || {};
 }
 
+
 async function saveSetting(key,value){
-  const {error}=await supabaseClient
+
+  const {
+    error
+  }=await supabaseClient
     .from("site_settings")
     .upsert({
       key:key,
@@ -1074,1671 +2435,2672 @@ async function saveSetting(key,value){
       updated_at:new Date().toISOString()
     });
 
-  if(error)throw error;
-  settings[key]=value;
-}
-
-
-/* ==========================================
-   AUTH
-========================================== */
-
-async function checkAuth(){
-
-  const {data:{session}}=
-    await supabaseClient.auth.getSession();
-
-  if(session){
-    openAdmin(session);
-  }else{
-    document.getElementById("loginPage").style.display="flex";
-    document.getElementById("app").classList.remove("show");
-  }
-}
-
-async function login(){
-
-  const email=document.getElementById("loginEmail").value.trim();
-  const password=document.getElementById("loginPassword").value;
-
-  const msg=document.getElementById("loginMessage");
-
-  if(!email || !password){
-    msg.textContent="Please enter email and password.";
-    msg.style.color="#ff8177";
-    return;
-  }
-
-  msg.textContent="Logging in...";
-  msg.style.color="#d4af37";
-
-  const {data,error}=await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
   if(error){
-    msg.textContent=error.message;
-    msg.style.color="#ff8177";
-    return;
-  }
 
-  openAdmin(data.session);
-}
-
-async function logout(){
-
-  await supabaseClient.auth.signOut();
-
-  document.getElementById("app").classList.remove("show");
-  document.getElementById("loginPage").style.display="flex";
-
-  toast("Logged out");
-}
-
-function openAdmin(session){
-
-  document.getElementById("loginPage").style.display="none";
-  document.getElementById("app").classList.add("show");
-
-  document.getElementById("adminEmail").textContent=
-    session.user.email || "";
-
-  loadEverything();
-}
-
-
-/* ==========================================
-   NAVIGATION
-========================================== */
-
-document.querySelectorAll(".nav-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    showSection(btn.dataset.section);
-  });
-});
-
-function showSection(id){
-
-  document.querySelectorAll(".section")
-    .forEach(x=>x.classList.remove("active"));
-
-  const target=document.getElementById(id);
-  if(target)target.classList.add("active");
-
-  document.querySelectorAll(".nav-btn")
-    .forEach(x=>x.classList.remove("active"));
-
-  const btn=document.querySelector(
-    '.nav-btn[data-section="'+id+'"]'
-  );
-
-  if(btn)btn.classList.add("active");
-
-  const title=btn
-    ? btn.textContent.trim()
-    : "Dashboard";
-
-  document.getElementById("pageTitle").textContent=title;
-
-  document.getElementById("sidebar").classList.remove("open");
-}
-
-function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("open");
-}
-
-
-/* ==========================================
-   LOAD EVERYTHING
-========================================== */
-
-async function loadEverything(){
-
-  try{
-    await Promise.all([
-      loadSettings(),
-      loadCategories(),
-      loadMenu(),
-      loadGallery(),
-      loadBookings(),
-      loadReviews(),
-      loadReports()
-    ]);
-
-    buildHoursForm();
-    updateDashboard();
-
-  }catch(error){
-    console.error(error);
-    toast(error.message);
+    toast(error.message,"error");
+    throw error;
   }
 }
 
 
-/* ==========================================
-   SETTINGS
-========================================== */
+/* =========================
+   INITIALIZE
+========================= */
 
-async function loadSettings(){
+async function initialize(){
 
-  const {data,error}=await supabaseClient
-    .from("site_settings")
-    .select("*");
+  await loadLogoTop();
 
-  if(error)throw error;
+  await loadDashboard();
 
-  settings={};
+  await loadHero();
 
-  (data||[]).forEach(row=>{
-    settings[row.key]=row.value||{};
-  });
+  await loadNews();
 
-  const hero=settings.hero||{};
+  await loadLogo();
 
-  document.getElementById("heroTitle").value=hero.title||"";
-  document.getElementById("heroText").value=hero.text||"";
+  await loadAbout();
+
+  await loadCategories();
+
+  await loadMenu();
+
+  await loadGallery();
+
+  await loadVideos();
+
+  await loadContact();
+
+  await loadSocial();
+
+  await loadHours();
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function loadDashboard(){
+
+  const [
+    menu,
+    gallery,
+    bookings,
+    reviews,
+    reports,
+    cats
+  ]=await Promise.all([
+
+    supabaseClient
+      .from("Menu")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("gallery")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("table_bookings")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("reviews")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("customer_reports")
+      .select("id",{count:"exact",head:true}),
+
+    supabaseClient
+      .from("menu_categories")
+      .select("id",{count:"exact",head:true})
+
+  ]);
+
+  document.getElementById("countMenu").textContent=
+    menu.count || 0;
+
+  document.getElementById("countGallery").textContent=
+    gallery.count || 0;
+
+  document.getElementById("countBookings").textContent=
+    bookings.count || 0;
+
+  document.getElementById("countReviews").textContent=
+    reviews.count || 0;
+
+  document.getElementById("countReports").textContent=
+    reports.count || 0;
+
+  document.getElementById("countCategories").textContent=
+    cats.count || 0;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+async function loadHero(){
+
+  const hero=await getSetting("hero");
+
+  document.getElementById("heroTitle").value=
+    hero.title || "";
+
+  document.getElementById("heroText").value=
+    hero.text || "";
+
+  currentHeroImagePath=
+    hero.image_path || "";
+
+  currentHeroVideoPath=
+    hero.video_path || "";
+
+  renderHeroMedia(hero);
+}
+
+
+async function saveHeroText(){
+
+  const hero=await getSetting("hero");
+
+  hero.title=
+    document.getElementById("heroTitle").value.trim();
+
+  hero.text=
+    document.getElementById("heroText").value.trim();
+
+  await saveSetting("hero",hero);
+
+  toast("Hero text saved.","success");
+}
+
+
+function renderHeroMedia(hero){
+
+  const imageBox=
+    document.getElementById("heroImagePreview");
+
+  const videoBox=
+    document.getElementById("heroVideoPreview");
+
+  const imageDelete=
+    document.getElementById("heroImageDelete");
+
+  const videoDelete=
+    document.getElementById("heroVideoDelete");
+
+  imageBox.innerHTML="";
+  videoBox.innerHTML="";
+  imageDelete.innerHTML="";
+  videoDelete.innerHTML="";
 
   if(hero.image_url){
-    document.getElementById("heroPreview").src=hero.image_url;
-    document.getElementById("heroPreview").classList.remove("hidden");
-  }
 
-  currentHeroImagePath=hero.image_path||"";
+    imageBox.innerHTML=
+      `<img src="${escapeHtml(hero.image_url)}">`;
+
+    imageDelete.innerHTML=
+      `<button class="btn danger small"
+       onclick="deleteHeroImage()">
+       🗑️ Delete Hero Image
+       </button>`;
+
+  }
 
   if(hero.video_url){
-    const v=document.getElementById("heroVideoPreview");
-    v.src=hero.video_url;
-    v.classList.remove("hidden");
+
+    videoBox.innerHTML=
+      `<video controls playsinline src="${escapeHtml(hero.video_url)}"></video>`;
+
+    videoDelete.innerHTML=
+      `<button class="btn danger small"
+       onclick="deleteHeroVideo()">
+       🗑️ Delete Hero Video
+       </button>`;
+
   }
 
-  currentHeroVideoPath=hero.video_path||"";
+}
 
-  /* NEWS */
-  const news=settings.breaking_news||{};
 
-  document.getElementById("newsEnabled").checked=
-    news.enabled!==false;
+async function uploadHeroImage(){
+
+  const file=
+    document.getElementById("heroImage").files[0];
+
+  if(!file){
+    toast("Please choose an image.","error");
+    return;
+  }
+
+  const path=
+    "hero/"+
+    Date.now()+
+    "-"+
+    file.name.replace(/\s+/g,"-");
+
+  try{
+
+    await uploadWithProgress(
+      "site-media",
+      path,
+      file,
+      p=>setProgress(
+        "heroImageProgressWrap",
+        "heroImageProgress",
+        "heroImagePercent",
+        p
+      )
+    );
+
+    const url=publicUrl("site-media",path);
+
+    const hero=await getSetting("hero");
+
+    const oldPath=hero.image_path;
+
+    hero.image_url=url;
+    hero.image_path=path;
+
+    await saveSetting("hero",hero);
+
+    if(oldPath && oldPath!==path){
+      await deleteStorage("site-media",oldPath);
+    }
+
+    currentHeroImagePath=path;
+
+    await loadHero();
+
+    toast("Hero image uploaded.","success");
+
+  }catch(error){
+
+    console.error(error);
+    toast(error.message,"error");
+
+  }
+
+}
+
+
+async function uploadHeroVideo(){
+
+  const file=
+    document.getElementById("heroVideo").files[0];
+
+  if(!file){
+    toast("Please choose a video.","error");
+    return;
+  }
+
+  const path=
+    "hero-video/"+
+    Date.now()+
+    "-"+
+    file.name.replace(/\s+/g,"-");
+
+  try{
+
+    await uploadWithProgress(
+      "site-media",
+      path,
+      file,
+      p=>setProgress(
+        "heroVideoProgressWrap",
+        "heroVideoProgress",
+        "heroVideoPercent",
+        p
+      )
+    );
+
+    const url=publicUrl("site-media",path);
+
+    const hero=await getSetting("hero");
+
+    const oldPath=hero.video_path;
+
+    hero.video_url=url;
+    hero.video_path=path;
+
+    await saveSetting("hero",hero);
+
+    if(oldPath && oldPath!==path){
+      await deleteStorage("site-media",oldPath);
+    }
+
+    currentHeroVideoPath=path;
+
+    await loadHero();
+
+    toast("Hero video uploaded.","success");
+
+  }catch(error){
+
+    console.error(error);
+    toast(error.message,"error");
+
+  }
+
+}
+
+
+async function deleteHeroImage(){
+
+  const hero=await getSetting("hero");
+
+  if(hero.image_path){
+    await deleteStorage(
+      "site-media",
+      hero.image_path
+    );
+  }
+
+  hero.image_url="";
+  hero.image_path="";
+
+  await saveSetting("hero",hero);
+
+  await loadHero();
+
+  toast("Hero image deleted.","success");
+}
+
+
+async function deleteHeroVideo(){
+
+  const hero=await getSetting("hero");
+
+  if(hero.video_path){
+    await deleteStorage(
+      "site-media",
+      hero.video_path
+    );
+  }
+
+  hero.video_url="";
+  hero.video_path="";
+
+  await saveSetting("hero",hero);
+
+  await loadHero();
+
+  toast("Hero video deleted.","success");
+}
+
+
+/* =========================
+   BREAKING NEWS
+========================= */
+
+function selectNewsMedia(type){
+
+  currentNewsMediaType=type;
+
+  document.getElementById("newsImageChoice")
+    .classList.toggle("active",type==="image");
+
+  document.getElementById("newsVideoChoice")
+    .classList.toggle("active",type==="video");
+
+  document.getElementById("newsImageUpload")
+    .classList.toggle("hidden",type!=="image");
+
+  document.getElementById("newsVideoUpload")
+    .classList.toggle("hidden",type!=="video");
+
+  document.getElementById("newsImage").value="";
+  document.getElementById("newsVideo").value="";
+
+  document.getElementById("newsPreview").style.display="none";
+}
+
+
+function previewNewsImage(){
+
+  const file=
+    document.getElementById("newsImage").files[0];
+
+  if(!file) return;
+
+  const url=URL.createObjectURL(file);
+
+  const box=document.getElementById("newsPreview");
+
+  box.style.display="block";
+
+  box.innerHTML=
+    `<strong style="color:#d4af37">
+       Preview before upload/save
+     </strong>
+     <img src="${url}" style="margin-top:10px;">`;
+
+}
+
+
+function previewNewsVideo(){
+
+  const file=
+    document.getElementById("newsVideo").files[0];
+
+  if(!file) return;
+
+  const url=URL.createObjectURL(file);
+
+  const box=document.getElementById("newsPreview");
+
+  box.style.display="block";
+
+  box.innerHTML=
+    `<strong style="color:#d4af37">
+       Preview before upload/save
+     </strong>
+     <video
+       controls
+       playsinline
+       style="margin-top:10px;"
+       src="${url}"
+     ></video>`;
+
+}
+
+
+async function loadNews(){
+
+  const news=await getSetting("breaking_news");
+
+  currentNewsData=news || {};
 
   document.getElementById("newsText").value=
-    news.text||"";
+    news.text || "";
+
+  document.getElementById("newsEnabled").value=
+    String(news.enabled !== false);
 
   document.getElementById("newsStart").value=
-    news.start||"";
+    toDateTimeLocal(news.start);
 
   document.getElementById("newsEnd").value=
-    news.end||"";
+    toDateTimeLocal(news.end);
 
-
-  /* LOGO */
-  const logo=settings.logo||{};
-
-  if(logo.url){
-    document.getElementById("logoPreview").src=logo.url;
-    document.getElementById("logoPreview").classList.remove("hidden");
+  if(news.media_type){
+    selectNewsMedia(news.media_type);
   }
 
-  currentLogoPath=logo.path||"";
+  const box=document.getElementById("newsCurrent");
 
+  box.innerHTML="";
 
-  /* ABOUT */
-  const about=settings.about||{};
+  if(news.image_url){
 
-  document.getElementById("aboutTitle").value=
-    about.title||"";
+    box.innerHTML+=
+      `<div>
+        <div style="color:#d4af37;margin-bottom:8px;">
+          Current Image
+        </div>
 
-  document.getElementById("aboutText").value=
-    about.text||"";
+        <img
+          src="${escapeHtml(news.image_url)}"
+          style="width:100%;max-height:350px;object-fit:cover;border-radius:12px;"
+        >
+      </div>`;
 
-
-  /* VIDEOS */
-  const videos=settings.videos||{};
-
-  videoPaths={
-    video1:videos.video1_path||"",
-    video2:videos.video2_path||""
-  };
-
-  if(videos.video1){
-    const v=document.getElementById("video1Preview");
-    v.src=videos.video1;
-    v.classList.remove("hidden");
   }
 
-  if(videos.video2){
-    const v=document.getElementById("video2Preview");
-    v.src=videos.video2;
-    v.classList.remove("hidden");
+  if(news.video_url){
+
+    box.innerHTML+=
+      `<div>
+        <div style="color:#d4af37;margin-bottom:8px;">
+          Current Video
+        </div>
+
+        <video
+          controls
+          playsinline
+          src="${escapeHtml(news.video_url)}"
+          style="width:100%;max-height:350px;border-radius:12px;"
+        ></video>
+      </div>`;
+
   }
 
-
-  /* CONTACT */
-  const contact=settings.contact||{};
-
-  document.getElementById("contactAddress").value=
-    contact.address||"";
-
-  document.getElementById("contactPhone1").value=
-    contact.phone1||"";
-
-  document.getElementById("contactPhone2").value=
-    contact.phone2||"";
-
-  document.getElementById("contactWhatsapp").value=
-    contact.whatsapp||"";
-
-  document.getElementById("contactMaps").value=
-    contact.maps||"";
-
-
-  /* SOCIAL */
-  const social=settings.social||{};
-
-  document.getElementById("socialFacebook").value=
-    social.facebook||"";
-
-  document.getElementById("socialInstagram").value=
-    social.instagram||"";
-
-  document.getElementById("socialTikTok").value=
-    social.tiktok||"";
 }
 
 
-/* ==========================================
-   HERO
-========================================== */
+function toDateTimeLocal(value){
 
-async function saveHero(){
+  if(!value) return "";
+
+  const d=new Date(value);
+
+  if(Number.isNaN(d.getTime())) return "";
+
+  const pad=n=>String(n).padStart(2,"0");
+
+  return d.getFullYear()+
+    "-"+
+    pad(d.getMonth()+1)+
+    "-"+
+    pad(d.getDate())+
+    "T"+
+    pad(d.getHours())+
+    ":"+
+    pad(d.getMinutes());
+
+}
+
+
+async function uploadNewsImage(){
+
+  const file=
+    document.getElementById("newsImage").files[0];
+
+  if(!file){
+    toast("Choose a news image first.","error");
+    return;
+  }
+
+  const path=
+    "breaking-news/"+
+    Date.now()+
+    "-"+
+    file.name.replace(/\s+/g,"-");
 
   try{
 
-    const hero={
-      ...(settings.hero||{}),
-      title:document.getElementById("heroTitle").value.trim(),
-      text:document.getElementById("heroText").value.trim()
-    };
+    await uploadWithProgress(
+      "site-media",
+      path,
+      file,
+      p=>setProgress(
+        "newsImageProgressWrap",
+        "newsImageProgress",
+        "newsImagePercent",
+        p
+      )
+    );
 
-    const imageFile=
-      document.getElementById("heroImage").files[0];
+    const oldImagePath=currentNewsData.image_path;
 
-    if(imageFile){
+    currentNewsData.image_url=
+      publicUrl("site-media",path);
 
-      if(currentHeroImagePath)
-        await deleteStorage(SITE_BUCKET,currentHeroImagePath);
+    currentNewsData.image_path=path;
 
-      const path=await uploadFile(
-        SITE_BUCKET,
-        "hero",
-        imageFile
+    currentNewsData.media_type="image";
+
+    if(oldImagePath && oldImagePath!==path){
+      await deleteStorage(
+        "site-media",
+        oldImagePath
       );
-
-      hero.image_path=path;
-      hero.image_url=publicUrl(SITE_BUCKET,path);
-
-      document.getElementById("heroPreview").src=hero.image_url;
-      document.getElementById("heroPreview")
-        .classList.remove("hidden");
-
-      currentHeroImagePath=path;
     }
 
-    const videoFile=
-      document.getElementById("heroVideo").files[0];
+    await saveSetting(
+      "breaking_news",
+      currentNewsData
+    );
 
-    if(videoFile){
+    await loadNews();
 
-      if(currentHeroVideoPath)
-        await deleteStorage(SITE_BUCKET,currentHeroVideoPath);
-
-      const path=await uploadFile(
-        SITE_BUCKET,
-        "hero-video",
-        videoFile
-      );
-
-      hero.video_path=path;
-      hero.video_url=publicUrl(SITE_BUCKET,path);
-
-      const v=document.getElementById("heroVideoPreview");
-      v.src=hero.video_url;
-      v.classList.remove("hidden");
-
-      currentHeroVideoPath=path;
-    }
-
-    await saveSetting("hero",hero);
-
-    toast("Home / Hero saved successfully");
+    toast("Breaking News image uploaded.","success");
 
   }catch(error){
+
     console.error(error);
-    toast(error.message);
+    toast(error.message,"error");
+
   }
+
 }
 
-async function deleteHeroMedia(){
+
+async function uploadNewsVideo(){
+
+  const file=
+    document.getElementById("newsVideo").files[0];
+
+  if(!file){
+    toast("Choose a news video first.","error");
+    return;
+  }
+
+  const path=
+    "breaking-news/"+
+    Date.now()+
+    "-"+
+    file.name.replace(/\s+/g,"-");
 
   try{
 
-    if(currentHeroImagePath)
-      await deleteStorage(SITE_BUCKET,currentHeroImagePath);
+    await uploadWithProgress(
+      "site-media",
+      path,
+      file,
+      p=>setProgress(
+        "newsVideoProgressWrap",
+        "newsVideoProgress",
+        "newsVideoPercent",
+        p
+      )
+    );
 
-    if(currentHeroVideoPath)
-      await deleteStorage(SITE_BUCKET,currentHeroVideoPath);
+    const oldVideoPath=currentNewsData.video_path;
 
-    const hero={
-      ...(settings.hero||{}),
-      image_url:"",
-      image_path:"",
-      video_url:"",
-      video_path:""
-    };
+    currentNewsData.video_url=
+      publicUrl("site-media",path);
 
-    await saveSetting("hero",hero);
+    currentNewsData.video_path=path;
 
-    document.getElementById("heroPreview")
-      .classList.add("hidden");
+    currentNewsData.media_type="video";
 
-    document.getElementById("heroVideoPreview")
-      .classList.add("hidden");
+    if(oldVideoPath && oldVideoPath!==path){
+      await deleteStorage(
+        "site-media",
+        oldVideoPath
+      );
+    }
 
-    currentHeroImagePath="";
-    currentHeroVideoPath="";
+    await saveSetting(
+      "breaking_news",
+      currentNewsData
+    );
 
-    toast("Hero media deleted");
+    await loadNews();
+
+    toast("Breaking News video uploaded.","success");
 
   }catch(error){
-    toast(error.message);
+
+    console.error(error);
+    toast(error.message,"error");
+
   }
+
 }
 
-
-/* ==========================================
-   NEWS
-========================================== */
 
 async function saveNews(){
 
-  try{
+  const news={
+    ...currentNewsData,
 
-    await saveSetting("breaking_news",{
-      enabled:document.getElementById("newsEnabled").checked,
-      text:document.getElementById("newsText").value.trim(),
-      start:document.getElementById("newsStart").value,
-      end:document.getElementById("newsEnd").value
-    });
+    text:
+      document.getElementById("newsText").value.trim(),
 
-    toast("Breaking News saved");
+    enabled:
+      document.getElementById("newsEnabled").value==="true",
 
-  }catch(error){
-    toast(error.message);
+    start:
+      document.getElementById("newsStart").value
+        ? new Date(
+            document.getElementById("newsStart").value
+          ).toISOString()
+        : "",
+
+    end:
+      document.getElementById("newsEnd").value
+        ? new Date(
+            document.getElementById("newsEnd").value
+          ).toISOString()
+        : "",
+
+    media_type:
+      currentNewsMediaType
+  };
+
+
+  if(currentNewsMediaType==="image"){
+
+    news.video_url="";
+    news.video_path="";
+
+  }else if(currentNewsMediaType==="video"){
+
+    news.image_url="";
+    news.image_path="";
+
   }
+
+
+  await saveSetting(
+    "breaking_news",
+    news
+  );
+
+  currentNewsData=news;
+
+  await loadNews();
+
+  toast(
+    "Breaking News saved and published.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
-   LOGO
-========================================== */
+async function deleteNews(){
 
-async function saveLogo(){
+  const news=await getSetting("breaking_news");
+
+  if(news.image_path){
+    await deleteStorage(
+      "site-media",
+      news.image_path
+    );
+  }
+
+  if(news.video_path){
+    await deleteStorage(
+      "site-media",
+      news.video_path
+    );
+  }
+
+  const emptyNews={
+    enabled:false,
+    text:"",
+    start:"",
+    end:"",
+    media_type:"",
+    image_url:"",
+    image_path:"",
+    video_url:"",
+    video_path:""
+  };
+
+  await saveSetting(
+    "breaking_news",
+    emptyNews
+  );
+
+  currentNewsData=emptyNews;
+
+  await loadNews();
+
+  toast(
+    "Breaking News deleted.",
+    "success"
+  );
+
+}
+
+
+/* =========================
+   LOGO
+========================= */
+
+async function loadLogo(){
+
+  const logo=await getSetting("logo");
+
+  currentLogoPath=logo.path || "";
+
+  const box=document.getElementById("logoPreview");
+  const del=document.getElementById("logoDelete");
+
+  box.innerHTML="";
+  del.innerHTML="";
+
+  if(logo.url){
+
+    box.innerHTML=
+      `<img src="${escapeHtml(logo.url)}">`;
+
+    del.innerHTML=
+      `<button class="btn danger small"
+       onclick="deleteLogo()">
+       🗑️ Delete Logo
+       </button>`;
+
+  }
+
+}
+
+
+async function loadLogoTop(){
+
+  const logo=await getSetting("logo");
+
+  if(logo.url){
+
+    document.getElementById("topLogo").src=
+      logo.url;
+
+  }
+
+}
+
+
+async function uploadLogo(){
+
+  const file=
+    document.getElementById("logoFile").files[0];
+
+  if(!file){
+    toast("Choose a logo image.","error");
+    return;
+  }
+
+  const path=
+    "logo/"+
+    Date.now()+
+    "-"+
+    file.name.replace(/\s+/g,"-");
 
   try{
 
-    const file=document.getElementById("logoFile").files[0];
-
-    if(!file){
-      toast("Please choose a logo image");
-      return;
-    }
-
-    if(currentLogoPath)
-      await deleteStorage(SITE_BUCKET,currentLogoPath);
-
-    const path=await uploadFile(
-      SITE_BUCKET,
-      "logo",
-      file
+    await uploadWithProgress(
+      "site-media",
+      path,
+      file,
+      p=>setProgress(
+        "logoProgressWrap",
+        "logoProgress",
+        "logoPercent",
+        p
+      )
     );
 
-    const url=publicUrl(SITE_BUCKET,path);
+    const old=await getSetting("logo");
 
-    await saveSetting("logo",{
-      url:url,
+    const logo={
+      url:publicUrl("site-media",path),
       path:path
-    });
+    };
 
-    currentLogoPath=path;
+    await saveSetting("logo",logo);
 
-    document.getElementById("logoPreview").src=url;
-    document.getElementById("logoPreview")
-      .classList.remove("hidden");
+    if(old.path && old.path!==path){
+      await deleteStorage(
+        "site-media",
+        old.path
+      );
+    }
 
-    toast("Logo updated successfully");
+    await loadLogo();
+    await loadLogoTop();
+
+    toast(
+      "Logo uploaded successfully.",
+      "success"
+    );
 
   }catch(error){
-    toast(error.message);
+
+    console.error(error);
+    toast(error.message,"error");
+
   }
+
 }
+
 
 async function deleteLogo(){
 
-  try{
+  const logo=await getSetting("logo");
 
-    if(currentLogoPath)
-      await deleteStorage(SITE_BUCKET,currentLogoPath);
+  if(logo.path){
+    await deleteStorage(
+      "site-media",
+      logo.path
+    );
+  }
 
-    await saveSetting("logo",{
+  await saveSetting(
+    "logo",
+    {
       url:"",
       path:""
-    });
+    }
+  );
 
-    document.getElementById("logoPreview")
-      .classList.add("hidden");
+  await loadLogo();
+  await loadLogoTop();
 
-    currentLogoPath="";
+  toast(
+    "Logo deleted.",
+    "success"
+  );
 
-    toast("Logo deleted");
-
-  }catch(error){
-    toast(error.message);
-  }
 }
 
 
-/* ==========================================
+/* =========================
    ABOUT
-========================================== */
+========================= */
+
+async function loadAbout(){
+
+  const about=await getSetting("about");
+
+  document.getElementById("aboutTitle").value=
+    about.title || "";
+
+  document.getElementById("aboutText").value=
+    about.text || "";
+
+}
+
 
 async function saveAbout(){
 
-  try{
+  const about={
+    title:
+      document.getElementById("aboutTitle").value.trim(),
 
-    await saveSetting("about",{
-      title:document.getElementById("aboutTitle").value.trim(),
-      text:document.getElementById("aboutText").value.trim()
-    });
+    text:
+      document.getElementById("aboutText").value.trim()
+  };
 
-    toast("About Us saved");
+  await saveSetting("about",about);
 
-  }catch(error){
-    toast(error.message);
-  }
+  toast(
+    "About Us saved.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    CATEGORIES
-========================================== */
+========================= */
 
 async function loadCategories(){
 
-  const {data,error}=await supabaseClient
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("menu_categories")
     .select("*")
     .order("sort_order",{ascending:true})
     .order("name",{ascending:true});
 
-  if(error)throw error;
+  if(error){
 
-  categories=data||[];
+    console.error(error);
+    toast(error.message,"error");
+    return;
+
+  }
+
+  categories=data || [];
 
   renderCategories();
+
+  populateMenuCategorySelect();
 }
+
 
 function renderCategories(){
 
   const list=document.getElementById("categoryList");
 
-  list.innerHTML=categories.map(c=>`
-    <div class="category">
-      <span>${escapeHtml(c.name)}</span>
-      <button onclick="deleteCategory(${c.id})">×</button>
-    </div>
-  `).join("");
+  list.innerHTML="";
 
-  const select=document.getElementById("menuCategory");
+  categories.forEach(cat=>{
+
+    list.innerHTML+=
+      `<div class="category-item">
+
+        <span>
+          ${escapeHtml(cat.name)}
+        </span>
+
+        <button
+          onclick="deleteCategory(${cat.id})"
+          title="Delete"
+        >
+          ✕
+        </button>
+
+      </div>`;
+
+  });
+
+}
+
+
+function populateMenuCategorySelect(){
+
+  const select=
+    document.getElementById("menuCategory");
+
+  const current=select.value;
 
   select.innerHTML=
-    '<option value="">Select Category</option>'+
-    categories.map(c=>
-      `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
-    ).join("");
+    `<option value="">
+      Select Category
+    </option>`;
+
+  categories.forEach(cat=>{
+
+    select.innerHTML+=
+      `<option value="${escapeHtml(cat.name)}">
+        ${escapeHtml(cat.name)}
+      </option>`;
+
+  });
+
+  if(current){
+    select.value=current;
+  }
+
 }
+
 
 async function addCategory(){
 
-  const input=document.getElementById("newCategory");
+  const input=
+    document.getElementById("newCategory");
+
   const name=input.value.trim();
 
   if(!name){
-    toast("Enter category name");
+    toast("Enter a category name.","error");
     return;
   }
 
-  try{
+  const {
+    error
+  }=await supabaseClient
+    .from("menu_categories")
+    .insert({
+      name:name,
+      sort_order:categories.length
+    });
 
-    const maxOrder=categories.length
-      ? Math.max(...categories.map(x=>x.sort_order||0))
-      : 0;
+  if(error){
 
-    const {error}=await supabaseClient
-      .from("menu_categories")
-      .insert({
-        name:name,
-        sort_order:maxOrder+1
-      });
+    toast(error.message,"error");
+    return;
 
-    if(error)throw error;
-
-    input.value="";
-
-    await loadCategories();
-
-    toast("Category added");
-
-  }catch(error){
-    toast(error.message);
   }
+
+  input.value="";
+
+  await loadCategories();
+
+  toast(
+    "Category added successfully.",
+    "success"
+  );
+
 }
+
 
 async function deleteCategory(id){
 
-  if(!confirm("Delete this category?"))return;
+  const cat=
+    categories.find(x=>x.id===id);
 
-  try{
+  if(!cat) return;
 
-    const category=categories.find(x=>x.id===id);
+  const {
+    count
+  }=await supabaseClient
+    .from("Menu")
+    .select("id",{count:"exact",head:true})
+    .eq("category",cat.name);
 
-    const {count,error:countError}=
-      await supabaseClient
-      .from("Menu")
-      .select("id",{count:"exact",head:true})
-      .eq("category",category.name);
+  if(count && count>0){
 
-    if(countError)throw countError;
+    toast(
+      "This category has menu items. Delete or move those items first.",
+      "error"
+    );
 
-    if(count>0){
-      toast("Cannot delete: this category is used by menu items.");
-      return;
-    }
-
-    const {error}=await supabaseClient
-      .from("menu_categories")
-      .delete()
-      .eq("id",id);
-
-    if(error)throw error;
-
-    await loadCategories();
-
-    toast("Category deleted");
-
-  }catch(error){
-    toast(error.message);
+    return;
   }
+
+  if(!confirm(
+    "Delete category '"+cat.name+"'?"
+  )){
+    return;
+  }
+
+  const {
+    error
+  }=await supabaseClient
+    .from("menu_categories")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+    return;
+
+  }
+
+  await loadCategories();
+
+  toast(
+    "Category deleted.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    MENU
-========================================== */
+========================= */
 
 async function loadMenu(){
 
-  const {data,error}=await supabaseClient
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("Menu")
     .select("*")
-    .order("created_at",{ascending:false});
+    .order("id",{ascending:false});
 
-  if(error)throw error;
+  if(error){
 
-  menuItems=data||[];
+    console.error(error);
+    toast(
+      "Menu loading error: "+error.message,
+      "error"
+    );
+
+    return;
+  }
+
+  menuItems=data || [];
 
   renderMenu();
 }
 
+
 function renderMenu(){
 
-  const box=document.getElementById("menuList");
+  const tbody=
+    document.getElementById("menuTable");
+
+  tbody.innerHTML="";
 
   if(!menuItems.length){
-    box.innerHTML='<p class="small">No menu items yet.</p>';
+
+    tbody.innerHTML=
+      `<tr>
+        <td colspan="5">
+          No menu items found.
+        </td>
+      </tr>`;
+
     return;
   }
 
-  box.innerHTML=menuItems.map(item=>`
+  menuItems.forEach(item=>{
 
-    <div class="item">
+    tbody.innerHTML+=
+      `<tr>
 
-      <div style="display:flex;gap:14px;align-items:flex-start">
+        <td>
+          ${
+            item.image_url
+            ?
+            `<img
+              class="thumb"
+              src="${escapeHtml(item.image_url)}"
+            >`
+            :
+            "—"
+          }
+        </td>
 
-        ${
-          item.image_url
-          ? `<img src="${escapeHtml(item.image_url)}" class="thumb">`
-          : `<div class="thumb" style="display:flex;align-items:center;justify-content:center;color:#666">No Photo</div>`
-        }
+        <td>
+          <strong>
+            ${escapeHtml(item.name)}
+          </strong>
 
-        <div style="flex:1">
-          <div class="item-head">
-            <div>
-              <div class="item-title">${escapeHtml(item.name)}</div>
-              <div class="small">${escapeHtml(item.category||"No Category")}</div>
-            </div>
-            <span class="badge">${escapeHtml(item.price||"")}</span>
-          </div>
+          ${
+            item.description
+            ?
+            `<div style="color:#888;margin-top:4px;">
+              ${escapeHtml(item.description)}
+            </div>`
+            :
+            ""
+          }
+        </td>
 
-          <p class="small" style="margin-top:7px">
-            ${escapeHtml(item.description||"")}
-          </p>
+        <td>
+          ${escapeHtml(item.price || "")}
+        </td>
 
-          <div class="actions">
-            <button class="btn" onclick="editMenu(${item.id})">Edit</button>
-            <button class="btn dark" onclick="changeMenuPhoto(${item.id})">Change Photo</button>
-            <button class="btn danger" onclick="deleteMenu(${item.id})">Delete</button>
-          </div>
+        <td>
+          ${escapeHtml(item.category || "")}
+        </td>
 
-          <input
-            id="photo-${item.id}"
-            type="file"
-            accept="image/*"
-            style="display:none"
-            onchange="uploadMenuPhoto(${item.id},this)"
+        <td>
+
+          <button
+            class="btn small"
+            onclick="editMenu(${item.id})"
           >
+            Edit
+          </button>
 
-        </div>
-      </div>
-    </div>
+          <button
+            class="btn danger small"
+            onclick="deleteMenu(${item.id})"
+          >
+            Delete
+          </button>
 
-  `).join("");
+        </td>
+
+      </tr>`;
+
+  });
+
 }
 
-async function saveMenuItem(){
-
-  try{
-
-    const id=document.getElementById("menuId").value;
-
-    const name=document.getElementById("menuName").value.trim();
-    const price=document.getElementById("menuPrice").value.trim();
-    const category=document.getElementById("menuCategory").value;
-    const description=document.getElementById("menuDescription").value.trim();
-    const file=document.getElementById("menuImage").files[0];
-
-    if(!name){
-      toast("Food name is required");
-      return;
-    }
-
-    if(!category){
-      toast("Please select a category");
-      return;
-    }
-
-    let payload={
-      name,
-      price,
-      category,
-      description
-    };
-
-    let oldItem=null;
-
-    if(id){
-      oldItem=menuItems.find(x=>String(x.id)===String(id));
-    }
-
-    if(file){
-
-      if(oldItem?.image_path)
-        await deleteStorage(MENU_BUCKET,oldItem.image_path);
-
-      const path=await uploadFile(
-        MENU_BUCKET,
-        "menu",
-        file
-      );
-
-      payload.image_path=path;
-      payload.image_url=publicUrl(MENU_BUCKET,path);
-    }
-
-    if(id){
-
-      const {error}=await supabaseClient
-        .from("Menu")
-        .update(payload)
-        .eq("id",id);
-
-      if(error)throw error;
-
-      toast("Menu item updated");
-
-    }else{
-
-      const {error}=await supabaseClient
-        .from("Menu")
-        .insert(payload);
-
-      if(error)throw error;
-
-      toast("Menu item added");
-    }
-
-    resetMenuForm();
-    await loadMenu();
-
-  }catch(error){
-    console.error(error);
-    toast(error.message);
-  }
-}
 
 function editMenu(id){
 
-  const item=menuItems.find(x=>x.id===id);
+  const item=
+    menuItems.find(x=>x.id===id);
 
-  if(!item)return;
+  if(!item) return;
 
-  document.getElementById("menuId").value=item.id;
-  document.getElementById("menuName").value=item.name||"";
-  document.getElementById("menuPrice").value=item.price||"";
-  document.getElementById("menuCategory").value=item.category||"";
-  document.getElementById("menuDescription").value=item.description||"";
+  document.getElementById("menuEditId").value=
+    item.id;
+
+  document.getElementById("menuName").value=
+    item.name || "";
+
+  document.getElementById("menuPrice").value=
+    item.price || "";
+
+  document.getElementById("menuCategory").value=
+    item.category || "";
+
+  document.getElementById("menuDescription").value=
+    item.description || "";
 
   document.getElementById("menuFormTitle").textContent=
-    "Edit Food";
+    "Edit Menu Item";
 
-  if(item.image_url){
-    document.getElementById("menuImagePreviewBox").innerHTML=
-      `<img src="${escapeHtml(item.image_url)}" class="thumb">`;
-  }
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
-  window.scrollTo({top:0,behavior:"smooth"});
 }
+
 
 function resetMenuForm(){
 
-  document.getElementById("menuId").value="";
+  document.getElementById("menuEditId").value="";
+
   document.getElementById("menuName").value="";
+
   document.getElementById("menuPrice").value="";
+
   document.getElementById("menuCategory").value="";
+
   document.getElementById("menuDescription").value="";
+
   document.getElementById("menuImage").value="";
-  document.getElementById("menuImagePreviewBox").innerHTML="";
-  document.getElementById("menuFormTitle").textContent="Add New Food";
+
+  document.getElementById("menuFormTitle").textContent=
+    "Add Menu Item";
+
 }
 
-function changeMenuPhoto(id){
-  document.getElementById("photo-"+id).click();
-}
 
-async function uploadMenuPhoto(id,input){
+async function saveMenuItem(){
 
-  const file=input.files[0];
+  const editId=
+    document.getElementById("menuEditId").value;
 
-  if(!file)return;
+  const name=
+    document.getElementById("menuName").value.trim();
+
+  const price=
+    document.getElementById("menuPrice").value.trim();
+
+  const category=
+    document.getElementById("menuCategory").value.trim();
+
+  const description=
+    document.getElementById("menuDescription").value.trim();
+
+  const file=
+    document.getElementById("menuImage").files[0];
+
+
+  if(!name){
+
+    toast("Food name is required.","error");
+    return;
+
+  }
+
+  if(!category){
+
+    toast(
+      "Please select a category.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data:sessionData
+  }=await supabaseClient.auth.getSession();
+
+  if(!sessionData.session){
+
+    toast(
+      "Your login session expired. Please login again.",
+      "error"
+    );
+
+    return;
+
+  }
+
 
   try{
 
-    const item=menuItems.find(x=>x.id===id);
+    let image_url="";
+    let image_path="";
 
-    if(item.image_path)
-      await deleteStorage(MENU_BUCKET,item.image_path);
+    let oldItem=null;
 
-    const path=await uploadFile(
-      MENU_BUCKET,
-      "menu",
-      file
-    );
+    if(editId){
 
-    const {error}=await supabaseClient
-      .from("Menu")
-      .update({
-        image_path:path,
-        image_url:publicUrl(MENU_BUCKET,path)
-      })
-      .eq("id",id);
+      oldItem=
+        menuItems.find(x=>String(x.id)===String(editId));
 
-    if(error)throw error;
+      image_url=
+        oldItem?.image_url || "";
+
+      image_path=
+        oldItem?.image_path || "";
+
+    }
+
+
+    if(file){
+
+      const path=
+        "menu/"+
+        Date.now()+
+        "-"+
+        file.name.replace(/\s+/g,"-");
+
+      await uploadWithProgress(
+        "menu-images",
+        path,
+        file,
+        p=>setProgress(
+          "menuProgressWrap",
+          "menuProgress",
+          "menuPercent",
+          p
+        )
+      );
+
+      image_url=
+        publicUrl("menu-images",path);
+
+      image_path=path;
+
+    }
+
+
+    const payload={
+      name:name,
+      price:price,
+      category:category,
+      description:description,
+      image_url:image_url,
+      image_path:image_path
+    };
+
+
+    if(editId){
+
+      const {
+        error
+      }=await supabaseClient
+        .from("Menu")
+        .update(payload)
+        .eq("id",editId);
+
+      if(error) throw error;
+
+      if(
+        file &&
+        oldItem?.image_path &&
+        oldItem.image_path!==image_path
+      ){
+
+        await deleteStorage(
+          "menu-images",
+          oldItem.image_path
+        );
+
+      }
+
+      toast(
+        "Menu item updated successfully.",
+        "success"
+      );
+
+    }else{
+
+      const {
+        error
+      }=await supabaseClient
+        .from("Menu")
+        .insert(payload);
+
+      if(error) throw error;
+
+      toast(
+        "Menu item added successfully.",
+        "success"
+      );
+
+    }
+
+
+    resetMenuForm();
 
     await loadMenu();
 
-    toast("Photo changed");
+    await loadDashboard();
 
   }catch(error){
-    toast(error.message);
+
+    console.error(error);
+
+    toast(
+      "Menu save error: "+error.message,
+      "error"
+    );
+
   }
+
 }
+
 
 async function deleteMenu(id){
 
-  if(!confirm("Delete this menu item?"))return;
+  const item=
+    menuItems.find(x=>x.id===id);
 
-  try{
+  if(!item) return;
 
-    const item=menuItems.find(x=>x.id===id);
-
-    if(item?.image_path)
-      await deleteStorage(MENU_BUCKET,item.image_path);
-
-    const {error}=await supabaseClient
-      .from("Menu")
-      .delete()
-      .eq("id",id);
-
-    if(error)throw error;
-
-    await loadMenu();
-
-    toast("Menu item deleted");
-
-  }catch(error){
-    toast(error.message);
+  if(!confirm(
+    "Delete '"+item.name+"'?"
+  )){
+    return;
   }
+
+  const {
+    error
+  }=await supabaseClient
+    .from("Menu")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+    return;
+
+  }
+
+  if(item.image_path){
+
+    await deleteStorage(
+      "menu-images",
+      item.image_path
+    );
+
+  }
+
+  await loadMenu();
+  await loadDashboard();
+
+  toast(
+    "Menu item deleted.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    GALLERY
-========================================== */
+========================= */
 
 async function loadGallery(){
 
-  const {data,error}=await supabaseClient
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("gallery")
     .select("*")
     .order("sort_order",{ascending:true})
-    .order("created_at",{ascending:false});
+    .order("id",{ascending:false});
 
-  if(error)throw error;
+  if(error){
 
-  galleryItems=data||[];
-
-  renderGallery();
-}
-
-function renderGallery(){
-
-  const box=document.getElementById("galleryList");
-
-  if(!galleryItems.length){
-    box.innerHTML='<p class="small">No gallery photos yet.</p>';
+    console.error(error);
+    toast(error.message,"error");
     return;
+
   }
 
-  box.innerHTML=galleryItems.map(item=>`
+  const grid=
+    document.getElementById("galleryGrid");
 
-    <div class="item">
-      <div style="display:flex;gap:14px;align-items:center">
+  grid.innerHTML="";
 
-        <img src="${escapeHtml(item.image_url)}" class="thumb">
+  (data || []).forEach(item=>{
 
-        <div style="flex:1">
-          <div class="item-title">
-            ${escapeHtml(item.title||"Gallery Photo")}
+    grid.innerHTML+=
+      `<div class="gallery-item">
+
+        <img
+          src="${escapeHtml(item.image_url)}"
+        >
+
+        <div class="gallery-info">
+
+          <strong>
+            ${escapeHtml(item.title || "Gallery")}
+          </strong>
+
+          <div style="color:#888;font-size:12px;margin-top:5px;">
+            ${escapeHtml(item.category || "")}
           </div>
 
-          <div class="small">
-            ${escapeHtml(item.category||"Restaurant")}
-            · ${item.is_visible ? "Visible" : "Hidden"}
-          </div>
+          <div style="margin-top:8px;">
 
-          <div class="actions">
-            <button class="btn dark"
-              onclick="toggleGallery(${item.id},${item.is_visible})">
-              ${item.is_visible ? "Hide" : "Show"}
+            <button
+              class="btn small ${item.is_visible ? 'success' : 'dark'}"
+              onclick="toggleGallery(${item.id},${item.is_visible})"
+            >
+              ${item.is_visible ? "Visible" : "Hidden"}
             </button>
 
-            <button class="btn danger"
-              onclick="deleteGallery(${item.id})">
+            <button
+              class="btn danger small"
+              onclick="deleteGallery(${item.id},'${encodeURIComponent(item.storage_path || "")}')"
+            >
               Delete
             </button>
+
           </div>
+
         </div>
 
-      </div>
-    </div>
+      </div>`;
 
-  `).join("");
+  });
+
 }
+
 
 async function uploadGallery(){
 
-  const files=[
-    ...document.getElementById("galleryFiles").files
-  ];
+  const files=
+    Array.from(
+      document.getElementById("galleryFiles").files
+    );
 
   if(!files.length){
-    toast("Choose one or more photos");
+
+    toast(
+      "Choose one or more images.",
+      "error"
+    );
+
     return;
   }
-
-  const category=
-    document.getElementById("galleryCategory").value.trim()
-    ||"Restaurant";
 
   const title=
     document.getElementById("galleryTitle").value.trim();
 
-  try{
+  const category=
+    document.getElementById("galleryCategory").value.trim()
+    || "Restaurant";
 
-    let order=galleryItems.length;
+  const progressBox=
+    document.getElementById("galleryProgress");
 
-    for(const file of files){
+  progressBox.innerHTML="";
 
-      const path=await uploadFile(
-        SITE_BUCKET,
-        "gallery",
-        file
+  let sort=Date.now();
+
+  for(let i=0;i<files.length;i++){
+
+    const file=files[i];
+
+    const id="gallery-progress-"+i;
+
+    progressBox.innerHTML+=
+      `<div class="card" style="padding:12px;margin-top:10px;">
+
+        <div style="font-size:13px;">
+          ${escapeHtml(file.name)}
+        </div>
+
+        <div class="progress-info">
+          <span>Uploading</span>
+          <span id="${id}-percent">0%</span>
+        </div>
+
+        <div class="progress">
+          <div
+            class="progress-bar"
+            id="${id}-bar"
+          ></div>
+        </div>
+
+      </div>`;
+
+    const path=
+      "gallery/"+
+      Date.now()+
+      "-"+
+      i+
+      "-"+
+      file.name.replace(/\s+/g,"-");
+
+    try{
+
+      await uploadWithProgress(
+        "site-media",
+        path,
+        file,
+        percent=>{
+
+          document.getElementById(
+            id+"-percent"
+          ).textContent=
+            percent+"%";
+
+          document.getElementById(
+            id+"-bar"
+          ).style.width=
+            percent+"%";
+
+        }
       );
 
-      const {error}=await supabaseClient
+
+      const {
+        error
+      }=await supabaseClient
         .from("gallery")
         .insert({
-          image_url:publicUrl(SITE_BUCKET,path),
+
+          image_url:
+            publicUrl("site-media",path),
+
           storage_path:path,
+
           title:title,
+
           category:category,
-          sort_order:order++,
+
+          sort_order:sort,
+
           is_visible:true
+
         });
 
-      if(error)throw error;
+      if(error) throw error;
+
+      sort++;
+
+    }catch(error){
+
+      console.error(error);
+
+      toast(
+        "Gallery upload error: "+error.message,
+        "error"
+      );
+
     }
 
-    document.getElementById("galleryFiles").value="";
-    document.getElementById("galleryTitle").value="";
-
-    await loadGallery();
-
-    toast(files.length+" photo(s) uploaded");
-
-  }catch(error){
-    console.error(error);
-    toast(error.message);
   }
+
+  document.getElementById("galleryFiles").value="";
+
+  await loadGallery();
+  await loadDashboard();
+
+  toast(
+    "Gallery upload completed.",
+    "success"
+  );
+
 }
+
 
 async function toggleGallery(id,current){
 
-  try{
+  const {
+    error
+  }=await supabaseClient
+    .from("gallery")
+    .update({
+      is_visible:!current
+    })
+    .eq("id",id);
 
-    const {error}=await supabaseClient
-      .from("gallery")
-      .update({is_visible:!current})
-      .eq("id",id);
+  if(error){
 
-    if(error)throw error;
+    toast(error.message,"error");
+    return;
 
-    await loadGallery();
-
-    toast(current ? "Photo hidden" : "Photo shown");
-
-  }catch(error){
-    toast(error.message);
   }
-}
 
-async function deleteGallery(id){
+  await loadGallery();
 
-  if(!confirm("Delete this gallery photo?"))return;
-
-  try{
-
-    const item=galleryItems.find(x=>x.id===id);
-
-    if(item?.storage_path)
-      await deleteStorage(SITE_BUCKET,item.storage_path);
-
-    const {error}=await supabaseClient
-      .from("gallery")
-      .delete()
-      .eq("id",id);
-
-    if(error)throw error;
-
-    await loadGallery();
-
-    toast("Gallery photo deleted");
-
-  }catch(error){
-    toast(error.message);
-  }
 }
 
 
-/* ==========================================
-   VIDEOS
-========================================== */
+async function deleteGallery(id,encodedPath){
 
-async function saveVideo(number){
-
-  const file=document.getElementById(
-    "video"+number+"File"
-  ).files[0];
-
-  if(!file){
-    toast("Please choose Video "+number);
+  if(!confirm("Delete this photo?")){
     return;
   }
 
-  try{
+  const path=
+    decodeURIComponent(encodedPath || "");
 
-    const key="video"+number;
+  const {
+    error
+  }=await supabaseClient
+    .from("gallery")
+    .delete()
+    .eq("id",id);
 
-    if(videoPaths[key])
-      await deleteStorage(SITE_BUCKET,videoPaths[key]);
+  if(error){
 
-    const path=await uploadFile(
-      SITE_BUCKET,
-      "videos",
-      file
+    toast(error.message,"error");
+    return;
+
+  }
+
+  if(path){
+
+    await deleteStorage(
+      "site-media",
+      path
     );
 
-    const videos={
-      ...(settings.videos||{})
-    };
+  }
 
-    videos[key]=publicUrl(SITE_BUCKET,path);
-    videos[key+"_path"]=path;
+  await loadGallery();
+  await loadDashboard();
 
-    await saveSetting("videos",videos);
+  toast(
+    "Gallery photo deleted.",
+    "success"
+  );
 
-    videoPaths[key]=path;
+}
 
-    const preview=document.getElementById(
-      "video"+number+"Preview"
-    );
 
-    preview.src=videos[key];
-    preview.classList.remove("hidden");
+/* =========================
+   VIDEOS
+========================= */
 
+async function loadVideos(){
+
+  const videos=await getSetting("videos");
+
+  currentVideo1Path=
+    videos.video1_path || "";
+
+  currentVideo2Path=
+    videos.video2_path || "";
+
+  const v1=
+    document.getElementById("video1Preview");
+
+  const v2=
+    document.getElementById("video2Preview");
+
+  const d1=
+    document.getElementById("video1Delete");
+
+  const d2=
+    document.getElementById("video2Delete");
+
+  v1.innerHTML="";
+  v2.innerHTML="";
+  d1.innerHTML="";
+  d2.innerHTML="";
+
+
+  if(videos.video1){
+
+    v1.innerHTML=
+      `<video
+        controls
+        playsinline
+        src="${escapeHtml(videos.video1)}"
+      ></video>`;
+
+    d1.innerHTML=
+      `<button
+        class="btn danger small"
+        onclick="deleteSiteVideo(1)"
+      >
+        🗑️ Delete Video 1
+      </button>`;
+
+  }
+
+
+  if(videos.video2){
+
+    v2.innerHTML=
+      `<video
+        controls
+        playsinline
+        src="${escapeHtml(videos.video2)}"
+      ></video>`;
+
+    d2.innerHTML=
+      `<button
+        class="btn danger small"
+        onclick="deleteSiteVideo(2)"
+      >
+        🗑️ Delete Video 2
+      </button>`;
+
+  }
+
+}
+
+
+async function uploadSiteVideo(number){
+
+  const file=
     document.getElementById(
       "video"+number+"File"
-    ).value="";
+    ).files[0];
 
-    toast("Video "+number+" uploaded successfully");
+  if(!file){
 
-  }catch(error){
-    console.error(error);
-    toast(error.message);
+    toast(
+      "Please choose a video.",
+      "error"
+    );
+
+    return;
+
   }
-}
 
-async function deleteVideo(number){
-
-  if(!confirm("Delete Video "+number+"?"))return;
+  const path=
+    "videos/"+
+    "video"+number+"-"+
+    Date.now()+
+    "-"+
+    file.name.replace(/\s+/g,"-");
 
   try{
 
-    const key="video"+number;
-
-    if(videoPaths[key])
-      await deleteStorage(SITE_BUCKET,videoPaths[key]);
-
-    const videos={
-      ...(settings.videos||{})
-    };
-
-    videos[key]="";
-    videos[key+"_path"]="";
-
-    await saveSetting("videos",videos);
-
-    videoPaths[key]="";
-
-    const preview=document.getElementById(
-      "video"+number+"Preview"
+    await uploadWithProgress(
+      "site-media",
+      path,
+      file,
+      p=>setProgress(
+        "video"+number+"ProgressWrap",
+        "video"+number+"Progress",
+        "video"+number+"Percent",
+        p
+      )
     );
 
-    preview.pause();
-    preview.removeAttribute("src");
-    preview.load();
-    preview.classList.add("hidden");
+    const videos=
+      await getSetting("videos");
 
-    toast("Video "+number+" deleted");
+    const oldPath=
+      videos["video"+number+"_path"];
+
+    videos["video"+number]=
+      publicUrl("site-media",path);
+
+    videos["video"+number+"_path"]=
+      path;
+
+    await saveSetting(
+      "videos",
+      videos
+    );
+
+    if(oldPath && oldPath!==path){
+
+      await deleteStorage(
+        "site-media",
+        oldPath
+      );
+
+    }
+
+    await loadVideos();
+
+    toast(
+      "Video "+number+" uploaded.",
+      "success"
+    );
 
   }catch(error){
-    toast(error.message);
+
+    console.error(error);
+
+    toast(
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
 
-/* ==========================================
+async function deleteSiteVideo(number){
+
+  const videos=
+    await getSetting("videos");
+
+  const path=
+    videos["video"+number+"_path"];
+
+  if(path){
+
+    await deleteStorage(
+      "site-media",
+      path
+    );
+
+  }
+
+  videos["video"+number]="";
+
+  videos["video"+number+"_path"]="";
+
+  await saveSetting(
+    "videos",
+    videos
+  );
+
+  await loadVideos();
+
+  toast(
+    "Video "+number+" deleted.",
+    "success"
+  );
+
+}
+
+
+/* =========================
    BOOKINGS
-========================================== */
+========================= */
 
 async function loadBookings(){
 
-  const {data,error}=await supabaseClient
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("table_bookings")
     .select("*")
     .order("created_at",{ascending:false});
 
-  if(error)throw error;
+  if(error){
 
-  const box=document.getElementById("bookingsList");
-
-  if(!data?.length){
-    box.innerHTML=
-      `<tr><td colspan="8" class="small">No bookings yet.</td></tr>`;
+    console.error(error);
+    toast(error.message,"error");
     return;
+
   }
 
-  box.innerHTML=data.map(b=>`
+  const tbody=
+    document.getElementById("bookingsTable");
 
-    <tr>
+  tbody.innerHTML="";
 
-      <td>
-        <b>${escapeHtml(b.customer_name)}</b>
-        ${b.email ? `<div class="small">${escapeHtml(b.email)}</div>`:""}
-      </td>
+  (data || []).forEach(item=>{
 
-      <td>${escapeHtml(b.phone)}</td>
+    tbody.innerHTML+=
+      `<tr>
 
-      <td>${escapeHtml(b.booking_date)}</td>
+        <td>${escapeHtml(item.customer_name)}</td>
 
-      <td>${escapeHtml(b.booking_time)}</td>
+        <td>${escapeHtml(item.phone)}</td>
 
-      <td>${escapeHtml(b.guests)}</td>
+        <td>${escapeHtml(item.email || "")}</td>
 
-      <td>${escapeHtml(b.special_request||"")}</td>
+        <td>${escapeHtml(item.booking_date)}</td>
 
-      <td>
-        <select
-          onchange="updateBookingStatus(${b.id},this.value)"
-          style="min-width:120px">
-          ${["Pending","Confirmed","Completed","Cancelled"]
-            .map(s=>`
-              <option ${b.status===s?"selected":""}>
-                ${s}
-              </option>
-            `).join("")}
-        </select>
-      </td>
+        <td>${escapeHtml(item.booking_time)}</td>
 
-      <td>
-        <button class="btn danger"
-          onclick="deleteBooking(${b.id})">
-          Delete
-        </button>
-      </td>
+        <td>${escapeHtml(item.guests)}</td>
 
-    </tr>
+        <td>
 
-  `).join("");
+          <select
+            onchange="updateBookingStatus(${item.id},this.value)"
+          >
+
+            ${bookingStatusOption("Pending",item.status)}
+            ${bookingStatusOption("Confirmed",item.status)}
+            ${bookingStatusOption("Completed",item.status)}
+            ${bookingStatusOption("Cancelled",item.status)}
+
+          </select>
+
+        </td>
+
+        <td>
+
+          <button
+            class="btn danger small"
+            onclick="deleteBooking(${item.id})"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>`;
+
+  });
+
 }
+
+
+function bookingStatusOption(value,current){
+
+  return `
+    <option
+      value="${value}"
+      ${current===value ? "selected":""}
+    >
+      ${value}
+    </option>
+  `;
+
+}
+
 
 async function updateBookingStatus(id,status){
 
-  try{
+  const {
+    error
+  }=await supabaseClient
+    .from("table_bookings")
+    .update({
+      status:status
+    })
+    .eq("id",id);
 
-    const {error}=await supabaseClient
-      .from("table_bookings")
-      .update({status})
-      .eq("id",id);
+  if(error){
 
-    if(error)throw error;
+    toast(error.message,"error");
+    return;
 
-    toast("Booking status updated");
-
-  }catch(error){
-    toast(error.message);
   }
+
+  toast(
+    "Booking status updated.",
+    "success"
+  );
+
 }
+
 
 async function deleteBooking(id){
 
-  if(!confirm("Delete this booking?"))return;
-
-  try{
-
-    const {error}=await supabaseClient
-      .from("table_bookings")
-      .delete()
-      .eq("id",id);
-
-    if(error)throw error;
-
-    await loadBookings();
-
-    toast("Booking deleted");
-
-  }catch(error){
-    toast(error.message);
+  if(!confirm("Delete this booking?")){
+    return;
   }
+
+  const {
+    error
+  }=await supabaseClient
+    .from("table_bookings")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+    return;
+
+  }
+
+  await loadBookings();
+  await loadDashboard();
+
+  toast(
+    "Booking deleted.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    REVIEWS
-========================================== */
+========================= */
 
 async function loadReviews(){
 
-  const {data,error}=await supabaseClient
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("reviews")
     .select("*")
     .order("created_at",{ascending:false});
 
-  if(error)throw error;
+  if(error){
 
-  const box=document.getElementById("reviewsList");
-
-  if(!data?.length){
-    box.innerHTML=
-      '<p class="small">No reviews yet.</p>';
+    console.error(error);
+    toast(error.message,"error");
     return;
+
   }
 
-  box.innerHTML=data.map(r=>`
+  const tbody=
+    document.getElementById("reviewsTable");
 
-    <div class="item">
+  tbody.innerHTML="";
 
-      <div class="item-head">
+  (data || []).forEach(item=>{
 
-        <div>
-          <div class="item-title">
-            ${escapeHtml(r.customer_name)}
-          </div>
+    tbody.innerHTML+=
+      `<tr>
 
-          <div style="color:#d4af37;margin-top:4px">
-            ${"★".repeat(Math.max(0,Math.min(5,r.rating||5)))}
-          </div>
-        </div>
+        <td>
+          ${escapeHtml(item.customer_name)}
+        </td>
 
-        <span class="badge">
-          ${escapeHtml(r.status||"Pending")}
-        </span>
+        <td>
+          ${"⭐".repeat(
+            Math.max(
+              1,
+              Math.min(
+                5,
+                Number(item.rating)||5
+              )
+            )
+          )}
+        </td>
 
-      </div>
+        <td>
+          ${escapeHtml(item.message)}
+        </td>
 
-      <p style="margin-top:10px;color:#ccc">
-        ${escapeHtml(r.message)}
-      </p>
+        <td>
 
-      <div class="actions">
+          <select
+            onchange="updateReviewStatus(${item.id},this.value)"
+          >
 
-        <button class="btn"
-          onclick="reviewStatus(${r.id},'Approved')">
-          Approve
-        </button>
+            <option
+              value="Pending"
+              ${item.status==="Pending"?"selected":""}
+            >
+              Pending
+            </option>
 
-        <button class="btn dark"
-          onclick="reviewStatus(${r.id},'Hidden')">
-          Hide
-        </button>
+            <option
+              value="Approved"
+              ${item.status==="Approved"?"selected":""}
+            >
+              Approved
+            </option>
 
-        <button class="btn green"
-          onclick="featureReview(${r.id},${!r.is_featured})">
-          ${r.is_featured?"Unfeature":"Feature"}
-        </button>
+            <option
+              value="Hidden"
+              ${item.status==="Hidden"?"selected":""}
+            >
+              Hidden
+            </option>
 
-        <button class="btn danger"
-          onclick="deleteReview(${r.id})">
-          Delete
-        </button>
+          </select>
 
-      </div>
+        </td>
 
-    </div>
+        <td>
 
-  `).join("");
+          <button
+            class="btn small ${item.is_featured?'success':'dark'}"
+            onclick="toggleFeatured(${item.id},${item.is_featured})"
+          >
+            ${item.is_featured?"Featured":"Feature"}
+          </button>
+
+        </td>
+
+        <td>
+
+          <button
+            class="btn danger small"
+            onclick="deleteReview(${item.id})"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>`;
+
+  });
+
 }
 
-async function reviewStatus(id,status){
 
-  try{
+async function updateReviewStatus(id,status){
 
-    const {error}=await supabaseClient
-      .from("reviews")
-      .update({status})
-      .eq("id",id);
+  const {
+    error
+  }=await supabaseClient
+    .from("reviews")
+    .update({
+      status:status
+    })
+    .eq("id",id);
 
-    if(error)throw error;
+  if(error){
 
-    await loadReviews();
+    toast(error.message,"error");
+    return;
 
-    toast("Review updated");
-
-  }catch(error){
-    toast(error.message);
   }
+
+  toast(
+    "Review status updated.",
+    "success"
+  );
+
 }
 
-async function featureReview(id,value){
 
-  try{
+async function toggleFeatured(id,current){
 
-    const {error}=await supabaseClient
-      .from("reviews")
-      .update({
-        is_featured:value,
-        status:value?"Approved":"Pending"
-      })
-      .eq("id",id);
+  const {
+    error
+  }=await supabaseClient
+    .from("reviews")
+    .update({
+      is_featured:!current
+    })
+    .eq("id",id);
 
-    if(error)throw error;
+  if(error){
 
-    await loadReviews();
+    toast(error.message,"error");
+    return;
 
-    toast(value?"Review featured":"Review unfeatured");
-
-  }catch(error){
-    toast(error.message);
   }
+
+  await loadReviews();
+
 }
+
 
 async function deleteReview(id){
 
-  if(!confirm("Delete this review?"))return;
-
-  try{
-
-    const {error}=await supabaseClient
-      .from("reviews")
-      .delete()
-      .eq("id",id);
-
-    if(error)throw error;
-
-    await loadReviews();
-
-    toast("Review deleted");
-
-  }catch(error){
-    toast(error.message);
+  if(!confirm("Delete this review?")){
+    return;
   }
+
+  const {
+    error
+  }=await supabaseClient
+    .from("reviews")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+    return;
+
+  }
+
+  await loadReviews();
+  await loadDashboard();
+
+  toast(
+    "Review deleted.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    REPORTS
-========================================== */
+========================= */
 
 async function loadReports(){
 
-  const {data,error}=await supabaseClient
+  const {
+    data,
+    error
+  }=await supabaseClient
     .from("customer_reports")
     .select("*")
     .order("created_at",{ascending:false});
 
-  if(error)throw error;
+  if(error){
 
-  const box=document.getElementById("reportsList");
-
-  if(!data?.length){
-    box.innerHTML=
-      '<p class="small">No reports or feedback yet.</p>';
+    console.error(error);
+    toast(error.message,"error");
     return;
+
   }
 
-  box.innerHTML=data.map(r=>`
+  const tbody=
+    document.getElementById("reportsTable");
 
-    <div class="item">
+  tbody.innerHTML="";
 
-      <div class="item-head">
+  (data || []).forEach(item=>{
 
-        <div>
-          <div class="item-title">
-            ${escapeHtml(r.subject||"Customer Report")}
-          </div>
+    tbody.innerHTML+=
+      `<tr>
 
-          <div class="small">
-            ${escapeHtml(r.customer_name||"Anonymous")}
-            ${r.phone ? " · "+escapeHtml(r.phone):""}
-            ${r.email ? " · "+escapeHtml(r.email):""}
-          </div>
-        </div>
+        <td>${escapeHtml(item.customer_name || "")}</td>
 
-        <span class="badge">
-          ${escapeHtml(r.status||"New")}
-        </span>
+        <td>${escapeHtml(item.phone || "")}</td>
 
-      </div>
+        <td>${escapeHtml(item.email || "")}</td>
 
-      <p style="margin-top:12px;color:#ccc">
-        ${escapeHtml(r.message)}
-      </p>
+        <td>${escapeHtml(item.subject || "")}</td>
 
-      <div class="actions">
+        <td>${escapeHtml(item.message || "")}</td>
 
-        <button class="btn"
-          onclick="reportStatus(${r.id},'Read')">
-          Mark Read
-        </button>
+        <td>
 
-        <button class="btn green"
-          onclick="reportStatus(${r.id},'Resolved')">
-          Resolved
-        </button>
+          <select
+            onchange="updateReportStatus(${item.id},this.value)"
+          >
 
-        <button class="btn danger"
-          onclick="deleteReport(${r.id})">
-          Delete
-        </button>
+            <option
+              value="New"
+              ${item.status==="New"?"selected":""}
+            >
+              New
+            </option>
 
-      </div>
+            <option
+              value="Read"
+              ${item.status==="Read"?"selected":""}
+            >
+              Read
+            </option>
 
-    </div>
+            <option
+              value="Resolved"
+              ${item.status==="Resolved"?"selected":""}
+            >
+              Resolved
+            </option>
 
-  `).join("");
+          </select>
+
+        </td>
+
+        <td>
+
+          <button
+            class="btn danger small"
+            onclick="deleteReport(${item.id})"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>`;
+
+  });
+
 }
 
-async function reportStatus(id,status){
 
-  try{
+async function updateReportStatus(id,status){
 
-    const {error}=await supabaseClient
-      .from("customer_reports")
-      .update({status})
-      .eq("id",id);
+  const {
+    error
+  }=await supabaseClient
+    .from("customer_reports")
+    .update({
+      status:status
+    })
+    .eq("id",id);
 
-    if(error)throw error;
+  if(error){
 
-    await loadReports();
+    toast(error.message,"error");
+    return;
 
-    toast("Report updated");
-
-  }catch(error){
-    toast(error.message);
   }
+
+  toast(
+    "Report status updated.",
+    "success"
+  );
+
 }
+
 
 async function deleteReport(id){
 
-  if(!confirm("Delete this report?"))return;
-
-  try{
-
-    const {error}=await supabaseClient
-      .from("customer_reports")
-      .delete()
-      .eq("id",id);
-
-    if(error)throw error;
-
-    await loadReports();
-
-    toast("Report deleted");
-
-  }catch(error){
-    toast(error.message);
+  if(!confirm("Delete this report?")){
+    return;
   }
+
+  const {
+    error
+  }=await supabaseClient
+    .from("customer_reports")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+    return;
+
+  }
+
+  await loadReports();
+  await loadDashboard();
+
+  toast(
+    "Report deleted.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    CONTACT
-========================================== */
+========================= */
+
+async function loadContact(){
+
+  const c=await getSetting("contact");
+
+  document.getElementById("contactAddress").value=
+    c.address || "";
+
+  document.getElementById("contactPhone1").value=
+    c.phone1 || "";
+
+  document.getElementById("contactPhone2").value=
+    c.phone2 || "";
+
+  document.getElementById("contactWhatsapp").value=
+    c.whatsapp || "";
+
+  document.getElementById("contactMaps").value=
+    c.maps || "";
+
+}
+
 
 async function saveContact(){
 
-  try{
+  const contact={
 
-    await saveSetting("contact",{
-      address:document.getElementById("contactAddress").value.trim(),
-      phone1:document.getElementById("contactPhone1").value.trim(),
-      phone2:document.getElementById("contactPhone2").value.trim(),
-      whatsapp:document.getElementById("contactWhatsapp").value.trim(),
-      maps:document.getElementById("contactMaps").value.trim()
-    });
+    address:
+      document.getElementById("contactAddress").value.trim(),
 
-    toast("Contact information saved");
+    phone1:
+      document.getElementById("contactPhone1").value.trim(),
 
-  }catch(error){
-    toast(error.message);
-  }
+    phone2:
+      document.getElementById("contactPhone2").value.trim(),
+
+    whatsapp:
+      document.getElementById("contactWhatsapp").value.trim(),
+
+    maps:
+      document.getElementById("contactMaps").value.trim()
+
+  };
+
+  await saveSetting(
+    "contact",
+    contact
+  );
+
+  toast(
+    "Contact information saved.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
+/* =========================
    SOCIAL
-========================================== */
+========================= */
+
+async function loadSocial(){
+
+  const s=await getSetting("social");
+
+  document.getElementById("socialFacebook").value=
+    s.facebook || "";
+
+  document.getElementById("socialInstagram").value=
+    s.instagram || "";
+
+  document.getElementById("socialTikTok").value=
+    s.tiktok || "";
+
+  document.getElementById("socialYoutube").value=
+    s.youtube || "";
+
+}
+
 
 async function saveSocial(){
 
-  try{
+  const social={
 
-    await saveSetting("social",{
-      facebook:document.getElementById("socialFacebook").value.trim(),
-      instagram:document.getElementById("socialInstagram").value.trim(),
-      tiktok:document.getElementById("socialTikTok").value.trim()
-    });
+    facebook:
+      document.getElementById("socialFacebook").value.trim(),
 
-    toast("Social Media saved");
+    instagram:
+      document.getElementById("socialInstagram").value.trim(),
 
-  }catch(error){
-    toast(error.message);
-  }
+    tiktok:
+      document.getElementById("socialTikTok").value.trim(),
+
+    youtube:
+      document.getElementById("socialYoutube").value.trim()
+
+  };
+
+  await saveSetting(
+    "social",
+    social
+  );
+
+  toast(
+    "Social media saved.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
-   OPENING HOURS
-========================================== */
+/* =========================
+   HOURS
+========================= */
 
-const DAYS=[
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday"
-];
+async function loadHours(){
 
-function buildHoursForm(){
+  const h=await getSetting("hours");
 
-  const hours=settings.hours||{};
-  const box=document.getElementById("hoursForm");
+  const days=[
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ];
 
-  box.innerHTML=DAYS.map(day=>{
+  days.forEach(day=>{
 
-    const h=hours[day]||{
-      open:"12:00",
-      close:"23:00"
-    };
+    const id=
+      "hours"+
+      day;
 
-    return `
-      <div class="grid2" style="margin-bottom:12px">
-        <div>
-          <label>${day}</label>
-        </div>
+    const el=
+      document.getElementById(id);
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <input
-            type="time"
-            id="open-${day}"
-            value="${escapeHtml(h.open||"")}">
+    if(el){
+      el.value=h[day] || "";
+    }
 
-          <input
-            type="time"
-            id="close-${day}"
-            value="${escapeHtml(h.close||"")}">
-        </div>
-      </div>
-    `;
+  });
 
-  }).join("");
 }
+
 
 async function saveHours(){
 
-  try{
+  const days=[
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ];
 
-    const hours={};
+  const hours={};
 
-    DAYS.forEach(day=>{
-      hours[day]={
-        open:document.getElementById("open-"+day).value,
-        close:document.getElementById("close-"+day).value
-      };
-    });
+  days.forEach(day=>{
 
-    await saveSetting("hours",hours);
+    hours[day]=
+      document.getElementById(
+        "hours"+day
+      ).value.trim();
 
-    toast("Opening hours saved");
+  });
 
-  }catch(error){
-    toast(error.message);
-  }
+  await saveSetting(
+    "hours",
+    hours
+  );
+
+  toast(
+    "Opening hours saved.",
+    "success"
+  );
+
 }
 
 
-/* ==========================================
-   DASHBOARD
-========================================== */
-
-async function updateDashboard(){
-
-  try{
-
-    const queries=await Promise.all([
-      supabaseClient.from("Menu").select("*",{count:"exact",head:true}),
-      supabaseClient.from("gallery").select("*",{count:"exact",head:true}),
-      supabaseClient.from("table_bookings").select("*",{count:"exact",head:true}),
-      supabaseClient.from("reviews").select("*",{count:"exact",head:true}),
-      supabaseClient.from("customer_reports").select("*",{count:"exact",head:true}),
-      supabaseClient.from("menu_categories").select("*",{count:"exact",head:true})
-    ]);
-
-    document.getElementById("statMenu").textContent=
-      queries[0].count||0;
-
-    document.getElementById("statGallery").textContent=
-      queries[1].count||0;
-
-    document.getElementById("statBookings").textContent=
-      queries[2].count||0;
-
-    document.getElementById("statReviews").textContent=
-      queries[3].count||0;
-
-    document.getElementById("statReports").textContent=
-      queries[4].count||0;
-
-    document.getElementById("statCategories").textContent=
-      queries[5].count||0;
-
-  }catch(error){
-    console.error(error);
-  }
-}
-
-
-/* ==========================================
+/* =========================
    START
-========================================== */
-
-supabaseClient.auth.onAuthStateChange((event,session)=>{
-
-  if(session){
-    openAdmin(session);
-  }
-
-});
+========================= */
 
 checkAuth();
 
