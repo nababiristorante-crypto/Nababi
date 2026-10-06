@@ -2,22 +2,33 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Nababi Ristorante — Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nababi Ristorante — Admin Panel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
+*{box-sizing:border-box}
+
+:root{
+  --bg:#080808;
+  --panel:#111;
+  --panel2:#171717;
+  --gold:#d7ad55;
+  --gold2:#f0cb72;
+  --border:#302817;
+  --text:#f5f5f5;
+  --muted:#999;
+  --danger:#ff7272;
+  --success:#73d58b;
 }
 
 body{
   margin:0;
+  background:var(--bg);
+  color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
-  background:#090909;
-  color:#fff;
 }
 
 button,input,select,textarea{
@@ -28,79 +39,213 @@ button{
   cursor:pointer;
 }
 
-.topbar{
+.hidden{
+  display:none!important;
+}
+
+/* LOGIN */
+
+#loginScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top,#2a2110 0,#080808 45%);
+}
+
+.loginBox{
+  width:100%;
+  max-width:430px;
   background:#111;
-  border-bottom:1px solid #2c2413;
-  padding:16px 20px;
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:30px;
+  box-shadow:0 30px 100px rgba(0,0,0,.6);
+}
+
+.loginLogo{
+  text-align:center;
+  color:var(--gold);
+  font-size:28px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.loginSub{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:25px;
+}
+
+/* LAYOUT */
+
+#adminScreen{
+  min-height:100vh;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+  height:64px;
+  background:rgba(10,10,10,.96);
+  backdrop-filter:blur(15px);
+  border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
   justify-content:space-between;
-  position:sticky;
-  top:0;
-  z-index:20;
+  padding:0 18px;
 }
 
 .brand{
-  color:#d6a84b;
-  font-size:21px;
-  font-weight:700;
+  color:var(--gold);
+  font-weight:800;
+  letter-spacing:.5px;
 }
 
-.logout{
+.menuToggle{
+  display:none;
   background:#191919;
   color:#fff;
-  border:1px solid #3a3a3a;
-  border-radius:10px;
-  padding:9px 14px;
+  border:1px solid #333;
+  border-radius:9px;
+  padding:8px 11px;
 }
 
-.container{
-  max-width:1200px;
-  margin:auto;
+.layout{
+  display:flex;
+  min-height:calc(100vh - 64px);
+}
+
+.sidebar{
+  width:245px;
+  flex-shrink:0;
+  background:#0d0d0d;
+  border-right:1px solid var(--border);
+  padding:14px 10px;
+  position:sticky;
+  top:64px;
+  height:calc(100vh - 64px);
+  overflow-y:auto;
+}
+
+.navBtn{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#bbb;
+  text-align:left;
+  padding:12px 13px;
+  border-radius:10px;
+  margin-bottom:4px;
+}
+
+.navBtn:hover,
+.navBtn.active{
+  background:#201a0d;
+  color:var(--gold2);
+}
+
+.main{
+  flex:1;
+  min-width:0;
+  padding:22px;
+  max-width:1400px;
+}
+
+/* SECTIONS */
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+.pageTitle{
+  color:var(--gold);
+  margin:0 0 5px;
+  font-size:27px;
+}
+
+.pageSub{
+  color:var(--muted);
+  margin:0 0 22px;
+}
+
+/* CARDS */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid #292929;
+  border-radius:17px;
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.card h3{
+  margin:0 0 15px;
+  color:var(--gold2);
+}
+
+.stat{
+  background:linear-gradient(145deg,#151515,#0e0e0e);
+  border:1px solid var(--border);
+  border-radius:15px;
   padding:20px;
 }
 
-.login-box{
-  max-width:430px;
-  margin:80px auto;
-  background:#111;
-  border:1px solid #302713;
-  border-radius:20px;
-  padding:28px;
-  box-shadow:0 20px 70px rgba(0,0,0,.45);
+.statNumber{
+  font-size:30px;
+  color:var(--gold2);
+  font-weight:800;
 }
 
-h1,h2,h3{
-  margin-top:0;
+.statLabel{
+  color:#aaa;
+  margin-top:5px;
 }
 
-.gold{
-  color:#d6a84b;
-}
+/* FORM */
 
 label{
   display:block;
-  margin:15px 0 7px;
   color:#cfcfcf;
-  font-size:14px;
+  font-size:13px;
+  margin:13px 0 7px;
 }
 
 input,
 select,
 textarea{
   width:100%;
-  background:#181818;
+  background:#191919;
+  border:1px solid #373737;
   color:#fff;
-  border:1px solid #363636;
   border-radius:10px;
-  padding:12px;
+  padding:11px 12px;
   outline:none;
 }
 
 input:focus,
 select:focus,
 textarea:focus{
-  border-color:#d6a84b;
+  border-color:var(--gold);
 }
 
 textarea{
@@ -109,94 +254,106 @@ textarea{
 }
 
 .primary{
-  width:100%;
-  margin-top:18px;
-  padding:13px;
   border:0;
-  border-radius:11px;
-  background:#d6a84b;
+  background:var(--gold);
   color:#080808;
-  font-weight:700;
+  font-weight:800;
+  border-radius:10px;
+  padding:12px 16px;
+  margin-top:16px;
+}
+
+.primary:hover{
+  background:var(--gold2);
 }
 
 .primary:disabled{
-  opacity:.55;
-  cursor:not-allowed;
+  opacity:.5;
 }
 
-.panel{
-  background:#111;
-  border:1px solid #292929;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:20px;
+.secondary{
+  border:1px solid #444;
+  background:#202020;
+  color:#fff;
+  border-radius:9px;
+  padding:9px 12px;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+.danger{
+  border:1px solid #633434;
+  background:#241414;
+  color:#ff9a9a;
+  border-radius:9px;
+  padding:9px 12px;
 }
 
-@media(max-width:700px){
-  .grid{
-    grid-template-columns:1fr;
-  }
-
-  .container{
-    padding:12px;
-  }
-
-  .panel{
-    padding:15px;
-  }
+.successBtn{
+  border:1px solid #315b3d;
+  background:#122219;
+  color:#8ee5a4;
+  border-radius:9px;
+  padding:9px 12px;
 }
 
-.upload-box{
-  border:1px dashed #65502a;
-  border-radius:14px;
-  padding:16px;
-  background:#0d0d0d;
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:12px;
 }
 
-.upload-box input[type=file]{
-  padding:10px;
-  background:#141414;
+/* UPLOAD */
+
+.uploadBox{
+  border:1px dashed #68542c;
+  background:#0c0c0c;
+  border-radius:13px;
+  padding:14px;
+}
+
+.uploadBox input[type=file]{
+  background:#151515;
 }
 
 .preview{
-  margin-top:12px;
   width:100%;
   max-height:230px;
   object-fit:cover;
-  border-radius:12px;
-  border:1px solid #302713;
+  border-radius:11px;
+  margin-top:10px;
   display:none;
 }
 
-.current-image{
+.currentImage{
   margin-top:10px;
-  color:#999;
+  color:#888;
   font-size:12px;
 }
 
-.current-image img{
+.currentImage img{
   width:100px;
   height:75px;
   object-fit:cover;
   border-radius:9px;
-  margin-top:7px;
-  border:1px solid #3b3b3b;
+  margin-top:6px;
 }
 
+.smallNote{
+  color:#777;
+  font-size:11px;
+  margin-top:6px;
+}
+
+/* STATUS */
+
 .status{
-  display:none;
-  margin-top:14px;
-  padding:12px;
-  border-radius:10px;
-  background:#151515;
+  margin-top:13px;
+  padding:11px;
+  border-radius:9px;
+  background:#171717;
   border:1px solid #333;
-  font-size:14px;
+  color:#aaa;
+  display:none;
 }
 
 .status.show{
@@ -204,1735 +361,1244 @@ textarea{
 }
 
 .status.success{
-  border-color:#386b45;
-  color:#9de4ae;
+  color:var(--success);
+  border-color:#315b3d;
 }
 
 .status.error{
-  border-color:#793d3d;
-  color:#ff9d9d;
+  color:#ff9999;
+  border-color:#653737;
 }
 
-.category-list,
-.menu-list{
+/* LIST */
+
+.list{
   display:grid;
+  gap:10px;
+}
+
+.listItem{
+  background:#171717;
+  border:1px solid #292929;
+  border-radius:13px;
+  padding:12px;
+  display:flex;
+  align-items:center;
   gap:12px;
 }
 
-.category-item,
-.menu-item{
-  background:#161616;
-  border:1px solid #292929;
-  border-radius:14px;
-  padding:13px;
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
 .thumb{
-  width:75px;
-  height:65px;
+  width:72px;
+  height:62px;
+  border-radius:9px;
   object-fit:cover;
-  border-radius:10px;
-  background:#222;
+  background:#242424;
   flex-shrink:0;
 }
 
-.item-info{
+.itemInfo{
   flex:1;
   min-width:0;
 }
 
-.item-name{
+.itemName{
   font-weight:700;
-  color:#fff;
 }
 
-.item-meta{
-  color:#aaa;
-  font-size:13px;
+.itemMeta{
+  color:#999;
+  font-size:12px;
   margin-top:4px;
-}
-
-.actions{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-}
-
-.small-btn{
-  border:1px solid #3a3a3a;
-  background:#202020;
-  color:#fff;
-  padding:8px 10px;
-  border-radius:8px;
-}
-
-.small-btn.gold-btn{
-  background:#d6a84b;
-  color:#000;
-  border-color:#d6a84b;
-}
-
-.small-btn.delete{
-  color:#ff9b9b;
-}
-
-.section-title{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:15px;
-}
-
-.hidden{
-  display:none!important;
 }
 
 .empty{
   padding:25px;
   text-align:center;
-  color:#888;
   border:1px dashed #333;
   border-radius:12px;
+  color:#777;
 }
 
-.file-note{
-  color:#888;
-  font-size:12px;
-  margin-top:7px;
+/* SWITCH */
+
+.switchRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#171717;
+  border:1px solid #292929;
+  border-radius:11px;
+  padding:12px;
+  margin-top:10px;
+}
+
+.switch{
+  position:relative;
+  width:48px;
+  height:26px;
+}
+
+.switch input{
+  display:none;
+}
+
+.slider{
+  position:absolute;
+  inset:0;
+  background:#333;
+  border-radius:30px;
+  cursor:pointer;
+}
+
+.slider:before{
+  content:"";
+  width:20px;
+  height:20px;
+  position:absolute;
+  left:3px;
+  top:3px;
+  background:#fff;
+  border-radius:50%;
+  transition:.2s;
+}
+
+.switch input:checked + .slider{
+  background:var(--gold);
+}
+
+.switch input:checked + .slider:before{
+  transform:translateX(22px);
+}
+
+/* TABLE */
+
+.tableWrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+
+th,td{
+  border-bottom:1px solid #292929;
+  padding:11px 8px;
+  text-align:left;
+  font-size:13px;
+}
+
+th{
+  color:var(--gold2);
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+  .menuToggle{
+    display:block;
+  }
+
+  .sidebar{
+    position:fixed;
+    left:-270px;
+    top:64px;
+    z-index:90;
+    transition:.25s;
+  }
+
+  .sidebar.open{
+    left:0;
+  }
+
+  .main{
+    padding:14px;
+  }
+
+  .grid,
+  .grid3{
+    grid-template-columns:1fr;
+  }
+
 }
 </style>
 </head>
 
 <body>
 
+<!-- =====================================================
+LOGIN
+===================================================== -->
+
 <div id="loginScreen">
-  <div class="login-box">
-    <h1 class="gold">Nababi Ristorante</h1>
-    <p>Admin Panel Login</p>
+
+  <div class="loginBox">
+
+    <div class="loginLogo">
+      NABABI RISTORANTE
+    </div>
+
+    <div class="loginSub">
+      Premium Admin Panel
+    </div>
 
     <label>Email</label>
-    <input id="loginEmail" type="email" placeholder="Admin email">
+    <input
+      id="loginEmail"
+      type="email"
+      placeholder="Admin email"
+    >
 
     <label>Password</label>
-    <input id="loginPassword" type="password" placeholder="Password">
+    <input
+      id="loginPassword"
+      type="password"
+      placeholder="Password"
+    >
 
-    <button class="primary" id="loginBtn">LOGIN</button>
+    <button
+      id="loginBtn"
+      class="primary"
+      style="width:100%;"
+    >
+      LOGIN
+    </button>
 
     <div id="loginStatus" class="status"></div>
+
   </div>
+
 </div>
 
+
+<!-- =====================================================
+ADMIN
+===================================================== -->
 
 <div id="adminScreen" class="hidden">
 
   <div class="topbar">
-    <div class="brand">NABABI RISTORANTE • ADMIN</div>
-    <button class="logout" id="logoutBtn">Logout</button>
+
+    <button
+      id="menuToggle"
+      class="menuToggle"
+    >
+      ☰
+    </button>
+
+    <div class="brand">
+      NABABI RISTORANTE • ADMIN
+    </div>
+
+    <button
+      id="logoutBtn"
+      class="secondary"
+    >
+      Logout
+    </button>
+
   </div>
 
-  <main class="container">
 
-    <!-- CATEGORY -->
-    <section class="panel">
+  <div class="layout">
 
-      <div class="section-title">
-        <div>
-          <h2>📂 Menu Categories</h2>
-          <div class="item-meta">
-            প্রতিটি Category-এর জন্য আলাদা ছবি দিতে পারবেন।
-          </div>
-        </div>
+    <!-- SIDEBAR -->
+
+    <aside id="sidebar" class="sidebar">
+
+      <button class="navBtn active" data-section="dashboard">
+        📊 Dashboard
+      </button>
+
+      <button class="navBtn" data-section="hero">
+        🏠 Home / Hero
+      </button>
+
+      <button class="navBtn" data-section="breaking">
+        📰 Breaking News
+      </button>
+
+      <button class="navBtn" data-section="logo">
+        🏷️ Logo
+      </button>
+
+      <button class="navBtn" data-section="about">
+        ℹ️ About Us
+      </button>
+
+      <button class="navBtn" data-section="menu">
+        🍽️ Menu Manager
+      </button>
+
+      <button class="navBtn" data-section="gallery">
+        🖼️ Gallery
+      </button>
+
+      <button class="navBtn" data-section="bookings">
+        📅 Table Bookings
+      </button>
+
+      <button class="navBtn" data-section="reviews">
+        ⭐ Reviews
+      </button>
+
+      <button class="navBtn" data-section="reports">
+        🚨 Reports
+      </button>
+
+      <button class="navBtn" data-section="contact">
+        📞 Contact
+      </button>
+
+      <button class="navBtn" data-section="social">
+        🌐 Social Media
+      </button>
+
+      <button class="navBtn" data-section="hours">
+        🕐 Opening Hours
+      </button>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+
+<!-- =====================================================
+DASHBOARD
+===================================================== -->
+
+<section id="dashboard" class="section active">
+
+  <h1 class="pageTitle">Dashboard</h1>
+
+  <p class="pageSub">
+    Nababi Ristorante website control center.
+  </p>
+
+  <div class="grid3">
+
+    <div class="stat">
+      <div id="statMenu" class="statNumber">0</div>
+      <div class="statLabel">Menu Items</div>
+    </div>
+
+    <div class="stat">
+      <div id="statCategories" class="statNumber">0</div>
+      <div class="statLabel">Categories</div>
+    </div>
+
+    <div class="stat">
+      <div id="statGallery" class="statNumber">0</div>
+      <div class="statLabel">Gallery</div>
+    </div>
+
+    <div class="stat">
+      <div id="statBookings" class="statNumber">0</div>
+      <div class="statLabel">Bookings</div>
+    </div>
+
+    <div class="stat">
+      <div id="statReviews" class="statNumber">0</div>
+      <div class="statLabel">Reviews</div>
+    </div>
+
+    <div class="stat">
+      <div id="statReports" class="statNumber">0</div>
+      <div class="statLabel">Reports</div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+HERO
+===================================================== -->
+
+<section id="hero" class="section">
+
+  <h1 class="pageTitle">Home / Hero</h1>
+
+  <p class="pageSub">
+    Homepage-এর main title, text এবং hero image পরিবর্তন করুন।
+  </p>
+
+  <div class="card">
+
+    <label>Hero Title</label>
+
+    <input
+      id="heroTitle"
+      placeholder="Taste the Royal Flavours of India"
+    >
+
+    <label>Hero Text</label>
+
+    <textarea
+      id="heroText"
+      placeholder="Authentic Indian cuisine..."
+    ></textarea>
+
+    <label>Hero Image</label>
+
+    <div class="uploadBox">
+
+      <input
+        id="heroImage"
+        type="file"
+        accept="image/*"
+      >
+
+      <img
+        id="heroPreview"
+        class="preview"
+      >
+
+      <div id="heroCurrent" class="currentImage"></div>
+
+    </div>
+
+    <button
+      id="saveHero"
+      class="primary"
+    >
+      SAVE HERO
+    </button>
+
+    <div id="heroStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+BREAKING NEWS
+===================================================== -->
+
+<section id="breaking" class="section">
+
+  <h1 class="pageTitle">Breaking News</h1>
+
+  <p class="pageSub">
+    নির্দিষ্ট সময়ের মধ্যে Homepage-এ automatically দেখাবে।
+  </p>
+
+  <div class="card">
+
+    <div class="switchRow">
+
+      <span>Enable Breaking News</span>
+
+      <label class="switch">
+        <input id="breakingEnabled" type="checkbox">
+        <span class="slider"></span>
+      </label>
+
+    </div>
+
+    <label>News Text</label>
+
+    <textarea
+      id="breakingText"
+      placeholder="Special offer / announcement..."
+    ></textarea>
+
+    <div class="grid">
+
+      <div>
+
+        <label>Start Date & Time</label>
+
+        <input
+          id="breakingStart"
+          type="datetime-local"
+        >
+
       </div>
 
-      <div class="grid">
+      <div>
 
-        <div>
-          <h3 class="gold">Add / Edit Category</h3>
+        <label>End Date & Time</label>
 
-          <input type="hidden" id="categoryId">
+        <input
+          id="breakingEnd"
+          type="datetime-local"
+        >
 
-          <label>Category Name</label>
-          <input id="categoryName" placeholder="Example: Biryani">
+      </div>
 
-          <label>Category Image</label>
+    </div>
 
-          <div class="upload-box">
+    <label>News Image</label>
 
-            <input
-              id="categoryImage"
-              type="file"
-              accept="image/*"
-            >
+    <div class="uploadBox">
 
-            <div class="file-note">
-              JPG, PNG, WEBP — ফোন থেকে ছবি নির্বাচন করুন
-            </div>
+      <input
+        id="breakingImage"
+        type="file"
+        accept="image/*"
+      >
 
-            <img
-              id="categoryPreview"
-              class="preview"
-              alt="Category preview"
-            >
+      <img
+        id="breakingImagePreview"
+        class="preview"
+      >
 
-            <div id="categoryCurrentImage" class="current-image"></div>
+      <div id="breakingImageCurrent" class="currentImage"></div>
 
-          </div>
+    </div>
 
-          <label>Sort Order</label>
+    <label>News Video</label>
+
+    <div class="uploadBox">
+
+      <input
+        id="breakingVideo"
+        type="file"
+        accept="video/*"
+      >
+
+      <div class="smallNote">
+        Image অথবা Video — যেকোনো একটি ব্যবহার করতে পারবেন।
+      </div>
+
+      <div id="breakingVideoCurrent" class="currentImage"></div>
+
+    </div>
+
+    <button
+      id="saveBreaking"
+      class="primary"
+    >
+      SAVE BREAKING NEWS
+    </button>
+
+    <div id="breakingStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+LOGO
+===================================================== -->
+
+<section id="logo" class="section">
+
+  <h1 class="pageTitle">Restaurant Logo</h1>
+
+  <p class="pageSub">
+    এখান থেকে website logo change করতে পারবেন।
+  </p>
+
+  <div class="card">
+
+    <label>Upload New Logo</label>
+
+    <div class="uploadBox">
+
+      <input
+        id="logoFile"
+        type="file"
+        accept="image/*"
+      >
+
+      <img
+        id="logoPreview"
+        class="preview"
+      >
+
+      <div id="logoCurrent" class="currentImage"></div>
+
+    </div>
+
+    <button
+      id="saveLogo"
+      class="primary"
+    >
+      SAVE LOGO
+    </button>
+
+    <div id="logoStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+ABOUT
+===================================================== -->
+
+<section id="about" class="section">
+
+  <h1 class="pageTitle">About Us</h1>
+
+  <p class="pageSub">
+    About section-এর text এবং photo/video control করুন।
+  </p>
+
+  <div class="card">
+
+    <label>About Title</label>
+
+    <input
+      id="aboutTitle"
+      placeholder="About Nababi Ristorante"
+    >
+
+    <label>About Text</label>
+
+    <textarea
+      id="aboutText"
+      style="min-height:200px;"
+    ></textarea>
+
+    <label>About Image</label>
+
+    <div class="uploadBox">
+
+      <input
+        id="aboutImage"
+        type="file"
+        accept="image/*"
+      >
+
+      <img
+        id="aboutImagePreview"
+        class="preview"
+      >
+
+      <div id="aboutImageCurrent" class="currentImage"></div>
+
+    </div>
+
+    <label>About Video</label>
+
+    <div class="uploadBox">
+
+      <input
+        id="aboutVideo"
+        type="file"
+        accept="video/*"
+      >
+
+      <div id="aboutVideoCurrent" class="currentImage"></div>
+
+    </div>
+
+    <button
+      id="saveAbout"
+      class="primary"
+    >
+      SAVE ABOUT
+    </button>
+
+    <div id="aboutStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+MENU
+===================================================== -->
+
+<section id="menu" class="section">
+
+  <h1 class="pageTitle">Menu Manager</h1>
+
+  <p class="pageSub">
+    Category এবং Food—দুটোরই আলাদা ছবি upload করা যাবে।
+  </p>
+
+
+  <!-- CATEGORY -->
+
+  <div class="card">
+
+    <h3>📂 Categories</h3>
+
+    <div class="grid">
+
+      <div>
+
+        <input
+          type="hidden"
+          id="categoryId"
+        >
+
+        <label>Category Name</label>
+
+        <input
+          id="categoryName"
+          placeholder="Biryani"
+        >
+
+        <label>Category Image</label>
+
+        <div class="uploadBox">
+
           <input
-            id="categorySort"
-            type="number"
-            value="0"
+            id="categoryImage"
+            type="file"
+            accept="image/*"
           >
 
-          <button
-            class="primary"
-            id="saveCategoryBtn"
+          <img
+            id="categoryPreview"
+            class="preview"
           >
-            SAVE CATEGORY
-          </button>
 
-          <button
-            class="small-btn hidden"
-            id="cancelCategoryBtn"
-            style="margin-top:10px;width:100%;"
-          >
-            Cancel Edit
-          </button>
-
-          <div id="categoryStatus" class="status"></div>
+          <div
+            id="categoryCurrent"
+            class="currentImage"
+          ></div>
 
         </div>
 
+        <label>Sort Order</label>
 
-        <div>
-          <h3 class="gold">Categories</h3>
+        <input
+          id="categorySort"
+          type="number"
+          value="0"
+        >
 
-          <div id="categoryList" class="category-list">
-            <div class="empty">Loading categories...</div>
+        <button
+          id="saveCategory"
+          class="primary"
+        >
+          SAVE CATEGORY
+        </button>
+
+        <button
+          id="cancelCategory"
+          class="secondary hidden"
+          style="margin-top:10px;width:100%;"
+        >
+          CANCEL EDIT
+        </button>
+
+        <div id="categoryStatus" class="status"></div>
+
+      </div>
+
+
+      <div>
+
+        <div
+          id="categoryList"
+          class="list"
+        >
+          <div class="empty">
+            Loading categories...
           </div>
-
         </div>
 
       </div>
 
-    </section>
+    </div>
+
+  </div>
 
 
-    <!-- MENU -->
-    <section class="panel">
+  <!-- FOOD -->
 
-      <div class="section-title">
-        <div>
-          <h2>🍽️ Menu Manager</h2>
-          <div class="item-meta">
-            Food-এর ছবি দিলে প্রথমে Storage-এ upload হবে, তারপর Menu save হবে।
-          </div>
-        </div>
-      </div>
+  <div class="card">
 
-      <div class="grid">
+    <h3>🍽️ Food Items</h3>
 
-        <!-- FORM -->
-        <div>
+    <div class="grid">
 
-          <h3 class="gold">Add / Edit Food</h3>
+      <div>
 
-          <input type="hidden" id="menuId">
+        <input
+          type="hidden"
+          id="menuId"
+        >
 
-          <label>Food Name</label>
+        <label>Food Name</label>
+
+        <input
+          id="foodName"
+          placeholder="Chicken Biryani"
+        >
+
+        <label>Price</label>
+
+        <input
+          id="foodPrice"
+          placeholder="14"
+        >
+
+        <label>Category</label>
+
+        <select id="foodCategory">
+          <option value="">
+            Select Category
+          </option>
+        </select>
+
+        <label>Description</label>
+
+        <textarea
+          id="foodDescription"
+          placeholder="Dish description..."
+        ></textarea>
+
+        <label>Food Photo</label>
+
+        <div class="uploadBox">
+
           <input
-            id="foodName"
-            placeholder="Example: Chicken Biryani"
+            id="foodImage"
+            type="file"
+            accept="image/*"
           >
 
-          <label>Price</label>
-          <input
-            id="foodPrice"
-            placeholder="Example: 14"
+          <img
+            id="foodPreview"
+            class="preview"
           >
 
-          <label>Category</label>
+          <div
+            id="foodCurrent"
+            class="currentImage"
+          ></div>
 
-          <select id="foodCategory">
-            <option value="">Select Category</option>
-          </select>
-
-          <label>Description</label>
-
-          <textarea
-            id="foodDescription"
-            placeholder="Describe this dish..."
-          ></textarea>
-
-          <label>Food Photo</label>
-
-          <div class="upload-box">
-
-            <input
-              id="foodImage"
-              type="file"
-              accept="image/*"
-            >
-
-            <div class="file-note">
-              ছবি optional — ছবি দিলে Save-এর আগে automatic upload হবে।
-            </div>
-
-            <img
-              id="foodPreview"
-              class="preview"
-              alt="Food preview"
-            >
-
-            <div id="foodCurrentImage" class="current-image"></div>
-
+          <div class="smallNote">
+            Photo optional. Photo দিলে আগে upload হবে, তারপর Food save হবে।
           </div>
-
-          <button
-            class="primary"
-            id="saveMenuBtn"
-          >
-            SAVE FOOD
-          </button>
-
-          <button
-            class="small-btn hidden"
-            id="cancelMenuBtn"
-            style="margin-top:10px;width:100%;"
-          >
-            Cancel Edit
-          </button>
-
-          <div id="menuStatus" class="status"></div>
 
         </div>
 
+        <button
+          id="saveMenu"
+          class="primary"
+        >
+          SAVE FOOD
+        </button>
 
-        <!-- FOOD LIST -->
-        <div>
+        <button
+          id="cancelMenu"
+          class="secondary hidden"
+          style="margin-top:10px;width:100%;"
+        >
+          CANCEL EDIT
+        </button>
 
-          <h3 class="gold">Food Items</h3>
+        <div id="menuStatus" class="status"></div>
 
-          <div id="menuList" class="menu-list">
-            <div class="empty">Loading menu...</div>
+      </div>
+
+
+      <div>
+
+        <div
+          id="menuList"
+          class="list"
+        >
+          <div class="empty">
+            Loading menu...
           </div>
-
         </div>
 
       </div>
 
-    </section>
+    </div>
 
-  </main>
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+GALLERY
+===================================================== -->
+
+<section id="gallery" class="section">
+
+  <h1 class="pageTitle">Gallery</h1>
+
+  <p class="pageSub">
+    একসাথে একাধিক restaurant photo upload করতে পারবেন।
+  </p>
+
+  <div class="card">
+
+    <label>Photos</label>
+
+    <input
+      id="galleryFiles"
+      type="file"
+      accept="image/*"
+      multiple
+    >
+
+    <label>Title</label>
+
+    <input
+      id="galleryTitle"
+      placeholder="Restaurant"
+    >
+
+    <label>Category</label>
+
+    <input
+      id="galleryCategory"
+      value="Restaurant"
+    >
+
+    <button
+      id="uploadGallery"
+      class="primary"
+    >
+      UPLOAD GALLERY PHOTOS
+    </button>
+
+    <div id="galleryStatus" class="status"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div
+      id="galleryList"
+      class="list"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+BOOKINGS
+===================================================== -->
+
+<section id="bookings" class="section">
+
+  <h1 class="pageTitle">Table Bookings</h1>
+
+  <p class="pageSub">
+    Customer table reservations manage করুন।
+  </p>
+
+  <div class="card">
+
+    <div class="actions">
+
+      <button
+        id="refreshBookings"
+        class="secondary"
+      >
+        Refresh
+      </button>
+
+    </div>
+
+    <div class="tableWrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Guests</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="bookingTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+REVIEWS
+===================================================== -->
+
+<section id="reviews" class="section">
+
+  <h1 class="pageTitle">Reviews</h1>
+
+  <p class="pageSub">
+    Reviews approve, hide, feature অথবা delete করুন।
+  </p>
+
+  <div class="card">
+
+    <div
+      id="reviewsList"
+      class="list"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+REPORTS
+===================================================== -->
+
+<section id="reports" class="section">
+
+  <h1 class="pageTitle">Customer Reports</h1>
+
+  <p class="pageSub">
+    Customer complaint/report manage করুন।
+  </p>
+
+  <div class="card">
+
+    <div
+      id="reportsList"
+      class="list"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+CONTACT
+===================================================== -->
+
+<section id="contact" class="section">
+
+  <h1 class="pageTitle">Contact</h1>
+
+  <p class="pageSub">
+    Address, phone, WhatsApp এবং Google Maps।
+  </p>
+
+  <div class="card">
+
+    <label>Address</label>
+
+    <input
+      id="contactAddress"
+      placeholder="Via Vespasiano 73/75/77 Roma"
+    >
+
+    <label>Phone 1</label>
+
+    <input
+      id="contactPhone1"
+      placeholder="+39 333 7687319"
+    >
+
+    <label>Phone 2</label>
+
+    <input
+      id="contactPhone2"
+      placeholder="+39 393 3805350"
+    >
+
+    <label>WhatsApp</label>
+
+    <input
+      id="contactWhatsapp"
+      placeholder="+39 333 7687319"
+    >
+
+    <label>Google Maps URL</label>
+
+    <input
+      id="contactMaps"
+      placeholder="Google Maps link"
+    >
+
+    <button
+      id="saveContact"
+      class="primary"
+    >
+      SAVE CONTACT
+    </button>
+
+    <div id="contactStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+SOCIAL
+===================================================== -->
+
+<section id="social" class="section">
+
+  <h1 class="pageTitle">Social Media</h1>
+
+  <p class="pageSub">
+    Restaurant social links manage করুন।
+  </p>
+
+  <div class="card">
+
+    <label>Facebook</label>
+
+    <input
+      id="socialFacebook"
+      placeholder="Facebook URL"
+    >
+
+    <label>Instagram</label>
+
+    <input
+      id="socialInstagram"
+      placeholder="Instagram URL"
+    >
+
+    <label>TikTok</label>
+
+    <input
+      id="socialTikTok"
+      placeholder="TikTok URL"
+    >
+
+    <label>YouTube</label>
+
+    <input
+      id="socialYoutube"
+      placeholder="YouTube URL"
+    >
+
+    <button
+      id="saveSocial"
+      class="primary"
+    >
+      SAVE SOCIAL MEDIA
+    </button>
+
+    <div id="socialStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+HOURS
+===================================================== -->
+
+<section id="hours" class="section">
+
+  <h1 class="pageTitle">Opening Hours</h1>
+
+  <p class="pageSub">
+    প্রতিদিনের opening hours পরিবর্তন করুন।
+  </p>
+
+  <div class="card">
+
+    <div id="hoursForm"></div>
+
+    <button
+      id="saveHours"
+      class="primary"
+    >
+      SAVE OPENING HOURS
+    </button>
+
+    <div id="hoursStatus" class="status"></div>
+
+  </div>
+
+</section>
+
+
+    </main>
+
+  </div>
+
 </div>
 
 
 <script>
 
-let sb = null;
+/* =====================================================
+SUPABASE
+===================================================== */
 
-let categories = [];
-let menuItems = [];
+let sb=null;
 
-let editingCategoryId = null;
-let editingMenuId = null;
+if(window.supabaseClient){
 
-const $ = id => document.getElementById(id);
+  sb=window.supabaseClient;
 
+}else if(
+  window.SUPABASE_URL &&
+  window.SUPABASE_ANON_KEY &&
+  window.supabase
+){
 
-/* =========================================================
-   SUPABASE
-========================================================= */
-
-function getSupabaseClient(){
-
-  if(window.supabaseClient){
-    return window.supabaseClient;
-  }
-
-  if(
-    window.SUPABASE_URL &&
-    window.SUPABASE_ANON_KEY &&
-    window.supabase
-  ){
-    return window.supabase.createClient(
-      window.SUPABASE_URL,
-      window.SUPABASE_ANON_KEY
-    );
-  }
-
-  return null;
-}
-
-
-sb = getSupabaseClient();
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-function showStatus(element,message,type=""){
-
-  element.textContent = message;
-  element.className = "status show " + type;
-}
-
-
-function clearStatus(element){
-
-  element.textContent = "";
-  element.className = "status";
-}
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-$("loginBtn").addEventListener("click",login);
-
-
-async function login(){
-
-  const email = $("loginEmail").value.trim();
-  const password = $("loginPassword").value;
-
-  const status = $("loginStatus");
-
-  clearStatus(status);
-
-  if(!sb){
-
-    showStatus(
-      status,
-      "Supabase client পাওয়া যাচ্ছে না। config.js check করুন।",
-      "error"
-    );
-
-    return;
-  }
-
-  if(!email || !password){
-
-    showStatus(
-      status,
-      "Email এবং Password দিন।",
-      "error"
-    );
-
-    return;
-  }
-
-  $("loginBtn").disabled = true;
-  $("loginBtn").textContent = "LOGINNING...";
-
-  const {error} = await sb.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error){
-
-    showStatus(
-      status,
-      error.message,
-      "error"
-    );
-
-    $("loginBtn").disabled = false;
-    $("loginBtn").textContent = "LOGIN";
-
-    return;
-  }
-
-  showAdmin();
-
-}
-
-
-/* =========================================================
-   AUTH CHECK
-========================================================= */
-
-async function checkAuth(){
-
-  if(!sb) return;
-
-  const {
-    data:{
-      session
-    }
-  } = await sb.auth.getSession();
-
-  if(session){
-
-    showAdmin();
-
-  }else{
-
-    $("loginScreen").classList.remove("hidden");
-    $("adminScreen").classList.add("hidden");
-
-  }
-
-}
-
-
-function showAdmin(){
-
-  $("loginScreen").classList.add("hidden");
-  $("adminScreen").classList.remove("hidden");
-
-  loadAll();
-
-}
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-$("logoutBtn").addEventListener("click",async()=>{
-
-  await sb.auth.signOut();
-
-  location.reload();
-
-});
-
-
-/* =========================================================
-   STORAGE UPLOAD
-========================================================= */
-
-async function uploadImage(file,folder){
-
-  if(!file){
-    return {
-      url:"",
-      path:""
-    };
-  }
-
-  if(!file.type.startsWith("image/")){
-
-    throw new Error("শুধু image file upload করা যাবে।");
-
-  }
-
-  const maxSize = 10 * 1024 * 1024;
-
-  if(file.size > maxSize){
-
-    throw new Error("ছবির size 10MB-এর বেশি হতে পারবে না।");
-
-  }
-
-  const extension =
-    file.name.split(".").pop().toLowerCase();
-
-  const safeExtension =
-    extension.replace(/[^a-z0-9]/g,"") || "jpg";
-
-  const random =
-    Math.random().toString(36).substring(2);
-
-  const fileName =
-    Date.now() + "_" + random + "." + safeExtension;
-
-  const path =
-    folder + "/" + fileName;
-
-
-  const {error:uploadError} =
-    await sb.storage
-      .from("menu-images")
-      .upload(
-        path,
-        file,
-        {
-          cacheControl:"3600",
-          upsert:false,
-          contentType:file.type
-        }
-      );
-
-
-  if(uploadError){
-
-    throw new Error(
-      "Image upload failed: " +
-      uploadError.message
-    );
-
-  }
-
-
-  const {
-    data
-  } =
-    sb.storage
-      .from("menu-images")
-      .getPublicUrl(path);
-
-
-  if(!data || !data.publicUrl){
-
-    throw new Error(
-      "Image upload হয়েছে, কিন্তু public URL পাওয়া যায়নি।"
-    );
-
-  }
-
-
-  return {
-    url:data.publicUrl,
-    path:path
-  };
-
-}
-
-
-/* =========================================================
-   IMAGE PREVIEW
-========================================================= */
-
-function setupPreview(inputId,previewId){
-
-  $(inputId).addEventListener("change",()=>{
-
-    const file = $(inputId).files[0];
-
-    const preview = $(previewId);
-
-    if(!file){
-
-      preview.style.display = "none";
-      preview.src = "";
-
-      return;
-    }
-
-    preview.src =
-      URL.createObjectURL(file);
-
-    preview.style.display = "block";
-
-  });
-
-}
-
-
-setupPreview(
-  "categoryImage",
-  "categoryPreview"
-);
-
-setupPreview(
-  "foodImage",
-  "foodPreview"
-);
-
-
-/* =========================================================
-   LOAD ALL
-========================================================= */
-
-async function loadAll(){
-
-  await loadCategories();
-  await loadMenu();
-
-}
-
-
-/* =========================================================
-   CATEGORIES
-========================================================= */
-
-async function loadCategories(){
-
-  const {
-    data,
-    error
-  } =
-  await sb
-    .from("menu_categories")
-    .select("*")
-    .order("sort_order",{ascending:true})
-    .order("id",{ascending:true});
-
-
-  if(error){
-
-    showStatus(
-      $("categoryStatus"),
-      "Category load failed: " + error.message,
-      "error"
-    );
-
-    return;
-  }
-
-  categories = data || [];
-
-  renderCategories();
-
-  fillCategorySelect();
-
-}
-
-
-/* =========================================================
-   CATEGORY SELECT
-========================================================= */
-
-function fillCategorySelect(){
-
-  const select =
-    $("foodCategory");
-
-  select.innerHTML =
-    `<option value="">Select Category</option>`;
-
-  categories.forEach(category=>{
-
-    const option =
-      document.createElement("option");
-
-    option.value =
-      category.name;
-
-    option.textContent =
-      category.name;
-
-    select.appendChild(option);
-
-  });
-
-}
-
-
-/* =========================================================
-   CATEGORY LIST
-========================================================= */
-
-function renderCategories(){
-
-  const box =
-    $("categoryList");
-
-  if(!categories.length){
-
-    box.innerHTML =
-      `<div class="empty">
-        No categories yet.
-      </div>`;
-
-    return;
-  }
-
-  box.innerHTML = "";
-
-  categories.forEach(category=>{
-
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "category-item";
-
-
-    const image =
-      category.image_url
-      ||
-      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80'%3E%3Crect width='100%25' height='100%25' fill='%23222222'/%3E%3Ctext x='50%25' y='50%25' fill='%23888888' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
-
-
-    item.innerHTML = `
-
-      <img
-        class="thumb"
-        src="${escapeHtml(image)}"
-        alt=""
-      >
-
-      <div class="item-info">
-
-        <div class="item-name">
-          ${escapeHtml(category.name)}
-        </div>
-
-        <div class="item-meta">
-          Sort: ${category.sort_order ?? 0}
-        </div>
-
-      </div>
-
-      <div class="actions">
-
-        <button
-          class="small-btn gold-btn"
-          onclick="editCategory(${category.id})"
-        >
-          Edit
-        </button>
-
-        <button
-          class="small-btn delete"
-          onclick="deleteCategory(${category.id})"
-        >
-          Delete
-        </button>
-
-      </div>
-
-    `;
-
-    box.appendChild(item);
-
-  });
-
-}
-
-
-/* =========================================================
-   SAVE CATEGORY
-========================================================= */
-
-$("saveCategoryBtn")
-  .addEventListener(
-    "click",
-    saveCategory
+  sb=window.supabase.createClient(
+    window.SUPABASE_URL,
+    window.SUPABASE_ANON_KEY
   );
 
-
-async function saveCategory(){
-
-  const status =
-    $("categoryStatus");
-
-  clearStatus(status);
-
-  const name =
-    $("categoryName")
-      .value
-      .trim();
-
-  const sort =
-    Number(
-      $("categorySort").value || 0
-    );
-
-  const file =
-    $("categoryImage").files[0];
-
-
-  if(!name){
-
-    showStatus(
-      status,
-      "Category name দিন।",
-      "error"
-    );
-
-    return;
-  }
-
-
-  const button =
-    $("saveCategoryBtn");
-
-  button.disabled = true;
-
-  button.textContent =
-    "SAVING CATEGORY...";
-
-
-  try{
-
-    let imageUrl = "";
-
-    if(editingCategoryId){
-
-      const old =
-        categories.find(
-          x => x.id === editingCategoryId
-        );
-
-      imageUrl =
-        old?.image_url || "";
-
-    }
-
-
-    /* PHOTO UPLOAD FIRST */
-
-    if(file){
-
-      showStatus(
-        status,
-        "Category photo upload হচ্ছে...",
-        ""
-      );
-
-      const uploaded =
-        await uploadImage(
-          file,
-          "categories"
-        );
-
-      imageUrl =
-        uploaded.url;
-
-    }
-
-
-    const payload = {
-
-      name:name,
-
-      sort_order:sort,
-
-      image_url:imageUrl
-
-    };
-
-
-    /* UPDATE */
-
-    if(editingCategoryId){
-
-      const {
-        error
-      } =
-      await sb
-        .from("menu_categories")
-        .update(payload)
-        .eq(
-          "id",
-          editingCategoryId
-        );
-
-
-      if(error)
-        throw error;
-
-
-      showStatus(
-        status,
-        "Category successfully updated.",
-        "success"
-      );
-
-
-    }
-
-    /* INSERT */
-
-    else{
-
-      const {
-        error
-      } =
-      await sb
-        .from("menu_categories")
-        .insert(payload);
-
-
-      if(error)
-        throw error;
-
-
-      showStatus(
-        status,
-        "Category successfully saved.",
-        "success"
-      );
-
-    }
-
-
-    resetCategoryForm();
-
-    await loadCategories();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showStatus(
-      status,
-      "Category Save Failed: " +
-      error.message,
-      "error"
-    );
-
-  }
-
-
-  button.disabled = false;
-
-  button.textContent =
-    "SAVE CATEGORY";
-
 }
 
 
-/* =========================================================
-   EDIT CATEGORY
-========================================================= */
-
-window.editCategory =
-async function(id){
-
-  const category =
-    categories.find(
-      x => x.id === id
-    );
-
-  if(!category)
-    return;
-
-
-  editingCategoryId =
-    id;
-
-
-  $("categoryName").value =
-    category.name || "";
-
-
-  $("categorySort").value =
-    category.sort_order || 0;
-
-
-  $("categoryImage").value =
-    "";
-
-
-  if(category.image_url){
-
-    $("categoryCurrentImage").innerHTML = `
-
-      Current Image:<br>
-
-      <img
-        src="${escapeHtml(category.image_url)}"
-        alt=""
-      >
-
-    `;
-
-  }else{
-
-    $("categoryCurrentImage").innerHTML =
-      "No current image.";
-
-  }
-
-
-  $("saveCategoryBtn")
-    .textContent =
-    "UPDATE CATEGORY";
-
-
-  $("cancelCategoryBtn")
-    .classList.remove("hidden");
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-};
-
-
-/* =========================================================
-   DELETE CATEGORY
-========================================================= */
-
-window.deleteCategory =
-async function(id){
-
-  const category =
-    categories.find(
-      x => x.id === id
-    );
-
-  if(!category)
-    return;
-
-
-  const used =
-    menuItems.some(
-      item =>
-        item.category === category.name
-    );
-
-
-  if(used){
-
-    alert(
-      "এই Category-এর মধ্যে Menu item আছে। আগে সেই খাবারগুলো অন্য Category-তে move/delete করুন।"
-    );
-
-    return;
-
-  }
-
-
-  if(!confirm(
-    `Delete "${category.name}"?`
-  )){
-    return;
-  }
-
-
-  const {
-    error
-  } =
-  await sb
-    .from("menu_categories")
-    .delete()
-    .eq("id",id);
-
-
-  if(error){
-
-    alert(
-      "Delete failed: " +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  await loadCategories();
-
-};
-
-
-/* =========================================================
-   CANCEL CATEGORY
-========================================================= */
-
-$("cancelCategoryBtn")
-  .addEventListener(
-    "click",
-    resetCategoryForm
-  );
-
-
-function resetCategoryForm(){
-
-  editingCategoryId =
-    null;
-
-  $("categoryName").value =
-    "";
-
-  $("categorySort").value =
-    "0";
-
-  $("categoryImage").value =
-    "";
-
-  $("categoryPreview").src =
-    "";
-
-  $("categoryPreview").style.display =
-    "none";
-
-  $("categoryCurrentImage").innerHTML =
-    "";
-
-  $("saveCategoryBtn")
-    .textContent =
-    "SAVE CATEGORY";
-
-  $("cancelCategoryBtn")
-    .classList.add("hidden");
-
-}
-
-
-/* =========================================================
-   LOAD MENU
-========================================================= */
-
-async function loadMenu(){
-
-  const {
-    data,
-    error
-  } =
-  await sb
-    .from("Menu")
-    .select("*")
-    .order(
-      "id",
-      {ascending:false}
-    );
-
-
-  if(error){
-
-    showStatus(
-      $("menuStatus"),
-      "Menu load failed: " +
-      error.message,
-      "error"
-    );
-
-    return;
-  }
-
-
-  menuItems =
-    data || [];
-
-
-  renderMenu();
-
-}
-
-
-/* =========================================================
-   MENU LIST
-========================================================= */
-
-function renderMenu(){
-
-  const box =
-    $("menuList");
-
-
-  if(!menuItems.length){
-
-    box.innerHTML =
-      `<div class="empty">
-        No menu items yet.
-      </div>`;
-
-    return;
-  }
-
-
-  box.innerHTML = "";
-
-
-  menuItems.forEach(item=>{
-
-    const div =
-      document.createElement("div");
-
-    div.className =
-      "menu-item";
-
-
-    const image =
-      item.image_url
-      ||
-      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80'%3E%3Crect width='100%25' height='100%25' fill='%23222222'/%3E%3Ctext x='50%25' y='50%25' fill='%23888888' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
-
-
-    div.innerHTML = `
-
-      <img
-        class="thumb"
-        src="${escapeHtml(image)}"
-        alt=""
-      >
-
-      <div class="item-info">
-
-        <div class="item-name">
-          ${escapeHtml(item.name || "")}
-        </div>
-
-        <div class="item-meta">
-          ${escapeHtml(item.category || "No Category")}
-          •
-          ${escapeHtml(item.price || "")}
-        </div>
-
-      </div>
-
-      <div class="actions">
-
-        <button
-          class="small-btn gold-btn"
-          onclick="editMenu(${item.id})"
-        >
-          Edit
-        </button>
-
-        <button
-          class="small-btn delete"
-          onclick="deleteMenu(${item.id})"
-        >
-          Delete
-        </button>
-
-      </div>
-
-    `;
-
-
-    box.appendChild(div);
-
-  });
-
-}
-
-
-/* =========================================================
-   SAVE MENU
-========================================================= */
-
-$("saveMenuBtn")
-  .addEventListener(
-    "click",
-    saveMenu
-  );
-
-
-async function saveMenu(){
-
-  const status =
-    $("menuStatus");
-
-  clearStatus(status);
-
-
-  const name =
-    $("foodName")
-      .value
-      .trim();
-
-  const price =
-    $("foodPrice")
-      .value
-      .trim();
-
-  const category =
-    $("foodCategory")
-      .value;
-
-  const description =
-    $("foodDescription")
-      .value
-      .trim();
-
-  const file =
-    $("foodImage").files[0];
-
-
-  if(!name){
-
-    showStatus(
-      status,
-      "Food name দিন।",
-      "error"
-    );
-
-    return;
-  }
-
-
-  if(!category){
-
-    showStatus(
-      status,
-      "Category select করুন।",
-      "error"
-    );
-
-    return;
-  }
-
-
-  const button =
-    $("saveMenuBtn");
-
-  button.disabled = true;
-
-  button.textContent =
-    "SAVING FOOD...";
-
-
-  try{
-
-    let imageUrl = "";
-    let imagePath = "";
-
-
-    /* EDIT করলে পুরোনো image রাখবে */
-
-    if(editingMenuId){
-
-      const old =
-        menuItems.find(
-          x => x.id === editingMenuId
-        );
-
-      imageUrl =
-        old?.image_url || "";
-
-      imagePath =
-        old?.image_path || "";
-
-    }
-
-
-    /* =====================================
-       IMAGE UPLOAD FIRST
-    ===================================== */
-
-    if(file){
-
-      showStatus(
-        status,
-        "Food photo upload হচ্ছে...",
-        ""
-      );
-
-
-      const uploaded =
-        await uploadImage(
-          file,
-          "foods"
-        );
-
-
-      imageUrl =
-        uploaded.url;
-
-      imagePath =
-        uploaded.path;
-
-
-      showStatus(
-        status,
-        "Photo uploaded. এখন Menu save হচ্ছে...",
-        ""
-      );
-
-    }
-
-
-    /* =====================================
-       DATABASE PAYLOAD
-    ===================================== */
-
-    const payload = {
-
-      name:name,
-
-      price:price,
-
-      category:category,
-
-      description:description,
-
-      image_url:imageUrl,
-
-      image_path:imagePath
-
-    };
-
-
-    /* =====================================
-       UPDATE
-    ===================================== */
-
-    if(editingMenuId){
-
-      const {
-        error
-      } =
-      await sb
-        .from("Menu")
-        .update(payload)
-        .eq(
-          "id",
-          editingMenuId
-        );
-
-
-      if(error)
-        throw error;
-
-
-      showStatus(
-        status,
-        "Food successfully updated with photo.",
-        "success"
-      );
-
-    }
-
-
-    /* =====================================
-       INSERT
-    ===================================== */
-
-    else{
-
-      const {
-        error
-      } =
-      await sb
-        .from("Menu")
-        .insert(payload);
-
-
-      if(error)
-        throw error;
-
-
-      showStatus(
-        status,
-        file
-        ? "Food + Photo successfully saved!"
-        : "Food successfully saved.",
-        "success"
-      );
-
-    }
-
-
-    resetMenuForm();
-
-    await loadMenu();
-
-
-  }catch(error){
-
-    console.error(
-      "MENU SAVE ERROR:",
-      error
-    );
-
-
-    showStatus(
-      status,
-      "Menu Save Failed: " +
-      error.message,
-      "error"
-    );
-
-  }
-
-
-  button.disabled = false;
-
-  button.textContent =
-    "SAVE FOOD";
-
-}
-
-
-/* =========================================================
-   EDIT MENU
-========================================================= */
-
-window.editMenu =
-function(id){
-
-  const item =
-    menuItems.find(
-      x => x.id === id
-    );
-
-  if(!item)
-    return;
-
-
-  editingMenuId =
-    id;
-
-
-  $("foodName").value =
-    item.name || "";
-
-
-  $("foodPrice").value =
-    item.price || "";
-
-
-  $("foodCategory").value =
-    item.category || "";
-
-
-  $("foodDescription").value =
-    item.description || "";
-
-
-  $("foodImage").value =
-    "";
-
-
-  $("foodPreview").src =
-    "";
-
-  $("foodPreview").style.display =
-    "none";
-
-
-  if(item.image_url){
-
-    $("foodCurrentImage").innerHTML = `
-
-      Current Photo:<br>
-
-      <img
-        src="${escapeHtml(item.image_url)}"
-        alt=""
-      >
-
-    `;
-
-  }else{
-
-    $("foodCurrentImage").innerHTML =
-      "No current photo.";
-
-  }
-
-
-  $("saveMenuBtn")
-    .textContent =
-    "UPDATE FOOD";
-
-
-  $("cancelMenuBtn")
-    .classList.remove("hidden");
-
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-};
-
-
-/* =========================================================
-   DELETE MENU
-========================================================= */
-
-window.deleteMenu =
-async function(id){
-
-  const item =
-    menuItems.find(
-      x => x.id === id
-    );
-
-  if(!item)
-    return;
-
-
-  if(!confirm(
-    `Delete "${item.name}"?`
-  )){
-    return;
-  }
-
-
-  const {
-    error
-  } =
-  await sb
-    .from("Menu")
-    .delete()
-    .eq("id",id);
-
-
-  if(error){
-
-    alert(
-      "Delete failed: " +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  await loadMenu();
-
-};
-
-
-/* =========================================================
-   CANCEL MENU
-========================================================= */
-
-$("cancelMenuBtn")
-  .addEventListener(
-    "click",
-    resetMenuForm
-  );
-
-
-function resetMenuForm(){
-
-  editingMenuId =
-    null;
-
-  $("foodName").value =
-    "";
-
-  $("foodPrice").value =
-    "";
-
-  $("foodCategory").value =
-    "";
-
-  $("foodDescription").value =
-    "";
-
-  $("foodImage").value =
-    "";
-
-  $("foodPreview").src =
-    "";
-
-  $("foodPreview").style.display =
-    "none";
-
-  $("foodCurrentImage").innerHTML =
-    "";
-
-  $("saveMenuBtn")
-    .textContent =
-    "SAVE FOOD";
-
-  $("cancelMenuBtn")
-    .classList.add("hidden");
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(value){
+/* =====================================================
+STATE
+===================================================== */
+
+let categories=[];
+let menuItems=[];
+let galleryItems=[];
+let reviews=[];
+let reports=[];
+let bookings=[];
+
+let editingCategoryId=null;
+let editingMenuId=null;
+
+const DAYS=[
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+];
+
+
+/* =====================================================
+HELPERS
+===================================================== */
+
+const $=id=>document.getElementById(id);
+
+function esc(value){
 
   return String(value ?? "")
     .replace(/&/g,"&amp;")
@@ -1943,10 +1609,2661 @@ function escapeHtml(value){
 
 }
 
+function status(id,msg,type=""){
 
-/* =========================================================
-   START
-========================================================= */
+  const el=$(id);
+
+  if(!el)return;
+
+  el.textContent=msg;
+
+  el.className=
+    "status show "+
+    type;
+
+}
+
+function clearStatus(id){
+
+  const el=$(id);
+
+  if(!el)return;
+
+  el.textContent="";
+
+  el.className="status";
+
+}
+
+
+/* =====================================================
+NAVIGATION
+===================================================== */
+
+document.querySelectorAll(".navBtn")
+.forEach(btn=>{
+
+  btn.addEventListener("click",()=>{
+
+    document.querySelectorAll(".navBtn")
+    .forEach(x=>x.classList.remove("active"));
+
+    btn.classList.add("active");
+
+    document.querySelectorAll(".section")
+    .forEach(x=>x.classList.remove("active"));
+
+    $(btn.dataset.section)
+    .classList.add("active");
+
+    $("sidebar").classList.remove("open");
+
+  });
+
+});
+
+
+$("menuToggle")
+.addEventListener("click",()=>{
+
+  $("sidebar").classList.toggle("open");
+
+});
+
+
+/* =====================================================
+LOGIN
+===================================================== */
+
+$("loginBtn")
+.addEventListener("click",login);
+
+
+async function login(){
+
+  if(!sb){
+
+    status(
+      "loginStatus",
+      "Supabase client পাওয়া যাচ্ছে না। config.js check করুন।",
+      "error"
+    );
+
+    return;
+  }
+
+  const email=
+    $("loginEmail").value.trim();
+
+  const password=
+    $("loginPassword").value;
+
+  if(!email||!password){
+
+    status(
+      "loginStatus",
+      "Email এবং Password দিন।",
+      "error"
+    );
+
+    return;
+  }
+
+  $("loginBtn").disabled=true;
+
+  $("loginBtn").textContent=
+    "LOGGING IN...";
+
+
+  const {error}=
+    await sb.auth.signInWithPassword({
+      email,
+      password
+    });
+
+
+  if(error){
+
+    status(
+      "loginStatus",
+      error.message,
+      "error"
+    );
+
+    $("loginBtn").disabled=false;
+
+    $("loginBtn").textContent=
+      "LOGIN";
+
+    return;
+  }
+
+
+  showAdmin();
+
+}
+
+
+async function checkAuth(){
+
+  if(!sb)return;
+
+  const {
+    data:{session}
+  }=
+    await sb.auth.getSession();
+
+  if(session){
+
+    showAdmin();
+
+  }
+
+}
+
+
+function showAdmin(){
+
+  $("loginScreen")
+    .classList.add("hidden");
+
+  $("adminScreen")
+    .classList.remove("hidden");
+
+  loadAll();
+
+}
+
+
+$("logoutBtn")
+.addEventListener("click",async()=>{
+
+  await sb.auth.signOut();
+
+  location.reload();
+
+});
+
+
+/* =====================================================
+STORAGE
+===================================================== */
+
+async function uploadFile(
+  file,
+  bucket,
+  folder
+){
+
+  if(!file)return null;
+
+  const ext=
+    file.name
+      .split(".")
+      .pop()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,"") ||
+    "jpg";
+
+  const name=
+    Date.now()+"_"+
+    Math.random()
+      .toString(36)
+      .slice(2)+
+    "."+ext;
+
+  const path=
+    folder+"/"+name;
+
+
+  const {error}=
+    await sb.storage
+      .from(bucket)
+      .upload(
+        path,
+        file,
+        {
+          upsert:false,
+          cacheControl:"3600",
+          contentType:file.type
+        }
+      );
+
+
+  if(error)
+    throw error;
+
+
+  const {data}=
+    sb.storage
+      .from(bucket)
+      .getPublicUrl(path);
+
+
+  return {
+    url:data.publicUrl,
+    path
+  };
+
+}
+
+
+/* =====================================================
+IMAGE PREVIEWS
+===================================================== */
+
+function previewFile(
+  inputId,
+  previewId
+){
+
+  $(inputId)
+  .addEventListener(
+    "change",
+    ()=>{
+
+      const file=
+        $(inputId).files[0];
+
+      const img=
+        $(previewId);
+
+      if(!file){
+
+        img.style.display="none";
+
+        return;
+      }
+
+      img.src=
+        URL.createObjectURL(file);
+
+      img.style.display="block";
+
+    }
+  );
+
+}
+
+
+[
+  ["heroImage","heroPreview"],
+  ["logoFile","logoPreview"],
+  ["aboutImage","aboutImagePreview"],
+  ["categoryImage","categoryPreview"],
+  ["foodImage","foodPreview"],
+  ["breakingImage","breakingImagePreview"]
+]
+.forEach(x=>
+  previewFile(x[0],x[1])
+);
+
+
+/* =====================================================
+SITE SETTINGS
+===================================================== */
+
+async function getSetting(key){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("site_settings")
+      .select("value")
+      .eq("key",key)
+      .maybeSingle();
+
+  if(error)throw error;
+
+  return data?.value || {};
+
+}
+
+
+async function saveSetting(
+  key,
+  value
+){
+
+  const {error}=
+    await sb
+      .from("site_settings")
+      .upsert(
+        {
+          key,
+          value
+        },
+        {
+          onConflict:"key"
+        }
+      );
+
+  if(error)throw error;
+
+}
+
+
+/* =====================================================
+LOAD ALL
+===================================================== */
+
+async function loadAll(){
+
+  await Promise.allSettled([
+
+    loadHero(),
+
+    loadBreaking(),
+
+    loadLogo(),
+
+    loadAbout(),
+
+    loadCategories(),
+
+    loadMenu(),
+
+    loadGallery(),
+
+    loadBookings(),
+
+    loadReviews(),
+
+    loadReports(),
+
+    loadContact(),
+
+    loadSocial(),
+
+    loadHours()
+
+  ]);
+
+  updateDashboard();
+
+}
+
+
+/* =====================================================
+HERO
+===================================================== */
+
+async function loadHero(){
+
+  try{
+
+    const v=
+      await getSetting("hero");
+
+    $("heroTitle").value=
+      v.title || "";
+
+    $("heroText").value=
+      v.text || "";
+
+    if(v.image_url){
+
+      $("heroCurrent").innerHTML=
+        `<img src="${esc(v.image_url)}">`;
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveHero")
+.addEventListener("click",async()=>{
+
+  const btn=$("saveHero");
+
+  btn.disabled=true;
+
+  try{
+
+    let image_url="";
+
+    const old=
+      await getSetting("hero");
+
+    image_url=
+      old.image_url || "";
+
+    const file=
+      $("heroImage").files[0];
+
+    if(file){
+
+      status(
+        "heroStatus",
+        "Hero image upload হচ্ছে..."
+      );
+
+      const uploaded=
+        await uploadFile(
+          file,
+          "site-media",
+          "hero"
+        );
+
+      image_url=
+        uploaded.url;
+
+    }
+
+
+    await saveSetting(
+      "hero",
+      {
+        title:$("heroTitle").value.trim(),
+        text:$("heroText").value.trim(),
+        image_url
+      }
+    );
+
+
+    status(
+      "heroStatus",
+      "Hero saved successfully.",
+      "success"
+    );
+
+  }catch(e){
+
+    status(
+      "heroStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+  btn.disabled=false;
+
+});
+
+
+/* =====================================================
+BREAKING
+===================================================== */
+
+async function loadBreaking(){
+
+  try{
+
+    const v=
+      await getSetting("breaking_news");
+
+    $("breakingEnabled").checked=
+      !!v.enabled;
+
+    $("breakingText").value=
+      v.text || "";
+
+    $("breakingStart").value=
+      v.start || "";
+
+    $("breakingEnd").value=
+      v.end || "";
+
+    if(v.image_url){
+
+      $("breakingImageCurrent").innerHTML=
+        `<img src="${esc(v.image_url)}">`;
+
+    }
+
+    if(v.video_url){
+
+      $("breakingVideoCurrent").innerHTML=
+        `<div>Video saved ✓</div>`;
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveBreaking")
+.addEventListener("click",async()=>{
+
+  const btn=$("saveBreaking");
+
+  btn.disabled=true;
+
+  try{
+
+    const old=
+      await getSetting("breaking_news");
+
+    let image_url=
+      old.image_url || "";
+
+    let video_url=
+      old.video_url || "";
+
+
+    const image=
+      $("breakingImage").files[0];
+
+    const video=
+      $("breakingVideo").files[0];
+
+
+    if(image){
+
+      status(
+        "breakingStatus",
+        "Breaking image upload হচ্ছে..."
+      );
+
+      const x=
+        await uploadFile(
+          image,
+          "site-media",
+          "breaking"
+        );
+
+      image_url=x.url;
+
+      video_url="";
+
+    }
+
+
+    if(video){
+
+      status(
+        "breakingStatus",
+        "Breaking video upload হচ্ছে..."
+      );
+
+      const x=
+        await uploadFile(
+          video,
+          "site-media",
+          "breaking"
+        );
+
+      video_url=x.url;
+
+      image_url="";
+
+    }
+
+
+    await saveSetting(
+      "breaking_news",
+      {
+        enabled:
+          $("breakingEnabled").checked,
+
+        text:
+          $("breakingText").value.trim(),
+
+        start:
+          $("breakingStart").value,
+
+        end:
+          $("breakingEnd").value,
+
+        image_url,
+
+        video_url
+      }
+    );
+
+
+    status(
+      "breakingStatus",
+      "Breaking News saved.",
+      "success"
+    );
+
+  }catch(e){
+
+    status(
+      "breakingStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+  btn.disabled=false;
+
+});
+
+
+/* =====================================================
+LOGO
+===================================================== */
+
+async function loadLogo(){
+
+  try{
+
+    const v=
+      await getSetting("logo");
+
+    if(v.url){
+
+      $("logoCurrent").innerHTML=
+        `<img src="${esc(v.url)}">`;
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveLogo")
+.addEventListener("click",async()=>{
+
+  const file=
+    $("logoFile").files[0];
+
+  if(!file){
+
+    status(
+      "logoStatus",
+      "Logo image select করুন।",
+      "error"
+    );
+
+    return;
+  }
+
+  const btn=$("saveLogo");
+
+  btn.disabled=true;
+
+  try{
+
+    const x=
+      await uploadFile(
+        file,
+        "site-media",
+        "logo"
+      );
+
+    await saveSetting(
+      "logo",
+      {
+        url:x.url,
+        path:x.path
+      }
+    );
+
+    status(
+      "logoStatus",
+      "Logo saved successfully.",
+      "success"
+    );
+
+    await loadLogo();
+
+  }catch(e){
+
+    status(
+      "logoStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+  btn.disabled=false;
+
+});
+
+
+/* =====================================================
+ABOUT
+===================================================== */
+
+async function loadAbout(){
+
+  try{
+
+    const v=
+      await getSetting("about");
+
+    $("aboutTitle").value=
+      v.title || "";
+
+    $("aboutText").value=
+      v.text || "";
+
+    if(v.image_url){
+
+      $("aboutImageCurrent").innerHTML=
+        `<img src="${esc(v.image_url)}">`;
+
+    }
+
+    if(v.video_url){
+
+      $("aboutVideoCurrent").innerHTML=
+        "About video saved ✓";
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveAbout")
+.addEventListener("click",async()=>{
+
+  const btn=$("saveAbout");
+
+  btn.disabled=true;
+
+  try{
+
+    const old=
+      await getSetting("about");
+
+    let image_url=
+      old.image_url || "";
+
+    let video_url=
+      old.video_url || "";
+
+
+    const image=
+      $("aboutImage").files[0];
+
+    const video=
+      $("aboutVideo").files[0];
+
+
+    if(image){
+
+      const x=
+        await uploadFile(
+          image,
+          "site-media",
+          "about"
+        );
+
+      image_url=x.url;
+
+      video_url="";
+
+    }
+
+
+    if(video){
+
+      const x=
+        await uploadFile(
+          video,
+          "site-media",
+          "about"
+        );
+
+      video_url=x.url;
+
+      image_url="";
+
+    }
+
+
+    await saveSetting(
+      "about",
+      {
+        title:$("aboutTitle").value.trim(),
+        text:$("aboutText").value.trim(),
+        image_url,
+        video_url
+      }
+    );
+
+
+    status(
+      "aboutStatus",
+      "About saved successfully.",
+      "success"
+    );
+
+  }catch(e){
+
+    status(
+      "aboutStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+  btn.disabled=false;
+
+});
+
+
+/* =====================================================
+CATEGORIES
+===================================================== */
+
+async function loadCategories(){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("menu_categories")
+      .select("*")
+      .order("sort_order",{ascending:true})
+      .order("id",{ascending:true});
+
+  if(error){
+
+    status(
+      "categoryStatus",
+      error.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+  categories=data||[];
+
+  renderCategories();
+
+  fillCategorySelect();
+
+}
+
+
+function fillCategorySelect(){
+
+  const select=
+    $("foodCategory");
+
+  select.innerHTML=
+    `<option value="">Select Category</option>`;
+
+  categories.forEach(c=>{
+
+    const option=
+      document.createElement("option");
+
+    option.value=c.name;
+
+    option.textContent=c.name;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+
+function renderCategories(){
+
+  const box=
+    $("categoryList");
+
+  if(!categories.length){
+
+    box.innerHTML=
+      `<div class="empty">
+        No categories yet.
+      </div>`;
+
+    return;
+
+  }
+
+  box.innerHTML="";
+
+  categories.forEach(c=>{
+
+    const img=
+      c.image_url ||
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80'%3E%3Crect width='100%25' height='100%25' fill='%23222222'/%3E%3Ctext x='50%25' y='50%25' fill='%23888888' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+
+    const div=
+      document.createElement("div");
+
+    div.className="listItem";
+
+    div.innerHTML=`
+
+      <img
+        class="thumb"
+        src="${esc(img)}"
+      >
+
+      <div class="itemInfo">
+
+        <div class="itemName">
+          ${esc(c.name)}
+        </div>
+
+        <div class="itemMeta">
+          Sort: ${c.sort_order||0}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="secondary"
+          onclick="editCategory(${c.id})"
+        >
+          Edit
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteCategory(${c.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+
+$("saveCategory")
+.addEventListener(
+  "click",
+  saveCategory
+);
+
+
+async function saveCategory(){
+
+  const name=
+    $("categoryName")
+      .value.trim();
+
+  if(!name){
+
+    status(
+      "categoryStatus",
+      "Category name দিন।",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const btn=
+    $("saveCategory");
+
+  btn.disabled=true;
+
+
+  try{
+
+    let image_url="";
+
+
+    if(editingCategoryId){
+
+      const old=
+        categories.find(
+          x=>x.id===editingCategoryId
+        );
+
+      image_url=
+        old?.image_url || "";
+
+    }
+
+
+    const file=
+      $("categoryImage").files[0];
+
+
+    if(file){
+
+      status(
+        "categoryStatus",
+        "Category photo upload হচ্ছে..."
+      );
+
+      const x=
+        await uploadFile(
+          file,
+          "site-media",
+          "categories"
+        );
+
+      image_url=x.url;
+
+    }
+
+
+    const payload={
+
+      name,
+
+      image_url,
+
+      sort_order:
+        Number(
+          $("categorySort").value||0
+        )
+
+    };
+
+
+    if(editingCategoryId){
+
+      const {error}=
+        await sb
+          .from("menu_categories")
+          .update(payload)
+          .eq(
+            "id",
+            editingCategoryId
+          );
+
+      if(error)throw error;
+
+    }else{
+
+      const {error}=
+        await sb
+          .from("menu_categories")
+          .insert(payload);
+
+      if(error)throw error;
+
+    }
+
+
+    status(
+      "categoryStatus",
+      "Category saved successfully.",
+      "success"
+    );
+
+
+    resetCategory();
+
+    await loadCategories();
+
+
+  }catch(e){
+
+    status(
+      "categoryStatus",
+      "Category save failed: "+e.message,
+      "error"
+    );
+
+  }
+
+  btn.disabled=false;
+
+}
+
+
+window.editCategory=function(id){
+
+  const c=
+    categories.find(
+      x=>x.id===id
+    );
+
+  if(!c)return;
+
+  editingCategoryId=id;
+
+  $("categoryName").value=
+    c.name||"";
+
+  $("categorySort").value=
+    c.sort_order||0;
+
+  $("categoryImage").value="";
+
+  $("categoryPreview").style.display=
+    "none";
+
+  $("categoryCurrent").innerHTML=
+    c.image_url
+      ? `<div>Current Image:</div><img src="${esc(c.image_url)}">`
+      : "No current image.";
+
+  $("saveCategory").textContent=
+    "UPDATE CATEGORY";
+
+  $("cancelCategory")
+    .classList.remove("hidden");
+
+};
+
+
+window.deleteCategory=
+async function(id){
+
+  const c=
+    categories.find(
+      x=>x.id===id
+    );
+
+  if(!c)return;
+
+  const used=
+    menuItems.some(
+      x=>x.category===c.name
+    );
+
+  if(used){
+
+    alert(
+      "এই category-তে food আছে। আগে food অন্য category-তে move/delete করুন।"
+    );
+
+    return;
+
+  }
+
+  if(!confirm(
+    "Delete "+c.name+"?"
+  ))return;
+
+
+  const {error}=
+    await sb
+      .from("menu_categories")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadCategories();
+
+};
+
+
+$("cancelCategory")
+.addEventListener(
+  "click",
+  resetCategory
+);
+
+
+function resetCategory(){
+
+  editingCategoryId=null;
+
+  $("categoryName").value="";
+
+  $("categorySort").value="0";
+
+  $("categoryImage").value="";
+
+  $("categoryPreview").style.display=
+    "none";
+
+  $("categoryCurrent").innerHTML="";
+
+  $("saveCategory").textContent=
+    "SAVE CATEGORY";
+
+  $("cancelCategory")
+    .classList.add("hidden");
+
+}
+
+
+/* =====================================================
+MENU
+===================================================== */
+
+async function loadMenu(){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("Menu")
+      .select("*")
+      .order("id",{ascending:false});
+
+  if(error){
+
+    status(
+      "menuStatus",
+      error.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+  menuItems=data||[];
+
+  renderMenu();
+
+}
+
+
+function renderMenu(){
+
+  const box=
+    $("menuList");
+
+  if(!menuItems.length){
+
+    box.innerHTML=
+      `<div class="empty">
+        No food items yet.
+      </div>`;
+
+    return;
+
+  }
+
+  box.innerHTML="";
+
+  menuItems.forEach(item=>{
+
+    const img=
+      item.image_url ||
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80'%3E%3Crect width='100%25' height='100%25' fill='%23222222'/%3E%3Ctext x='50%25' y='50%25' fill='%23888888' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+
+    const div=
+      document.createElement("div");
+
+    div.className="listItem";
+
+    div.innerHTML=`
+
+      <img
+        class="thumb"
+        src="${esc(img)}"
+      >
+
+      <div class="itemInfo">
+
+        <div class="itemName">
+          ${esc(item.name)}
+        </div>
+
+        <div class="itemMeta">
+          ${esc(item.category||"No Category")}
+          •
+          ${esc(item.price||"")}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="secondary"
+          onclick="editMenu(${item.id})"
+        >
+          Edit
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteMenu(${item.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+
+$("saveMenu")
+.addEventListener(
+  "click",
+  saveMenu
+);
+
+
+async function saveMenu(){
+
+  const name=
+    $("foodName").value.trim();
+
+  const price=
+    $("foodPrice").value.trim();
+
+  const category=
+    $("foodCategory").value;
+
+  const description=
+    $("foodDescription")
+      .value.trim();
+
+  if(!name){
+
+    status(
+      "menuStatus",
+      "Food name দিন।",
+      "error"
+    );
+
+    return;
+
+  }
+
+  if(!category){
+
+    status(
+      "menuStatus",
+      "Category select করুন।",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const btn=
+    $("saveMenu");
+
+  btn.disabled=true;
+
+
+  try{
+
+    let image_url="";
+    let image_path="";
+
+
+    if(editingMenuId){
+
+      const old=
+        menuItems.find(
+          x=>x.id===editingMenuId
+        );
+
+      image_url=
+        old?.image_url || "";
+
+      image_path=
+        old?.image_path || "";
+
+    }
+
+
+    const file=
+      $("foodImage").files[0];
+
+
+    /* PHOTO FIRST */
+
+    if(file){
+
+      status(
+        "menuStatus",
+        "Food photo upload হচ্ছে..."
+      );
+
+
+      const x=
+        await uploadFile(
+          file,
+          "menu-images",
+          "foods"
+        );
+
+
+      image_url=x.url;
+
+      image_path=x.path;
+
+
+      status(
+        "menuStatus",
+        "Photo uploaded. Food save হচ্ছে..."
+      );
+
+    }
+
+
+    const payload={
+
+      name,
+
+      price,
+
+      category,
+
+      description,
+
+      image_url,
+
+      image_path
+
+    };
+
+
+    if(editingMenuId){
+
+      const {error}=
+        await sb
+          .from("Menu")
+          .update(payload)
+          .eq(
+            "id",
+            editingMenuId
+          );
+
+      if(error)throw error;
+
+    }else{
+
+      const {error}=
+        await sb
+          .from("Menu")
+          .insert(payload);
+
+      if(error)throw error;
+
+    }
+
+
+    status(
+      "menuStatus",
+      file
+        ? "Food + Photo successfully saved!"
+        : "Food successfully saved.",
+      "success"
+    );
+
+
+    resetMenu();
+
+    await loadMenu();
+
+
+  }catch(e){
+
+    console.error(e);
+
+    status(
+      "menuStatus",
+      "Menu save failed: "+e.message,
+      "error"
+    );
+
+  }
+
+  btn.disabled=false;
+
+}
+
+
+window.editMenu=function(id){
+
+  const item=
+    menuItems.find(
+      x=>x.id===id
+    );
+
+  if(!item)return;
+
+  editingMenuId=id;
+
+  $("foodName").value=
+    item.name||"";
+
+  $("foodPrice").value=
+    item.price||"";
+
+  $("foodCategory").value=
+    item.category||"";
+
+  $("foodDescription").value=
+    item.description||"";
+
+  $("foodImage").value="";
+
+  $("foodPreview").style.display=
+    "none";
+
+  $("foodCurrent").innerHTML=
+    item.image_url
+      ? `<div>Current Photo:</div><img src="${esc(item.image_url)}">`
+      : "No current photo.";
+
+  $("saveMenu").textContent=
+    "UPDATE FOOD";
+
+  $("cancelMenu")
+    .classList.remove("hidden");
+
+};
+
+
+window.deleteMenu=
+async function(id){
+
+  const item=
+    menuItems.find(
+      x=>x.id===id
+    );
+
+  if(!item)return;
+
+  if(!confirm(
+    "Delete "+item.name+"?"
+  ))return;
+
+
+  const {error}=
+    await sb
+      .from("Menu")
+      .delete()
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+
+  await loadMenu();
+
+};
+
+
+$("cancelMenu")
+.addEventListener(
+  "click",
+  resetMenu
+);
+
+
+function resetMenu(){
+
+  editingMenuId=null;
+
+  $("foodName").value="";
+
+  $("foodPrice").value="";
+
+  $("foodCategory").value="";
+
+  $("foodDescription").value="";
+
+  $("foodImage").value="";
+
+  $("foodPreview").style.display=
+    "none";
+
+  $("foodCurrent").innerHTML="";
+
+  $("saveMenu").textContent=
+    "SAVE FOOD";
+
+  $("cancelMenu")
+    .classList.add("hidden");
+
+}
+
+
+/* =====================================================
+GALLERY
+===================================================== */
+
+async function loadGallery(){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("gallery")
+      .select("*")
+      .order("sort_order",{ascending:true})
+      .order("id",{ascending:false});
+
+  if(error)return;
+
+  galleryItems=data||[];
+
+  renderGallery();
+
+}
+
+
+function renderGallery(){
+
+  const box=
+    $("galleryList");
+
+  if(!galleryItems.length){
+
+    box.innerHTML=
+      `<div class="empty">
+        No gallery photos.
+      </div>`;
+
+    return;
+
+  }
+
+  box.innerHTML="";
+
+  galleryItems.forEach(item=>{
+
+    const div=
+      document.createElement("div");
+
+    div.className="listItem";
+
+    div.innerHTML=`
+
+      <img
+        class="thumb"
+        src="${esc(item.image_url)}"
+      >
+
+      <div class="itemInfo">
+
+        <div class="itemName">
+          ${esc(item.title||"Gallery")}
+        </div>
+
+        <div class="itemMeta">
+          ${esc(item.category||"Restaurant")}
+          •
+          ${item.is_visible?"Visible":"Hidden"}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="secondary"
+          onclick="toggleGallery(${item.id},${item.is_visible})"
+        >
+          ${item.is_visible?"Hide":"Show"}
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteGallery(${item.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+
+$("uploadGallery")
+.addEventListener(
+  "click",
+  async()=>{
+
+    const files=
+      [...$("galleryFiles").files];
+
+    if(!files.length){
+
+      status(
+        "galleryStatus",
+        "Photo select করুন।",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    const btn=
+      $("uploadGallery");
+
+    btn.disabled=true;
+
+
+    try{
+
+      for(
+        let i=0;
+        i<files.length;
+        i++
+      ){
+
+        status(
+          "galleryStatus",
+          `Uploading ${i+1}/${files.length}...`
+        );
+
+
+        const x=
+          await uploadFile(
+            files[i],
+            "site-media",
+            "gallery"
+          );
+
+
+        const {error}=
+          await sb
+            .from("gallery")
+            .insert({
+
+              image_url:x.url,
+
+              storage_path:x.path,
+
+              title:
+                $("galleryTitle")
+                  .value.trim(),
+
+              category:
+                $("galleryCategory")
+                  .value.trim() ||
+                "Restaurant",
+
+              sort_order:0,
+
+              is_visible:true
+
+            });
+
+
+        if(error)throw error;
+
+      }
+
+
+      status(
+        "galleryStatus",
+        "Gallery uploaded successfully.",
+        "success"
+      );
+
+
+      $("galleryFiles").value="";
+
+      await loadGallery();
+
+
+    }catch(e){
+
+      status(
+        "galleryStatus",
+        e.message,
+        "error"
+      );
+
+    }
+
+
+    btn.disabled=false;
+
+  }
+);
+
+
+window.toggleGallery=
+async function(id,current){
+
+  const {error}=
+    await sb
+      .from("gallery")
+      .update({
+        is_visible:!current
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadGallery();
+
+};
+
+
+window.deleteGallery=
+async function(id){
+
+  if(!confirm("Delete this photo?"))
+    return;
+
+  const {error}=
+    await sb
+      .from("gallery")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadGallery();
+
+};
+
+
+/* =====================================================
+BOOKINGS
+===================================================== */
+
+async function loadBookings(){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("table_bookings")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error)return;
+
+  bookings=data||[];
+
+  renderBookings();
+
+}
+
+
+function renderBookings(){
+
+  const body=
+    $("bookingTable");
+
+  body.innerHTML="";
+
+  bookings.forEach(b=>{
+
+    const tr=
+      document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>${esc(b.customer_name)}</td>
+
+      <td>${esc(b.phone)}</td>
+
+      <td>${esc(b.booking_date)}</td>
+
+      <td>${esc(b.booking_time)}</td>
+
+      <td>${esc(b.guests)}</td>
+
+      <td>${esc(b.status)}</td>
+
+      <td>
+
+        <button
+          class="successBtn"
+          onclick="bookingStatus(${b.id},'Confirmed')"
+        >
+          Confirm
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteBooking(${b.id})"
+        >
+          Delete
+        </button>
+
+      </td>
+
+    `;
+
+    body.appendChild(tr);
+
+  });
+
+}
+
+
+window.bookingStatus=
+async function(id,statusValue){
+
+  const {error}=
+    await sb
+      .from("table_bookings")
+      .update({
+        status:statusValue
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadBookings();
+
+};
+
+
+window.deleteBooking=
+async function(id){
+
+  if(!confirm("Delete booking?"))
+    return;
+
+  const {error}=
+    await sb
+      .from("table_bookings")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadBookings();
+
+};
+
+
+$("refreshBookings")
+.addEventListener(
+  "click",
+  loadBookings
+);
+
+
+/* =====================================================
+REVIEWS
+===================================================== */
+
+async function loadReviews(){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("reviews")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error)return;
+
+  reviews=data||[];
+
+  renderReviews();
+
+}
+
+
+function renderReviews(){
+
+  const box=
+    $("reviewsList");
+
+  box.innerHTML="";
+
+  if(!reviews.length){
+
+    box.innerHTML=
+      `<div class="empty">No reviews.</div>`;
+
+    return;
+
+  }
+
+
+  reviews.forEach(r=>{
+
+    const div=
+      document.createElement("div");
+
+    div.className="listItem";
+
+    div.innerHTML=`
+
+      <div class="itemInfo">
+
+        <div class="itemName">
+          ${esc(r.customer_name)}
+          • ${"⭐".repeat(Number(r.rating||0))}
+        </div>
+
+        <div class="itemMeta">
+          ${esc(r.message)}
+        </div>
+
+        <div class="itemMeta">
+          Status: ${esc(r.status)}
+          ${r.is_featured?" • Featured":""}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="successBtn"
+          onclick="reviewAction(${r.id},'Approved')"
+        >
+          Approve
+        </button>
+
+        <button
+          class="secondary"
+          onclick="reviewAction(${r.id},'Hidden')"
+        >
+          Hide
+        </button>
+
+        <button
+          class="secondary"
+          onclick="featureReview(${r.id},${!r.is_featured})"
+        >
+          ${r.is_featured?"Unfeature":"Feature"}
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteReview(${r.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+
+window.reviewAction=
+async function(id,value){
+
+  const {error}=
+    await sb
+      .from("reviews")
+      .update({
+        status:value
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadReviews();
+
+};
+
+
+window.featureReview=
+async function(id,value){
+
+  const {error}=
+    await sb
+      .from("reviews")
+      .update({
+        is_featured:value
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadReviews();
+
+};
+
+
+window.deleteReview=
+async function(id){
+
+  if(!confirm("Delete review?"))
+    return;
+
+  const {error}=
+    await sb
+      .from("reviews")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadReviews();
+
+};
+
+
+/* =====================================================
+REPORTS
+===================================================== */
+
+async function loadReports(){
+
+  const {
+    data,
+    error
+  }=
+    await sb
+      .from("customer_reports")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error)return;
+
+  reports=data||[];
+
+  renderReports();
+
+}
+
+
+function renderReports(){
+
+  const box=
+    $("reportsList");
+
+  box.innerHTML="";
+
+  if(!reports.length){
+
+    box.innerHTML=
+      `<div class="empty">No reports.</div>`;
+
+    return;
+
+  }
+
+
+  reports.forEach(r=>{
+
+    const div=
+      document.createElement("div");
+
+    div.className="listItem";
+
+    div.innerHTML=`
+
+      <div class="itemInfo">
+
+        <div class="itemName">
+          ${esc(r.subject||"Report")}
+        </div>
+
+        <div class="itemMeta">
+          ${esc(r.customer_name||"")}
+          •
+          ${esc(r.phone||r.email||"")}
+        </div>
+
+        <div class="itemMeta">
+          ${esc(r.message)}
+        </div>
+
+        <div class="itemMeta">
+          Status: ${esc(r.status)}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="successBtn"
+          onclick="resolveReport(${r.id})"
+        >
+          Resolve
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteReport(${r.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+
+window.resolveReport=
+async function(id){
+
+  const {error}=
+    await sb
+      .from("customer_reports")
+      .update({
+        status:"Resolved"
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadReports();
+
+};
+
+
+window.deleteReport=
+async function(id){
+
+  if(!confirm("Delete report?"))
+    return;
+
+  const {error}=
+    await sb
+      .from("customer_reports")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+
+  }
+
+  await loadReports();
+
+};
+
+
+/* =====================================================
+CONTACT
+===================================================== */
+
+async function loadContact(){
+
+  try{
+
+    const v=
+      await getSetting("contact");
+
+    $("contactAddress").value=
+      v.address||"";
+
+    $("contactPhone1").value=
+      v.phone1||"";
+
+    $("contactPhone2").value=
+      v.phone2||"";
+
+    $("contactWhatsapp").value=
+      v.whatsapp||"";
+
+    $("contactMaps").value=
+      v.maps_url||"";
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveContact")
+.addEventListener("click",async()=>{
+
+  try{
+
+    await saveSetting(
+      "contact",
+      {
+        address:
+          $("contactAddress").value.trim(),
+
+        phone1:
+          $("contactPhone1").value.trim(),
+
+        phone2:
+          $("contactPhone2").value.trim(),
+
+        whatsapp:
+          $("contactWhatsapp").value.trim(),
+
+        maps_url:
+          $("contactMaps").value.trim()
+      }
+    );
+
+
+    status(
+      "contactStatus",
+      "Contact saved successfully.",
+      "success"
+    );
+
+  }catch(e){
+
+    status(
+      "contactStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+});
+
+
+/* =====================================================
+SOCIAL
+===================================================== */
+
+async function loadSocial(){
+
+  try{
+
+    const v=
+      await getSetting("social");
+
+    $("socialFacebook").value=
+      v.facebook||"";
+
+    $("socialInstagram").value=
+      v.instagram||"";
+
+    $("socialTikTok").value=
+      v.tiktok||"";
+
+    $("socialYoutube").value=
+      v.youtube||"";
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveSocial")
+.addEventListener("click",async()=>{
+
+  try{
+
+    await saveSetting(
+      "social",
+      {
+        facebook:
+          $("socialFacebook").value.trim(),
+
+        instagram:
+          $("socialInstagram").value.trim(),
+
+        tiktok:
+          $("socialTikTok").value.trim(),
+
+        youtube:
+          $("socialYoutube").value.trim()
+      }
+    );
+
+
+    status(
+      "socialStatus",
+      "Social media saved.",
+      "success"
+    );
+
+  }catch(e){
+
+    status(
+      "socialStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+});
+
+
+/* =====================================================
+HOURS
+===================================================== */
+
+async function loadHours(){
+
+  try{
+
+    const v=
+      await getSetting("hours");
+
+    const box=
+      $("hoursForm");
+
+    box.innerHTML="";
+
+
+    DAYS.forEach(day=>{
+
+      const value=
+        v[day] ||
+        "12:00 - 23:00";
+
+      const div=
+        document.createElement("div");
+
+      div.className="grid";
+
+      div.innerHTML=`
+
+        <div>
+
+          <label>${day}</label>
+
+          <input
+            data-day="${day}"
+            class="hourInput"
+            value="${esc(value)}"
+          >
+
+        </div>
+
+      `;
+
+      box.appendChild(div);
+
+    });
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+$("saveHours")
+.addEventListener("click",async()=>{
+
+  try{
+
+    const obj={};
+
+    document
+      .querySelectorAll(".hourInput")
+      .forEach(input=>{
+
+        obj[input.dataset.day]=
+          input.value.trim();
+
+      });
+
+
+    await saveSetting(
+      "hours",
+      obj
+    );
+
+
+    status(
+      "hoursStatus",
+      "Opening hours saved.",
+      "success"
+    );
+
+  }catch(e){
+
+    status(
+      "hoursStatus",
+      e.message,
+      "error"
+    );
+
+  }
+
+});
+
+
+/* =====================================================
+DASHBOARD COUNTS
+===================================================== */
+
+function updateDashboard(){
+
+  $("statMenu").textContent=
+    menuItems.length;
+
+  $("statCategories").textContent=
+    categories.length;
+
+  $("statGallery").textContent=
+    galleryItems.length;
+
+  $("statBookings").textContent=
+    bookings.length;
+
+  $("statReviews").textContent=
+    reviews.length;
+
+  $("statReports").textContent=
+    reports.length;
+
+}
+
+
+/* =====================================================
+START
+===================================================== */
 
 checkAuth();
 
