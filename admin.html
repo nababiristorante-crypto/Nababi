@@ -1,758 +1,905 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nababi Ristorante — Admin Panel</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    :root{
-      --bg:#090909;
-      --panel:#111;
-      --panel2:#171717;
-      --gold:#d4af37;
-      --gold2:#f0d477;
-      --text:#fff;
-      --muted:#aaa;
-      --danger:#d9534f;
-      --success:#28a745;
-      --border:#292929;
-    }
-
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      background:linear-gradient(135deg,#050505,#111);
-      color:var(--text);
-      font-family:Arial,Helvetica,sans-serif;
-    }
-
-    button,input,textarea,select{
-      font:inherit;
-    }
-
-    .login-screen{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
-
-    .login-card{
-      width:100%;
-      max-width:430px;
-      background:linear-gradient(145deg,#161616,#0d0d0d);
-      border:1px solid #333;
-      border-radius:24px;
-      padding:35px 25px;
-      box-shadow:0 25px 70px rgba(0,0,0,.6);
-    }
-
-    .logo-title{
-      text-align:center;
-      color:var(--gold2);
-      font-size:28px;
-      font-weight:bold;
-      margin-bottom:8px;
-    }
-
-    .subtitle{
-      text-align:center;
-      color:var(--muted);
-      margin-bottom:30px;
-    }
-
-    .field{
-      margin-bottom:16px;
-    }
-
-    label{
-      display:block;
-      margin-bottom:7px;
-      color:#ddd;
-      font-size:14px;
-    }
-
-    input,textarea,select{
-      width:100%;
-      background:#080808;
-      color:#fff;
-      border:1px solid #333;
-      border-radius:12px;
-      padding:13px;
-      outline:none;
-    }
-
-    input:focus,textarea:focus,select:focus{
-      border-color:var(--gold);
-    }
-
-    textarea{
-      min-height:110px;
-      resize:vertical;
-    }
-
-    button{
-      border:0;
-      cursor:pointer;
-      border-radius:12px;
-      padding:12px 16px;
-      font-weight:bold;
-    }
-
-    .gold-btn{
-      background:linear-gradient(135deg,var(--gold),var(--gold2));
-      color:#111;
-    }
-
-    .dark-btn{
-      background:#222;
-      color:#fff;
-      border:1px solid #444;
-    }
-
-    .danger-btn{
-      background:#571c1c;
-      color:#fff;
-    }
-
-    .success-btn{
-      background:#145b31;
-      color:#fff;
-    }
-
-    .hidden{
-      display:none!important;
-    }
-
-    .app{
-      min-height:100vh;
-      display:flex;
-    }
-
-    .sidebar{
-      width:270px;
-      background:#080808;
-      border-right:1px solid var(--border);
-      padding:20px 14px;
-      position:fixed;
-      left:0;
-      top:0;
-      bottom:0;
-      overflow:auto;
-      z-index:20;
-    }
-
-    .brand{
-      padding:12px;
-      text-align:center;
-      border-bottom:1px solid #222;
-      margin-bottom:15px;
-    }
-
-    .brand strong{
-      color:var(--gold2);
-      font-size:20px;
-    }
-
-    .brand small{
-      display:block;
-      color:#888;
-      margin-top:5px;
-    }
-
-    .nav-btn{
-      width:100%;
-      text-align:left;
-      margin:4px 0;
-      background:transparent;
-      color:#bbb;
-      border:1px solid transparent;
-    }
-
-    .nav-btn:hover,
-    .nav-btn.active{
-      background:#171717;
-      border-color:#333;
-      color:var(--gold2);
-    }
-
-    .main{
-      margin-left:270px;
-      width:calc(100% - 270px);
-      padding:25px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:15px;
-      margin-bottom:25px;
-      padding:18px 20px;
-      background:#101010;
-      border:1px solid #252525;
-      border-radius:18px;
-    }
-
-    .topbar h1{
-      margin:0;
-      font-size:22px;
-    }
-
-    .user-info{
-      color:#aaa;
-      font-size:13px;
-      text-align:right;
-    }
-
-    .section{
-      display:none;
-    }
-
-    .section.active{
-      display:block;
-    }
-
-    .section-title{
-      color:var(--gold2);
-      margin:0 0 20px;
-      font-size:24px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:18px;
-    }
-
-    .grid-3{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:15px;
-    }
-
-    .card{
-      background:linear-gradient(145deg,#151515,#0e0e0e);
-      border:1px solid #292929;
-      border-radius:18px;
-      padding:20px;
-      margin-bottom:18px;
-    }
-
-    .card h3{
-      margin-top:0;
-      color:#eee;
-    }
-
-    .stat{
-      padding:22px;
-      border-radius:18px;
-      background:#151515;
-      border:1px solid #292929;
-    }
-
-    .stat-number{
-      font-size:30px;
-      font-weight:bold;
-      color:var(--gold2);
-    }
-
-    .stat-label{
-      color:#999;
-      margin-top:5px;
-    }
-
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:12px;
-    }
-
-    .media-preview{
-      width:100%;
-      max-height:260px;
-      object-fit:cover;
-      border-radius:14px;
-      border:1px solid #333;
-      margin-top:12px;
-    }
-
-    .table-wrap{
-      overflow-x:auto;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:700px;
-    }
-
-    th,td{
-      padding:12px;
-      border-bottom:1px solid #292929;
-      text-align:left;
-      vertical-align:middle;
-    }
-
-    th{
-      color:var(--gold2);
-      font-size:13px;
-    }
-
-    td{
-      color:#ddd;
-      font-size:14px;
-    }
-
-    .badge{
-      display:inline-block;
-      padding:5px 9px;
-      border-radius:20px;
-      font-size:11px;
-      font-weight:bold;
-      background:#292929;
-    }
-
-    .badge.gold{
-      color:#111;
-      background:var(--gold);
-    }
-
-    .badge.green{
-      background:#164e2b;
-      color:#9ff0bb;
-    }
-
-    .badge.red{
-      background:#541c1c;
-      color:#ffb0b0;
-    }
-
-    .staff-photo{
-      width:48px;
-      height:48px;
-      border-radius:50%;
-      object-fit:cover;
-      border:1px solid var(--gold);
-    }
-
-    .category-card{
-      padding:18px;
-      background:#151515;
-      border:1px solid #292929;
-      border-radius:15px;
-    }
-
-    .category-card img{
-      width:100%;
-      height:130px;
-      object-fit:cover;
-      border-radius:10px;
-      margin-bottom:10px;
-    }
-
-    .mobile-menu{
-      display:none;
-    }
-
-    .message{
-      padding:12px;
-      border-radius:10px;
-      margin-top:12px;
-      display:none;
-    }
-
-    .message.success{
-      display:block;
-      background:#123c25;
-      color:#9ff0bb;
-    }
-
-    .message.error{
-      display:block;
-      background:#481919;
-      color:#ffb0b0;
-    }
-
-    @media(max-width:900px){
-      .sidebar{
-        transform:translateX(-100%);
-        transition:.25s;
-      }
-
-      .sidebar.open{
-        transform:translateX(0);
-      }
-
-      .main{
-        margin-left:0;
-        width:100%;
-        padding:15px;
-      }
-
-      .mobile-menu{
-        display:block;
-        background:#191919;
-        color:#fff;
-        border:1px solid #333;
-      }
-
-      .grid,
-      .grid-3{
-        grid-template-columns:1fr;
-      }
-
-      .topbar{
-        align-items:flex-start;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nababi Ristorante — Admin Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#070707;
+  --card:#111;
+  --card2:#171717;
+  --gold:#d4af37;
+  --gold2:#f4dc82;
+  --text:#fff;
+  --muted:#999;
+  --border:#292929;
+  --green:#31c56b;
+  --red:#e05252;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top,#241d09 0,#080808 38%,#050505 100%);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
+}
+
+button,input,textarea,select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+
+/* LOGIN */
+
+#loginScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.login-card{
+  width:100%;
+  max-width:420px;
+  padding:32px 24px;
+  border:1px solid #333;
+  border-radius:24px;
+  background:linear-gradient(145deg,#171717,#0b0b0b);
+  box-shadow:0 30px 90px rgba(0,0,0,.7);
+}
+
+.logo-title{
+  text-align:center;
+  color:var(--gold2);
+  font-size:28px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.logo-sub{
+  text-align:center;
+  color:#777;
+  margin-bottom:28px;
+}
+
+.field{
+  margin-bottom:16px;
+}
+
+label{
+  display:block;
+  margin-bottom:7px;
+  color:#ccc;
+  font-size:14px;
+}
+
+input,textarea,select{
+  width:100%;
+  padding:13px;
+  border:1px solid #333;
+  border-radius:11px;
+  background:#080808;
+  color:#fff;
+  outline:none;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--gold);
+}
+
+.gold-btn{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#111;
+  font-weight:bold;
+}
+
+.login-status{
+  margin-top:15px;
+  padding:12px;
+  border-radius:11px;
+  display:none;
+  line-height:1.5;
+}
+
+.login-status.show{
+  display:block;
+}
+
+.login-status.error{
+  background:#481919;
+  color:#ffb4b4;
+}
+
+.login-status.success{
+  background:#123c24;
+  color:#a7f3bd;
+}
+
+.login-status.loading{
+  background:#2c2510;
+  color:#f3dc86;
+}
+
+
+/* APP */
+
+#app{
+  min-height:100vh;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:13px 18px;
+  background:rgba(8,8,8,.96);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+
+.brand{
+  color:var(--gold2);
+  font-size:20px;
+  font-weight:bold;
+}
+
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.user-role{
+  color:#aaa;
+  font-size:12px;
+}
+
+.logout{
+  padding:9px 12px;
+  border:1px solid #444;
+  border-radius:9px;
+  background:#171717;
+  color:#fff;
+}
+
+.layout{
+  display:flex;
+  min-height:calc(100vh - 66px);
+}
+
+.sidebar{
+  width:250px;
+  flex-shrink:0;
+  background:#0d0d0d;
+  border-right:1px solid var(--border);
+  padding:15px;
+}
+
+.nav-btn{
+  width:100%;
+  text-align:left;
+  padding:12px 13px;
+  margin-bottom:7px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  color:#aaa;
+}
+
+.nav-btn:hover,
+.nav-btn.active{
+  color:var(--gold2);
+  border-color:#493b15;
+  background:#19150a;
+}
+
+.main{
+  flex:1;
+  padding:24px;
+  max-width:1200px;
+}
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+.section h1{
+  margin-top:0;
+  color:var(--gold2);
+}
+
+.card{
+  padding:20px;
+  margin-bottom:18px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:linear-gradient(145deg,#151515,#0d0d0d);
+}
+
+.card h3{
+  color:var(--gold2);
+  margin-top:0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.save-btn{
+  margin-top:12px;
+  padding:12px 18px;
+  border:0;
+  border-radius:10px;
+  background:var(--gold);
+  color:#111;
+  font-weight:bold;
+}
+
+.danger-btn{
+  padding:9px 12px;
+  border:0;
+  border-radius:9px;
+  background:#642020;
+  color:#fff;
+}
+
+.small-btn{
+  padding:9px 12px;
+  border:1px solid #444;
+  border-radius:9px;
+  background:#191919;
+  color:#fff;
+}
+
+.item{
+  padding:14px 0;
+  border-bottom:1px solid #292929;
+}
+
+.item:last-child{
+  border-bottom:0;
+}
+
+.item-title{
+  font-weight:bold;
+}
+
+.item-meta{
+  color:#888;
+  font-size:13px;
+  margin-top:4px;
+}
+
+.preview{
+  max-width:180px;
+  max-height:120px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:10px;
+  border:1px solid #333;
+}
+
+.notice{
+  padding:12px;
+  border-radius:10px;
+  background:#171717;
+  color:#aaa;
+  margin-top:10px;
+}
+
+.success{
+  color:#79e79f;
+}
+
+.error{
+  color:#ff9292;
+}
+
+@media(max-width:800px){
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    width:100%;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    overflow-x:auto;
+    gap:7px;
+    padding:10px;
+  }
+
+  .nav-btn{
+    min-width:max-content;
+    margin:0;
+  }
+
+  .main{
+    padding:16px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+}
+</style>
 </head>
 
 <body>
 
+
 <!-- LOGIN -->
-<div id="loginScreen" class="login-screen">
+
+<div id="loginScreen">
+
   <div class="login-card">
 
-    <div class="logo-title">NABABI RISTORANTE</div>
-    <div class="subtitle">Premium Administration</div>
+    <div class="logo-title">
+      NABABI RISTORANTE
+    </div>
+
+    <div class="logo-sub">
+      Secure Admin Panel
+    </div>
 
     <div class="field">
       <label>Email</label>
-      <input id="loginEmail" type="email" placeholder="admin email">
+
+      <input
+        id="email"
+        type="email"
+        autocomplete="username"
+        placeholder="Admin email">
     </div>
 
     <div class="field">
       <label>Password</label>
-      <input id="loginPassword" type="password" placeholder="password">
+
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Password">
     </div>
 
-    <button class="gold-btn" style="width:100%" onclick="login()">
-      🔐 Login
+    <button
+      id="loginButton"
+      class="gold-btn"
+      onclick="login()">
+
+      🔐 LOGIN
+
     </button>
 
-    <div id="loginMessage" class="message"></div>
+    <div
+      id="loginStatus"
+      class="login-status">
+    </div>
+
   </div>
+
 </div>
 
 
-<!-- APP -->
-<div id="app" class="app hidden">
+<!-- ADMIN APP -->
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar">
+<div id="app" class="hidden">
+
+  <header class="topbar">
 
     <div class="brand">
-      <strong>🍽️ NABABI</strong>
-      <small>Ristorante Admin</small>
+      NABABI RISTORANTE
     </div>
 
-    <button class="nav-btn active" onclick="showSection('dashboard',this)">
-      🏠 Dashboard
-    </button>
+    <div class="user-box">
 
-    <button class="nav-btn" onclick="showSection('home',this)">
-      🌅 Home / Hero
-    </button>
-
-    <button class="nav-btn" onclick="showSection('about',this)">
-      📖 About Us
-    </button>
-
-    <button class="nav-btn" onclick="showSection('media',this)">
-      🎬 Videos & Media
-    </button>
-
-    <button class="nav-btn" onclick="showSection('contact',this)">
-      📞 Contact
-    </button>
-
-    <button class="nav-btn" onclick="showSection('social',this)">
-      🌐 Social Media
-    </button>
-
-    <button class="nav-btn" onclick="showSection('hours',this)">
-      🕐 Opening Hours
-    </button>
-
-    <button class="nav-btn" onclick="showSection('menu',this)">
-      🍛 Menu Manager
-    </button>
-
-    <button class="nav-btn" onclick="showSection('gallery',this)">
-      🖼️ Gallery
-    </button>
-
-    <button class="nav-btn" onclick="showSection('bookings',this)">
-      📅 Table Bookings
-    </button>
-
-    <button class="nav-btn" onclick="showSection('reviews',this)">
-      ⭐ Reviews
-    </button>
-
-    <button class="nav-btn" onclick="showSection('reports',this)">
-      📩 Customer Reports
-    </button>
-
-    <button class="nav-btn" onclick="showSection('discount',this)">
-      🎟️ Discount Campaign
-    </button>
-
-    <button class="nav-btn" onclick="showSection('staff',this)">
-      👥 Staff Management
-    </button>
-
-    <button class="nav-btn" onclick="showSection('performance',this)">
-      📊 Staff Performance
-    </button>
-
-    <hr style="border-color:#222;margin:15px 0">
-
-    <button class="nav-btn" onclick="openWebsite()">
-      🌐 Open Website
-    </button>
-
-    <button class="nav-btn" onclick="logout()">
-      🚪 Logout
-    </button>
-
-  </aside>
-
-
-  <!-- MAIN -->
-  <main class="main">
-
-    <div class="topbar">
       <div>
-        <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
-        <h1 id="pageTitle" style="display:inline-block;margin-left:8px">
-          Dashboard
-        </h1>
+        <div id="userEmail">
+          Admin
+        </div>
+
+        <div
+          id="userRole"
+          class="user-role">
+          Admin
+        </div>
       </div>
 
-      <div class="user-info">
-        <div id="currentUser">Checking...</div>
-        <div id="currentRole"></div>
-      </div>
+      <button
+        class="logout"
+        onclick="logout()">
+
+        Logout
+
+      </button>
+
     </div>
 
-
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="section active">
-
-      <h2 class="section-title">Dashboard</h2>
-
-      <div class="grid-3">
-
-        <div class="stat">
-          <div id="statMenu" class="stat-number">0</div>
-          <div class="stat-label">Menu Items</div>
-        </div>
-
-        <div class="stat">
-          <div id="statBookings" class="stat-number">0</div>
-          <div class="stat-label">Bookings</div>
-        </div>
-
-        <div class="stat">
-          <div id="statReviews" class="stat-number">0</div>
-          <div class="stat-label">Reviews</div>
-        </div>
-
-        <div class="stat">
-          <div id="statReports" class="stat-number">0</div>
-          <div class="stat-label">Reports</div>
-        </div>
-
-        <div class="stat">
-          <div id="statStaff" class="stat-number">0</div>
-          <div class="stat-label">Staff</div>
-        </div>
-
-        <div class="stat">
-          <div id="statCodes" class="stat-number">0</div>
-          <div class="stat-label">Discount Codes Used</div>
-        </div>
-
-      </div>
-
-      <div class="card" style="margin-top:20px">
-        <h3>Welcome to Nababi Ristorante Admin</h3>
-        <p style="color:#aaa">
-          এখান থেকে আপনার Restaurant Website-এর সমস্ত গুরুত্বপূর্ণ
-          content এবং management control করা যাবে।
-        </p>
-      </div>
-
-    </section>
+  </header>
 
 
-    <!-- HOME -->
-    <section id="home" class="section">
+  <div class="layout">
 
-      <h2 class="section-title">Home / Hero</h2>
+    <aside class="sidebar">
 
-      <div class="card">
+      <button
+        class="nav-btn active"
+        data-section="dashboard"
+        onclick="showSection('dashboard')">
+        🏠 Dashboard
+      </button>
 
-        <div class="field">
-          <label>Hero Title</label>
-          <input id="heroTitle">
-        </div>
+      <button
+        class="nav-btn"
+        data-section="hero"
+        onclick="showSection('hero')">
+        🖼️ Hero
+      </button>
 
-        <div class="field">
-          <label>Hero Text</label>
-          <textarea id="heroText"></textarea>
-        </div>
+      <button
+        class="nav-btn"
+        data-section="about"
+        onclick="showSection('about')">
+        ℹ️ About Us
+      </button>
 
-        <div class="field">
-          <label>Hero Image</label>
-          <input id="heroImageFile" type="file" accept="image/*">
-        </div>
+      <button
+        class="nav-btn"
+        data-section="contact"
+        onclick="showSection('contact')">
+        📞 Contact
+      </button>
 
-        <img id="heroPreview" class="media-preview hidden">
+      <button
+        class="nav-btn"
+        data-section="social"
+        onclick="showSection('social')">
+        📱 Social Media
+      </button>
 
-        <button class="gold-btn" onclick="saveHero()">
-          💾 Save Hero
-        </button>
+      <button
+        class="nav-btn"
+        data-section="hours"
+        onclick="showSection('hours')">
+        🕐 Opening Hours
+      </button>
 
-        <div id="heroMessage" class="message"></div>
+      <button
+        class="nav-btn"
+        data-section="menu"
+        onclick="showSection('menu')">
+        🍽️ Menu
+      </button>
 
-      </div>
+      <button
+        class="nav-btn"
+        data-section="gallery"
+        onclick="showSection('gallery')">
+        🖼️ Gallery
+      </button>
 
+      <button
+        class="nav-btn"
+        data-section="videos"
+        onclick="showSection('videos')">
+        🎬 Videos
+      </button>
 
-      <div class="card">
+      <button
+        class="nav-btn"
+        data-section="breaking"
+        onclick="showSection('breaking')">
+        📢 Breaking News
+      </button>
 
-        <h3>🍽️ Restaurant Logo</h3>
+      <button
+        class="nav-btn"
+        data-section="bookings"
+        onclick="showSection('bookings')">
+        📅 Bookings
+      </button>
 
-        <input id="logoFile" type="file" accept="image/*">
+      <button
+        class="nav-btn"
+        data-section="reviews"
+        onclick="showSection('reviews')">
+        ⭐ Reviews
+      </button>
 
-        <img id="logoPreview" class="media-preview hidden">
+      <button
+        class="nav-btn"
+        data-section="reports"
+        onclick="showSection('reports')">
+        📝 Reports
+      </button>
 
-        <div class="actions">
+      <button
+        class="nav-btn"
+        data-section="staff"
+        onclick="showSection('staff')">
+        👥 Staff
+      </button>
 
-          <button class="gold-btn" onclick="saveLogo()">
-            Upload / Change Logo
-          </button>
-
-          <button class="danger-btn" onclick="removeLogo()">
-            Remove Logo
-          </button>
-
-        </div>
-
-        <div id="logoMessage" class="message"></div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>📢 Breaking News</h3>
-
-        <div class="field">
-          <label>Enable</label>
-          <select id="newsEnabled">
-            <option value="true">Enabled</option>
-            <option value="false">Disabled</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>News Text</label>
-          <textarea id="newsText"></textarea>
-        </div>
-
-        <div class="grid">
-
-          <div class="field">
-            <label>Start Date / Time</label>
-            <input id="newsStart" type="datetime-local">
-          </div>
-
-          <div class="field">
-            <label>End Date / Time</label>
-            <input id="newsEnd" type="datetime-local">
-          </div>
-
-        </div>
-
-        <button class="gold-btn" onclick="saveNews()">
-          💾 Save Breaking News
-        </button>
-
-        <div id="newsMessage" class="message"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ABOUT -->
-    <section id="about" class="section">
-
-      <h2 class="section-title">About Us</h2>
-
-      <div class="card">
-
-        <div class="field">
-          <label>About Title</label>
-          <input id="aboutTitle">
-        </div>
-
-        <div class="field">
-          <label>About Text</label>
-          <textarea id="aboutText"></textarea>
-        </div>
-
-        <div class="field">
-          <label>About Image / Video</label>
-          <input id="aboutFile" type="file" accept="image/*,video/*">
-        </div>
-
-        <img id="aboutImagePreview" class="media-preview hidden">
-
-        <button class="gold-btn" onclick="saveAbout()">
-          💾 Save About
-        </button>
-
-        <div id="aboutMessage" class="message"></div>
-
-      </div>
-
-    </section>
+    </aside>
 
 
-    <!-- MEDIA -->
-    <section id="media" class="section">
+    <main class="main">
 
-      <h2 class="section-title">Videos & Media</h2>
 
-      <div class="grid">
+      <!-- DASHBOARD -->
+
+      <section
+        id="section-dashboard"
+        class="section active">
+
+        <h1>Dashboard</h1>
 
         <div class="card">
 
-          <h3>🎬 Hero Video 1</h3>
+          <h3>Welcome to Nababi Ristorante Admin</h3>
 
-          <input id="video1File" type="file" accept="video/*">
+          <p>
+            You are successfully logged in.
+          </p>
 
-          <video id="video1Preview"
-                 class="media-preview hidden"
-                 controls></video>
+          <div
+            id="dashboardStatus"
+            class="notice">
+            Loading admin information...
+          </div>
 
-          <button class="gold-btn" onclick="saveVideo(1)">
-            Upload / Change Video 1
+        </div>
+
+      </section>
+
+
+      <!-- HERO -->
+
+      <section
+        id="section-hero"
+        class="section">
+
+        <h1>Hero</h1>
+
+        <div class="card">
+
+          <div class="field">
+            <label>Hero Title</label>
+            <input id="heroTitle">
+          </div>
+
+          <div class="field">
+            <label>Hero Text</label>
+            <textarea id="heroText"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Hero Image</label>
+            <input
+              id="heroImage"
+              type="file"
+              accept="image/*">
+          </div>
+
+          <img
+            id="heroPreview"
+            class="preview hidden">
+
+          <button
+            class="save-btn"
+            onclick="saveHero()">
+            💾 Save Hero
           </button>
 
-          <button class="danger-btn" onclick="removeVideo(1)">
-            Remove Video 1
+          <div
+            id="heroMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ABOUT -->
+
+      <section
+        id="section-about"
+        class="section">
+
+        <h1>About Us</h1>
+
+        <div class="card">
+
+          <div class="field">
+            <label>About Title</label>
+            <input id="aboutTitle">
+          </div>
+
+          <div class="field">
+            <label>About Text</label>
+            <textarea id="aboutText"></textarea>
+          </div>
+
+          <div class="field">
+            <label>About Image</label>
+            <input
+              id="aboutImage"
+              type="file"
+              accept="image/*">
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="saveAbout()">
+            💾 Save About
+          </button>
+
+          <div
+            id="aboutMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- CONTACT -->
+
+      <section
+        id="section-contact"
+        class="section">
+
+        <h1>Contact</h1>
+
+        <div class="card">
+
+          <div class="field">
+            <label>Address</label>
+            <input
+              id="contactAddress"
+              value="Via Vespasiano 73/75/77 Roma">
+          </div>
+
+          <div class="field">
+            <label>Phone 1</label>
+            <input
+              id="contactPhone1"
+              value="+39 333 7687319">
+          </div>
+
+          <div class="field">
+            <label>Phone 2</label>
+            <input
+              id="contactPhone2"
+              value="+39 393 3805350">
+          </div>
+
+          <div class="field">
+            <label>WhatsApp</label>
+            <input
+              id="contactWhatsapp"
+              value="+39 333 7687319">
+          </div>
+
+          <div class="field">
+            <label>Google Maps URL</label>
+            <input id="contactMaps">
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="saveContact()">
+            💾 Save Contact
+          </button>
+
+          <div
+            id="contactMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SOCIAL -->
+
+      <section
+        id="section-social"
+        class="section">
+
+        <h1>Social Media</h1>
+
+        <div class="card">
+
+          <div class="field">
+            <label>Facebook</label>
+            <input id="facebook">
+          </div>
+
+          <div class="field">
+            <label>Instagram</label>
+            <input id="instagram">
+          </div>
+
+          <div class="field">
+            <label>TikTok</label>
+            <input id="tiktok">
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="saveSocial()">
+            💾 Save Social Media
+          </button>
+
+          <div
+            id="socialMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- HOURS -->
+
+      <section
+        id="section-hours"
+        class="section">
+
+        <h1>Opening Hours</h1>
+
+        <div class="card">
+
+          <div id="hoursFields"></div>
+
+          <button
+            class="save-btn"
+            onclick="saveHours()">
+            💾 Save Opening Hours
+          </button>
+
+          <div
+            id="hoursMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MENU -->
+
+      <section
+        id="section-menu"
+        class="section">
+
+        <h1>Menu Manager</h1>
+
+        <div class="card">
+
+          <h3>Add New Menu Item</h3>
+
+          <div class="grid">
+
+            <div class="field">
+              <label>Name</label>
+              <input id="menuName">
+            </div>
+
+            <div class="field">
+              <label>Price</label>
+              <input id="menuPrice">
+            </div>
+
+            <div class="field">
+              <label>Category</label>
+              <select id="menuCategory">
+                <option value="">
+                  Select Category
+                </option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Photo</label>
+              <input
+                id="menuPhoto"
+                type="file"
+                accept="image/*">
+            </div>
+
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="addMenuItem()">
+            ➕ Add Menu Item
+          </button>
+
+          <div
+            id="menuMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3>Categories</h3>
+
+          <div class="grid">
+
+            <div class="field">
+              <label>New Category</label>
+              <input
+                id="newCategory"
+                placeholder="e.g. Special Menu">
+            </div>
+
+            <div class="field">
+              <label>Category Image</label>
+              <input
+                id="categoryImage"
+                type="file"
+                accept="image/*">
+            </div>
+
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="addCategory()">
+            ➕ Add Category
           </button>
 
         </div>
@@ -760,606 +907,355 @@
 
         <div class="card">
 
-          <h3>🎬 Hero Video 2</h3>
+          <h3>Menu Items</h3>
 
-          <input id="video2File" type="file" accept="video/*">
+          <div id="menuList">
+            Loading...
+          </div>
 
-          <video id="video2Preview"
-                 class="media-preview hidden"
-                 controls></video>
+        </div>
 
-          <button class="gold-btn" onclick="saveVideo(2)">
-            Upload / Change Video 2
+      </section>
+
+
+      <!-- GALLERY -->
+
+      <section
+        id="section-gallery"
+        class="section">
+
+        <h1>Gallery</h1>
+
+        <div class="card">
+
+          <h3>Upload Gallery Photo</h3>
+
+          <div class="field">
+            <label>Select Photo</label>
+            <input
+              id="galleryPhoto"
+              type="file"
+              accept="image/*">
+          </div>
+
+          <div class="field">
+            <label>Title</label>
+            <input id="galleryTitle">
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="uploadGallery()">
+            📤 Upload Photo
           </button>
 
-          <button class="danger-btn" onclick="removeVideo(2)">
-            Remove Video 2
+          <div
+            id="galleryMessage"
+            class="notice">
+          </div>
+
+        </div>
+
+        <div class="card">
+
+          <h3>Gallery Photos</h3>
+
+          <div id="galleryList">
+            Loading...
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- VIDEOS -->
+
+      <section
+        id="section-videos"
+        class="section">
+
+        <h1>Hero Videos</h1>
+
+        <div class="card">
+
+          <h3>Video 1</h3>
+
+          <input
+            id="video1"
+            type="file"
+            accept="video/*">
+
+          <button
+            class="save-btn"
+            onclick="uploadVideo(1)">
+            📤 Upload Video 1
           </button>
 
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- CONTACT -->
-    <section id="contact" class="section">
-
-      <h2 class="section-title">Contact</h2>
-
-      <div class="card">
-
-        <div class="field">
-          <label>Address</label>
-          <input id="contactAddress">
-        </div>
-
-        <div class="field">
-          <label>Phone 1</label>
-          <input id="contactPhone1">
-        </div>
-
-        <div class="field">
-          <label>Phone 2</label>
-          <input id="contactPhone2">
-        </div>
-
-        <div class="field">
-          <label>WhatsApp</label>
-          <input id="contactWhatsapp">
-        </div>
-
-        <div class="field">
-          <label>Google Maps URL</label>
-          <input id="contactMaps">
-        </div>
-
-        <button class="gold-btn" onclick="saveContact()">
-          💾 Save Contact
-        </button>
-
-        <div id="contactMessage" class="message"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- SOCIAL -->
-    <section id="social" class="section">
-
-      <h2 class="section-title">Social Media</h2>
-
-      <div class="card">
-
-        <div class="field">
-          <label>Facebook</label>
-          <input id="socialFacebook">
-        </div>
-
-        <div class="field">
-          <label>Instagram</label>
-          <input id="socialInstagram">
-        </div>
-
-        <div class="field">
-          <label>TikTok</label>
-          <input id="socialTikTok">
-        </div>
-
-        <button class="gold-btn" onclick="saveSocial()">
-          💾 Save Social Media
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- HOURS -->
-    <section id="hours" class="section">
-
-      <h2 class="section-title">Opening Hours</h2>
-
-      <div class="card">
-
-        <div id="hoursForm"></div>
-
-        <button class="gold-btn" onclick="saveHours()">
-          💾 Save Opening Hours
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- MENU -->
-    <section id="menu" class="section">
-
-      <h2 class="section-title">Menu Manager</h2>
-
-      <div class="card">
-
-        <h3>Add / Edit Menu Item</h3>
-
-        <input type="hidden" id="menuId">
-
-        <div class="grid">
-
-          <div class="field">
-            <label>Food Name</label>
-            <input id="menuName">
-          </div>
-
-          <div class="field">
-            <label>Price</label>
-            <input id="menuPrice">
+          <div
+            id="video1Message"
+            class="notice">
           </div>
 
         </div>
 
-        <div class="field">
-          <label>Category</label>
-          <select id="menuCategory"></select>
-        </div>
+        <div class="card">
 
-        <div class="field">
-          <label>Description</label>
-          <textarea id="menuDescription"></textarea>
-        </div>
+          <h3>Video 2</h3>
 
-        <div class="field">
-          <label>Food Photo</label>
-          <input id="menuImageFile" type="file" accept="image/*">
-        </div>
+          <input
+            id="video2"
+            type="file"
+            accept="video/*">
 
-        <div class="actions">
-
-          <button class="gold-btn" onclick="saveMenuItem()">
-            💾 Save Menu Item
+          <button
+            class="save-btn"
+            onclick="uploadVideo(2)">
+            📤 Upload Video 2
           </button>
 
-          <button class="dark-btn" onclick="clearMenuForm()">
-            Clear
+          <div
+            id="video2Message"
+            class="notice">
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- BREAKING NEWS -->
+
+      <section
+        id="section-breaking"
+        class="section">
+
+        <h1>Breaking News</h1>
+
+        <div class="card">
+
+          <div class="field">
+            <label>
+              <input
+                id="breakingEnabled"
+                type="checkbox"
+                style="width:auto">
+              Enable Breaking News
+            </label>
+          </div>
+
+          <div class="field">
+            <label>News Text</label>
+            <textarea id="breakingText"></textarea>
+          </div>
+
+          <div class="grid">
+
+            <div class="field">
+              <label>Start Date & Time</label>
+              <input
+                id="breakingStart"
+                type="datetime-local">
+            </div>
+
+            <div class="field">
+              <label>End Date & Time</label>
+              <input
+                id="breakingEnd"
+                type="datetime-local">
+            </div>
+
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="saveBreaking()">
+            💾 Save Breaking News
           </button>
 
-        </div>
-
-        <div id="menuMessage" class="message"></div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>➕ Add New Category</h3>
-
-        <div class="grid">
-
-          <div class="field">
-            <label>Category Name</label>
-            <input id="newCategoryName" placeholder="Example: Special Menu">
-          </div>
-
-          <div class="field">
-            <label>Category Image</label>
-            <input id="categoryImageFile" type="file" accept="image/*">
+          <div
+            id="breakingMessage"
+            class="notice">
           </div>
 
         </div>
 
-        <button class="gold-btn" onclick="addCategory()">
-          ➕ Create Category
-        </button>
+      </section>
 
-        <div id="categoryMessage" class="message"></div>
 
-      </div>
+      <!-- BOOKINGS -->
 
+      <section
+        id="section-bookings"
+        class="section">
 
-      <div class="card">
+        <h1>Table Bookings</h1>
 
-        <h3>Categories</h3>
-        <div id="categoryList" class="grid-3"></div>
+        <div class="card">
 
-      </div>
+          <button
+            class="save-btn"
+            onclick="loadBookings()">
+            🔄 Refresh
+          </button>
 
-
-      <div class="card">
-
-        <h3>Menu Items</h3>
-
-        <div class="table-wrap">
-          <table>
-
-            <thead>
-              <tr>
-                <th>Photo</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody id="menuTable"></tbody>
-
-          </table>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- GALLERY -->
-    <section id="gallery" class="section">
-
-      <h2 class="section-title">Gallery</h2>
-
-      <div class="card">
-
-        <h3>Upload Gallery Photo</h3>
-
-        <div class="field">
-          <label>Photo</label>
-          <input id="galleryFile" type="file" accept="image/*">
-        </div>
-
-        <div class="field">
-          <label>Title</label>
-          <input id="galleryTitle">
-        </div>
-
-        <div class="field">
-          <label>Category</label>
-          <input id="galleryCategory" value="Restaurant">
-        </div>
-
-        <button class="gold-btn" onclick="uploadGallery()">
-          🖼️ Upload Photo
-        </button>
-
-        <div id="galleryMessage" class="message"></div>
-
-      </div>
-
-      <div class="card">
-
-        <h3>Gallery Photos</h3>
-
-        <div id="galleryList" class="grid-3"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- BOOKINGS -->
-    <section id="bookings" class="section">
-
-      <h2 class="section-title">Table Bookings</h2>
-
-      <div class="card">
-
-        <button class="gold-btn" onclick="loadBookings()">
-          🔄 Refresh Bookings
-        </button>
-
-        <div class="table-wrap" style="margin-top:15px">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Customer</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Guests</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody id="bookingTable"></tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- REVIEWS -->
-    <section id="reviews" class="section">
-
-      <h2 class="section-title">Reviews</h2>
-
-      <div class="card">
-
-        <button class="gold-btn" onclick="loadReviews()">
-          🔄 Refresh Reviews
-        </button>
-
-        <div class="table-wrap" style="margin-top:15px">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Rating</th>
-                <th>Message</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody id="reviewTable"></tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- REPORTS -->
-    <section id="reports" class="section">
-
-      <h2 class="section-title">Customer Reports</h2>
-
-      <div class="card">
-
-        <button class="gold-btn" onclick="loadReports()">
-          🔄 Refresh Reports
-        </button>
-
-        <div class="table-wrap" style="margin-top:15px">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Subject</th>
-                <th>Message</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-
-            <tbody id="reportTable"></tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- DISCOUNT -->
-    <section id="discount" class="section">
-
-      <h2 class="section-title">Discount Campaign</h2>
-
-      <div class="card">
-
-        <div class="field">
-          <label>Campaign Name</label>
-          <input id="discountName" value="Nababi Welcome Discount">
-        </div>
-
-        <div class="grid">
-
-          <div class="field">
-            <label>Discount %</label>
-            <input id="discountPercent" type="number" value="10">
-          </div>
-
-          <div class="field">
-            <label>Maximum Uses</label>
-            <input id="discountMaxUses" type="number" value="100">
+          <div id="bookingList">
+            Loading...
           </div>
 
         </div>
 
-        <div class="grid">
-
-          <div class="field">
-            <label>Start</label>
-            <input id="discountStart" type="datetime-local">
-          </div>
-
-          <div class="field">
-            <label>End</label>
-            <input id="discountEnd" type="datetime-local">
-          </div>
-
-        </div>
-
-        <div class="field">
-          <label>Enabled</label>
-          <select id="discountEnabled">
-            <option value="true">Enabled</option>
-            <option value="false">Disabled</option>
-          </select>
-        </div>
-
-        <button class="gold-btn" onclick="saveDiscountCampaign()">
-          💾 Save Campaign
-        </button>
-
-        <div id="discountMessage" class="message"></div>
-
-      </div>
+      </section>
 
 
-      <div class="grid">
+      <!-- REVIEWS -->
 
-        <div class="stat">
-          <div id="discountCodes" class="stat-number">0</div>
-          <div class="stat-label">Codes Created</div>
-        </div>
+      <section
+        id="section-reviews"
+        class="section">
 
-        <div class="stat">
-          <div id="discountUsed" class="stat-number">0</div>
-          <div class="stat-label">Codes Used</div>
-        </div>
+        <h1>Reviews</h1>
 
-      </div>
+        <div class="card">
 
-    </section>
-
-
-    <!-- STAFF -->
-    <section id="staff" class="section">
-
-      <h2 class="section-title">Staff Management</h2>
-
-      <div class="card">
-
-        <h3>➕ Create Staff Account</h3>
-
-        <div class="grid">
-
-          <div class="field">
-            <label>Full Name</label>
-            <input id="staffName">
-          </div>
-
-          <div class="field">
-            <label>Email</label>
-            <input id="staffEmail" type="email">
+          <div id="reviewList">
+            Loading...
           </div>
 
         </div>
 
-        <div class="grid">
+      </section>
 
-          <div class="field">
-            <label>Password</label>
-            <input id="staffPassword" type="password">
+
+      <!-- REPORTS -->
+
+      <section
+        id="section-reports"
+        class="section">
+
+        <h1>Reports & Complaints</h1>
+
+        <div class="card">
+
+          <div id="reportList">
+            Loading...
           </div>
 
-          <div class="field">
-            <label>Role</label>
-            <select id="staffRole">
-              <option value="DISCOUNT_STAFF">Discount Staff</option>
-              <option value="BOOKING_STAFF">Booking Staff</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
-            </select>
+        </div>
+
+      </section>
+
+
+      <!-- STAFF -->
+
+      <section
+        id="section-staff"
+        class="section">
+
+        <h1>Staff Management</h1>
+
+        <div class="card">
+
+          <h3>Create Staff Account</h3>
+
+          <div class="grid">
+
+            <div class="field">
+              <label>Full Name</label>
+              <input id="staffName">
+            </div>
+
+            <div class="field">
+              <label>Email</label>
+              <input
+                id="staffEmail"
+                type="email">
+            </div>
+
+            <div class="field">
+              <label>Password</label>
+              <input
+                id="staffPassword"
+                type="password">
+            </div>
+
+            <div class="field">
+              <label>Role</label>
+
+              <select id="staffRole">
+
+                <option value="DISCOUNT_STAFF">
+                  Discount Staff
+                </option>
+
+                <option value="BOOKING_STAFF">
+                  Booking Staff
+                </option>
+
+                <option value="SUPER_ADMIN">
+                  Super Admin
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <button
+            class="save-btn"
+            onclick="createStaff()">
+            ➕ Create Staff
+          </button>
+
+          <div
+            id="staffMessage"
+            class="notice">
           </div>
 
         </div>
 
-        <button class="gold-btn" onclick="createStaff()">
-          👤 Create Staff
-        </button>
+        <div class="card">
 
-        <div id="staffMessage" class="message"></div>
+          <h3>Existing Staff</h3>
 
-      </div>
-
-
-      <div class="card">
-
-        <h3>Staff Accounts</h3>
-
-        <div class="table-wrap">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Photo</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Photo Upload</th>
-              </tr>
-            </thead>
-
-            <tbody id="staffTable"></tbody>
-
-          </table>
+          <div id="staffList">
+            Loading...
+          </div>
 
         </div>
 
-      </div>
-
-    </section>
+      </section>
 
 
-    <!-- PERFORMANCE -->
-    <section id="performance" class="section">
+    </main>
 
-      <h2 class="section-title">Staff Performance</h2>
+  </div>
 
-      <div class="card">
-
-        <button class="gold-btn" onclick="loadPerformance()">
-          🔄 Refresh Performance
-        </button>
-
-        <div class="table-wrap" style="margin-top:15px">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Staff</th>
-                <th>Role</th>
-                <th>Checked</th>
-                <th>Used</th>
-                <th>Invalid</th>
-                <th>Bookings Viewed</th>
-                <th>Confirmed</th>
-                <th>Cancelled</th>
-              </tr>
-            </thead>
-
-            <tbody id="performanceTable"></tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
 </div>
 
 
 <script>
 
-const SUPABASE_URL = "https://rzvaaxjtkvriekokeolo.supabase.co";
+const SUPABASE_URL =
+  "https://rzvaaxjtkvriekokeolo.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
+  "sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
 
-const ADMIN_FUNCTION_NAME = "create-staff";
 
-const { createClient } =
-  supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-let currentUser = null;
-let currentAdmin = null;
 
-const days = [
+let currentUser=null;
+let currentAdmin=null;
+
+
+const days=[
   "Monday",
   "Tuesday",
   "Wednesday",
@@ -1370,220 +1266,486 @@ const days = [
 ];
 
 
-// ---------------- LOGIN ----------------
+// =================================================
+// LOGIN
+// =================================================
 
 async function login(){
 
-  const email =
-    document.getElementById("loginEmail").value.trim();
+  const email=
+    document.getElementById("email")
+      .value.trim()
+      .toLowerCase();
 
-  const password =
-    document.getElementById("loginPassword").value;
+  const password=
+    document.getElementById("password")
+      .value;
 
-  const msg =
-    document.getElementById("loginMessage");
+  const button=
+    document.getElementById("loginButton");
 
-  msg.className="message";
+  const status=
+    document.getElementById("loginStatus");
+
+
+  status.className=
+    "login-status show loading";
+
+  status.textContent=
+    "🔄 Signing in...";
+
+  button.disabled=true;
+
 
   if(!email || !password){
 
-    msg.textContent="Email and password required.";
-    msg.className="message error";
+    status.className=
+      "login-status show error";
+
+    status.textContent=
+      "❌ Please enter email and password.";
+
+    button.disabled=false;
+
     return;
   }
 
-  const {data,error} =
-    await createClient(SUPABASE_URL,SUPABASE_KEY)
-      .auth.signInWithPassword({
-        email,
-        password
-      });
 
-  if(error){
+  try{
 
-    msg.textContent=error.message;
-    msg.className="message error";
-    return;
+    const {data,error}=
+      await supabaseClient.auth
+        .signInWithPassword({
+          email,
+          password
+        });
+
+
+    if(error){
+
+      throw new Error(
+        "Login failed: "+
+        error.message
+      );
+
+    }
+
+
+    if(!data || !data.user){
+
+      throw new Error(
+        "Login succeeded but no user session was returned."
+      );
+
+    }
+
+
+    currentUser=data.user;
+
+
+    status.className=
+      "login-status show loading";
+
+    status.textContent=
+      "🔄 Checking admin permissions...";
+
+
+    /*
+      IMPORTANT:
+      We wait for the authenticated session
+      before checking admin_staff.
+    */
+
+    const {
+      data:staff,
+      error:staffError
+    }=
+      await supabaseClient
+        .from("admin_staff")
+        .select("*")
+        .ilike("email",email)
+        .maybeSingle();
+
+
+    if(staffError){
+
+      throw new Error(
+        "Admin profile error: "+
+        staffError.message
+      );
+
+    }
+
+
+    if(!staff){
+
+      throw new Error(
+        "This email is not registered in Admin Staff."
+      );
+
+    }
+
+
+    if(staff.enabled!==true){
+
+      throw new Error(
+        "This staff account is disabled."
+      );
+
+    }
+
+
+    currentAdmin=staff;
+
+
+    status.className=
+      "login-status show success";
+
+    status.textContent=
+      "✅ Login successful. Opening Admin Panel...";
+
+
+    document.getElementById("userEmail")
+      .textContent=
+      currentUser.email;
+
+
+    document.getElementById("userRole")
+      .textContent=
+      formatRole(staff.role);
+
+
+    /*
+      Role routing
+    */
+
+    if(staff.role==="DISCOUNT_STAFF"){
+
+      window.location.href=
+        "staff.html";
+
+      return;
+    }
+
+
+    if(staff.role==="BOOKING_STAFF"){
+
+      window.location.href=
+        "staff.html";
+
+      return;
+    }
+
+
+    if(staff.role!=="SUPER_ADMIN"){
+
+      throw new Error(
+        "Unknown admin role: "+
+        staff.role
+      );
+
+    }
+
+
+    /*
+      SUPER ADMIN
+    */
+
+    document
+      .getElementById("loginScreen")
+      .classList.add("hidden");
+
+    document
+      .getElementById("app")
+      .classList.remove("hidden");
+
+
+    document
+      .getElementById("dashboardStatus")
+      .innerHTML=
+      "🟢 <span class='success'>Admin login successful.</span>";
+
+
+    await loadAll();
+
+
+  }catch(error){
+
+    console.error(
+      "ADMIN LOGIN ERROR:",
+      error
+    );
+
+
+    status.className=
+      "login-status show error";
+
+    status.textContent=
+      "❌ "+
+      (error.message ||
+       "Login failed.");
+
+    button.disabled=false;
+
   }
-
-  currentUser=data.user;
-
-  await checkAdmin();
 
 }
 
 
-async function checkAdmin(){
+// =================================================
+// AUTO SESSION
+// =================================================
 
-  const {data,error} =
-    await supabaseClient()
-      .from("admin_staff")
-      .select("*")
-      .ilike("email",currentUser.email)
-      .maybeSingle();
+async function checkExistingSession(){
 
-  if(error || !data || data.enabled !== true){
+  try{
 
-    await logout();
-    alert("You are not authorized.");
-    return;
+    const {
+      data:{session}
+    }=
+      await supabaseClient.auth
+        .getSession();
+
+
+    if(!session){
+
+      return;
+    }
+
+
+    currentUser=session.user;
+
+
+    const {
+      data:staff,
+      error
+    }=
+      await supabaseClient
+        .from("admin_staff")
+        .select("*")
+        .ilike("email",currentUser.email)
+        .maybeSingle();
+
+
+    if(error || !staff){
+
+      await supabaseClient.auth.signOut();
+
+      return;
+    }
+
+
+    if(staff.enabled!==true){
+
+      await supabaseClient.auth.signOut();
+
+      return;
+    }
+
+
+    if(
+      staff.role==="DISCOUNT_STAFF" ||
+      staff.role==="BOOKING_STAFF"
+    ){
+
+      window.location.href=
+        "staff.html";
+
+      return;
+    }
+
+
+    if(staff.role!=="SUPER_ADMIN"){
+
+      await supabaseClient.auth.signOut();
+
+      return;
+    }
+
+
+    currentAdmin=staff;
+
+
+    document
+      .getElementById("loginScreen")
+      .classList.add("hidden");
+
+    document
+      .getElementById("app")
+      .classList.remove("hidden");
+
+
+    document
+      .getElementById("userEmail")
+      .textContent=
+      currentUser.email;
+
+
+    document
+      .getElementById("userRole")
+      .textContent=
+      formatRole(staff.role);
+
+
+    await loadAll();
+
+
+  }catch(error){
+
+    console.error(
+      "SESSION ERROR:",
+      error
+    );
+
   }
 
-  currentAdmin=data;
-
-  document.getElementById("loginScreen")
-    .classList.add("hidden");
-
-  document.getElementById("app")
-    .classList.remove("hidden");
-
-  document.getElementById("currentUser")
-    .textContent=data.full_name || currentUser.email;
-
-  document.getElementById("currentRole")
-    .textContent=data.role;
-
-  if(data.role==="DISCOUNT_STAFF"){
-
-    window.location.href="staff.html";
-    return;
-  }
-
-  loadEverything();
 }
 
 
-function supabaseClient(){
-
-  return supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-}
-
+// =================================================
+// LOGOUT
+// =================================================
 
 async function logout(){
 
-  await supabaseClient().auth.signOut();
+  await supabaseClient.auth.signOut();
+
+  currentUser=null;
+  currentAdmin=null;
 
   location.reload();
+
 }
 
 
-// ---------------- NAVIGATION ----------------
+// =================================================
+// NAVIGATION
+// =================================================
 
-function showSection(id,btn){
+function showSection(name){
 
-  document.querySelectorAll(".section")
-    .forEach(x=>x.classList.remove("active"));
+  document
+    .querySelectorAll(".section")
+    .forEach(section=>{
+      section.classList.remove("active");
+    });
 
-  document.getElementById(id)
-    .classList.add("active");
 
-  document.querySelectorAll(".nav-btn")
-    .forEach(x=>x.classList.remove("active"));
+  const target=
+    document.getElementById(
+      "section-"+name
+    );
 
-  if(btn) btn.classList.add("active");
 
-  const title =
-    id.charAt(0).toUpperCase()+id.slice(1);
+  if(target){
 
-  document.getElementById("pageTitle")
-    .textContent=title;
+    target.classList.add("active");
 
-  document.getElementById("sidebar")
-    .classList.remove("open");
-
-  if(id==="menu"){
-    loadCategories();
-    loadMenu();
   }
 
-  if(id==="gallery") loadGallery();
 
-  if(id==="bookings") loadBookings();
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(button=>{
 
-  if(id==="reviews") loadReviews();
+      button.classList.remove("active");
 
-  if(id==="reports") loadReports();
+      if(
+        button.dataset.section===name
+      ){
 
-  if(id==="staff") loadStaff();
+        button.classList.add("active");
 
-  if(id==="performance") loadPerformance();
+      }
+
+    });
+
+
+  if(name==="menu")
+    loadMenu();
+
+  if(name==="gallery")
+    loadGallery();
+
+  if(name==="bookings")
+    loadBookings();
+
+  if(name==="reviews")
+    loadReviews();
+
+  if(name==="reports")
+    loadReports();
+
+  if(name==="staff")
+    loadStaff();
+
 }
 
 
-function toggleSidebar(){
+// =================================================
+// LOAD ALL
+// =================================================
 
-  document.getElementById("sidebar")
-    .classList.toggle("open");
+async function loadAll(){
+
+  await Promise.allSettled([
+
+    loadSettings(),
+
+    loadCategories(),
+
+    loadMenu(),
+
+    loadGallery(),
+
+    loadBookings(),
+
+    loadReviews(),
+
+    loadReports(),
+
+    loadStaff()
+
+  ]);
 
 }
 
 
-function openWebsite(){
-
-  window.open(
-    "https://nababi-ristorante-1fbm7ltxg-nababiristorante.vercel.app/",
-    "_blank"
-  );
-
-}
-
-
-// ---------------- STORAGE ----------------
-
-async function uploadFile(bucket,file,folder){
-
-  if(!file) return null;
-
-  const safeName =
-    file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-
-  const path =
-    folder+"/"+Date.now()+"_"+safeName;
-
-  const client=supabaseClient();
-
-  const {error} =
-    await client.storage
-      .from(bucket)
-      .upload(path,file,{
-        upsert:true
-      });
-
-  if(error) throw error;
-
-  const {data} =
-    client.storage
-      .from(bucket)
-      .getPublicUrl(path);
-
-  return data.publicUrl;
-}
-
-
-// ---------------- SETTINGS ----------------
+// =================================================
+// SETTINGS
+// =================================================
 
 async function getSetting(key){
 
-  const {data,error} =
-    await supabaseClient()
+  const {data,error}=
+    await supabaseClient
       .from("site_settings")
       .select("value")
       .eq("key",key)
       .maybeSingle();
 
-  if(error) throw error;
 
-  return data ? data.value : {};
+  if(error){
+
+    console.error(
+      "Setting error:",
+      key,
+      error
+    );
+
+    return null;
+  }
+
+
+  return data?.value || null;
+
 }
 
 
 async function saveSetting(key,value){
 
-  const {error} =
-    await supabaseClient()
+  const {error}=
+    await supabaseClient
       .from("site_settings")
       .upsert({
         key,
@@ -1591,499 +1753,419 @@ async function saveSetting(key,value){
         updated_at:new Date().toISOString()
       });
 
-  if(error) throw error;
-}
 
+  if(error){
 
-// ---------------- LOAD EVERYTHING ----------------
-
-async function loadEverything(){
-
-  await Promise.allSettled([
-    loadHero(),
-    loadAbout(),
-    loadContact(),
-    loadSocial(),
-    loadHours(),
-    loadNews(),
-    loadLogo(),
-    loadDashboard(),
-    loadDiscountCampaign()
-  ]);
-
-}
-
-
-// ---------------- DASHBOARD ----------------
-
-async function countTable(table){
-
-  const {count} =
-    await supabaseClient()
-      .from(table)
-      .select("*",{count:"exact",head:true});
-
-  return count || 0;
-}
-
-
-async function loadDashboard(){
-
-  document.getElementById("statMenu")
-    .textContent=await countTable("Menu");
-
-  document.getElementById("statBookings")
-    .textContent=await countTable("table_bookings");
-
-  document.getElementById("statReviews")
-    .textContent=await countTable("reviews");
-
-  document.getElementById("statReports")
-    .textContent=await countTable("customer_reports");
-
-  document.getElementById("statStaff")
-    .textContent=await countTable("admin_staff");
-
-  const {count} =
-    await supabaseClient()
-      .from("discount_codes")
-      .select("*",{count:"exact",head:true})
-      .eq("status","USED");
-
-  document.getElementById("statCodes")
-    .textContent=count || 0;
-
-}
-
-
-// ---------------- HERO ----------------
-
-async function loadHero(){
-
-  const v=await getSetting("hero");
-
-  document.getElementById("heroTitle").value=v.title||"";
-  document.getElementById("heroText").value=v.text||"";
-
-  if(v.image_url){
-
-    const p=document.getElementById("heroPreview");
-
-    p.src=v.image_url;
-    p.classList.remove("hidden");
+    throw error;
 
   }
 
 }
 
+
+// =================================================
+// LOAD SETTINGS
+// =================================================
+
+async function loadSettings(){
+
+  try{
+
+    const hero=
+      await getSetting("hero");
+
+    if(hero){
+
+      document.getElementById("heroTitle")
+        .value=hero.title||"";
+
+      document.getElementById("heroText")
+        .value=hero.text||"";
+
+      if(hero.image_url){
+
+        const image=
+          document.getElementById("heroPreview");
+
+        image.src=hero.image_url;
+        image.classList.remove("hidden");
+
+      }
+
+    }
+
+
+    const about=
+      await getSetting("about");
+
+    if(about){
+
+      document.getElementById("aboutTitle")
+        .value=about.title||"";
+
+      document.getElementById("aboutText")
+        .value=about.text||"";
+
+    }
+
+
+    const contact=
+      await getSetting("contact");
+
+    if(contact){
+
+      document.getElementById("contactAddress")
+        .value=
+        contact.address||
+        "Via Vespasiano 73/75/77 Roma";
+
+      document.getElementById("contactPhone1")
+        .value=
+        contact.phone1||
+        "+39 333 7687319";
+
+      document.getElementById("contactPhone2")
+        .value=
+        contact.phone2||
+        "+39 393 3805350";
+
+      document.getElementById("contactWhatsapp")
+        .value=
+        contact.whatsapp||
+        "+39 333 7687319";
+
+      document.getElementById("contactMaps")
+        .value=
+        contact.maps||
+        "";
+
+    }
+
+
+    const social=
+      await getSetting("social");
+
+    if(social){
+
+      document.getElementById("facebook")
+        .value=social.facebook||"";
+
+      document.getElementById("instagram")
+        .value=social.instagram||"";
+
+      document.getElementById("tiktok")
+        .value=social.tiktok||"";
+
+    }
+
+
+    const breaking=
+      await getSetting("breaking_news");
+
+    if(breaking){
+
+      document.getElementById("breakingEnabled")
+        .checked=
+        breaking.enabled===true;
+
+      document.getElementById("breakingText")
+        .value=
+        breaking.text||"";
+
+      document.getElementById("breakingStart")
+        .value=
+        toLocalDateTime(
+          breaking.start
+        );
+
+      document.getElementById("breakingEnd")
+        .value=
+        toLocalDateTime(
+          breaking.end
+        );
+
+    }
+
+
+    const hours=
+      await getSetting("hours");
+
+    renderHours(hours||{});
+
+
+  }catch(error){
+
+    console.error(
+      "LOAD SETTINGS:",
+      error
+    );
+
+  }
+
+}
+
+
+// =================================================
+// HERO
+// =================================================
 
 async function saveHero(){
 
+  const message=
+    document.getElementById("heroMessage");
+
   try{
 
-    let v=await getSetting("hero");
+    const old=
+      await getSetting("hero")||{};
 
-    const file =
-      document.getElementById("heroImageFile").files[0];
 
-    let imageUrl=v.image_url||"";
+    let imageUrl=
+      old.image_url||"";
+
+
+    const file=
+      document.getElementById("heroImage")
+        .files[0];
+
 
     if(file){
 
-      imageUrl =
-        await uploadFile("site-media",file,"hero");
+      imageUrl=
+        await uploadFile(
+          file,
+          "site-media",
+          "hero"
+        );
+
     }
 
-    await saveSetting("hero",{
-      title:document.getElementById("heroTitle").value,
-      text:document.getElementById("heroText").value,
-      image_url:imageUrl
-    });
 
-    showMessage("heroMessage","Hero saved successfully.","success");
+    await saveSetting(
+      "hero",
+      {
+        title:
+          document.getElementById("heroTitle")
+            .value,
 
-    loadHero();
+        text:
+          document.getElementById("heroText")
+            .value,
 
-  }catch(e){
+        image_url:imageUrl
 
-    showMessage("heroMessage",e.message,"error");
-
-  }
-
-}
-
-
-// ---------------- LOGO ----------------
-
-async function loadLogo(){
-
-  const v=await getSetting("logo");
-
-  if(v.url){
-
-    const p=document.getElementById("logoPreview");
-
-    p.src=v.url;
-    p.classList.remove("hidden");
-
-  }
-
-}
-
-
-async function saveLogo(){
-
-  try{
-
-    const file =
-      document.getElementById("logoFile").files[0];
-
-    if(!file){
-
-      showMessage(
-        "logoMessage",
-        "Please select a logo image.",
-        "error"
-      );
-
-      return;
-    }
-
-    const url =
-      await uploadFile("site-media",file,"logo");
-
-    await saveSetting("logo",{
-      url
-    });
-
-    showMessage(
-      "logoMessage",
-      "Logo uploaded successfully.",
-      "success"
+      }
     );
 
-    loadLogo();
 
-  }catch(e){
+    message.innerHTML=
+      "✅ Hero saved successfully.";
 
-    showMessage("logoMessage",e.message,"error");
+  }catch(error){
+
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
 
   }
 
 }
 
 
-async function removeLogo(){
-
-  await saveSetting("logo",{url:""});
-
-  document.getElementById("logoPreview")
-    .classList.add("hidden");
-
-  showMessage(
-    "logoMessage",
-    "Logo removed from website settings.",
-    "success"
-  );
-
-}
-
-
-// ---------------- ABOUT ----------------
-
-async function loadAbout(){
-
-  const v=await getSetting("about");
-
-  document.getElementById("aboutTitle").value=v.title||"";
-  document.getElementById("aboutText").value=v.text||"";
-
-}
-
+// =================================================
+// ABOUT
+// =================================================
 
 async function saveAbout(){
 
+  const message=
+    document.getElementById("aboutMessage");
+
   try{
 
-    let v=await getSetting("about");
+    const old=
+      await getSetting("about")||{};
 
-    const file =
-      document.getElementById("aboutFile").files[0];
+    let mediaUrl=
+      old.media_url||"";
 
-    let mediaUrl=v.media_url||"";
+
+    const file=
+      document.getElementById("aboutImage")
+        .files[0];
+
 
     if(file){
 
-      mediaUrl =
-        await uploadFile("site-media",file,"about");
+      mediaUrl=
+        await uploadFile(
+          file,
+          "site-media",
+          "about"
+        );
 
     }
 
-    await saveSetting("about",{
-      title:document.getElementById("aboutTitle").value,
-      text:document.getElementById("aboutText").value,
-      media_url:mediaUrl
-    });
 
-    showMessage(
-      "aboutMessage",
-      "About section saved.",
-      "success"
+    await saveSetting(
+      "about",
+      {
+        title:
+          document.getElementById("aboutTitle")
+            .value,
+
+        text:
+          document.getElementById("aboutText")
+            .value,
+
+        media_url:mediaUrl
+
+      }
     );
 
-  }catch(e){
 
-    showMessage("aboutMessage",e.message,"error");
+    message.innerHTML=
+      "✅ About saved successfully.";
 
-  }
+  }catch(error){
 
-}
-
-
-// ---------------- VIDEOS ----------------
-
-async function loadVideos(){
-
-  const v=await getSetting("videos");
-
-  if(v.video1){
-
-    document.getElementById("video1Preview").src=v.video1;
-    document.getElementById("video1Preview")
-      .classList.remove("hidden");
-
-  }
-
-  if(v.video2){
-
-    document.getElementById("video2Preview").src=v.video2;
-    document.getElementById("video2Preview")
-      .classList.remove("hidden");
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
 
   }
 
 }
 
 
-async function saveVideo(number){
-
-  try{
-
-    const input =
-      document.getElementById("video"+number+"File");
-
-    const file=input.files[0];
-
-    if(!file){
-
-      alert("Please select a video.");
-      return;
-    }
-
-    const url =
-      await uploadFile(
-        "site-media",
-        file,
-        "videos"
-      );
-
-    const v=await getSetting("videos");
-
-    v["video"+number]=url;
-
-    await saveSetting("videos",v);
-
-    loadVideos();
-
-    alert("Video "+number+" uploaded successfully.");
-
-  }catch(e){
-
-    alert(e.message);
-
-  }
-
-}
-
-
-async function removeVideo(number){
-
-  const v=await getSetting("videos");
-
-  v["video"+number]="";
-
-  await saveSetting("videos",v);
-
-  document.getElementById("video"+number+"Preview")
-    .classList.add("hidden");
-
-}
-
-
-// ---------------- NEWS ----------------
-
-async function loadNews(){
-
-  const v=await getSetting("breaking_news");
-
-  document.getElementById("newsEnabled").value=
-    String(v.enabled!==false);
-
-  document.getElementById("newsText").value=v.text||"";
-
-}
-
-
-async function saveNews(){
-
-  try{
-
-    await saveSetting("breaking_news",{
-
-      enabled:
-        document.getElementById("newsEnabled").value==="true",
-
-      text:
-        document.getElementById("newsText").value,
-
-      start:
-        document.getElementById("newsStart").value,
-
-      end:
-        document.getElementById("newsEnd").value
-
-    });
-
-    showMessage(
-      "newsMessage",
-      "Breaking News saved.",
-      "success"
-    );
-
-  }catch(e){
-
-    showMessage(
-      "newsMessage",
-      e.message,
-      "error"
-    );
-
-  }
-
-}
-
-
-// ---------------- CONTACT ----------------
-
-async function loadContact(){
-
-  const v=await getSetting("contact");
-
-  document.getElementById("contactAddress").value=v.address||"";
-  document.getElementById("contactPhone1").value=v.phone1||"";
-  document.getElementById("contactPhone2").value=v.phone2||"";
-  document.getElementById("contactWhatsapp").value=v.whatsapp||"";
-  document.getElementById("contactMaps").value=v.maps||"";
-
-}
-
+// =================================================
+// CONTACT
+// =================================================
 
 async function saveContact(){
 
-  await saveSetting("contact",{
+  const message=
+    document.getElementById("contactMessage");
 
-    address:
-      document.getElementById("contactAddress").value,
+  try{
 
-    phone1:
-      document.getElementById("contactPhone1").value,
+    await saveSetting(
+      "contact",
+      {
+        address:
+          document.getElementById("contactAddress")
+            .value,
 
-    phone2:
-      document.getElementById("contactPhone2").value,
+        phone1:
+          document.getElementById("contactPhone1")
+            .value,
 
-    whatsapp:
-      document.getElementById("contactWhatsapp").value,
+        phone2:
+          document.getElementById("contactPhone2")
+            .value,
 
-    maps:
-      document.getElementById("contactMaps").value
+        whatsapp:
+          document.getElementById("contactWhatsapp")
+            .value,
 
-  });
+        maps:
+          document.getElementById("contactMaps")
+            .value
 
-  showMessage(
-    "contactMessage",
-    "Contact saved successfully.",
-    "success"
-  );
+      }
+    );
+
+
+    message.innerHTML=
+      "✅ Contact saved successfully.";
+
+  }catch(error){
+
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
+
+  }
 
 }
 
 
-// ---------------- SOCIAL ----------------
-
-async function loadSocial(){
-
-  const v=await getSetting("social");
-
-  document.getElementById("socialFacebook").value=v.facebook||"";
-  document.getElementById("socialInstagram").value=v.instagram||"";
-  document.getElementById("socialTikTok").value=v.tiktok||"";
-
-}
-
+// =================================================
+// SOCIAL
+// =================================================
 
 async function saveSocial(){
 
-  await saveSetting("social",{
+  const message=
+    document.getElementById("socialMessage");
 
-    facebook:
-      document.getElementById("socialFacebook").value,
+  try{
 
-    instagram:
-      document.getElementById("socialInstagram").value,
+    await saveSetting(
+      "social",
+      {
+        facebook:
+          document.getElementById("facebook")
+            .value,
 
-    tiktok:
-      document.getElementById("socialTikTok").value
+        instagram:
+          document.getElementById("instagram")
+            .value,
 
-  });
+        tiktok:
+          document.getElementById("tiktok")
+            .value
 
-  alert("Social media saved.");
+      }
+    );
+
+
+    message.innerHTML=
+      "✅ Social media saved.";
+
+  }catch(error){
+
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
+
+  }
 
 }
 
 
-// ---------------- HOURS ----------------
+// =================================================
+// HOURS
+// =================================================
 
-async function loadHours(){
+function renderHours(hours){
 
-  const v=await getSetting("hours");
-
-  const box=document.getElementById("hoursForm");
+  const box=
+    document.getElementById("hoursFields");
 
   box.innerHTML="";
 
+
   days.forEach(day=>{
 
-    const row=document.createElement("div");
+    const value=
+      hours[day]||
+      "12:00 - 15:00 / 18:00 - 23:00";
 
-    row.className="grid";
 
-    row.innerHTML=`
+    box.innerHTML+=`
 
       <div class="field">
+
         <label>${day}</label>
-        <input id="open_${day}"
-               value="${v[day]?.open||""}">
-      </div>
 
-      <div class="field">
-        <label>Closing</label>
-        <input id="close_${day}"
-               value="${v[day]?.close||""}">
+        <input
+          id="hour-${day}"
+          value="${escapeAttr(value)}">
+
       </div>
 
     `;
-
-    box.appendChild(row);
 
   });
 
@@ -2092,96 +2174,83 @@ async function loadHours(){
 
 async function saveHours(){
 
-  const data={};
+  const message=
+    document.getElementById("hoursMessage");
 
-  days.forEach(day=>{
+  try{
 
-    data[day]={
+    const hours={};
 
-      open:
-        document.getElementById("open_"+day).value,
 
-      close:
-        document.getElementById("close_"+day).value
+    days.forEach(day=>{
 
-    };
+      hours[day]=
+        document.getElementById(
+          "hour-"+day
+        ).value;
 
-  });
+    });
 
-  await saveSetting("hours",data);
 
-  alert("Opening hours saved.");
+    await saveSetting(
+      "hours",
+      hours
+    );
+
+
+    message.innerHTML=
+      "✅ Opening hours saved.";
+
+  }catch(error){
+
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
+
+  }
 
 }
 
 
-// ---------------- MENU CATEGORIES ----------------
+// =================================================
+// CATEGORIES
+// =================================================
 
 async function loadCategories(){
 
-  const {data,error} =
-    await supabaseClient()
+  const {data,error}=
+    await supabaseClient
       .from("menu_categories")
       .select("*")
       .order("sort_order",{ascending:true})
       .order("name",{ascending:true});
 
+
   if(error){
 
     console.error(error);
     return;
+
   }
 
-  const select =
+
+  const select=
     document.getElementById("menuCategory");
 
+
   select.innerHTML=
-    `<option value="">Select Category</option>`;
-
-  data.forEach(c=>{
-
-    const option=document.createElement("option");
-
-    option.value=c.name;
-    option.textContent=c.name;
-
-    select.appendChild(option);
-
-  });
+    `<option value="">
+      Select Category
+    </option>`;
 
 
-  const list =
-    document.getElementById("categoryList");
+  (data||[]).forEach(category=>{
 
-  list.innerHTML="";
-
-  data.forEach(c=>{
-
-    const div=document.createElement("div");
-
-    div.className="category-card";
-
-    div.innerHTML=`
-
-      ${
-        c.image_url
-        ? `<img src="${c.image_url}">`
-        : `<div style="height:130px;display:flex;align-items:center;justify-content:center;background:#222;border-radius:10px">🍽️</div>`
-      }
-
-      <strong>${escapeHtml(c.name)}</strong>
-
-      <div class="actions">
-
-        <button class="danger-btn"
-          onclick="deleteCategory(${c.id},'${escapeAttr(c.name)}')">
-          Delete
-        </button>
-
-      </div>
+    select.innerHTML+=`
+      <option value="${escapeAttr(category.name)}">
+        ${escapeHtml(category.name)}
+      </option>
     `;
-
-    list.appendChild(div);
 
   });
 
@@ -2190,73 +2259,72 @@ async function loadCategories(){
 
 async function addCategory(){
 
+  const name=
+    document.getElementById("newCategory")
+      .value.trim();
+
+
+  if(!name){
+
+    alert("Enter category name.");
+
+    return;
+  }
+
+
+  const file=
+    document.getElementById("categoryImage")
+      .files[0];
+
+
+  let imageUrl=null;
+
+
   try{
-
-    const name =
-      document.getElementById("newCategoryName")
-        .value.trim();
-
-    if(!name){
-
-      showMessage(
-        "categoryMessage",
-        "Category name required.",
-        "error"
-      );
-
-      return;
-    }
-
-    const file =
-      document.getElementById("categoryImageFile")
-        .files[0];
-
-    let imageUrl="";
 
     if(file){
 
-      imageUrl =
+      imageUrl=
         await uploadFile(
-          "menu-images",
           file,
+          "menu-images",
           "categories"
         );
 
     }
 
-    const {error} =
-      await supabaseClient()
+
+    const {error}=
+      await supabaseClient
         .from("menu_categories")
         .insert({
-
           name,
-          image_url:imageUrl,
-          sort_order:0
-
+          image_url:imageUrl
         });
+
 
     if(error) throw error;
 
-    document.getElementById("newCategoryName")
+
+    document.getElementById("newCategory")
       .value="";
 
-    document.getElementById("categoryImageFile")
+    document.getElementById("categoryImage")
       .value="";
 
-    showMessage(
-      "categoryMessage",
-      "New category created.",
-      "success"
+
+    await loadCategories();
+
+
+    alert(
+      "Category added successfully."
     );
 
-    loadCategories();
+  }catch(error){
 
-  }catch(e){
-
-    showMessage(
-      "categoryMessage",
-      e.message,
-      "error"
+    alert(
+      "Category error: "+
+      error.message
     );
 
   }
@@ -2264,226 +2332,191 @@ async function addCategory(){
 }
 
 
-async function deleteCategory(id,name){
-
-  if(!confirm(
-    "Delete category '"+name+"'?"
-  )) return;
-
-  const {error} =
-    await supabaseClient()
-      .from("menu_categories")
-      .delete()
-      .eq("id",id);
-
-  if(error){
-
-    alert(error.message);
-    return;
-  }
-
-  loadCategories();
-
-}
-
-
-// ---------------- MENU ----------------
+// =================================================
+// MENU
+// =================================================
 
 async function loadMenu(){
 
-  const {data,error} =
-    await supabaseClient()
+  const box=
+    document.getElementById("menuList");
+
+
+  if(!box) return;
+
+
+  const {data,error}=
+    await supabaseClient
       .from("Menu")
       .select("*")
       .order("created_at",{ascending:false});
 
+
   if(error){
 
-    console.error(error);
+    box.innerHTML=
+      `<div class="error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
     return;
+
   }
 
-  const table =
-    document.getElementById("menuTable");
 
-  table.innerHTML="";
+  if(!data || !data.length){
+
+    box.innerHTML=
+      `<div class="notice">
+        No menu items yet.
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML="";
+
 
   data.forEach(item=>{
 
-    const tr=document.createElement("tr");
+    const div=
+      document.createElement("div");
 
-    tr.innerHTML=`
+    div.className="item";
 
-      <td>
-        ${
-          item.image_url
-          ? `<img src="${item.image_url}"
-                  style="width:55px;height:55px;object-fit:cover;border-radius:10px">`
-          : "—"
-        }
-      </td>
 
-      <td>${escapeHtml(item.name||"")}</td>
+    div.innerHTML=`
 
-      <td>${escapeHtml(item.price||"")}</td>
+      <div class="item-title">
+        ${escapeHtml(item.name||"")}
+      </div>
 
-      <td>${escapeHtml(item.category||"")}</td>
+      <div class="item-meta">
+        Category:
+        ${escapeHtml(item.category||"—")}
+        · Price:
+        ${escapeHtml(item.price||"—")}
+      </div>
 
-      <td>
+      ${
+        item.image_url
+        ?
+        `<img
+          class="preview"
+          src="${escapeAttr(item.image_url)}">`
+        :
+        ""
+      }
 
-        <div class="actions">
+      <br>
 
-          <button class="dark-btn"
-            onclick='editMenu(${JSON.stringify(item)})'>
-            Edit
-          </button>
-
-          <button class="danger-btn"
-            onclick="deleteMenu(${item.id})">
-            Delete
-          </button>
-
-        </div>
-
-      </td>
+      <button
+        class="danger-btn"
+        onclick="deleteMenu(${item.id})">
+        Delete
+      </button>
 
     `;
 
-    table.appendChild(tr);
+
+    box.appendChild(div);
 
   });
 
 }
 
 
-function editMenu(item){
+async function addMenuItem(){
 
-  document.getElementById("menuId").value=item.id;
-  document.getElementById("menuName").value=item.name||"";
-  document.getElementById("menuPrice").value=item.price||"";
-  document.getElementById("menuCategory").value=item.category||"";
-  document.getElementById("menuDescription").value=
-    item.description||"";
+  const name=
+    document.getElementById("menuName")
+      .value.trim();
 
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
+  const price=
+    document.getElementById("menuPrice")
+      .value.trim();
 
-}
+  const category=
+    document.getElementById("menuCategory")
+      .value;
 
 
-function clearMenuForm(){
+  if(!name || !category){
 
-  document.getElementById("menuId").value="";
-  document.getElementById("menuName").value="";
-  document.getElementById("menuPrice").value="";
-  document.getElementById("menuCategory").value="";
-  document.getElementById("menuDescription").value="";
-  document.getElementById("menuImageFile").value="";
+    alert(
+      "Name and category are required."
+    );
 
-}
+    return;
 
+  }
 
-async function saveMenuItem(){
 
   try{
 
-    const id =
-      document.getElementById("menuId").value;
+    let imageUrl=null;
 
-    const name =
-      document.getElementById("menuName").value.trim();
-
-    const price =
-      document.getElementById("menuPrice").value.trim();
-
-    const category =
-      document.getElementById("menuCategory").value;
-
-    const description =
-      document.getElementById("menuDescription").value;
-
-    if(!name || !category){
-
-      showMessage(
-        "menuMessage",
-        "Food name and category are required.",
-        "error"
-      );
-
-      return;
-    }
-
-    const file =
-      document.getElementById("menuImageFile")
+    const file=
+      document.getElementById("menuPhoto")
         .files[0];
 
-    let imageUrl="";
 
     if(file){
 
-      imageUrl =
+      imageUrl=
         await uploadFile(
-          "menu-images",
           file,
-          "foods"
+          "menu-images",
+          "items"
         );
 
     }
 
-    const payload={
-      name,
-      price,
-      category,
-      description
-    };
 
-    if(imageUrl){
+    const {error}=
+      await supabaseClient
+        .from("Menu")
+        .insert({
 
-      payload.image_url=imageUrl;
+          name,
+          price,
+          category,
+          image_url:imageUrl
 
-    }
+        });
 
-    if(id){
 
-      const {error} =
-        await supabaseClient()
-          .from("Menu")
-          .update(payload)
-          .eq("id",id);
+    if(error) throw error;
 
-      if(error) throw error;
 
-    }else{
+    document.getElementById("menuName")
+      .value="";
 
-      const {error} =
-        await supabaseClient()
-          .from("Menu")
-          .insert(payload);
+    document.getElementById("menuPrice")
+      .value="";
 
-      if(error) throw error;
+    document.getElementById("menuCategory")
+      .value="";
 
-    }
+    document.getElementById("menuPhoto")
+      .value="";
 
-    showMessage(
-      "menuMessage",
-      id
-      ? "Menu item updated."
-      : "Menu item created.",
-      "success"
-    );
 
-    clearMenuForm();
-    loadMenu();
+    document.getElementById("menuMessage")
+      .innerHTML=
+      "✅ Menu item added successfully.";
 
-  }catch(e){
 
-    showMessage(
-      "menuMessage",
-      e.message,
-      "error"
-    );
+    await loadMenu();
+
+  }catch(error){
+
+    document.getElementById("menuMessage")
+      .innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
 
   }
 
@@ -2492,95 +2525,100 @@ async function saveMenuItem(){
 
 async function deleteMenu(id){
 
-  if(!confirm("Delete this menu item?"))
-    return;
+  if(!confirm(
+    "Delete this menu item?"
+  )) return;
 
-  const {error} =
-    await supabaseClient()
+
+  const {error}=
+    await supabaseClient
       .from("Menu")
       .delete()
       .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
+
   }
 
-  loadMenu();
+
+  await loadMenu();
 
 }
 
 
-// ---------------- GALLERY ----------------
+// =================================================
+// GALLERY
+// =================================================
 
 async function uploadGallery(){
 
+  const file=
+    document.getElementById("galleryPhoto")
+      .files[0];
+
+
+  if(!file){
+
+    alert("Please select a photo.");
+
+    return;
+
+  }
+
+
   try{
 
-    const file =
-      document.getElementById("galleryFile")
-        .files[0];
-
-    if(!file){
-
-      showMessage(
-        "galleryMessage",
-        "Please select a photo.",
-        "error"
-      );
-
-      return;
-    }
-
-    const url =
+    const url=
       await uploadFile(
-        "site-media",
         file,
+        "site-media",
         "gallery"
       );
 
-    const {error} =
-      await supabaseClient()
+
+    const {error}=
+      await supabaseClient
         .from("gallery")
         .insert({
 
           image_url:url,
 
-          storage_path:url,
-
           title:
             document.getElementById("galleryTitle")
               .value,
-
-          category:
-            document.getElementById("galleryCategory")
-              .value || "Restaurant",
 
           is_visible:true
 
         });
 
+
     if(error) throw error;
 
-    showMessage(
-      "galleryMessage",
-      "Gallery photo uploaded.",
-      "success"
-    );
 
-    document.getElementById("galleryFile").value="";
-    document.getElementById("galleryTitle").value="";
+    document.getElementById("galleryPhoto")
+      .value="";
 
-    loadGallery();
+    document.getElementById("galleryTitle")
+      .value="";
 
-  }catch(e){
 
-    showMessage(
-      "galleryMessage",
-      e.message,
-      "error"
-    );
+    document.getElementById("galleryMessage")
+      .innerHTML=
+      "✅ Gallery photo uploaded.";
+
+    await loadGallery();
+
+  }catch(error){
+
+    document.getElementById("galleryMessage")
+      .innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
 
   }
 
@@ -2589,52 +2627,81 @@ async function uploadGallery(){
 
 async function loadGallery(){
 
-  const {data,error} =
-    await supabaseClient()
+  const box=
+    document.getElementById("galleryList");
+
+
+  if(!box) return;
+
+
+  const {data,error}=
+    await supabaseClient
       .from("gallery")
       .select("*")
-      .order("sort_order",{ascending:true})
       .order("created_at",{ascending:false});
+
 
   if(error){
 
-    console.error(error);
+    box.innerHTML=
+      `<div class="error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
     return;
+
   }
 
-  const box =
-    document.getElementById("galleryList");
+
+  if(!data || !data.length){
+
+    box.innerHTML=
+      `<div class="notice">
+        No gallery photos yet.
+      </div>`;
+
+    return;
+
+  }
+
 
   box.innerHTML="";
 
+
   data.forEach(item=>{
 
-    const div=document.createElement("div");
+    const div=
+      document.createElement("div");
 
-    div.className="category-card";
+    div.className="item";
+
 
     div.innerHTML=`
 
-      <img src="${item.image_url}">
+      ${
+        item.image_url
+        ?
+        `<img
+          class="preview"
+          src="${escapeAttr(item.image_url)}">`
+        :
+        ""
+      }
 
-      <strong>
+      <div class="item-title">
         ${escapeHtml(item.title||"Gallery Photo")}
-      </strong>
-
-      <div style="color:#888;margin-top:6px">
-        ${escapeHtml(item.category||"")}
       </div>
 
-      <div class="actions">
+      <br>
 
-        <button class="danger-btn"
-          onclick="deleteGallery(${item.id})">
-          Delete
-        </button>
-
-      </div>
+      <button
+        class="danger-btn"
+        onclick="deleteGallery(${item.id})">
+        Delete
+      </button>
 
     `;
+
 
     box.appendChild(div);
 
@@ -2645,697 +2712,747 @@ async function loadGallery(){
 
 async function deleteGallery(id){
 
-  if(!confirm("Delete this gallery photo?"))
-    return;
+  if(!confirm(
+    "Delete this gallery photo?"
+  )) return;
 
-  const {error} =
-    await supabaseClient()
+
+  const {error}=
+    await supabaseClient
       .from("gallery")
       .delete()
       .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
+
   }
 
-  loadGallery();
+
+  await loadGallery();
 
 }
 
 
-// ---------------- BOOKINGS ----------------
+// =================================================
+// VIDEOS
+// =================================================
+
+async function uploadVideo(number){
+
+  const file=
+    document.getElementById(
+      "video"+number
+    ).files[0];
+
+
+  if(!file){
+
+    alert(
+      "Please select Video "+
+      number
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const url=
+      await uploadFile(
+        file,
+        "site-media",
+        "videos"
+      );
+
+
+    const old=
+      await getSetting("videos")||{};
+
+
+    old[
+      "video"+number
+    ]=url;
+
+
+    await saveSetting(
+      "videos",
+      old
+    );
+
+
+    document.getElementById(
+      "video"+number+"Message"
+    ).innerHTML=
+      "✅ Video "+
+      number+
+      " uploaded successfully.";
+
+  }catch(error){
+
+    document.getElementById(
+      "video"+number+"Message"
+    ).innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
+
+  }
+
+}
+
+
+// =================================================
+// BREAKING
+// =================================================
+
+async function saveBreaking(){
+
+  const message=
+    document.getElementById("breakingMessage");
+
+
+  try{
+
+    await saveSetting(
+      "breaking_news",
+      {
+
+        enabled:
+          document.getElementById(
+            "breakingEnabled"
+          ).checked,
+
+        text:
+          document.getElementById(
+            "breakingText"
+          ).value,
+
+        start:
+          document.getElementById(
+            "breakingStart"
+          ).value
+          ||null,
+
+        end:
+          document.getElementById(
+            "breakingEnd"
+          ).value
+          ||null
+
+      }
+    );
+
+
+    message.innerHTML=
+      "✅ Breaking News saved.";
+
+  }catch(error){
+
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
+
+  }
+
+}
+
+
+// =================================================
+// BOOKINGS
+// =================================================
 
 async function loadBookings(){
 
-  const {data,error} =
-    await supabaseClient()
+  const box=
+    document.getElementById("bookingList");
+
+
+  if(!box) return;
+
+
+  const {data,error}=
+    await supabaseClient
       .from("table_bookings")
       .select("*")
-      .order("created_at",{ascending:false});
+      .order("created_at",{ascending:false})
+      .limit(100);
+
 
   if(error){
 
-    console.error(error);
+    box.innerHTML=
+      `<div class="error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
     return;
+
   }
 
-  const table =
-    document.getElementById("bookingTable");
 
-  table.innerHTML="";
+  if(!data || !data.length){
 
-  data.forEach(b=>{
+    box.innerHTML=
+      `<div class="notice">
+        No bookings.
+      </div>`;
 
-    const tr=document.createElement("tr");
+    return;
 
-    tr.innerHTML=`
+  }
 
-      <td>${escapeHtml(b.booking_reference||"—")}</td>
 
-      <td>${escapeHtml(b.customer_name||"")}</td>
+  box.innerHTML="";
 
-      <td>${escapeHtml(b.booking_date||"")}</td>
 
-      <td>${escapeHtml(b.booking_time||"")}</td>
+  data.forEach(item=>{
 
-      <td>${b.guests||""}</td>
+    const div=
+      document.createElement("div");
 
-      <td>
-        <span class="badge">${escapeHtml(b.status||"Pending")}</span>
-      </td>
+    div.className="item";
 
-      <td>
 
-        <select
-          onchange="updateBookingStatus(${b.id},this.value)">
+    div.innerHTML=`
 
-          <option ${b.status==="Pending"?"selected":""}>
-            Pending
-          </option>
+      <div class="item-title">
+        ${escapeHtml(item.customer_name||"")}
+      </div>
 
-          <option ${b.status==="Confirmed"?"selected":""}>
-            Confirmed
-          </option>
+      <div class="item-meta">
+        ${escapeHtml(item.booking_reference||"")}<br>
+        ${escapeHtml(item.booking_date||"")}
+        ·
+        ${escapeHtml(item.booking_time||"")}
+        ·
+        ${item.guests||2} guests
+      </div>
 
-          <option ${b.status==="Cancelled"?"selected":""}>
-            Cancelled
-          </option>
-
-        </select>
-
-      </td>
+      <div class="notice">
+        Status:
+        <strong>
+          ${escapeHtml(item.status||"Pending")}
+        </strong>
+      </div>
 
     `;
 
-    table.appendChild(tr);
+
+    box.appendChild(div);
 
   });
 
 }
 
 
-async function updateBookingStatus(id,status){
-
-  const {error} =
-    await supabaseClient()
-      .from("table_bookings")
-      .update({
-        status,
-        updated_at:new Date().toISOString()
-      })
-      .eq("id",id);
-
-  if(error){
-
-    alert(error.message);
-    return;
-  }
-
-  loadBookings();
-
-}
-
-
-// ---------------- REVIEWS ----------------
+// =================================================
+// REVIEWS
+// =================================================
 
 async function loadReviews(){
 
-  const {data,error} =
-    await supabaseClient()
+  const box=
+    document.getElementById("reviewList");
+
+
+  if(!box) return;
+
+
+  const {data,error}=
+    await supabaseClient
       .from("reviews")
       .select("*")
-      .order("created_at",{ascending:false});
+      .order("created_at",{ascending:false})
+      .limit(100);
+
 
   if(error){
 
-    console.error(error);
+    box.innerHTML=
+      `<div class="error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
     return;
+
   }
 
-  const table =
-    document.getElementById("reviewTable");
 
-  table.innerHTML="";
+  if(!data || !data.length){
 
-  data.forEach(r=>{
+    box.innerHTML=
+      `<div class="notice">
+        No reviews.
+      </div>`;
 
-    const tr=document.createElement("tr");
+    return;
 
-    tr.innerHTML=`
+  }
 
-      <td>${escapeHtml(r.customer_name||"")}</td>
 
-      <td>⭐ ${r.rating||0}</td>
+  box.innerHTML="";
 
-      <td>${escapeHtml(r.message||"")}</td>
 
-      <td>${escapeHtml(r.status||"")}</td>
+  data.forEach(item=>{
 
-      <td>
+    const div=
+      document.createElement("div");
 
-        <div class="actions">
+    div.className="item";
 
-          <button class="success-btn"
-            onclick="approveReview(${r.id})">
-            Approve
-          </button>
 
-          <button class="danger-btn"
-            onclick="deleteReview(${r.id})">
-            Delete
-          </button>
+    div.innerHTML=`
 
-        </div>
+      <div class="item-title">
+        ${escapeHtml(item.customer_name||"")}
+      </div>
 
-      </td>
+      <div class="item-meta">
+        Rating:
+        ${"★".repeat(
+          Number(item.rating||0)
+        )}
+      </div>
+
+      <p>
+        ${escapeHtml(item.message||"")}
+      </p>
+
+      <div class="notice">
+        Status:
+        ${escapeHtml(item.status||"")}
+      </div>
 
     `;
 
-    table.appendChild(tr);
+
+    box.appendChild(div);
 
   });
 
 }
 
 
-async function approveReview(id){
-
-  const {error} =
-    await supabaseClient()
-      .from("reviews")
-      .update({
-        status:"Approved"
-      })
-      .eq("id",id);
-
-  if(error){
-
-    alert(error.message);
-    return;
-  }
-
-  loadReviews();
-
-}
-
-
-async function deleteReview(id){
-
-  if(!confirm("Delete this review?"))
-    return;
-
-  const {error} =
-    await supabaseClient()
-      .from("reviews")
-      .delete()
-      .eq("id",id);
-
-  if(error){
-
-    alert(error.message);
-    return;
-  }
-
-  loadReviews();
-
-}
-
-
-// ---------------- REPORTS ----------------
+// =================================================
+// REPORTS
+// =================================================
 
 async function loadReports(){
 
-  const {data,error} =
-    await supabaseClient()
+  const box=
+    document.getElementById("reportList");
+
+
+  if(!box) return;
+
+
+  const {data,error}=
+    await supabaseClient
       .from("customer_reports")
       .select("*")
-      .order("created_at",{ascending:false});
+      .order("created_at",{ascending:false})
+      .limit(100);
+
 
   if(error){
 
-    console.error(error);
+    box.innerHTML=
+      `<div class="error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
     return;
+
   }
 
-  const table =
-    document.getElementById("reportTable");
 
-  table.innerHTML="";
+  if(!data || !data.length){
 
-  data.forEach(r=>{
+    box.innerHTML=
+      `<div class="notice">
+        No reports.
+      </div>`;
 
-    const tr=document.createElement("tr");
+    return;
 
-    tr.innerHTML=`
+  }
 
-      <td>${escapeHtml(r.customer_name||"")}</td>
 
-      <td>${escapeHtml(r.phone||"")}</td>
+  box.innerHTML="";
 
-      <td>${escapeHtml(r.email||"")}</td>
 
-      <td>${escapeHtml(r.subject||"")}</td>
+  data.forEach(item=>{
 
-      <td>${escapeHtml(r.message||"")}</td>
+    const div=
+      document.createElement("div");
 
-      <td>${escapeHtml(r.status||"New")}</td>
+    div.className="item";
+
+
+    div.innerHTML=`
+
+      <div class="item-title">
+        ${escapeHtml(item.subject||"Report")}
+      </div>
+
+      <div class="item-meta">
+        ${escapeHtml(item.customer_name||"")}
+        ·
+        ${escapeHtml(item.phone||item.email||"")}
+      </div>
+
+      <p>
+        ${escapeHtml(item.message||"")}
+      </p>
+
+      <div class="notice">
+        Status:
+        ${escapeHtml(item.status||"New")}
+      </div>
 
     `;
 
-    table.appendChild(tr);
+
+    box.appendChild(div);
 
   });
 
 }
 
 
-// ---------------- DISCOUNT ----------------
+// =================================================
+// STAFF
+// =================================================
 
-async function loadDiscountCampaign(){
+async function loadStaff(){
 
-  const {data,error} =
-    await supabaseClient()
-      .from("discount_campaign")
+  const box=
+    document.getElementById("staffList");
+
+
+  if(!box) return;
+
+
+  const {data,error}=
+    await supabaseClient
+      .from("admin_staff")
       .select("*")
-      .order("created_at",{ascending:false})
-      .limit(1)
-      .maybeSingle();
-
-  if(error || !data) return;
-
-  document.getElementById("discountName").value=
-    data.name||"";
-
-  document.getElementById("discountPercent").value=
-    data.discount_percent||10;
-
-  document.getElementById("discountMaxUses").value=
-    data.max_uses||100;
-
-  document.getElementById("discountEnabled").value=
-    String(data.enabled!==false);
-
-  loadDiscountStats();
-
-}
+      .order("full_name",{ascending:true});
 
 
-async function saveDiscountCampaign(){
+  if(error){
 
-  try{
+    box.innerHTML=
+      `<div class="error">
+        ${escapeHtml(error.message)}
+      </div>`;
 
-    const {data:existing} =
-      await supabaseClient()
-        .from("discount_campaign")
-        .select("id")
-        .order("created_at",{ascending:false})
-        .limit(1)
-        .maybeSingle();
-
-    const payload={
-
-      name:
-        document.getElementById("discountName").value,
-
-      discount_percent:
-        Number(document.getElementById("discountPercent").value),
-
-      max_uses:
-        Number(document.getElementById("discountMaxUses").value),
-
-      enabled:
-        document.getElementById("discountEnabled").value==="true"
-
-    };
-
-    let error;
-
-    if(existing){
-
-      ({error} =
-        await supabaseClient()
-          .from("discount_campaign")
-          .update(payload)
-          .eq("id",existing.id));
-
-    }else{
-
-      ({error} =
-        await supabaseClient()
-          .from("discount_campaign")
-          .insert(payload));
-
-    }
-
-    if(error) throw error;
-
-    showMessage(
-      "discountMessage",
-      "Discount campaign saved.",
-      "success"
-    );
-
-    loadDiscountStats();
-
-  }catch(e){
-
-    showMessage(
-      "discountMessage",
-      e.message,
-      "error"
-    );
+    return;
 
   }
 
+
+  if(!data || !data.length){
+
+    box.innerHTML=
+      `<div class="notice">
+        No staff found.
+      </div>`;
+
+    return;
+
+  }
+
+
+  box.innerHTML="";
+
+
+  data.forEach(item=>{
+
+    const div=
+      document.createElement("div");
+
+    div.className="item";
+
+
+    div.innerHTML=`
+
+      <div class="item-title">
+        ${escapeHtml(
+          item.full_name||"Staff"
+        )}
+      </div>
+
+      <div class="item-meta">
+        ${escapeHtml(item.email||"")}
+        ·
+        ${escapeHtml(
+          formatRole(item.role)
+        )}
+      </div>
+
+      <div class="notice">
+        ${
+          item.enabled===true
+          ? "🟢 Enabled"
+          : "🔴 Disabled"
+        }
+      </div>
+
+    `;
+
+
+    box.appendChild(div);
+
+  });
+
 }
 
-
-async function loadDiscountStats(){
-
-  const {count:codes} =
-    await supabaseClient()
-      .from("discount_codes")
-      .select("*",{count:"exact",head:true});
-
-  const {count:used} =
-    await supabaseClient()
-      .from("discount_codes")
-      .select("*",{count:"exact",head:true})
-      .eq("status","USED");
-
-  document.getElementById("discountCodes")
-    .textContent=codes||0;
-
-  document.getElementById("discountUsed")
-    .textContent=used||0;
-
-}
-
-
-// ---------------- STAFF ----------------
 
 async function createStaff(){
 
+  const message=
+    document.getElementById("staffMessage");
+
+
   try{
 
-    const full_name =
-      document.getElementById("staffName").value.trim();
+    const email=
+      document.getElementById("staffEmail")
+        .value.trim()
+        .toLowerCase();
 
-    const email =
-      document.getElementById("staffEmail").value.trim();
+    const password=
+      document.getElementById("staffPassword")
+        .value;
 
-    const password =
-      document.getElementById("staffPassword").value;
+    const fullName=
+      document.getElementById("staffName")
+        .value.trim();
 
-    const role =
-      document.getElementById("staffRole").value;
+    const role=
+      document.getElementById("staffRole")
+        .value;
 
-    if(!full_name || !email || !password){
 
-      showMessage(
-        "staffMessage",
-        "Name, email and password are required.",
-        "error"
+    if(!email || !password){
+
+      throw new Error(
+        "Email and password are required."
       );
 
-      return;
     }
+
+
+    message.innerHTML=
+      "🔄 Creating staff account...";
+
 
     const {
-      data:sessionData
-    } =
-      await supabaseClient()
-        .auth.getSession();
+      data:{session}
+    }=
+      await supabaseClient.auth
+        .getSession();
 
-    const token =
-      sessionData.session?.access_token;
 
-    if(!token){
+    if(!session){
 
-      showMessage(
-        "staffMessage",
-        "Admin session expired. Login again.",
-        "error"
+      throw new Error(
+        "Admin session expired. Please login again."
       );
 
-      return;
     }
 
-    const response =
+
+    const response=
       await fetch(
-        `${SUPABASE_URL}/functions/v1/${ADMIN_FUNCTION_NAME}`,
+        SUPABASE_URL+
+        "/functions/v1/create-staff",
         {
+
           method:"POST",
+
           headers:{
-            "Content-Type":"application/json",
-            "Authorization":`Bearer ${token}`
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              "Bearer "+
+              session.access_token
           },
+
           body:JSON.stringify({
-            full_name,
+
             email,
             password,
+            full_name:fullName,
             role,
             enabled:true
+
           })
+
         }
       );
 
-    const result=await response.json();
+
+    const result=
+      await response.json();
+
 
     if(!response.ok){
 
       throw new Error(
-        result.error ||
-        result.message ||
-        "Unable to create staff."
+        result.message||
+        result.error||
+        "Staff creation failed."
       );
 
     }
 
-    showMessage(
-      "staffMessage",
-      "Staff account created successfully.",
-      "success"
-    );
 
-    document.getElementById("staffName").value="";
-    document.getElementById("staffEmail").value="";
-    document.getElementById("staffPassword").value="";
+    message.innerHTML=
+      "✅ Staff account created successfully.";
 
-    loadStaff();
 
-  }catch(e){
+    document.getElementById("staffEmail")
+      .value="";
 
-    showMessage(
-      "staffMessage",
-      e.message,
-      "error"
-    );
+    document.getElementById("staffPassword")
+      .value="";
+
+    document.getElementById("staffName")
+      .value="";
+
+
+    await loadStaff();
+
+  }catch(error){
+
+    message.innerHTML=
+      "❌ "+
+      escapeHtml(error.message);
 
   }
 
 }
 
 
-async function loadStaff(){
+// =================================================
+// STORAGE UPLOAD
+// =================================================
 
-  const {data,error} =
-    await supabaseClient()
-      .from("admin_staff")
-      .select("*")
-      .order("created_at",{ascending:false});
+async function uploadFile(
+  file,
+  bucket,
+  folder
+){
+
+  const extension=
+    file.name.includes(".")
+    ? file.name.split(".").pop()
+    : "file";
+
+
+  const path=
+    folder+
+    "/"+
+    Date.now()+
+    "-" +
+    Math.random()
+      .toString(36)
+      .substring(2,9)+
+    "."+
+    extension;
+
+
+  const {error}=
+    await supabaseClient
+      .storage
+      .from(bucket)
+      .upload(
+        path,
+        file,
+        {
+          upsert:false,
+          contentType:file.type
+        }
+      );
+
 
   if(error){
 
-    console.error(error);
-    return;
+    throw error;
+
   }
 
-  const table =
-    document.getElementById("staffTable");
 
-  table.innerHTML="";
+  const {
+    data
+  }=
+    supabaseClient
+      .storage
+      .from(bucket)
+      .getPublicUrl(path);
 
-  data.forEach(s=>{
 
-    const safeId =
-      encodeURIComponent(s.email);
-
-    const tr=document.createElement("tr");
-
-    tr.innerHTML=`
-
-      <td>
-
-        ${
-          s.avatar_url
-          ? `<img class="staff-photo"
-                  src="${s.avatar_url}">`
-          : "👤"
-        }
-
-      </td>
-
-      <td>${escapeHtml(s.full_name||"")}</td>
-
-      <td>${escapeHtml(s.email||"")}</td>
-
-      <td>
-        <span class="badge gold">
-          ${escapeHtml(s.role||"")}
-        </span>
-      </td>
-
-      <td>
-
-        ${
-          s.enabled
-          ? `<span class="badge green">Enabled</span>`
-          : `<span class="badge red">Disabled</span>`
-        }
-
-      </td>
-
-      <td>
-
-        <input
-          type="file"
-          accept="image/*"
-          id="staffPhoto_${safeId}"
-          onchange="uploadStaffPhoto('${escapeAttr(s.email)}',this)">
-
-      </td>
-
-    `;
-
-    table.appendChild(tr);
-
-  });
+  return data.publicUrl;
 
 }
 
 
-async function uploadStaffPhoto(email,input){
+// =================================================
+// HELPERS
+// =================================================
 
-  const file=input.files[0];
+function formatRole(role){
 
-  if(!file) return;
+  if(role==="SUPER_ADMIN")
+    return "Super Admin";
+
+  if(role==="DISCOUNT_STAFF")
+    return "Discount Staff";
+
+  if(role==="BOOKING_STAFF")
+    return "Booking Staff";
+
+  return role||"Staff";
+
+}
+
+
+function toLocalDateTime(value){
+
+  if(!value) return "";
 
   try{
 
-    const url =
-      await uploadFile(
-        "staff-photos",
-        file,
-        "profiles"
-      );
+    const d=new Date(value);
 
-    const {error} =
-      await supabaseClient()
-        .from("admin_staff")
-        .update({
-          avatar_url:url,
-          updated_at:new Date().toISOString()
-        })
-        .ilike("email",email);
+    const pad=n=>
+      String(n).padStart(2,"0");
 
-    if(error) throw error;
 
-    alert("Staff photo updated.");
-
-    loadStaff();
-    loadPerformance();
+    return d.getFullYear()+
+      "-"+
+      pad(d.getMonth()+1)+
+      "-"+
+      pad(d.getDate())+
+      "T"+
+      pad(d.getHours())+
+      ":"+
+      pad(d.getMinutes());
 
   }catch(e){
 
-    alert(e.message);
+    return "";
 
   }
-
-}
-
-
-// ---------------- PERFORMANCE ----------------
-
-async function loadPerformance(){
-
-  const {data,error} =
-    await supabaseClient()
-      .rpc("get_staff_performance");
-
-  if(error){
-
-    console.error(error);
-    return;
-  }
-
-  const table =
-    document.getElementById("performanceTable");
-
-  table.innerHTML="";
-
-  (data||[]).forEach(s=>{
-
-    const tr=document.createElement("tr");
-
-    tr.innerHTML=`
-
-      <td>
-
-        <div style="display:flex;align-items:center;gap:10px">
-
-          ${
-            s.avatar_url
-            ? `<img class="staff-photo"
-                    src="${s.avatar_url}">`
-            : "👤"
-          }
-
-          <div>
-            <strong>${escapeHtml(s.staff_name||"")}</strong>
-            <div style="color:#777;font-size:12px">
-              ${escapeHtml(s.staff_email||"")}
-            </div>
-          </div>
-
-        </div>
-
-      </td>
-
-      <td>${escapeHtml(s.role||"")}</td>
-
-      <td>${s.discount_checked||0}</td>
-
-      <td>${s.discount_used||0}</td>
-
-      <td>${s.discount_invalid||0}</td>
-
-      <td>${s.bookings_viewed||0}</td>
-
-      <td>${s.bookings_confirmed||0}</td>
-
-      <td>${s.bookings_cancelled||0}</td>
-
-    `;
-
-    table.appendChild(tr);
-
-  });
-
-}
-
-
-// ---------------- HELPERS ----------------
-
-function showMessage(id,text,type){
-
-  const el=document.getElementById(id);
-
-  el.textContent=text;
-
-  el.className="message "+type;
 
 }
 
@@ -3354,40 +3471,16 @@ function escapeHtml(value){
 
 function escapeAttr(value){
 
-  return String(value??"")
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'");
+  return escapeHtml(value);
 
 }
 
 
-// ---------------- START ----------------
+// =================================================
+// START
+// =================================================
 
-(async function(){
-
-  try{
-
-    const {
-      data:{session}
-    } =
-      await supabaseClient()
-        .auth.getSession();
-
-    if(session){
-
-      currentUser=session.user;
-
-      await checkAdmin();
-
-    }
-
-  }catch(e){
-
-    console.error(e);
-
-  }
-
-})();
+checkExistingSession();
 
 </script>
 
