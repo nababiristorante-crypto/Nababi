@@ -2,1479 +2,2034 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>Nababi Ristorante — Master Admin</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
+
+:root{
+  --bg:#090b0f;
+  --panel:#11151b;
+  --panel2:#171c23;
+  --border:#292f38;
+  --gold:#c9a45c;
+  --gold2:#e1bd73;
+  --text:#f5f5f5;
+  --muted:#9299a4;
+  --danger:#e45b67;
+  --success:#61d39a;
+}
+
+html,
 body{
   margin:0;
+  padding:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
   font-family:Inter,Arial,sans-serif;
-  background:#09090b;
-  color:#f5f1e8
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
 
-.hidden{display:none!important}
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
 
-.login{
+button{
+  cursor:pointer;
+}
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+.login-screen{
   min-height:100vh;
-  display:grid;
-  place-items:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   padding:20px;
+
   background:
-    radial-gradient(circle at top,#38280d,#09090b 60%);
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(201,164,92,.18),
+      transparent 38%
+    ),
+    #090b0f;
 }
 
-.card{
-  background:#151518;
-  border:1px solid #3a3020;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 15px 45px #0008;
-}
-
-.login .card{
-  width:min(430px,100%)
-}
-
-h1,h2,h3{
-  margin-top:0
-}
-
-.gold{
-  color:#d8b25c
-}
-
-.muted{
-  color:#aaa
-}
-
-input,textarea,select{
+.login-box{
   width:100%;
-  background:#0f0f12;
+  max-width:430px;
+  padding:34px 28px;
+
+  background:rgba(17,21,27,.96);
+  border:1px solid var(--border);
+  border-radius:25px;
+
+  box-shadow:
+    0 30px 100px rgba(0,0,0,.55);
+}
+
+.login-logo{
+  width:86px;
+  height:86px;
+
+  display:block;
+  margin:0 auto 20px;
+
+  border-radius:50%;
+  object-fit:cover;
+
+  background:#20242b;
+}
+
+.login-box h1{
+  margin:0;
+  text-align:center;
+  font-size:28px;
+}
+
+.login-box .subtitle{
+  margin:9px 0 28px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.login-field{
+  margin-bottom:17px;
+}
+
+.login-field label{
+  display:block;
+  margin-bottom:7px;
+  font-size:14px;
+  color:#c8cdd5;
+}
+
+.login-field input{
+  width:100%;
+  padding:14px;
+
   color:#fff;
-  border:1px solid #3b3b40;
-  border-radius:10px;
+  background:#0b0e13;
+
+  border:1px solid var(--border);
+  border-radius:12px;
+  outline:none;
+}
+
+.login-field input:focus{
+  border-color:var(--gold);
+}
+
+.login-button{
+  width:100%;
+  padding:14px;
+
+  border:0;
+  border-radius:12px;
+
+  background:var(--gold);
+  color:#111;
+
+  font-weight:800;
+}
+
+.login-button:hover{
+  background:var(--gold2);
+}
+
+.login-button:disabled{
+  opacity:.6;
+}
+
+.login-error{
+  margin-top:15px;
   padding:12px;
-  margin:6px 0 12px
+
+  border-radius:10px;
+
+  background:#32171b;
+  color:#ff9ca5;
+
+  font-size:14px;
 }
 
-textarea{
-  min-height:110px;
-  resize:vertical
+.hidden{
+  display:none!important;
 }
 
-.btn{
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+.admin-app{
+  display:none;
+  min-height:100vh;
+}
+
+.admin-app.show{
+  display:flex;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+  width:265px;
+  min-height:100vh;
+
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+
+  overflow-y:auto;
+
+  background:#0e1116;
+  border-right:1px solid var(--border);
+
+  padding:20px 14px;
+  z-index:100;
+}
+
+.brand{
+  padding:10px 12px 23px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:17px;
+}
+
+.brand-title{
+  font-size:19px;
+  font-weight:800;
+}
+
+.brand-sub{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.nav-group-title{
+  margin:18px 10px 7px;
+
+  color:#69717c;
+
+  font-size:10px;
+  font-weight:800;
+
+  text-transform:uppercase;
+  letter-spacing:1.3px;
+}
+
+.nav-button{
+  width:100%;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  padding:11px 12px;
+  margin-bottom:4px;
+
   border:0;
   border-radius:10px;
-  padding:11px 15px;
-  background:#d8b25c;
-  color:#111;
-  font-weight:700
+
+  background:transparent;
+  color:#b9bec7;
+
+  text-align:left;
 }
 
-.btn.dark{
-  background:#29292f;
-  color:#fff
+.nav-button:hover{
+  background:#191e25;
+  color:#fff;
 }
 
-.btn.red{
-  background:#8d2933;
-  color:#fff
+.nav-button.active{
+  background:#282219;
+  color:var(--gold2);
 }
 
-.btn.green{
-  background:#1e7448;
-  color:#fff
+.logout-button{
+  width:100%;
+
+  margin-top:18px;
+  padding:11px;
+
+  border:1px solid #492a30;
+  border-radius:10px;
+
+  background:#1a1114;
+  color:#ff9da6;
 }
 
-.btn.small{
-  padding:7px 10px;
-  font-size:13px
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content{
+  width:calc(100% - 265px);
+  margin-left:265px;
+
+  padding:25px;
 }
 
-.app{
-  min-height:100vh
-}
+.topbar{
+  min-height:62px;
 
-.top{
-  height:64px;
-  background:#111115;
-  border-bottom:1px solid #302b22;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 18px;
-  position:sticky;
-  top:0;
-  z-index:100
+  gap:15px;
+
+  margin-bottom:24px;
 }
 
-.layout{
-  display:grid;
-  grid-template-columns:250px 1fr
+.page-title{
+  margin:0;
+  font-size:27px;
 }
 
-.side{
-  background:#101014;
-  border-right:1px solid #29272a;
-  min-height:calc(100vh - 64px);
-  padding:12px;
-  position:sticky;
-  top:64px;
-  height:calc(100vh - 64px);
-  overflow:auto
+.user-info{
+  padding:9px 13px;
+
+  border:1px solid #473a24;
+  border-radius:20px;
+
+  background:#1b1710;
+  color:var(--gold2);
+
+  font-size:12px;
 }
 
-.nav{
+.mobile-menu{
+  display:none;
+}
+
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+.page-section{
+  display:none;
+}
+
+.page-section.active{
   display:block;
-  width:100%;
-  text-align:left;
-  background:none;
-  color:#ddd;
-  border:0;
-  border-radius:9px;
-  padding:11px;
-  margin:2px 0
 }
 
-.nav:hover,
-.nav.active{
-  background:#292015;
-  color:#e4bd65
-}
-
-.main{
+.card{
+  margin-bottom:20px;
   padding:22px;
-  max-width:1500px;
-  width:100%;
-  margin:auto
+
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
 }
 
-.section{
-  display:none
+.card-title{
+  margin:0 0 18px;
+  font-size:20px;
 }
 
-.section.active{
-  display:block
+.card-subtitle{
+  margin:-10px 0 20px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
 }
 
 .grid{
   display:grid;
-  gap:16px
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
 }
 
-.g2{
-  grid-template-columns:repeat(2,minmax(0,1fr))
+.full{
+  grid-column:1/-1;
 }
 
-.g3{
-  grid-template-columns:repeat(3,minmax(0,1fr))
+.field{
+  margin-bottom:2px;
 }
 
-.stat{
-  padding:18px
-}
-
-.stat b{
+.field label{
   display:block;
-  font-size:28px;
-  margin-top:8px
+  margin-bottom:7px;
+
+  color:#c5cad1;
+  font-size:13px;
 }
 
-.tablewrap{
-  overflow:auto;
-  border-radius:12px;
-  border:1px solid #302f33
-}
-
-.table{
+.field input,
+.field textarea,
+.field select{
   width:100%;
-  border-collapse:collapse;
-  min-width:750px
-}
 
-.table th,
-.table td{
-  padding:10px;
-  border-bottom:1px solid #2c2c30;
-  text-align:left
-}
+  padding:12px 13px;
 
-.pill{
-  display:inline-block;
-  border-radius:999px;
-  padding:4px 9px;
-  background:#29292e;
-  font-size:12px
-}
-
-.ok{
-  background:#164f34
-}
-
-.bad{
-  background:#65252b
-}
-
-.media-preview{
-  max-width:280px;
-  max-height:180px;
-  border-radius:12px;
-  margin:8px 0;
-  object-fit:cover
-}
-
-.row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center
-}
-
-.toolbar{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:center;
-  flex-wrap:wrap;
-  margin-bottom:15px
-}
-
-.mobile{
-  display:none
-}
-
-.toast{
-  position:fixed;
-  right:15px;
-  bottom:15px;
-  background:#222;
+  background:#0b0e13;
   color:#fff;
-  padding:13px 16px;
+
+  border:1px solid var(--border);
   border-radius:10px;
-  z-index:999;
-  display:none
+
+  outline:none;
+}
+
+.field textarea{
+  resize:vertical;
+  min-height:120px;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus{
+  border-color:var(--gold);
+}
+
+.primary{
+  padding:12px 18px;
+
+  border:0;
+  border-radius:10px;
+
+  background:var(--gold);
+  color:#111;
+
+  font-weight:800;
+}
+
+.primary:hover{
+  background:var(--gold2);
+}
+
+.secondary{
+  padding:11px 16px;
+
+  border:1px solid var(--border);
+  border-radius:10px;
+
+  background:#191e25;
+  color:#fff;
 }
 
 .danger{
-  color:#ff8181
+  padding:10px 14px;
+
+  border:1px solid #562a31;
+  border-radius:9px;
+
+  background:#211216;
+  color:#ff9ca5;
 }
 
-.preview-box{
-  margin-top:10px
+.success{
+  color:var(--success);
 }
 
-.avatar{
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  object-fit:cover;
-  background:#29292e
+.message{
+  margin-top:12px;
+  color:var(--success);
+  font-size:13px;
 }
 
-@media(max-width:850px){
+.info-text{
+  color:var(--muted);
+  line-height:1.7;
+}
 
-  .layout{
-    grid-template-columns:1fr
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;
+}
+
+.stat{
+  padding:20px;
+
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+
+.stat-number{
+  font-size:28px;
+  font-weight:800;
+  color:var(--gold2);
+}
+
+.stat-label{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.menu-toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.menu-list{
+  display:grid;
+  gap:12px;
+}
+
+.menu-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+
+  padding:15px;
+
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:13px;
+}
+
+.menu-item-left{
+  min-width:0;
+}
+
+.menu-name{
+  font-weight:800;
+}
+
+.menu-meta{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.menu-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  padding:13px 10px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  white-space:nowrap;
+}
+
+th{
+  color:var(--gold2);
+  font-size:12px;
+}
+
+td{
+  color:#c6cbd2;
+  font-size:13px;
+}
+
+
+/* =========================================================
+   PERMISSIONS
+========================================================= */
+
+.permission-list{
+  display:grid;
+  gap:10px;
+}
+
+.permission-row{
+  display:grid;
+  grid-template-columns:1.5fr 100px 100px;
+
+  align-items:center;
+
+  padding:12px;
+
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:10px;
+}
+
+.permission-row strong{
+  font-size:13px;
+}
+
+.permission-row label{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.permission-row input{
+  width:18px;
+  height:18px;
+  accent-color:var(--gold);
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.category-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+
+.category-tag{
+  padding:8px 11px;
+
+  background:#211c14;
+  border:1px solid #4b3b23;
+  border-radius:20px;
+
+  color:var(--gold2);
+  font-size:12px;
+}
+
+.category-tag button{
+  margin-left:5px;
+
+  border:0;
+  background:transparent;
+
+  color:#ff9ca5;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:1000px){
+
+  .stats{
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 
-  .side{
+}
+
+@media(max-width:800px){
+
+  .sidebar{
+    display:none;
+    width:100%;
+    min-height:auto;
     position:fixed;
-    left:-280px;
-    top:64px;
-    width:260px;
-    z-index:200;
-    transition:.2s
+    right:0;
+    bottom:auto;
   }
 
-  .side.open{
-    left:0
+  .sidebar.mobile-open{
+    display:block;
   }
 
-  .main{
-    padding:14px
+  .content{
+    width:100%;
+    margin-left:0;
+    padding:15px;
   }
 
-  .g2,
-  .g3{
-    grid-template-columns:1fr
+  .mobile-menu{
+    display:block;
+
+    padding:10px 13px;
+
+    border:1px solid var(--border);
+    border-radius:9px;
+
+    background:#171b21;
+    color:#fff;
   }
 
-  .mobile{
-    display:block
+  .topbar{
+    min-height:50px;
   }
+
+  .page-title{
+    font-size:22px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .permission-row{
+    grid-template-columns:1fr 70px 70px;
+  }
+
+}
+
+@media(max-width:500px){
+
+  .login-box{
+    padding:28px 20px;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:17px;
+  }
+
+  .menu-item{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .menu-actions{
+    width:100%;
+  }
+
+  .menu-actions button{
+    flex:1;
+  }
+
 }
 </style>
 </head>
 
+
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="login">
 
-  <div class="card">
+<!-- =======================================================
+     LOGIN SCREEN
+======================================================= -->
 
-    <h1>
-      👑 <span class="gold">Nababi</span> Admin
-    </h1>
+<div id="loginScreen" class="login-screen">
 
-    <p class="muted">
-      Master Control Panel
-    </p>
+  <div class="login-box">
 
-    <input
-      id="loginEmail"
-      type="email"
-      placeholder="Admin email"
-    >
+    <img
+      class="login-logo"
+      src="https://placehold.co/200x200/171717/c9a45c?text=N"
+      alt="Nababi Ristorante">
 
-    <input
-      id="loginPassword"
-      type="password"
-      placeholder="Password"
-    >
+    <h1>Master Admin</h1>
 
-    <button
-      class="btn"
-      style="width:100%"
-      onclick="login()"
-    >
-      LOGIN
-    </button>
+    <div class="subtitle">
+      Nababi Ristorante Management
+    </div>
 
-    <p id="loginMessage" class="danger"></p>
+    <form id="loginForm">
+
+      <div class="login-field">
+
+        <label>Email</label>
+
+        <input
+          id="loginEmail"
+          type="email"
+          placeholder="Admin email"
+          autocomplete="username"
+          required>
+
+      </div>
+
+
+      <div class="login-field">
+
+        <label>Password</label>
+
+        <input
+          id="loginPassword"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+          required>
+
+      </div>
+
+
+      <button
+        id="loginButton"
+        class="login-button"
+        type="submit">
+
+        Login
+
+      </button>
+
+
+      <div
+        id="loginError"
+        class="login-error hidden">
+      </div>
+
+    </form>
 
   </div>
 
 </div>
 
 
-<!-- APP -->
-<div id="app" class="app hidden">
 
-<header class="top">
+<!-- =======================================================
+     ADMIN APP
+======================================================= -->
 
-  <div class="row">
+<div id="adminApp" class="admin-app">
 
-    <button
-      class="btn dark mobile"
-      onclick="toggleSidebar()"
-    >
-      ☰
-    </button>
 
-    <b>
-      👑 Nababi Ristorante
-      <span class="gold">Master Admin</span>
-    </b>
+<!-- =======================================================
+     SIDEBAR
+======================================================= -->
 
-  </div>
+<aside id="sidebar" class="sidebar">
 
-  <div class="row">
+  <div class="brand">
 
-    <span
-      id="roleBadge"
-      class="pill"
-    ></span>
+    <div class="brand-title">
+      Nababi Ristorante
+    </div>
 
-    <button
-      class="btn dark small"
-      onclick="logout()"
-    >
-      Logout
-    </button>
+    <div class="brand-sub">
+      Master Admin Panel
+    </div>
 
   </div>
 
-</header>
+
+  <div class="nav-group-title">
+    Overview
+  </div>
+
+  <button class="nav-button active"
+    data-page="dashboard"
+    data-title="Dashboard">
+    🏠 Dashboard
+  </button>
 
 
-<div class="layout">
+  <div class="nav-group-title">
+    Website
+  </div>
+
+  <button class="nav-button"
+    data-page="hero"
+    data-title="Home / Hero">
+    🖼️ Home / Hero
+  </button>
+
+  <button class="nav-button"
+    data-page="about"
+    data-title="About Us">
+    ℹ️ About Us
+  </button>
+
+  <button class="nav-button"
+    data-page="contact"
+    data-title="Contact">
+    📞 Contact
+  </button>
+
+  <button class="nav-button"
+    data-page="social"
+    data-title="Social Media">
+    🌐 Social Media
+  </button>
+
+  <button class="nav-button"
+    data-page="hours"
+    data-title="Opening Hours">
+    🕐 Opening Hours
+  </button>
 
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="side">
+  <div class="nav-group-title">
+    Restaurant
+  </div>
 
-<button class="nav active" data-section="dashboard">
-📊 Dashboard
-</button>
+  <button class="nav-button"
+    data-page="menu"
+    data-title="Menu Manager">
+    🍽️ Menu Manager
+  </button>
 
-<button class="nav" data-section="hero">
-🖼️ Hero & Logo
-</button>
+  <button class="nav-button"
+    data-page="gallery"
+    data-title="Gallery">
+    🖼️ Gallery
+  </button>
 
-<button class="nav" data-section="about">
-📝 About Us
-</button>
 
-<button class="nav" data-section="breaking">
-🚨 Breaking News
-</button>
+  <div class="nav-group-title">
+    Management
+  </div>
 
-<button class="nav" data-section="gallery">
-🖼️ Gallery
-</button>
+  <button class="nav-button"
+    data-page="booking"
+    data-title="Table Booking">
+    📅 Table Booking
+  </button>
 
-<button class="nav" data-section="contact">
-📞 Contact
-</button>
+  <button class="nav-button"
+    data-page="reviews"
+    data-title="Reviews">
+    ⭐ Reviews
+  </button>
 
-<button class="nav" data-section="social">
-🌐 Social Media
-</button>
+  <button class="nav-button"
+    data-page="reports"
+    data-title="Customer Reports">
+    🚨 Customer Reports
+  </button>
 
-<button class="nav" data-section="hours">
-🕐 Opening Hours
-</button>
+  <button class="nav-button"
+    data-page="campaigns"
+    data-title="Discount Campaign">
+    🎁 Discount Campaign
+  </button>
 
-<button class="nav" data-section="menu">
-🍽️ Menu Manager
-</button>
+  <button class="nav-button"
+    data-page="coupons"
+    data-title="Coupon Codes">
+    🎟️ Coupon Codes
+  </button>
 
-<button class="nav" data-section="categories">
-📂 Categories
-</button>
 
-<button class="nav" data-section="bookings">
-📅 Table Bookings
-</button>
+  <div class="nav-group-title">
+    Administration
+  </div>
 
-<button class="nav" data-section="reviews">
-⭐ Reviews
-</button>
+  <button class="nav-button"
+    data-page="staff"
+    data-title="Staff Admin">
+    👥 Staff Admin
+  </button>
 
-<button class="nav" data-section="reports">
-📝 Customer Reports
-</button>
 
-<button class="nav" data-section="discount">
-🎟️ Discount Campaign
-</button>
+  <button id="logoutButton"
+    class="logout-button">
 
-<button class="nav" data-section="coupons">
-🔢 Coupon Codes
-</button>
+    Logout
 
-<button class="nav" data-section="staff">
-👥 Staff Management
-</button>
-
-<button class="nav" data-section="performance">
-📈 Staff Performance
-</button>
+  </button>
 
 </aside>
 
 
-<!-- MAIN -->
-<main class="main">
+
+<!-- =======================================================
+     CONTENT
+======================================================= -->
+
+<main class="content">
 
 
-<!-- DASHBOARD -->
+  <div class="topbar">
+
+    <div>
+
+      <button
+        id="mobileMenu"
+        class="mobile-menu">
+
+        ☰ Menu
+
+      </button>
+
+      <h1 id="pageTitle" class="page-title">
+        Dashboard
+      </h1>
+
+    </div>
+
+
+    <div
+      id="userEmail"
+      class="user-info">
+
+      Super Admin
+
+    </div>
+
+  </div>
+
+
+
+<!-- =======================================================
+     DASHBOARD
+======================================================= -->
+
 <section
-  id="dashboard"
-  class="section active"
->
+  id="page-dashboard"
+  class="page-section active">
 
-<div class="toolbar">
+  <div class="stats">
 
-<div>
-<h2>Dashboard</h2>
-<p class="muted">
-Nababi Ristorante overview
-</p>
-</div>
+    <div class="stat">
+      <div class="stat-number">01</div>
+      <div class="stat-label">Admin Account</div>
+    </div>
 
-<button
-  class="btn"
-  onclick="loadDashboard()"
->
-Refresh
-</button>
+    <div class="stat">
+      <div id="categoryCount"
+        class="stat-number">6</div>
+      <div class="stat-label">Menu Categories</div>
+    </div>
 
-</div>
+    <div class="stat">
+      <div class="stat-number">∞</div>
+      <div class="stat-label">Website Controls</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-number">100%</div>
+      <div class="stat-label">Master Access</div>
+    </div>
+
+  </div>
 
 
-<div class="grid g3">
+  <div class="card">
 
-<div class="card stat">
-🌐 Website Visits
-<b id="statVisits">—</b>
-</div>
+    <h2 class="card-title">
+      Welcome to Master Admin
+    </h2>
 
-<div class="card stat">
-🎟️ Coupons
-<b id="statCoupons">—</b>
-</div>
+    <p class="info-text">
+      এই Master Admin থেকে Nababi Ristorante-এর
+      Website, Menu, Gallery, Booking, Reviews,
+      Campaign, Coupon এবং Staff permissions
+      পরিচালনা করা যাবে।
+    </p>
 
-<div class="card stat">
-✅ Used Coupons
-<b id="statUsedCoupons">—</b>
-</div>
-
-<div class="card stat">
-📅 Bookings
-<b id="statBookings">—</b>
-</div>
-
-<div class="card stat">
-⭐ Reviews
-<b id="statReviews">—</b>
-</div>
-
-<div class="card stat">
-📝 Reports
-<b id="statReports">—</b>
-</div>
-
-<div class="card stat">
-👥 Staff
-<b id="statStaff">—</b>
-</div>
-
-</div>
+  </div>
 
 </section>
 
 
-<!-- HERO -->
+
+<!-- =======================================================
+     HERO
+======================================================= -->
+
 <section
-  id="hero"
-  class="section"
->
+  id="page-hero"
+  class="page-section">
 
-<h2>🖼️ Hero & Logo</h2>
+  <div class="card">
 
-<div class="grid g2">
+    <h2 class="card-title">
+      Home / Hero
+    </h2>
 
+    <div class="grid">
 
-<div class="card">
+      <div class="field">
 
-<h3>Hero Section</h3>
+        <label>Hero Title</label>
 
-<input
- id="heroTitle"
- placeholder="Hero Title"
->
+        <input
+          id="heroTitle"
+          placeholder="Hero Title">
 
-<textarea
- id="heroText"
- placeholder="Hero Text"
-></textarea>
-
-<input
- id="heroImage"
- placeholder="Hero Image URL"
->
-
-<input
- id="heroImageFile"
- type="file"
- accept="image/*"
->
-
-<div class="row">
-
-<button
- class="btn"
- onclick="uploadHeroImage()"
->
-Upload / Replace Image
-</button>
-
-<button
- class="btn red small"
- onclick="deleteHeroImage()"
->
-Delete Image
-</button>
-
-</div>
-
-<div id="heroPreview"></div>
-
-<br>
-
-<button
- class="btn"
- onclick="saveHero()"
->
-Save Hero
-</button>
-
-</div>
+      </div>
 
 
-<div class="card">
+      <div class="field">
 
-<h3>Restaurant Logo</h3>
+        <label>Hero Image URL</label>
 
-<input
- id="logoUrl"
- placeholder="Logo URL"
->
+        <input
+          id="heroImage"
+          placeholder="Hero image URL">
 
-<input
- id="logoFile"
- type="file"
- accept="image/*"
->
-
-<div class="row">
-
-<button
- class="btn"
- onclick="uploadLogo()"
->
-Upload / Replace
-</button>
-
-<button
- class="btn red small"
- onclick="deleteLogo()"
->
-Delete Logo
-</button>
-
-</div>
-
-<div id="logoPreview"></div>
-
-</div>
+      </div>
 
 
-</div>
+      <div class="field full">
+
+        <label>Hero Text</label>
+
+        <textarea
+          id="heroText"
+          placeholder="Hero Text">
+        </textarea>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="primary"
+      id="saveHero">
+
+      Save Hero
+
+    </button>
+
+    <div
+      id="heroMessage"
+      class="message">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- ABOUT -->
+
+<!-- =======================================================
+     ABOUT
+======================================================= -->
+
 <section
- id="about"
- class="section"
->
+  id="page-about"
+  class="page-section">
 
-<h2>📝 About Us</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      About Us
+    </h2>
 
-<input
- id="aboutTitle"
- placeholder="About Title"
->
+    <div class="field">
 
-<textarea
- id="aboutText"
- placeholder="About Text"
-></textarea>
+      <label>About Title</label>
 
-<input
- id="aboutImage"
- placeholder="About Image URL"
->
+      <input
+        id="aboutTitle"
+        placeholder="About title">
 
-<input
- id="aboutImageFile"
- type="file"
- accept="image/*"
->
+    </div>
 
-<div class="row">
 
-<button
- class="btn"
- onclick="uploadAboutImage()"
->
-Upload / Replace Image
-</button>
+    <div class="field">
 
-<button
- class="btn red small"
- onclick="deleteAboutImage()"
->
-Delete Image
-</button>
+      <label>About Text</label>
 
-</div>
+      <textarea
+        id="aboutText"
+        placeholder="About Nababi Ristorante">
+      </textarea>
 
-<br>
+    </div>
 
-<button
- class="btn"
- onclick="saveAbout()"
->
-Save About
-</button>
 
-</div>
+    <button
+      class="primary"
+      id="saveAbout">
+
+      Save About
+
+    </button>
+
+    <div
+      id="aboutMessage"
+      class="message">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- BREAKING NEWS -->
+
+<!-- =======================================================
+     CONTACT
+======================================================= -->
+
 <section
- id="breaking"
- class="section"
->
+  id="page-contact"
+  class="page-section">
 
-<h2>🚨 Breaking News</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      Contact
+    </h2>
 
-<label>
-<input
- id="breakingEnabled"
- type="checkbox"
->
- Enable Breaking News
-</label>
+    <div class="grid">
 
-<input
- id="breakingText"
- placeholder="Breaking News Text"
->
+      <div class="field">
 
+        <label>Address</label>
 
-<hr>
+        <input
+          id="contactAddress"
+          placeholder="Restaurant address">
 
-<h3>Image</h3>
-
-<input
- id="breakingImage"
- placeholder="Breaking News Image URL"
->
-
-<input
- id="breakingImageFile"
- type="file"
- accept="image/*"
->
-
-<div class="row">
-
-<button
- class="btn"
- onclick="uploadBreakingImage()"
->
-Upload / Replace Image
-</button>
-
-<button
- class="btn red small"
- onclick="deleteBreakingImage()"
->
-Delete Image
-</button>
-
-</div>
+      </div>
 
 
-<hr>
+      <div class="field">
 
-<h3>Video</h3>
+        <label>Phone</label>
 
-<input
- id="breakingVideo"
- placeholder="Breaking News Video URL"
->
+        <input
+          id="contactPhone"
+          placeholder="+39 ...">
 
-<input
- id="breakingVideoFile"
- type="file"
- accept="video/*"
->
+      </div>
 
-<div class="row">
 
-<button
- class="btn"
- onclick="uploadBreakingVideo()"
->
-Upload / Replace Video
-</button>
+      <div class="field">
 
-<button
- class="btn red small"
- onclick="deleteBreakingVideo()"
->
-Delete Video
-</button>
+        <label>WhatsApp</label>
 
-</div>
+        <input
+          id="contactWhatsapp"
+          placeholder="+39 ...">
 
-<div id="breakingPreview"></div>
+      </div>
 
-<br>
+    </div>
 
-<button
- class="btn"
- onclick="saveBreaking()"
->
-Save Breaking News
-</button>
 
-</div>
+    <button
+      class="primary"
+      id="saveContact">
+
+      Save Contact
+
+    </button>
+
+    <div
+      id="contactMessage"
+      class="message">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- GALLERY -->
+
+<!-- =======================================================
+     SOCIAL
+======================================================= -->
+
 <section
- id="gallery"
- class="section"
->
+  id="page-social"
+  class="page-section">
 
-<h2>🖼️ Gallery</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      Social Media
+    </h2>
 
-<input
- id="galleryTitle"
- placeholder="Photo Title"
->
+    <div class="field">
 
-<input
- id="galleryCategory"
- placeholder="Category"
->
+      <label>Facebook</label>
 
-<input
- id="galleryFile"
- type="file"
- accept="image/*"
->
+      <input
+        id="facebook"
+        placeholder="Facebook URL">
 
-<button
- class="btn"
- onclick="addGalleryPhoto()"
->
-Upload Photo
-</button>
+    </div>
 
-</div>
 
-<div
- id="galleryList"
- class="grid g3"
- style="margin-top:16px"
-></div>
+    <div class="field">
+
+      <label>Instagram</label>
+
+      <input
+        id="instagram"
+        placeholder="Instagram URL">
+
+    </div>
+
+
+    <div class="field">
+
+      <label>TikTok</label>
+
+      <input
+        id="tiktok"
+        placeholder="TikTok URL">
+
+    </div>
+
+
+    <button
+      class="primary"
+      id="saveSocial">
+
+      Save Social Media
+
+    </button>
+
+    <div
+      id="socialMessage"
+      class="message">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- CONTACT -->
+
+<!-- =======================================================
+     HOURS
+======================================================= -->
+
 <section
- id="contact"
- class="section"
->
+  id="page-hours"
+  class="page-section">
 
-<h2>📞 Contact</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      Opening Hours
+    </h2>
 
-<div class="grid g2">
+    <div class="field">
 
-<div>
+      <label>Opening Hours</label>
 
-<input
- id="contactAddress"
- placeholder="Address"
->
+      <textarea
+        id="openingHours"
+        placeholder="Monday: 12:00 - 23:00&#10;Tuesday: 12:00 - 23:00">
+      </textarea>
 
-<input
- id="contactPhone1"
- placeholder="Phone 1"
->
+    </div>
 
-<input
- id="contactPhone2"
- placeholder="Phone 2"
->
 
-</div>
+    <button
+      class="primary"
+      id="saveHours">
 
-<div>
+      Save Opening Hours
 
-<input
- id="contactWhatsapp"
- placeholder="WhatsApp"
->
+    </button>
 
-<input
- id="contactMaps"
- placeholder="Google Maps URL"
->
+    <div
+      id="hoursMessage"
+      class="message">
+    </div>
 
-</div>
-
-</div>
-
-<button
- class="btn"
- onclick="saveContact()"
->
-Save Contact
-</button>
-
-</div>
+  </div>
 
 </section>
 
 
-<!-- SOCIAL -->
+
+<!-- =======================================================
+     MENU
+======================================================= -->
+
 <section
- id="social"
- class="section"
->
+  id="page-menu"
+  class="page-section">
 
-<h2>🌐 Social Media</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      Menu Manager
+    </h2>
 
-<input
- id="facebook"
- placeholder="Facebook URL"
->
+    <p class="card-subtitle">
+      Menu item এবং category পরিচালনা করুন।
+    </p>
 
-<input
- id="instagram"
- placeholder="Instagram URL"
->
 
-<input
- id="tiktok"
- placeholder="TikTok URL"
->
+    <div class="grid">
 
-<input
- id="youtube"
- placeholder="YouTube URL"
->
+      <div class="field">
 
-<button
- class="btn"
- onclick="saveSocial()"
->
-Save Social Media
-</button>
+        <label>Dish Name</label>
 
-</div>
+        <input
+          id="menuName"
+          placeholder="Dish name">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Price</label>
+
+        <input
+          id="menuPrice"
+          placeholder="€ 0.00">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Category</label>
+
+        <select id="menuCategory">
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>New Category</label>
+
+        <input
+          id="newCategory"
+          placeholder="Create new category">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Photo URL</label>
+
+        <input
+          id="menuImage"
+          placeholder="Menu image URL">
+
+      </div>
+
+    </div>
+
+
+    <div
+      style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;">
+
+      <button
+        class="primary"
+        id="addMenu">
+
+        + Add Menu Item
+
+      </button>
+
+
+      <button
+        class="secondary"
+        id="addCategory">
+
+        + Add New Category
+
+      </button>
+
+    </div>
+
+
+    <div
+      id="menuMessage"
+      class="message">
+    </div>
+
+
+    <div
+      id="categoryList"
+      class="category-list">
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">
+      Menu Items
+    </h2>
+
+    <div
+      id="menuList"
+      class="menu-list">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- HOURS -->
+
+<!-- =======================================================
+     GALLERY
+======================================================= -->
+
 <section
- id="hours"
- class="section"
->
+  id="page-gallery"
+  class="page-section">
 
-<h2>🕐 Opening Hours</h2>
+  <div class="card">
 
-<div
- id="hoursContainer"
- class="card"
-></div>
+    <h2 class="card-title">
+      Gallery
+    </h2>
 
-<button
- class="btn"
- onclick="saveHours()"
->
-Save Opening Hours
-</button>
+    <p class="card-subtitle">
+      এখানে Gallery images manage করার জায়গা।
+    </p>
+
+
+    <div class="field">
+
+      <label>Gallery Image URL</label>
+
+      <input
+        id="galleryUrl"
+        placeholder="Image URL">
+
+    </div>
+
+
+    <button
+      class="primary"
+      id="addGallery">
+
+      + Add Gallery Image
+
+    </button>
+
+
+    <div
+      id="galleryMessage"
+      class="message">
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">
+      Gallery Images
+    </h2>
+
+    <div
+      id="galleryList"
+      class="menu-list">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- MENU -->
+
+<!-- =======================================================
+     BOOKING
+======================================================= -->
+
 <section
- id="menu"
- class="section"
->
+  id="page-booking"
+  class="page-section">
 
-<div class="toolbar">
+  <div class="card">
 
-<h2>🍽️ Menu Manager</h2>
+    <h2 class="card-title">
+      Table Booking
+    </h2>
 
-<button
- class="btn"
- onclick="loadMenu()"
->
-Refresh
-</button>
-
-</div>
+    <p class="info-text">
+      Customer table booking management।
+    </p>
 
 
-<div class="card">
+    <div class="table-wrap">
 
-<input
- id="menuId"
- type="hidden"
->
+      <table>
 
-<div class="grid g2">
+        <thead>
 
-<input
- id="menuName"
- placeholder="Menu Name"
->
+          <tr>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Guests</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
 
-<input
- id="menuPrice"
- placeholder="Price"
->
+        </thead>
 
-<select id="menuCategory">
-<option value="">
-Select Category
-</option>
-</select>
+        <tbody id="bookingTable">
 
-<input
- id="menuImageFile"
- type="file"
- accept="image/*"
->
+          <tr>
+            <td colspan="6">
+              No booking data loaded.
+            </td>
+          </tr>
 
-</div>
+        </tbody>
 
-<input
- id="menuImage"
- placeholder="Image URL"
->
+      </table>
 
-<textarea
- id="menuDescription"
- placeholder="Description"
-></textarea>
+    </div>
 
-<div class="row">
-
-<button
- class="btn"
- onclick="saveMenuItem()"
->
-Save / Update
-</button>
-
-<button
- class="btn dark"
- onclick="clearMenuForm()"
->
-Clear
-</button>
-
-</div>
-
-</div>
-
-<div
- id="menuList"
- style="margin-top:16px"
-></div>
+  </div>
 
 </section>
 
 
-<!-- CATEGORIES -->
+
+<!-- =======================================================
+     REVIEWS
+======================================================= -->
+
 <section
- id="categories"
- class="section"
->
+  id="page-reviews"
+  class="page-section">
 
-<h2>📂 Categories</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      Reviews
+    </h2>
 
-<input
- id="newCategoryName"
- placeholder="New Category Name"
->
+    <p class="info-text">
+      Customer reviews দেখা এবং management করার জায়গা।
+    </p>
 
-<input
- id="newCategoryOrder"
- type="number"
- placeholder="Sort Order"
->
 
-<button
- class="btn"
- onclick="createCategory()"
->
-➕ Add New Category
-</button>
+    <div class="table-wrap">
 
-</div>
+      <table>
 
-<div
- id="categoryList"
- style="margin-top:16px"
-></div>
+        <thead>
+
+          <tr>
+            <th>Customer</th>
+            <th>Rating</th>
+            <th>Review</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr>
+            <td colspan="5">
+              No review data loaded.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- BOOKINGS -->
+
+<!-- =======================================================
+     CUSTOMER REPORTS
+======================================================= -->
+
 <section
- id="bookings"
- class="section"
->
+  id="page-reports"
+  class="page-section">
 
-<div class="toolbar">
+  <div class="card">
 
-<h2>📅 Table Bookings</h2>
+    <h2 class="card-title">
+      Customer Reports
+    </h2>
 
-<button
- class="btn"
- onclick="loadBookings()"
->
-Refresh
-</button>
+    <p class="info-text">
+      Customer reports এবং complaints management।
+    </p>
 
-</div>
 
-<div id="bookingList"></div>
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Customer</th>
+            <th>Subject</th>
+            <th>Report</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr>
+            <td colspan="5">
+              No customer reports loaded.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- REVIEWS -->
+
+<!-- =======================================================
+     DISCOUNT CAMPAIGNS
+======================================================= -->
+
 <section
- id="reviews"
- class="section"
->
+  id="page-campaigns"
+  class="page-section">
 
-<div class="toolbar">
+  <div class="card">
 
-<h2>⭐ Reviews</h2>
+    <h2 class="card-title">
+      Discount Campaign
+    </h2>
 
-<button
- class="btn"
- onclick="loadReviews()"
->
-Refresh
-</button>
+    <div class="grid">
 
-</div>
+      <div class="field">
 
-<div id="reviewList"></div>
+        <label>Campaign Name</label>
+
+        <input
+          id="campaignName"
+          placeholder="Summer Campaign">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Discount %</label>
+
+        <input
+          id="campaignDiscount"
+          type="number"
+          placeholder="10">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Start Date</label>
+
+        <input
+          id="campaignStart"
+          type="date">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>End Date</label>
+
+        <input
+          id="campaignEnd"
+          type="date">
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="primary"
+      id="addCampaign">
+
+      Create Campaign
+
+    </button>
+
+
+    <div
+      id="campaignMessage"
+      class="message">
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">
+      Campaigns
+    </h2>
+
+    <div
+      id="campaignList"
+      class="menu-list">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- REPORTS -->
+
+<!-- =======================================================
+     COUPONS
+======================================================= -->
+
 <section
- id="reports"
- class="section"
->
+  id="page-coupons"
+  class="page-section">
 
-<div class="toolbar">
+  <div class="card">
 
-<h2>📝 Customer Reports</h2>
+    <h2 class="card-title">
+      Coupon Codes
+    </h2>
 
-<button
- class="btn"
- onclick="loadReports()"
->
-Refresh
-</button>
+    <div class="grid">
 
-</div>
+      <div class="field">
 
-<div id="reportList"></div>
+        <label>Coupon Code</label>
+
+        <input
+          id="couponCode"
+          placeholder="NABABI10">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Discount %</label>
+
+        <input
+          id="couponDiscount"
+          type="number"
+          placeholder="10">
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="primary"
+      id="addCoupon">
+
+      + Create Coupon
+
+    </button>
+
+
+    <div
+      id="couponMessage"
+      class="message">
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">
+      Coupon List
+    </h2>
+
+    <div
+      id="couponList"
+      class="menu-list">
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- DISCOUNT -->
+
+<!-- =======================================================
+     STAFF ADMIN
+======================================================= -->
+
 <section
- id="discount"
- class="section"
->
+  id="page-staff"
+  class="page-section">
 
-<h2>🎟️ Discount Campaign</h2>
+  <div class="card">
 
-<div class="card">
+    <h2 class="card-title">
+      Staff Admin
+    </h2>
 
-<div class="grid g2">
+    <p class="card-subtitle">
+      Super Admin এখান থেকে Staff-এর role এবং
+      View / Modify permission নির্ধারণ করতে পারবেন।
+    </p>
 
-<div>
 
-<label>Campaign Enabled</label>
+    <div class="grid">
 
-<select id="discountEnabled">
-<option value="true">Enabled</option>
-<option value="false">Disabled</option>
-</select>
+      <div class="field">
 
-<label>Discount Percent</label>
+        <label>Staff Name</label>
 
-<input
- id="discountPercent"
- type="number"
- step="0.01"
->
+        <input
+          id="staffName"
+          placeholder="Staff name">
 
-<label>Minimum Amount</label>
+      </div>
 
-<input
- id="discountMinimum"
- type="number"
- step="0.01"
->
 
-<label>Maximum Discount</label>
+      <div class="field">
 
-<input
- id="discountMaximum"
- type="number"
- step="0.01"
->
+        <label>Staff Email</label>
 
-</div>
+        <input
+          id="staffEmail"
+          type="email"
+          placeholder="staff@email.com">
 
+      </div>
 
-<div>
 
-<label>Coupon Prefix</label>
+      <div class="field">
 
-<input
- id="discountPrefix"
- placeholder="NB-"
->
+        <label>Role</label>
 
-<label>Start Date</label>
+        <select id="staffRole">
 
-<input
- id="discountStart"
- type="datetime-local"
->
+          <option value="Staff">
+            Staff
+          </option>
 
-<label>End Date</label>
+          <option value="Manager">
+            Manager
+          </option>
 
-<input
- id="discountEnd"
- type="datetime-local"
->
+          <option value="Booking Manager">
+            Booking Manager
+          </option>
 
-</div>
+          <option value="Content Manager">
+            Content Manager
+          </option>
 
-</div>
+          <option value="Marketing Manager">
+            Marketing Manager
+          </option>
 
-<button
- class="btn"
- onclick="saveDiscountCampaign()"
->
-💾 Save Discount Campaign
-</button>
+        </select>
 
-<p
- id="discountMessage"
- class="muted"
-></p>
+      </div>
 
-</div>
+    </div>
 
-</section>
 
+    <button
+      class="primary"
+      id="addStaff">
 
-<!-- COUPONS -->
-<section
- id="coupons"
- class="section"
->
+      + Add Staff
 
-<h2>🔢 Coupon Codes</h2>
+    </button>
 
-<div class="card">
 
-<div class="grid g2">
+    <div
+      id="staffMessage"
+      class="message">
+    </div>
 
-<div>
+  </div>
 
-<label>Number of Codes</label>
 
-<input
- id="couponCount"
- type="number"
- min="1"
- max="100"
- value="10"
->
+  <div class="card">
 
-</div>
+    <h2 class="card-title">
+      Staff Permissions
+    </h2>
 
-<div>
+    <div
+      id="permissionBox"
+      class="permission-list">
 
-<label>Prefix</label>
+    </div>
 
-<input
- id="couponPrefix"
- value="NB-"
->
+  </div>
 
-</div>
 
-</div>
+  <div class="card">
 
-<button
- class="btn"
- onclick="generateCoupons()"
->
-🎟️ Create Coupon Codes
-</button>
+    <h2 class="card-title">
+      Staff Members
+    </h2>
 
-<p class="muted">
-Customers collect the code and show it to restaurant staff.
-</p>
+    <div
+      id="staffList"
+      class="menu-list">
+    </div>
 
-</div>
-
-<div
- id="couponList"
- style="margin-top:16px"
-></div>
-
-</section>
-
-
-<!-- STAFF -->
-<section
- id="staff"
- class="section"
->
-
-<div class="toolbar">
-
-<h2>👥 Staff Management</h2>
-
-<button
- class="btn"
- onclick="loadStaff()"
->
-Refresh
-</button>
-
-</div>
-
-
-<div class="card">
-
-<h3>Create Staff Account</h3>
-
-<div class="grid g2">
-
-<input
- id="staffName"
- placeholder="Full Name"
->
-
-<input
- id="staffEmail"
- type="email"
- placeholder="Email"
->
-
-<input
- id="staffPassword"
- type="password"
- placeholder="Password — minimum 8 characters"
->
-
-<select id="staffRole">
-
-<option value="DISCOUNT_STAFF">
-DISCOUNT STAFF
-</option>
-
-<option value="BOOKING_STAFF">
-BOOKING STAFF
-</option>
-
-<option value="SUPER_ADMIN">
-SUPER ADMIN
-</option>
-
-</select>
-
-<select id="staffEnabled">
-
-<option value="true">
-Enabled
-</option>
-
-<option value="false">
-Disabled
-</option>
-
-</select>
-
-</div>
-
-<button
- class="btn"
- onclick="createStaffAccount()"
->
-➕ Create Staff Account
-</button>
-
-<p
- id="staffMessage"
- class="muted"
-></p>
-
-</div>
-
-<div
- id="staffList"
- style="margin-top:16px"
-></div>
-
-</section>
-
-
-<!-- PERFORMANCE -->
-<section
- id="performance"
- class="section"
->
-
-<div class="toolbar">
-
-<h2>📈 Staff Performance</h2>
-
-<button
- class="btn"
- onclick="loadStaffPerformance()"
->
-Refresh
-</button>
-
-</div>
-
-<div
- id="performanceList"
-></div>
+  </div>
 
 </section>
 
 
 </main>
+
 </div>
-</div>
 
 
-<div
- id="toast"
- class="toast"
-></div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
@@ -1482,70 +2037,187 @@ Refresh
    SUPABASE
 ========================================================= */
 
-const SUPABASE_URL =
-"https://rzvaaxjtkvriekokeolo.supabase.co";
+let supabaseClient = null;
 
-const SUPABASE_KEY =
-"sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
+function initializeSupabase(){
 
-const supabaseClient =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+  try{
 
-let currentUser = null;
-let currentStaff = null;
+    if(
+      !window.supabase ||
+      typeof SUPABASE_URL === "undefined" ||
+      typeof SUPABASE_ANON_KEY === "undefined"
+    ){
+
+      throw new Error(
+        "Supabase configuration not found."
+      );
+
+    }
+
+    supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    showLoginError(
+      "Supabase configuration সমস্যা হয়েছে। config.js check করুন।"
+    );
+
+    return false;
+  }
+}
 
 
 /* =========================================================
-   HELPERS
+   LOGIN ERROR
 ========================================================= */
 
-function $(id){
-  return document.getElementById(id);
+function showLoginError(message){
+
+  const box =
+    document.getElementById("loginError");
+
+  box.textContent = message;
+
+  box.classList.remove("hidden");
 }
 
-function escapeHtml(value){
 
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+/* =========================================================
+   LOGIN
+========================================================= */
+
+async function login(email,password){
+
+  const button =
+    document.getElementById("loginButton");
+
+  const errorBox =
+    document.getElementById("loginError");
+
+  errorBox.classList.add("hidden");
+
+  button.disabled = true;
+  button.textContent = "Logging in...";
+
+  try{
+
+    const result =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if(result.error){
+      throw result.error;
+    }
+
+    if(!result.data.user){
+
+      throw new Error(
+        "User account পাওয়া যায়নি।"
+      );
+
+    }
+
+    showAdmin(result.data.user);
+
+  }catch(error){
+
+    console.error(error);
+
+    showLoginError(
+      error.message ||
+      "Login failed. Email অথবা password check করুন।"
+    );
+
+  }finally{
+
+    button.disabled = false;
+    button.textContent = "Login";
+
+  }
+}
+
+
+/* =========================================================
+   SHOW ADMIN
+========================================================= */
+
+function showAdmin(user){
+
+  document
+    .getElementById("loginScreen")
+    .style.display = "none";
+
+  document
+    .getElementById("adminApp")
+    .classList.add("show");
+
+  document
+    .getElementById("userEmail")
+    .textContent =
+      user.email || "Super Admin";
+}
+
+
+/* =========================================================
+   SHOW LOGIN
+========================================================= */
+
+function showLogin(){
+
+  document
+    .getElementById("adminApp")
+    .classList.remove("show");
+
+  document
+    .getElementById("loginScreen")
+    .style.display = "flex";
+}
+
+
+/* =========================================================
+   SESSION
+========================================================= */
+
+async function checkSession(){
+
+  const result =
+    await supabaseClient.auth.getSession();
+
+  if(
+    result.data &&
+    result.data.session &&
+    result.data.session.user
+  ){
+
+    showAdmin(
+      result.data.session.user
+    );
+
+  }
 
 }
 
-function toast(message){
 
-  const el = $("toast");
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-  el.textContent = message;
+async function logout(){
 
-  el.style.display = "block";
+  await supabaseClient.auth.signOut();
 
-  setTimeout(()=>{
-    el.style.display = "none";
-  },3000);
-
-}
-
-function showError(error){
-
-  console.error(error);
-
-  alert(
-    error?.message ||
-    error ||
-    "Something went wrong."
-  );
-
-}
-
-function toggleSidebar(){
-
-  $("sidebar").classList.toggle("open");
+  showLogin();
 
 }
 
@@ -1554,1152 +2226,125 @@ function toggleSidebar(){
    NAVIGATION
 ========================================================= */
 
-document.querySelectorAll(".nav").forEach(button=>{
+function setupNavigation(){
 
-  button.addEventListener("click",()=>{
+  const buttons =
+    document.querySelectorAll(
+      ".nav-button"
+    );
 
-    const id =
-      button.dataset.section;
+  buttons.forEach(button => {
 
-    document.querySelectorAll(".section")
-      .forEach(section=>{
-        section.classList.remove("active");
-      });
+    button.addEventListener(
+      "click",
+      () => {
 
-    const section = $(id);
+        const page =
+          button.dataset.page;
 
-    if(section){
-      section.classList.add("active");
-    }
+        const title =
+          button.dataset.title;
 
-    document.querySelectorAll(".nav")
-      .forEach(nav=>{
-        nav.classList.remove("active");
-      });
 
-    button.classList.add("active");
+        buttons.forEach(item => {
+          item.classList.remove("active");
+        });
 
-    $("sidebar").classList.remove("open");
+        button.classList.add("active");
 
-    loadSection(id);
+
+        document
+          .querySelectorAll(".page-section")
+          .forEach(section => {
+
+            section.classList.remove("active");
+
+          });
+
+
+        const target =
+          document.getElementById(
+            "page-" + page
+          );
+
+        if(target){
+          target.classList.add("active");
+        }
+
+
+        document
+          .getElementById("pageTitle")
+          .textContent = title;
+
+
+        document
+          .getElementById("sidebar")
+          .classList.remove("mobile-open");
+
+      }
+
+    );
 
   });
 
-});
-
-
-async function loadSection(id){
-
-  try{
-
-    if(id==="dashboard")
-      await loadDashboard();
-
-    if(id==="hero")
-      await loadHero();
-
-    if(id==="about")
-      await loadAbout();
-
-    if(id==="breaking")
-      await loadBreaking();
-
-    if(id==="gallery")
-      await loadGallery();
-
-    if(id==="contact")
-      await loadContact();
-
-    if(id==="social")
-      await loadSocial();
-
-    if(id==="hours")
-      await loadHours();
-
-    if(id==="menu")
-      await loadMenu();
-
-    if(id==="categories")
-      await loadCategories();
-
-    if(id==="bookings")
-      await loadBookings();
-
-    if(id==="reviews")
-      await loadReviews();
-
-    if(id==="reports")
-      await loadReports();
-
-    if(id==="discount")
-      await loadDiscountCampaign();
-
-    if(id==="coupons")
-      await loadCoupons();
-
-    if(id==="staff")
-      await loadStaff();
-
-    if(id==="performance")
-      await loadStaffPerformance();
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
 }
 
 
 /* =========================================================
-   AUTH
+   MOBILE
 ========================================================= */
 
-async function login(){
+function setupMobile(){
 
-  const email =
-    $("loginEmail").value.trim();
+  document
+    .getElementById("mobileMenu")
+    .addEventListener(
+      "click",
+      () => {
 
-  const password =
-    $("loginPassword").value;
+        document
+          .getElementById("sidebar")
+          .classList.toggle("mobile-open");
 
-  $("loginMessage").textContent = "";
-
-  if(!email || !password){
-
-    $("loginMessage").textContent =
-      "Please enter email and password.";
-
-    return;
-
-  }
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.auth
-    .signInWithPassword({
-      email,
-      password
-    });
-
-  if(error){
-
-    $("loginMessage").textContent =
-      error.message;
-
-    return;
-
-  }
-
-  currentUser =
-    data.user;
-
-  await initializeAdmin();
-
-}
-
-
-async function initializeAdmin(){
-
-  if(!currentUser){
-
-    return;
-
-  }
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("admin_staff")
-    .select("*")
-    .ilike("email",currentUser.email)
-    .maybeSingle();
-
-  if(error){
-
-    alert(
-      "Could not load admin profile: "+
-      error.message
-    );
-
-    await supabaseClient.auth.signOut();
-
-    location.reload();
-
-    return;
-
-  }
-
-  if(!data){
-
-    alert(
-      "Admin staff profile not found."
-    );
-
-    await supabaseClient.auth.signOut();
-
-    location.reload();
-
-    return;
-
-  }
-
-  if(data.enabled !== true){
-
-    alert(
-      "This account is disabled."
-    );
-
-    await supabaseClient.auth.signOut();
-
-    location.reload();
-
-    return;
-
-  }
-
-  currentStaff =
-    data;
-
-  $("login").classList.add("hidden");
-
-  $("app").classList.remove("hidden");
-
-  $("roleBadge").textContent =
-    data.role || "STAFF";
-
-  await loadDashboard();
-
-}
-
-
-async function logout(){
-
-  await supabaseClient.auth.signOut();
-
-  location.reload();
-
-}
-
-
-/* =========================================================
-   SETTINGS
-========================================================= */
-
-async function getSetting(key){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("site_settings")
-    .select("value")
-    .eq("key",key)
-    .maybeSingle();
-
-  if(error)
-    throw error;
-
-  return data?.value || {};
-
-}
-
-
-async function saveSetting(key,value){
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("site_settings")
-    .upsert({
-      key,
-      value,
-      updated_at:
-        new Date().toISOString()
-    });
-
-  if(error)
-    throw error;
-
-}
-
-
-/* =========================================================
-   STORAGE
-========================================================= */
-
-async function uploadSiteMedia(file,folder){
-
-  if(!file)
-    throw new Error("Please select a file.");
-
-  const extension =
-    file.name
-      .split(".")
-      .pop()
-      .toLowerCase();
-
-  const path =
-    folder +
-    "/" +
-    crypto.randomUUID() +
-    "." +
-    extension;
-
-  const {
-    error
-  } =
-  await supabaseClient.storage
-    .from("site-media")
-    .upload(
-      path,
-      file,
-      {
-        upsert:false
       }
     );
 
-  if(error)
-    throw error;
-
-  const {
-    data
-  } =
-  supabaseClient.storage
-    .from("site-media")
-    .getPublicUrl(path);
-
-  return data.publicUrl;
-
 }
 
 
 /* =========================================================
-   HERO
+   LOCAL STORAGE HELPERS
 ========================================================= */
 
-async function loadHero(){
-
-  const hero =
-    await getSetting("hero");
-
-  $("heroTitle").value =
-    hero.title || "";
-
-  $("heroText").value =
-    hero.text || "";
-
-  $("heroImage").value =
-    hero.image_url || "";
-
-  $("heroPreview").innerHTML =
-    hero.image_url
-    ?
-    `<img class="media-preview"
-      src="${escapeHtml(hero.image_url)}">`
-    :
-    "";
-
-  const logo =
-    await getSetting("logo");
-
-  $("logoUrl").value =
-    logo.url || "";
-
-  $("logoPreview").innerHTML =
-    logo.url
-    ?
-    `<img class="media-preview"
-      src="${escapeHtml(logo.url)}">`
-    :
-    "";
-
-}
-
-
-async function saveHero(){
-
-  const hero =
-    await getSetting("hero");
-
-  hero.title =
-    $("heroTitle").value.trim();
-
-  hero.text =
-    $("heroText").value.trim();
-
-  hero.image_url =
-    $("heroImage").value.trim();
-
-  await saveSetting(
-    "hero",
-    hero
-  );
-
-  toast("Hero saved successfully.");
-
-}
-
-
-async function uploadHeroImage(){
+function getData(key,defaultValue){
 
   try{
 
-    const file =
-      $("heroImageFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "hero"
+    const data =
+      localStorage.getItem(
+        "nababi_admin_" + key
       );
 
-    $("heroImage").value =
-      url;
-
-    const hero =
-      await getSetting("hero");
-
-    hero.image_url =
-      url;
-
-    await saveSetting(
-      "hero",
-      hero
-    );
-
-    await loadHero();
-
-    toast(
-      "Hero image uploaded."
-    );
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
-}
-
-
-async function deleteHeroImage(){
-
-  const hero =
-    await getSetting("hero");
-
-  hero.image_url = "";
-
-  await saveSetting(
-    "hero",
-    hero
-  );
-
-  await loadHero();
-
-  toast("Hero image deleted.");
-
-}
-
-
-async function uploadLogo(){
-
-  try{
-
-    const file =
-      $("logoFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "logo"
-      );
-
-    await saveSetting(
-      "logo",
-      {
-        url
-      }
-    );
-
-    await loadHero();
-
-    toast("Logo uploaded.");
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
-}
-
-
-async function deleteLogo(){
-
-  await saveSetting(
-    "logo",
-    {
-      url:""
-    }
-  );
-
-  await loadHero();
-
-  toast("Logo deleted.");
-
-}
-
-
-/* =========================================================
-   ABOUT
-========================================================= */
-
-async function loadAbout(){
-
-  const about =
-    await getSetting("about");
-
-  $("aboutTitle").value =
-    about.title || "";
-
-  $("aboutText").value =
-    about.text || "";
-
-  $("aboutImage").value =
-    about.image_url || "";
-
-}
-
-
-async function saveAbout(){
-
-  await saveSetting(
-    "about",
-    {
-      title:
-        $("aboutTitle").value.trim(),
-
-      text:
-        $("aboutText").value.trim(),
-
-      image_url:
-        $("aboutImage").value.trim()
-    }
-  );
-
-  toast("About section saved.");
-
-}
-
-
-async function uploadAboutImage(){
-
-  try{
-
-    const file =
-      $("aboutImageFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "about"
-      );
-
-    $("aboutImage").value =
-      url;
-
-    const about =
-      await getSetting("about");
-
-    about.image_url =
-      url;
-
-    await saveSetting(
-      "about",
-      about
-    );
-
-    toast("About image uploaded.");
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
-}
-
-
-async function deleteAboutImage(){
-
-  const about =
-    await getSetting("about");
-
-  about.image_url = "";
-
-  await saveSetting(
-    "about",
-    about
-  );
-
-  $("aboutImage").value = "";
-
-  toast("About image deleted.");
-
-}
-
-
-/* =========================================================
-   BREAKING NEWS
-========================================================= */
-
-async function loadBreaking(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  $("breakingEnabled").checked =
-    news.enabled !== false;
-
-  $("breakingText").value =
-    news.text || "";
-
-  $("breakingImage").value =
-    news.image_url || "";
-
-  $("breakingVideo").value =
-    news.video_url || "";
-
-  let html = "";
-
-  if(news.image_url){
-
-    html +=
-      `<img class="media-preview"
-        src="${escapeHtml(news.image_url)}">`;
-
-  }
-
-  if(news.video_url){
-
-    html +=
-      `<video
-        class="media-preview"
-        controls
-        src="${escapeHtml(news.video_url)}">
-      </video>`;
-
-  }
-
-  $("breakingPreview").innerHTML =
-    html;
-
-}
-
-
-async function saveBreaking(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  news.enabled =
-    $("breakingEnabled").checked;
-
-  news.text =
-    $("breakingText").value.trim();
-
-  news.image_url =
-    $("breakingImage").value.trim();
-
-  news.video_url =
-    $("breakingVideo").value.trim();
-
-  await saveSetting(
-    "breaking_news",
-    news
-  );
-
-  toast(
-    "Breaking News saved."
-  );
-
-}
-
-
-async function uploadBreakingImage(){
-
-  try{
-
-    const file =
-      $("breakingImageFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "breaking-news"
-      );
-
-    const news =
-      await getSetting(
-        "breaking_news"
-      );
-
-    news.image_url =
-      url;
-
-    await saveSetting(
-      "breaking_news",
-      news
-    );
-
-    await loadBreaking();
-
-    toast(
-      "Breaking News image replaced."
-    );
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
-}
-
-
-async function deleteBreakingImage(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  news.image_url = "";
-
-  await saveSetting(
-    "breaking_news",
-    news
-  );
-
-  await loadBreaking();
-
-  toast(
-    "Breaking News image deleted."
-  );
-
-}
-
-
-async function uploadBreakingVideo(){
-
-  try{
-
-    const file =
-      $("breakingVideoFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "breaking-news"
-      );
-
-    const news =
-      await getSetting(
-        "breaking_news"
-      );
-
-    news.video_url =
-      url;
-
-    await saveSetting(
-      "breaking_news",
-      news
-    );
-
-    await loadBreaking();
-
-    toast(
-      "Breaking News video replaced."
-    );
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
-}
-
-
-async function deleteBreakingVideo(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  news.video_url = "";
-
-  await saveSetting(
-    "breaking_news",
-    news
-  );
-
-  await loadBreaking();
-
-  toast(
-    "Breaking News video deleted."
-  );
-
-}
-
-
-/* =========================================================
-   GALLERY
-========================================================= */
-
-async function addGalleryPhoto(){
-
-  try{
-
-    const file =
-      $("galleryFile").files[0];
-
-    if(!file){
-
-      alert(
-        "Please select a photo."
-      );
-
-      return;
-
+    if(data === null){
+      return defaultValue;
     }
 
-    const url =
-      await uploadSiteMedia(
-        file,
-        "gallery"
-      );
-
-    const {
-      error
-    } =
-    await supabaseClient
-      .from("gallery")
-      .insert({
-        image_url:url,
-        storage_path:url,
-        title:
-          $("galleryTitle").value.trim(),
-        category:
-          $("galleryCategory").value.trim() ||
-          "Restaurant",
-        sort_order:0,
-        is_visible:true
-      });
-
-    if(error)
-      throw error;
-
-    $("galleryTitle").value="";
-    $("galleryCategory").value="";
-    $("galleryFile").value="";
-
-    await loadGallery();
-
-    toast(
-      "Gallery photo added."
-    );
+    return JSON.parse(data);
 
   }catch(error){
 
-    showError(error);
+    return defaultValue;
 
   }
 
 }
 
 
-async function loadGallery(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("gallery")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-  if(error)
-    throw error;
-
-  $("galleryList").innerHTML =
-    (data || []).map(item=>{
-
-      return `
-      <div class="card">
-
-        <img
-          class="media-preview"
-          src="${escapeHtml(item.image_url)}"
-        >
-
-        <h3>
-          ${escapeHtml(item.title || "Gallery")}
-        </h3>
-
-        <p class="muted">
-          ${escapeHtml(item.category || "")}
-        </p>
-
-        <button
-          class="btn red small"
-          onclick="deleteGallery(${item.id})"
-        >
-          Delete
-        </button>
-
-      </div>
-      `;
-
-    }).join("");
-
-}
-
-
-async function deleteGallery(id){
-
-  if(!confirm(
-    "Delete this gallery photo?"
-  ))
-    return;
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("gallery")
-    .delete()
-    .eq("id",id);
-
-  if(error)
-    throw error;
-
-  await loadGallery();
-
-  toast(
-    "Gallery photo deleted."
-  );
-
-}
-
-
-/* =========================================================
-   CONTACT
-========================================================= */
-
-async function loadContact(){
-
-  const contact =
-    await getSetting("contact");
-
-  $("contactAddress").value =
-    contact.address || "";
-
-  $("contactPhone1").value =
-    contact.phone1 || "";
-
-  $("contactPhone2").value =
-    contact.phone2 || "";
-
-  $("contactWhatsapp").value =
-    contact.whatsapp || "";
-
-  $("contactMaps").value =
-    contact.google_maps ||
-    contact.maps ||
-    "";
-
-}
-
-
-async function saveContact(){
-
-  await saveSetting(
-    "contact",
-    {
-      address:
-        $("contactAddress").value.trim(),
-
-      phone1:
-        $("contactPhone1").value.trim(),
-
-      phone2:
-        $("contactPhone2").value.trim(),
-
-      whatsapp:
-        $("contactWhatsapp").value.trim(),
-
-      google_maps:
-        $("contactMaps").value.trim()
-    }
-  );
-
-  toast(
-    "Contact saved."
-  );
-
-}
-
-
-/* =========================================================
-   SOCIAL
-========================================================= */
-
-async function loadSocial(){
-
-  const social =
-    await getSetting("social");
-
-  $("facebook").value =
-    social.facebook || "";
-
-  $("instagram").value =
-    social.instagram || "";
-
-  $("tiktok").value =
-    social.tiktok || "";
-
-  $("youtube").value =
-    social.youtube || "";
-
-}
-
-
-async function saveSocial(){
-
-  await saveSetting(
-    "social",
-    {
-      facebook:
-        $("facebook").value.trim(),
-
-      instagram:
-        $("instagram").value.trim(),
-
-      tiktok:
-        $("tiktok").value.trim(),
-
-      youtube:
-        $("youtube").value.trim()
-    }
-  );
-
-  toast(
-    "Social media saved."
-  );
-
-}
-
-
-/* =========================================================
-   OPENING HOURS
-========================================================= */
-
-const DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday"
-];
-
-
-async function loadHours(){
-
-  const hours =
-    await getSetting("hours");
-
-  $("hoursContainer").innerHTML =
-    DAYS.map(day=>{
-
-      const value =
-        hours[day] || {};
-
-      return `
-      <div class="grid g2">
-
-        <div>
-          <b>${day}</b>
-        </div>
-
-        <div>
-          <input
-            id="open_${day}"
-            value="${escapeHtml(value.open || "")}"
-            placeholder="Opening time"
-          >
-
-          <input
-            id="close_${day}"
-            value="${escapeHtml(value.close || "")}"
-            placeholder="Closing time"
-          >
-        </div>
-
-      </div>
-      `;
-
-    }).join("");
-
-}
-
-
-async function saveHours(){
-
-  const hours = {};
-
-  DAYS.forEach(day=>{
-
-    hours[day] = {
-
-      open:
-        $(`open_${day}`).value.trim(),
-
-      close:
-        $(`close_${day}`).value.trim()
-
-    };
-
-  });
-
-  await saveSetting(
-    "hours",
-    hours
-  );
-
-  toast(
-    "Opening hours saved."
+function setData(key,value){
+
+  localStorage.setItem(
+    "nababi_admin_" + key,
+    JSON.stringify(value)
   );
 
 }
@@ -2709,161 +2354,182 @@ async function saveHours(){
    CATEGORIES
 ========================================================= */
 
-async function loadCategories(){
+let categories =
+  getData(
+    "categories",
+    [
+      "Antipasti",
+      "Primi",
+      "Secondi",
+      "Pizza",
+      "Dolci",
+      "Drinks"
+    ]
+  );
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("menu_categories")
-    .select("*")
-    .order("sort_order");
 
-  if(error)
-    throw error;
+function renderCategories(){
 
-  $("menuCategory").innerHTML =
-    `<option value="">
-      Select Category
-    </option>` +
-    (data || []).map(item=>
-      `<option value="${escapeHtml(item.name)}">
-        ${escapeHtml(item.name)}
-      </option>`
-    ).join("");
+  const select =
+    document.getElementById(
+      "menuCategory"
+    );
 
-  $("categoryList").innerHTML =
-    `
-    <div class="tablewrap">
+  const list =
+    document.getElementById(
+      "categoryList"
+    );
 
-    <table class="table">
 
-    <thead>
-    <tr>
-      <th>Category</th>
-      <th>Order</th>
-      <th>Action</th>
-    </tr>
-    </thead>
+  select.innerHTML = "";
 
-    <tbody>
 
-    ${(data || []).map(item=>`
+  categories.forEach(category => {
 
-      <tr>
+    const option =
+      document.createElement("option");
 
-        <td>
-          ${escapeHtml(item.name)}
-        </td>
+    option.value = category;
+    option.textContent = category;
 
-        <td>
-          ${item.sort_order ?? 0}
-        </td>
+    select.appendChild(option);
 
-        <td>
+  });
 
-          <button
-            class="btn red small"
-            onclick="deleteCategory(${item.id})"
-          >
-            Delete
-          </button>
 
-        </td>
+  list.innerHTML = "";
 
-      </tr>
 
-    `).join("")}
+  categories.forEach(
+    (category,index) => {
 
-    </tbody>
+      const tag =
+        document.createElement("div");
 
-    </table>
+      tag.className =
+        "category-tag";
 
-    </div>
-    `;
+      tag.innerHTML =
+        escapeHTML(category) +
+        `
+        <button
+          type="button"
+          onclick="removeCategory(${index})">
+          ×
+        </button>
+        `;
+
+      list.appendChild(tag);
+
+    }
+  );
+
+
+  document
+    .getElementById("categoryCount")
+    .textContent =
+      categories.length;
 
 }
 
 
-async function createCategory(){
+function addCategory(){
+
+  const input =
+    document.getElementById(
+      "newCategory"
+    );
+
+  const message =
+    document.getElementById(
+      "menuMessage"
+    );
 
   const name =
-    $("newCategoryName")
-      .value
-      .trim();
+    input.value.trim();
+
 
   if(!name){
 
+    message.textContent =
+      "Category name লিখুন।";
+
+    return;
+
+  }
+
+
+  const exists =
+    categories.some(
+      item =>
+        item.toLowerCase() ===
+        name.toLowerCase()
+    );
+
+
+  if(exists){
+
+    message.textContent =
+      "এই category ইতিমধ্যে আছে।";
+
+    return;
+
+  }
+
+
+  categories.push(name);
+
+  setData(
+    "categories",
+    categories
+  );
+
+  input.value = "";
+
+  renderCategories();
+
+  message.textContent =
+    "New category added successfully.";
+
+}
+
+
+function removeCategory(index){
+
+  if(categories.length <= 1){
+
     alert(
-      "Enter a category name."
+      "কমপক্ষে একটি category রাখতে হবে।"
     );
 
     return;
 
   }
 
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("menu_categories")
-    .insert({
-      name,
-      sort_order:
-        Number(
-          $("newCategoryOrder").value || 0
-        )
-    });
 
-  if(error){
+  const name =
+    categories[index];
 
-    showError(error);
+
+  if(
+    !confirm(
+      `"${name}" category remove করবেন?`
+    )
+  ){
 
     return;
 
   }
 
-  $("newCategoryName").value="";
-  $("newCategoryOrder").value="";
 
-  await loadCategories();
+  categories.splice(index,1);
 
-  toast(
-    "New category created."
+  setData(
+    "categories",
+    categories
   );
 
-}
-
-
-async function deleteCategory(id){
-
-  if(!confirm(
-    "Delete this category?"
-  ))
-    return;
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("menu_categories")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
-
-    return;
-
-  }
-
-  await loadCategories();
-
-  toast(
-    "Category deleted."
-  );
+  renderCategories();
 
 }
 
@@ -2872,890 +2538,518 @@ async function deleteCategory(id){
    MENU
 ========================================================= */
 
-async function loadMenu(){
+let menuItems =
+  getData(
+    "menuItems",
+    []
+  );
 
-  await loadCategories();
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("Menu")
-    .select("*")
-    .order(
-      "id",
-      {
-        ascending:false
-      }
+function renderMenu(){
+
+  const box =
+    document.getElementById(
+      "menuList"
     );
 
-  if(error)
-    throw error;
+  box.innerHTML = "";
 
-  $("menuList").innerHTML =
-    `
-    <div class="tablewrap">
 
-    <table class="table">
+  if(menuItems.length === 0){
 
-    <thead>
+    box.innerHTML =
+      `
+      <div class="info-text">
+        এখনো কোনো Menu Item যোগ করা হয়নি।
+      </div>
+      `;
 
-    <tr>
-      <th>Name</th>
-      <th>Price</th>
-      <th>Category</th>
-      <th>Photo</th>
-      <th>Action</th>
-    </tr>
+    return;
 
-    </thead>
+  }
 
-    <tbody>
 
-    ${(data || []).map(item=>`
+  menuItems.forEach(
+    (item,index) => {
 
-      <tr>
+      const row =
+        document.createElement("div");
 
-        <td>
-          ${escapeHtml(item.name)}
-        </td>
+      row.className =
+        "menu-item";
 
-        <td>
-          ${escapeHtml(item.price)}
-        </td>
 
-        <td>
-          ${escapeHtml(item.category)}
-        </td>
+      row.innerHTML =
+        `
+        <div class="menu-item-left">
 
-        <td>
+          <div class="menu-name">
+            ${escapeHTML(item.name)}
+          </div>
 
-          ${
-            item.image_url
-            ?
-            `<img
-              src="${escapeHtml(item.image_url)}"
-              style="
-                width:60px;
-                height:50px;
-                object-fit:cover;
-                border-radius:8px
-              "
-            >`
-            :
-            "—"
-          }
+          <div class="menu-meta">
+            ${escapeHTML(item.category)}
+            • € ${escapeHTML(item.price)}
+          </div>
 
-        </td>
+        </div>
 
-        <td>
+        <div class="menu-actions">
 
           <button
-            class="btn small"
-            onclick="editMenu(${item.id})"
-          >
+            class="secondary"
+            onclick="editMenu(${index})">
             Edit
           </button>
 
           <button
-            class="btn red small"
-            onclick="deleteMenu(${item.id})"
-          >
+            class="danger"
+            onclick="deleteMenu(${index})">
             Delete
           </button>
 
-        </td>
+        </div>
+        `;
 
-      </tr>
 
-    `).join("")}
+      box.appendChild(row);
 
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
+    }
+  );
 
 }
 
 
-async function editMenu(id){
+function addMenu(){
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("Menu")
-    .select("*")
-    .eq("id",id)
-    .single();
+  const name =
+    document
+      .getElementById("menuName")
+      .value
+      .trim();
 
-  if(error)
-    throw error;
+  const price =
+    document
+      .getElementById("menuPrice")
+      .value
+      .trim();
 
-  $("menuId").value =
-    data.id;
+  const category =
+    document
+      .getElementById("menuCategory")
+      .value;
 
-  $("menuName").value =
-    data.name || "";
+  const image =
+    document
+      .getElementById("menuImage")
+      .value
+      .trim();
 
-  $("menuPrice").value =
-    data.price || "";
+  const message =
+    document
+      .getElementById("menuMessage");
 
-  $("menuCategory").value =
-    data.category || "";
 
-  $("menuImage").value =
-    data.image_url || "";
+  if(!name || !price || !category){
 
-  $("menuDescription").value =
-    data.description || "";
+    message.textContent =
+      "Dish name, price এবং category দিতে হবে।";
 
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
+    return;
+
+  }
+
+
+  menuItems.push({
+
+    id:Date.now(),
+
+    name,
+
+    price,
+
+    category,
+
+    image
+
   });
 
+
+  setData(
+    "menuItems",
+    menuItems
+  );
+
+
+  document
+    .getElementById("menuName")
+    .value = "";
+
+  document
+    .getElementById("menuPrice")
+    .value = "";
+
+  document
+    .getElementById("menuImage")
+    .value = "";
+
+
+  renderMenu();
+
+
+  message.textContent =
+    "Menu item added successfully.";
+
 }
 
 
-function clearMenuForm(){
+function editMenu(index){
 
-  $("menuId").value="";
-  $("menuName").value="";
-  $("menuPrice").value="";
-  $("menuImage").value="";
-  $("menuDescription").value="";
-  $("menuImageFile").value="";
-
-}
+  const item =
+    menuItems[index];
 
 
-async function saveMenuItem(){
-
-  try{
-
-    let imageUrl =
-      $("menuImage").value.trim();
-
-    const file =
-      $("menuImageFile").files[0];
-
-    if(file){
-
-      imageUrl =
-        await uploadSiteMedia(
-          file,
-          "menu"
-        );
-
-    }
-
-    const object = {
-
-      name:
-        $("menuName").value.trim(),
-
-      price:
-        $("menuPrice").value.trim(),
-
-      category:
-        $("menuCategory").value,
-
-      image_url:
-        imageUrl,
-
-      description:
-        $("menuDescription").value.trim()
-
-    };
-
-    let response;
-
-    const id =
-      $("menuId").value;
-
-    if(id){
-
-      response =
-        await supabaseClient
-          .from("Menu")
-          .update(object)
-          .eq("id",id);
-
-    }else{
-
-      response =
-        await supabaseClient
-          .from("Menu")
-          .insert(object);
-
-    }
-
-    if(response.error)
-      throw response.error;
-
-    clearMenuForm();
-
-    await loadMenu();
-
-    toast(
-      "Menu item saved."
+  const name =
+    prompt(
+      "Dish name:",
+      item.name
     );
 
-  }catch(error){
+  if(name === null) return;
 
-    showError(error);
 
-  }
+  const price =
+    prompt(
+      "Price:",
+      item.price
+    );
+
+  if(price === null) return;
+
+
+  item.name =
+    name.trim();
+
+  item.price =
+    price.trim();
+
+
+  setData(
+    "menuItems",
+    menuItems
+  );
+
+
+  renderMenu();
 
 }
 
 
-async function deleteMenu(id){
+function deleteMenu(index){
 
-  if(!confirm(
-    "Delete this menu item?"
-  ))
-    return;
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("Menu")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
+  if(
+    !confirm(
+      "এই Menu Item delete করবেন?"
+    )
+  ){
 
     return;
 
   }
 
-  await loadMenu();
 
-  toast(
-    "Menu item deleted."
+  menuItems.splice(index,1);
+
+  setData(
+    "menuItems",
+    menuItems
   );
+
+  renderMenu();
 
 }
 
 
 /* =========================================================
-   BOOKINGS
+   GALLERY
 ========================================================= */
 
-async function loadBookings(){
+let gallery =
+  getData(
+    "gallery",
+    []
+  );
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("table_bookings")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
+
+function renderGallery(){
+
+  const box =
+    document.getElementById(
+      "galleryList"
     );
 
-  if(error)
-    throw error;
-
-  $("bookingList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Phone</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th>Guests</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          ${escapeHtml(item.customer_name)}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.phone ||
-            item.email ||
-            ""
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(item.booking_date)}
-        </td>
-
-        <td>
-          ${escapeHtml(item.booking_time)}
-        </td>
-
-        <td>
-          ${item.guests || 2}
-        </td>
-
-        <td>
-          <span class="pill ${
-            item.status==="Confirmed"
-            ?"ok"
-            :""
-          }">
-            ${escapeHtml(item.status)}
-          </span>
-        </td>
-
-        <td>
-
-          <button
-            class="btn green small"
-            onclick="updateBooking(
-              ${item.id},
-              'Confirmed'
-            )"
-          >
-            Confirm
-          </button>
-
-          <button
-            class="btn red small"
-            onclick="updateBooking(
-              ${item.id},
-              'Cancelled'
-            )"
-          >
-            Cancel
-          </button>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
-}
+  box.innerHTML = "";
 
 
-async function updateBooking(id,status){
+  if(gallery.length === 0){
 
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("table_bookings")
-    .update({
-      status,
-      updated_at:
-        new Date().toISOString()
-    })
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
+    box.innerHTML =
+      `
+      <div class="info-text">
+        এখনো কোনো Gallery image যোগ করা হয়নি।
+      </div>
+      `;
 
     return;
 
   }
 
-  if(currentStaff){
 
-    await supabaseClient
-      .from("booking_staff_activity")
-      .insert({
-        staff_email:
-          currentUser.email,
+  gallery.forEach(
+    (image,index) => {
 
-        staff_name:
-          currentStaff.full_name,
+      const row =
+        document.createElement("div");
 
-        booking_id:
-          id,
-
-        action:
-          status==="Confirmed"
-          ?
-          "CONFIRMED"
-          :
-          "CANCELLED"
-      });
-
-  }
-
-  await loadBookings();
-
-  toast(
-    "Booking updated."
-  );
-
-}
+      row.className =
+        "menu-item";
 
 
-/* =========================================================
-   REVIEWS
-========================================================= */
+      row.innerHTML =
+        `
+        <div class="menu-item-left">
 
-async function loadReviews(){
+          <div class="menu-name">
+            Gallery Image ${index + 1}
+          </div>
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("reviews")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
+          <div class="menu-meta">
+            ${escapeHTML(image)}
+          </div>
 
-  if(error)
-    throw error;
+        </div>
 
-  $("reviewList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Rating</th>
-      <th>Message</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          ${escapeHtml(item.customer_name)}
-        </td>
-
-        <td>
-          ⭐ ${item.rating}
-        </td>
-
-        <td>
-          ${escapeHtml(item.message)}
-        </td>
-
-        <td>
-          ${escapeHtml(item.status)}
-        </td>
-
-        <td>
+        <div class="menu-actions">
 
           <button
-            class="btn green small"
-            onclick="approveReview(${item.id})"
-          >
-            Approve
-          </button>
-
-          <button
-            class="btn red small"
-            onclick="deleteReview(${item.id})"
-          >
+            class="danger"
+            onclick="deleteGallery(${index})">
             Delete
           </button>
 
-        </td>
+        </div>
+        `;
 
-      </tr>
 
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
-}
-
-
-async function approveReview(id){
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("reviews")
-    .update({
-      status:"Approved"
-    })
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
-
-    return;
-
-  }
-
-  await loadReviews();
-
-  toast(
-    "Review approved."
-  );
-
-}
-
-
-async function deleteReview(id){
-
-  if(!confirm(
-    "Delete this review?"
-  ))
-    return;
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("reviews")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
-
-    return;
-
-  }
-
-  await loadReviews();
-
-}
-
-
-/* =========================================================
-   REPORTS
-========================================================= */
-
-async function loadReports(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("customer_reports")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-  if(error)
-    throw error;
-
-  $("reportList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Subject</th>
-      <th>Message</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          ${escapeHtml(item.customer_name)}
-        </td>
-
-        <td>
-          ${escapeHtml(item.subject)}
-        </td>
-
-        <td>
-          ${escapeHtml(item.message)}
-        </td>
-
-        <td>
-          ${escapeHtml(item.status)}
-        </td>
-
-        <td>
-
-          <button
-            class="btn green small"
-            onclick="resolveReport(${item.id})"
-          >
-            Resolved
-          </button>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
-}
-
-
-async function resolveReport(id){
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("customer_reports")
-    .update({
-      status:"Resolved"
-    })
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
-
-    return;
-
-  }
-
-  await loadReports();
-
-  toast(
-    "Report resolved."
-  );
-
-}
-
-
-/* =========================================================
-   DISCOUNT CAMPAIGN
-========================================================= */
-
-async function loadDiscountCampaign(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("discount_campaign")
-    .select("*")
-    .limit(1)
-    .maybeSingle();
-
-  if(error){
-
-    $("discountMessage").textContent =
-      error.message;
-
-    return;
-
-  }
-
-  if(!data)
-    return;
-
-  $("discountEnabled").value =
-    String(
-      data.enabled ?? false
-    );
-
-  $("discountPercent").value =
-    data.discount_percent ?? 0;
-
-  $("discountMinimum").value =
-    data.minimum_amount ?? 0;
-
-  $("discountMaximum").value =
-    data.maximum_discount ?? 0;
-
-  $("discountPrefix").value =
-    data.prefix ?? "NB-";
-
-  if(data.start_at){
-
-    $("discountStart").value =
-      data.start_at.slice(0,16);
-
-  }
-
-  if(data.end_at){
-
-    $("discountEnd").value =
-      data.end_at.slice(0,16);
-
-  }
-
-}
-
-
-/*
-  This function uses the columns created
-  in the SQL you already ran.
-*/
-
-async function saveDiscountCampaign(){
-
-  try{
-
-    const object = {
-
-      enabled:
-        $("discountEnabled").value === "true",
-
-      discount_percent:
-        Number(
-          $("discountPercent").value || 0
-        ),
-
-      minimum_amount:
-        Number(
-          $("discountMinimum").value || 0
-        ),
-
-      maximum_discount:
-        Number(
-          $("discountMaximum").value || 0
-        ),
-
-      prefix:
-        $("discountPrefix").value.trim() ||
-        "NB-",
-
-      start_at:
-        $("discountStart").value
-        ?
-        new Date(
-          $("discountStart").value
-        ).toISOString()
-        :
-        null,
-
-      end_at:
-        $("discountEnd").value
-        ?
-        new Date(
-          $("discountEnd").value
-        ).toISOString()
-        :
-        null
-
-    };
-
-
-    const {
-      data:existing,
-      error:findError
-    } =
-    await supabaseClient
-      .from("discount_campaign")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-
-    if(findError)
-      throw findError;
-
-
-    let response;
-
-
-    if(existing){
-
-      response =
-        await supabaseClient
-          .from("discount_campaign")
-          .update(object)
-          .eq("id",existing.id);
-
-    }else{
-
-      response =
-        await supabaseClient
-          .from("discount_campaign")
-          .insert(object);
+      box.appendChild(row);
 
     }
+  );
+
+}
 
 
-    if(response.error)
-      throw response.error;
+function addGallery(){
 
-
-    $("discountMessage").textContent =
-      "Discount campaign saved successfully.";
-
-    toast(
-      "Discount Campaign saved."
+  const input =
+    document.getElementById(
+      "galleryUrl"
     );
 
-  }catch(error){
+  const message =
+    document.getElementById(
+      "galleryMessage"
+    );
 
-    $("discountMessage").textContent =
-      error.message;
+  const value =
+    input.value.trim();
 
-    showError(error);
+
+  if(!value){
+
+    message.textContent =
+      "Image URL দিন।";
+
+    return;
 
   }
+
+
+  gallery.push(value);
+
+  setData(
+    "gallery",
+    gallery
+  );
+
+  input.value = "";
+
+  renderGallery();
+
+  message.textContent =
+    "Gallery image added.";
+
+}
+
+
+function deleteGallery(index){
+
+  if(
+    !confirm(
+      "এই Gallery image delete করবেন?"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  gallery.splice(index,1);
+
+  setData(
+    "gallery",
+    gallery
+  );
+
+  renderGallery();
+
+}
+
+
+/* =========================================================
+   CAMPAIGNS
+========================================================= */
+
+let campaigns =
+  getData(
+    "campaigns",
+    []
+  );
+
+
+function renderCampaigns(){
+
+  const box =
+    document.getElementById(
+      "campaignList"
+    );
+
+  box.innerHTML = "";
+
+
+  campaigns.forEach(
+    (item,index) => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "menu-item";
+
+
+      row.innerHTML =
+        `
+        <div class="menu-item-left">
+
+          <div class="menu-name">
+            ${escapeHTML(item.name)}
+          </div>
+
+          <div class="menu-meta">
+            ${item.discount}% discount
+            • ${item.start} → ${item.end}
+          </div>
+
+        </div>
+
+        <button
+          class="danger"
+          onclick="deleteCampaign(${index})">
+          Delete
+        </button>
+        `;
+
+
+      box.appendChild(row);
+
+    }
+  );
+
+}
+
+
+function addCampaign(){
+
+  const name =
+    document
+      .getElementById("campaignName")
+      .value
+      .trim();
+
+  const discount =
+    document
+      .getElementById("campaignDiscount")
+      .value;
+
+  const start =
+    document
+      .getElementById("campaignStart")
+      .value;
+
+  const end =
+    document
+      .getElementById("campaignEnd")
+      .value;
+
+
+  if(!name || !discount){
+
+    document
+      .getElementById("campaignMessage")
+      .textContent =
+        "Campaign name এবং discount দিতে হবে।";
+
+    return;
+
+  }
+
+
+  campaigns.push({
+    name,
+    discount,
+    start,
+    end
+  });
+
+
+  setData(
+    "campaigns",
+    campaigns
+  );
+
+
+  renderCampaigns();
+
+
+  document
+    .getElementById("campaignMessage")
+    .textContent =
+      "Campaign created.";
+
+}
+
+
+function deleteCampaign(index){
+
+  campaigns.splice(index,1);
+
+  setData(
+    "campaigns",
+    campaigns
+  );
+
+  renderCampaigns();
 
 }
 
@@ -3764,166 +3058,133 @@ async function saveDiscountCampaign(){
    COUPONS
 ========================================================= */
 
-async function generateCoupons(){
-
-  try{
-
-    const count =
-      Math.min(
-        100,
-        Math.max(
-          1,
-          Number(
-            $("couponCount").value || 1
-          )
-        )
-      );
+let coupons =
+  getData(
+    "coupons",
+    []
+  );
 
 
-    const results = [];
+function renderCoupons(){
 
-    for(let i=0;i<count;i++){
-
-      const {
-        data,
-        error
-      } =
-      await supabaseClient
-        .rpc(
-          "create_discount_code"
-        );
-
-      if(error)
-        throw error;
-
-      results.push(data);
-
-    }
-
-    toast(
-      count +
-      " coupon code(s) created."
+  const box =
+    document.getElementById(
+      "couponList"
     );
 
-    await loadCoupons();
+  box.innerHTML = "";
 
-  }catch(error){
 
-    showError(error);
+  coupons.forEach(
+    (item,index) => {
 
-  }
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "menu-item";
+
+
+      row.innerHTML =
+        `
+        <div class="menu-item-left">
+
+          <div class="menu-name">
+            ${escapeHTML(item.code)}
+          </div>
+
+          <div class="menu-meta">
+            ${item.discount}% discount
+          </div>
+
+        </div>
+
+        <button
+          class="danger"
+          onclick="deleteCoupon(${index})">
+          Delete
+        </button>
+        `;
+
+
+      box.appendChild(row);
+
+    }
+  );
 
 }
 
 
-async function loadCoupons(){
+function addCoupon(){
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("discount_codes")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    )
-    .limit(300);
+  const code =
+    document
+      .getElementById("couponCode")
+      .value
+      .trim()
+      .toUpperCase();
 
-  if(error)
-    throw error;
+  const discount =
+    document
+      .getElementById("couponDiscount")
+      .value;
 
-  $("couponList").innerHTML =
-    `
-    <div class="tablewrap">
 
-    <table class="table">
+  const message =
+    document
+      .getElementById("couponMessage");
 
-    <thead>
 
-    <tr>
-      <th>Code</th>
-      <th>Status</th>
-      <th>Discount</th>
-      <th>Created</th>
-      <th>Used</th>
-    </tr>
+  if(!code || !discount){
 
-    </thead>
+    message.textContent =
+      "Coupon code এবং discount দিতে হবে।";
 
-    <tbody>
+    return;
 
-    ${(data || []).map(item=>`
+  }
 
-      <tr>
 
-        <td>
-          <b>
-            ${escapeHtml(item.code)}
-          </b>
-        </td>
+  coupons.push({
+    code,
+    discount
+  });
 
-        <td>
 
-          <span class="pill ${
-            String(item.status).toLowerCase()==="used"
-            ?"ok"
-            :""
-          }">
+  setData(
+    "coupons",
+    coupons
+  );
 
-            ${escapeHtml(
-              item.status || "Active"
-            )}
 
-          </span>
+  renderCoupons();
 
-        </td>
 
-        <td>
-          ${
-            item.discount_percent !== undefined
-            ?
-            escapeHtml(
-              item.discount_percent
-            )+"%"
-            :
-            "—"
-          }
-        </td>
+  document
+    .getElementById("couponCode")
+    .value = "";
 
-        <td>
-          ${escapeHtml(
-            item.created_at
-            ?
-            item.created_at.slice(0,16)
-            :
-            ""
-          )}
-        </td>
+  document
+    .getElementById("couponDiscount")
+    .value = "";
 
-        <td>
-          ${escapeHtml(
-            item.used_at
-            ?
-            item.used_at.slice(0,16)
-            :
-            "—"
-          )}
-        </td>
 
-      </tr>
+  message.textContent =
+    "Coupon created successfully.";
 
-    `).join("")}
+}
 
-    </tbody>
 
-    </table>
+function deleteCoupon(index){
 
-    </div>
-    `;
+  coupons.splice(index,1);
+
+  setData(
+    "coupons",
+    coupons
+  );
+
+  renderCoupons();
 
 }
 
@@ -3932,503 +3193,794 @@ async function loadCoupons(){
    STAFF
 ========================================================= */
 
-async function createStaffAccount(){
+const permissionNames = [
 
-  try{
+  "Dashboard",
 
-    const {
-      data:sessionData
-    } =
-    await supabaseClient.auth
-      .getSession();
+  "Home / Hero",
 
-    const session =
-      sessionData.session;
+  "About Us",
 
-    if(!session){
+  "Contact",
 
-      throw new Error(
-        "Admin session expired."
-      );
+  "Social Media",
 
-    }
+  "Opening Hours",
+
+  "Menu Manager",
+
+  "Gallery",
+
+  "Table Booking",
+
+  "Reviews",
+
+  "Customer Reports",
+
+  "Discount Campaign",
+
+  "Coupon Codes",
+
+  "Staff Admin"
+
+];
 
 
-    const body = {
+let staff =
+  getData(
+    "staff",
+    []
+  );
 
-      email:
-        $("staffEmail")
-          .value
-          .trim()
-          .toLowerCase(),
 
-      password:
-        $("staffPassword").value,
+let activeStaffIndex = 0;
 
-      full_name:
-        $("staffName")
-          .value
-          .trim(),
 
-      role:
-        $("staffRole").value,
+function defaultPermissions(){
 
-      enabled:
-        $("staffEnabled").value ===
-        "true"
+  const permissions = {};
 
+  permissionNames.forEach(name => {
+
+    permissions[name] = {
+      view:false,
+      modify:false
     };
 
+  });
 
-    const response =
-      await fetch(
-        SUPABASE_URL +
-        "/functions/v1/create-staff",
-        {
-          method:"POST",
-
-          headers:{
-            "Authorization":
-              "Bearer "+
-              session.access_token,
-
-            "apikey":
-              SUPABASE_KEY,
-
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(body)
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        result.error ||
-        result.message ||
-        "Could not create staff account."
-      );
-
-    }
-
-
-    $("staffMessage").textContent =
-      "Staff account created successfully.";
-
-    $("staffName").value="";
-    $("staffEmail").value="";
-    $("staffPassword").value="";
-
-    await loadStaff();
-
-    toast(
-      "Staff account created."
-    );
-
-  }catch(error){
-
-    $("staffMessage").textContent =
-      error.message;
-
-    showError(error);
-
-  }
+  return permissions;
 
 }
 
 
-async function loadStaff(){
+function renderStaff(){
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("admin_staff")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
+  const box =
+    document.getElementById(
+      "staffList"
     );
 
-  if(error)
-    throw error;
+  box.innerHTML = "";
 
 
-  $("staffList").innerHTML =
-    `
-    <div class="tablewrap">
+  if(staff.length === 0){
 
-    <table class="table">
+    box.innerHTML =
+      `
+      <div class="info-text">
+        এখনো কোনো Staff যোগ করা হয়নি।
+      </div>
+      `;
 
-    <thead>
-
-    <tr>
-      <th>Photo</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Role</th>
-      <th>Status</th>
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-
-          ${
-            item.avatar_url
-            ?
-            `<img
-              class="avatar"
-              src="${escapeHtml(
-                item.avatar_url
-              )}"
-            >`
-            :
-            "👤"
-          }
-
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.full_name
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.email
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.role
-          )}
-        </td>
-
-        <td>
-
-          <span class="pill ${
-            item.enabled
-            ?
-            "ok"
-            :
-            "bad"
-          }">
-
-            ${
-              item.enabled
-              ?
-              "Enabled"
-              :
-              "Disabled"
-            }
-
-          </span>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
-}
-
-
-/* =========================================================
-   STAFF PERFORMANCE
-========================================================= */
-
-async function loadStaffPerformance(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .rpc(
-      "get_staff_performance"
-    );
-
-  if(error){
-
-    $("performanceList").innerHTML =
-      `<div class="card danger">
-        ${escapeHtml(error.message)}
-      </div>`;
+    renderPermissions();
 
     return;
 
   }
 
 
-  $("performanceList").innerHTML =
-    `
-    <div class="tablewrap">
+  staff.forEach(
+    (person,index) => {
 
-    <table class="table">
+      const row =
+        document.createElement("div");
 
-    <thead>
+      row.className =
+        "menu-item";
 
-    <tr>
-      <th>Staff</th>
-      <th>Role</th>
-      <th>Checked</th>
-      <th>Used</th>
-      <th>Invalid</th>
-      <th>Bookings Viewed</th>
-      <th>Confirmed</th>
-      <th>Cancelled</th>
-      <th>Total Work</th>
-    </tr>
 
-    </thead>
+      row.innerHTML =
+        `
+        <div class="menu-item-left">
 
-    <tbody>
+          <div class="menu-name">
+            ${escapeHTML(person.name)}
+          </div>
 
-    ${(data || []).map(item=>{
+          <div class="menu-meta">
+            ${escapeHTML(person.email)}
+            • ${escapeHTML(person.role)}
+          </div>
 
-      const total =
-        Number(
-          item.discount_checked || 0
-        ) +
-        Number(
-          item.discount_used || 0
-        ) +
-        Number(
-          item.discount_invalid || 0
-        ) +
-        Number(
-          item.bookings_viewed || 0
-        ) +
-        Number(
-          item.bookings_confirmed || 0
-        ) +
-        Number(
-          item.bookings_cancelled || 0
-        );
+        </div>
 
-      return `
+        <div class="menu-actions">
 
-      <tr>
+          <button
+            class="secondary"
+            onclick="selectStaff(${index})">
+            Permissions
+          </button>
 
-        <td>
+          <button
+            class="danger"
+            onclick="deleteStaff(${index})">
+            Delete
+          </button>
 
-          <b>
-            ${escapeHtml(
-              item.staff_name ||
-              ""
-            )}
-          </b>
+        </div>
+        `;
 
-          <br>
 
-          <span class="muted">
-            ${escapeHtml(
-              item.staff_email ||
-              ""
-            )}
-          </span>
+      box.appendChild(row);
 
-        </td>
+    }
+  );
 
-        <td>
-          ${escapeHtml(
-            item.role
-          )}
-        </td>
 
-        <td>
-          ${item.discount_checked || 0}
-        </td>
-
-        <td>
-          ${item.discount_used || 0}
-        </td>
-
-        <td>
-          ${item.discount_invalid || 0}
-        </td>
-
-        <td>
-          ${item.bookings_viewed || 0}
-        </td>
-
-        <td>
-          ${item.bookings_confirmed || 0}
-        </td>
-
-        <td>
-          ${item.bookings_cancelled || 0}
-        </td>
-
-        <td>
-          <b>${total}</b>
-        </td>
-
-      </tr>
-
-      `;
-
-    }).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
+  renderPermissions();
 
 }
 
 
-/* =========================================================
-   DASHBOARD
-========================================================= */
+function addStaff(){
 
-async function countRows(table){
+  const name =
+    document
+      .getElementById("staffName")
+      .value
+      .trim();
 
-  const {
-    count,
-    error
-  } =
-  await supabaseClient
-    .from(table)
-    .select(
-      "*",
-      {
-        count:"exact",
-        head:true
-      }
-    );
+  const email =
+    document
+      .getElementById("staffEmail")
+      .value
+      .trim();
 
-  if(error)
-    throw error;
-
-  return count || 0;
-
-}
+  const role =
+    document
+      .getElementById("staffRole")
+      .value;
 
 
-async function loadDashboard(){
-
-  try{
-
-    $("statVisits").textContent =
-      await countRows(
-        "website_visits"
-      );
-
-    $("statCoupons").textContent =
-      await countRows(
-        "discount_codes"
-      );
-
-    $("statUsedCoupons").textContent =
-      await countRows(
-        "discount_codes"
-      );
-
-    const {
-      count:usedCount,
-      error:usedError
-    } =
-    await supabaseClient
-      .from("discount_codes")
-      .select(
-        "*",
-        {
-          count:"exact",
-          head:true
-        }
-      )
-      .eq(
-        "status",
-        "Used"
-      );
-
-    if(usedError)
-      throw usedError;
-
-    $("statUsedCoupons").textContent =
-      usedCount || 0;
+  const message =
+    document
+      .getElementById("staffMessage");
 
 
-    $("statBookings").textContent =
-      await countRows(
-        "table_bookings"
-      );
+  if(!name || !email){
 
-    $("statReviews").textContent =
-      await countRows(
-        "reviews"
-      );
+    message.textContent =
+      "Staff name এবং email দিতে হবে।";
 
-    $("statReports").textContent =
-      await countRows(
-        "customer_reports"
-      );
-
-    $("statStaff").textContent =
-      await countRows(
-        "admin_staff"
-      );
-
-  }catch(error){
-
-    console.error(
-      "Dashboard:",
-      error
-    );
+    return;
 
   }
 
+
+  staff.push({
+
+    name,
+
+    email,
+
+    role,
+
+    permissions:
+      defaultPermissions()
+
+  });
+
+
+  setData(
+    "staff",
+    staff
+  );
+
+
+  document
+    .getElementById("staffName")
+    .value = "";
+
+  document
+    .getElementById("staffEmail")
+    .value = "";
+
+
+  activeStaffIndex =
+    staff.length - 1;
+
+
+  renderStaff();
+
+
+  message.textContent =
+    "Staff added successfully.";
+
+}
+
+
+function selectStaff(index){
+
+  activeStaffIndex =
+    index;
+
+  renderPermissions();
+
+}
+
+
+function renderPermissions(){
+
+  const box =
+    document.getElementById(
+      "permissionBox"
+    );
+
+  box.innerHTML = "";
+
+
+  if(staff.length === 0){
+
+    box.innerHTML =
+      `
+      <div class="info-text">
+        আগে Staff add করুন।
+      </div>
+      `;
+
+    return;
+
+  }
+
+
+  const person =
+    staff[activeStaffIndex];
+
+
+  if(!person) return;
+
+
+  permissionNames.forEach(
+    permission => {
+
+      if(!person.permissions){
+        person.permissions =
+          defaultPermissions();
+      }
+
+
+      if(!person.permissions[permission]){
+
+        person.permissions[permission] = {
+          view:false,
+          modify:false
+        };
+
+      }
+
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "permission-row";
+
+
+      const safe =
+        permission
+          .replace(/[^a-zA-Z0-9]/g,"_");
+
+
+      row.innerHTML =
+        `
+        <strong>
+          ${escapeHTML(permission)}
+        </strong>
+
+        <label>
+
+          View<br>
+
+          <input
+            type="checkbox"
+            id="view_${safe}"
+            ${person.permissions[permission].view ? "checked" : ""}
+          >
+
+        </label>
+
+        <label>
+
+          Modify<br>
+
+          <input
+            type="checkbox"
+            id="modify_${safe}"
+            ${person.permissions[permission].modify ? "checked" : ""}
+          >
+
+        </label>
+        `;
+
+
+      box.appendChild(row);
+
+
+      const view =
+        document.getElementById(
+          "view_" + safe
+        );
+
+      const modify =
+        document.getElementById(
+          "modify_" + safe
+        );
+
+
+      view.addEventListener(
+        "change",
+        () => {
+
+          person.permissions[permission].view =
+            view.checked;
+
+          setData(
+            "staff",
+            staff
+          );
+
+        }
+      );
+
+
+      modify.addEventListener(
+        "change",
+        () => {
+
+          person.permissions[permission].modify =
+            modify.checked;
+
+          setData(
+            "staff",
+            staff
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+function deleteStaff(index){
+
+  if(
+    !confirm(
+      "এই Staff delete করবেন?"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  staff.splice(index,1);
+
+  if(activeStaffIndex >= staff.length){
+
+    activeStaffIndex =
+      Math.max(0,staff.length - 1);
+
+  }
+
+
+  setData(
+    "staff",
+    staff
+  );
+
+
+  renderStaff();
+
 }
 
 
 /* =========================================================
-   AUTO LOGIN
+   WEBSITE SETTINGS
 ========================================================= */
 
-supabaseClient.auth
-  .getSession()
-  .then(async({data})=>{
+function saveSetting(
+  key,
+  fields,
+  messageId
+){
 
-    if(data.session){
+  const data = {};
 
-      currentUser =
-        data.session.user;
+  fields.forEach(
+    id => {
 
-      await initializeAdmin();
+      const element =
+        document.getElementById(id);
+
+      data[id] =
+        element.value;
+
+    }
+  );
+
+
+  setData(
+    key,
+    data
+  );
+
+
+  document
+    .getElementById(messageId)
+    .textContent =
+      "Saved successfully.";
+
+}
+
+
+function loadSetting(
+  key,
+  fields
+){
+
+  const data =
+    getData(
+      key,
+      {}
+    );
+
+
+  fields.forEach(
+    id => {
+
+      const element =
+        document.getElementById(id);
+
+      if(
+        element &&
+        data[id] !== undefined
+      ){
+
+        element.value =
+          data[id];
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   EVENT LISTENERS
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+
+    /* Supabase */
+
+    if(!initializeSupabase()){
+
+      return;
 
     }
 
-  });
+
+    /* Login */
+
+    document
+      .getElementById("loginForm")
+      .addEventListener(
+        "submit",
+        async event => {
+
+          event.preventDefault();
+
+          await login(
+
+            document
+              .getElementById("loginEmail")
+              .value
+              .trim(),
+
+            document
+              .getElementById("loginPassword")
+              .value
+
+          );
+
+        }
+      );
+
+
+    /* Navigation */
+
+    setupNavigation();
+
+
+    /* Mobile */
+
+    setupMobile();
+
+
+    /* Logout */
+
+    document
+      .getElementById("logoutButton")
+      .addEventListener(
+        "click",
+        logout
+      );
+
+
+    /* Menu */
+
+    document
+      .getElementById("addMenu")
+      .addEventListener(
+        "click",
+        addMenu
+      );
+
+
+    document
+      .getElementById("addCategory")
+      .addEventListener(
+        "click",
+        addCategory
+      );
+
+
+    /* Gallery */
+
+    document
+      .getElementById("addGallery")
+      .addEventListener(
+        "click",
+        addGallery
+      );
+
+
+    /* Campaign */
+
+    document
+      .getElementById("addCampaign")
+      .addEventListener(
+        "click",
+        addCampaign
+      );
+
+
+    /* Coupon */
+
+    document
+      .getElementById("addCoupon")
+      .addEventListener(
+        "click",
+        addCoupon
+      );
+
+
+    /* Staff */
+
+    document
+      .getElementById("addStaff")
+      .addEventListener(
+        "click",
+        addStaff
+      );
+
+
+    /* Website */
+
+    document
+      .getElementById("saveHero")
+      .addEventListener(
+        "click",
+        () => {
+
+          saveSetting(
+            "hero",
+            [
+              "heroTitle",
+              "heroText",
+              "heroImage"
+            ],
+            "heroMessage"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById("saveAbout")
+      .addEventListener(
+        "click",
+        () => {
+
+          saveSetting(
+            "about",
+            [
+              "aboutTitle",
+              "aboutText"
+            ],
+            "aboutMessage"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById("saveContact")
+      .addEventListener(
+        "click",
+        () => {
+
+          saveSetting(
+            "contact",
+            [
+              "contactAddress",
+              "contactPhone",
+              "contactWhatsapp"
+            ],
+            "contactMessage"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById("saveSocial")
+      .addEventListener(
+        "click",
+        () => {
+
+          saveSetting(
+            "social",
+            [
+              "facebook",
+              "instagram",
+              "tiktok"
+            ],
+            "socialMessage"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById("saveHours")
+      .addEventListener(
+        "click",
+        () => {
+
+          saveSetting(
+            "hours",
+            [
+              "openingHours"
+            ],
+            "hoursMessage"
+          );
+
+        }
+      );
+
+
+    /* Render */
+
+    renderCategories();
+
+    renderMenu();
+
+    renderGallery();
+
+    renderCampaigns();
+
+    renderCoupons();
+
+    renderStaff();
+
+
+    /* Load website settings */
+
+    loadSetting(
+      "hero",
+      [
+        "heroTitle",
+        "heroText",
+        "heroImage"
+      ]
+    );
+
+
+    loadSetting(
+      "about",
+      [
+        "aboutTitle",
+        "aboutText"
+      ]
+    );
+
+
+    loadSetting(
+      "contact",
+      [
+        "contactAddress",
+        "contactPhone",
+        "contactWhatsapp"
+      ]
+    );
+
+
+    loadSetting(
+      "social",
+      [
+        "facebook",
+        "instagram",
+        "tiktok"
+      ]
+    );
+
+
+    loadSetting(
+      "hours",
+      [
+        "openingHours"
+      ]
+    );
+
+
+    /* Existing session */
+
+    await checkSession();
+
+  }
+);
 
 </script>
 
