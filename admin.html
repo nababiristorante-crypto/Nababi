@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nababi Ristorante — Master Admin</title>
+<title>Nababi Ristorante — Super Admin</title>
 
 <style>
 *{box-sizing:border-box}
@@ -263,8 +263,43 @@ textarea{
   color:#ff8181
 }
 
-.preview-box{
+ .preview-box{
   margin-top:10px
+}
+
+.upload-progress{
+  margin:12px 0;
+  background:#0f0f12;
+  border:1px solid #3b3b40;
+  border-radius:12px;
+  padding:10px
+}
+.upload-progress-track{
+  height:10px;
+  background:#24242a;
+  border-radius:999px;
+  overflow:hidden
+}
+.upload-progress-bar{
+  height:100%;
+  width:0%;
+  background:#d8b25c;
+  transition:width .2s ease
+}
+.upload-progress-text{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:7px;
+  font-size:12px;
+  color:#cfcfcf
+}
+.schedule-box{
+  border:1px solid #3a3020;
+  border-radius:14px;
+  padding:14px;
+  margin-top:14px;
+  background:#111115
 }
 
 .avatar{
@@ -404,6 +439,10 @@ textarea{
 
 <button class="nav" data-section="hero">
 🖼️ Hero & Logo
+</button>
+
+<button class="nav" data-section="videos">
+🎬 Hero Videos
 </button>
 
 <button class="nav" data-section="about">
@@ -651,6 +690,42 @@ Delete Logo
 </section>
 
 
+<!-- HERO VIDEOS -->
+<section id="videos" class="section">
+
+<h2>🎬 Hero Videos</h2>
+<p class="muted">Video 1 and Video 2 are separate slots. Each can be uploaded, replaced, or removed independently.</p>
+
+<div class="grid g2">
+
+<div class="card">
+<h3>Video 1</h3>
+<input id="video1Url" placeholder="Video 1 URL">
+<input id="video1File" type="file" accept="video/*">
+<div id="video1Progress"></div>
+<div class="row">
+<button class="btn" onclick="uploadHeroVideo('video1')">Upload / Replace Video 1</button>
+<button class="btn red small" onclick="deleteHeroVideo('video1')">Delete Video 1</button>
+</div>
+<div id="video1Preview" class="preview-box"></div>
+</div>
+
+<div class="card">
+<h3>Video 2</h3>
+<input id="video2Url" placeholder="Video 2 URL">
+<input id="video2File" type="file" accept="video/*">
+<div id="video2Progress"></div>
+<div class="row">
+<button class="btn" onclick="uploadHeroVideo('video2')">Upload / Replace Video 2</button>
+<button class="btn red small" onclick="deleteHeroVideo('video2')">Delete Video 2</button>
+</div>
+<div id="video2Preview" class="preview-box"></div>
+</div>
+
+</div>
+</section>
+
+
 <!-- ABOUT -->
 <section
  id="about"
@@ -805,7 +880,28 @@ Delete Video
 
 </div>
 
+<div id="breakingImageProgress"></div>
+<div id="breakingVideoProgress"></div>
 <div id="breakingPreview"></div>
+
+<div class="schedule-box">
+<h3>🕒 Breaking News Schedule</h3>
+<p class="muted">The banner can be enabled only during this date/time window.</p>
+<div class="grid g2">
+<div>
+<label>Start Date / Time</label>
+<input id="breakingStart" type="datetime-local">
+</div>
+<div>
+<label>End Date / Time</label>
+<input id="breakingEnd" type="datetime-local">
+</div>
+</div>
+<label>
+<input id="breakingScheduleEnabled" type="checkbox">
+Use schedule automatically
+</label>
+</div>
 
 <br>
 
@@ -813,7 +909,7 @@ Delete Video
  class="btn"
  onclick="saveBreaking()"
 >
-Save Breaking News
+💾 Save Breaking News & Schedule
 </button>
 
 </div>
@@ -1598,6 +1694,9 @@ async function loadSection(id){
     if(id==="hero")
       await loadHero();
 
+    if(id==="videos")
+      await loadHeroVideos();
+
     if(id==="about")
       await loadAbout();
 
@@ -1835,50 +1934,65 @@ async function saveSetting(key,value){
    STORAGE
 ========================================================= */
 
-async function uploadSiteMedia(file,folder){
+async function uploadSiteMedia(file,folder,progressTargetId){
 
-  if(!file)
-    throw new Error("Please select a file.");
+  if(!file) throw new Error("Please select a file.");
 
-  const extension =
-    file.name
-      .split(".")
-      .pop()
-      .toLowerCase();
+  const extension = file.name.split(".").pop().toLowerCase();
+  const path = folder + "/" + crypto.randomUUID() + "." + extension;
 
-  const path =
-    folder +
-    "/" +
-    crypto.randomUUID() +
-    "." +
-    extension;
+  if(progressTargetId){
+    showUploadProgress(progressTargetId,10,"Preparing upload…");
+  }
 
-  const {
-    error
-  } =
-  await supabaseClient.storage
-    .from("site-media")
-    .upload(
-      path,
-      file,
-      {
-        upsert:false
+  const {data:{session}} = await supabaseClient.auth.getSession();
+  if(!session?.access_token) throw new Error("Admin session expired. Please login again.");
+
+  const url = SUPABASE_URL + "/storage/v1/object/site-media/" + path;
+
+  return await new Promise((resolve,reject)=>{
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST",url,true);
+    xhr.setRequestHeader("Authorization","Bearer "+session.access_token);
+    xhr.setRequestHeader("apikey",SUPABASE_KEY);
+    xhr.setRequestHeader("Content-Type",file.type || "application/octet-stream");
+    xhr.setRequestHeader("x-upsert","false");
+
+    xhr.upload.onprogress = event=>{
+      if(event.lengthComputable){
+        const percent = Math.max(10,Math.min(99,Math.round((event.loaded/event.total)*100)));
+        showUploadProgress(progressTargetId,percent,percent<35?"Uploading…":percent<70?"Uploading… 35%+":"Uploading… 70%+");
       }
-    );
+    };
 
-  if(error)
-    throw error;
+    xhr.onload = ()=>{
+      if(xhr.status>=200 && xhr.status<300){
+        showUploadProgress(progressTargetId,100,"Upload successful ✓");
+        const publicUrl = SUPABASE_URL + "/storage/v1/object/public/site-media/" + path;
+        resolve(publicUrl);
+      }else{
+        let message="Upload failed.";
+        try{ message=JSON.parse(xhr.responseText)?.message || JSON.parse(xhr.responseText)?.error || message; }catch(e){}
+        reject(new Error(message));
+      }
+    };
 
-  const {
-    data
-  } =
-  supabaseClient.storage
-    .from("site-media")
-    .getPublicUrl(path);
-
-  return data.publicUrl;
-
+    xhr.onerror=()=>reject(new Error("Network error during upload."));
+    xhr.onabort=()=>reject(new Error("Upload cancelled."));
+    xhr.send(file);
+  });
 }
+
+function showUploadProgress(targetId,percent,message){
+  if(!targetId) return;
+  const el=$(targetId);
+  if(!el) return;
+  el.innerHTML=`<div class="upload-progress">
+    <div class="upload-progress-track"><div class="upload-progress-bar" style="width:${percent}%"></div></div>
+    <div class="upload-progress-text"><span>${escapeHtml(message||"Uploading…")}</span><b>${percent}%</b></div>
+  </div>`;
+}
+
 
 
 /* =========================================================
@@ -2162,208 +2276,127 @@ async function deleteAboutImage(){
 ========================================================= */
 
 async function loadBreaking(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  $("breakingEnabled").checked =
-    news.enabled !== false;
-
-  $("breakingText").value =
-    news.text || "";
-
-  $("breakingImage").value =
-    news.image_url || "";
-
-  $("breakingVideo").value =
-    news.video_url || "";
-
-  let html = "";
-
-  if(news.image_url){
-
-    html +=
-      `<img class="media-preview"
-        src="${escapeHtml(news.image_url)}">`;
-
-  }
-
-  if(news.video_url){
-
-    html +=
-      `<video
-        class="media-preview"
-        controls
-        src="${escapeHtml(news.video_url)}">
-      </video>`;
-
-  }
-
-  $("breakingPreview").innerHTML =
-    html;
-
+  const news=await getSetting("breaking_news");
+  $("breakingEnabled").checked=news.enabled!==false;
+  $("breakingText").value=news.text||"";
+  $("breakingImage").value=news.image_url||"";
+  $("breakingVideo").value=news.video_url||"";
+  $("breakingStart").value=toDateTimeLocal(news.start_at);
+  $("breakingEnd").value=toDateTimeLocal(news.end_at);
+  $("breakingScheduleEnabled").checked=news.schedule_enabled===true;
+  let html="";
+  if(news.image_url) html+=`<img class="media-preview" src="${escapeHtml(news.image_url)}">`;
+  if(news.video_url) html+=`<video class="media-preview" controls src="${escapeHtml(news.video_url)}"></video>`;
+  $("breakingPreview").innerHTML=html;
 }
 
+function toDateTimeLocal(value){
+  if(!value) return "";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return "";
+  const pad=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fromDateTimeLocal(value){
+  if(!value) return "";
+  const d=new Date(value);
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString();
+}
 
 async function saveBreaking(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  news.enabled =
-    $("breakingEnabled").checked;
-
-  news.text =
-    $("breakingText").value.trim();
-
-  news.image_url =
-    $("breakingImage").value.trim();
-
-  news.video_url =
-    $("breakingVideo").value.trim();
-
-  await saveSetting(
-    "breaking_news",
-    news
-  );
-
-  toast(
-    "Breaking News saved."
-  );
-
+  const news=await getSetting("breaking_news");
+  news.enabled=$("breakingEnabled").checked;
+  news.text=$("breakingText").value.trim();
+  news.image_url=$("breakingImage").value.trim();
+  news.video_url=$("breakingVideo").value.trim();
+  news.start_at=fromDateTimeLocal($("breakingStart").value);
+  news.end_at=fromDateTimeLocal($("breakingEnd").value);
+  news.schedule_enabled=$("breakingScheduleEnabled").checked;
+  await saveSetting("breaking_news",news);
+  toast("Breaking News and schedule saved.");
 }
-
 
 async function uploadBreakingImage(){
-
   try{
-
-    const file =
-      $("breakingImageFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "breaking-news"
-      );
-
-    const news =
-      await getSetting(
-        "breaking_news"
-      );
-
-    news.image_url =
-      url;
-
-    await saveSetting(
-      "breaking_news",
-      news
-    );
-
+    const file=$("breakingImageFile").files[0];
+    const url=await uploadSiteMedia(file,"breaking-news","breakingImageProgress");
+    const news=await getSetting("breaking_news");
+    news.image_url=url;
+    await saveSetting("breaking_news",news);
+    $("breakingImage").value=url;
     await loadBreaking();
-
-    toast(
-      "Breaking News image replaced."
-    );
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
+    toast("Breaking News image replaced.");
+  }catch(error){showError(error);}
 }
-
 
 async function deleteBreakingImage(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  news.image_url = "";
-
-  await saveSetting(
-    "breaking_news",
-    news
-  );
-
+  const news=await getSetting("breaking_news");
+  news.image_url="";
+  await saveSetting("breaking_news",news);
   await loadBreaking();
-
-  toast(
-    "Breaking News image deleted."
-  );
-
+  toast("Breaking News image deleted.");
 }
-
 
 async function uploadBreakingVideo(){
-
   try{
-
-    const file =
-      $("breakingVideoFile").files[0];
-
-    const url =
-      await uploadSiteMedia(
-        file,
-        "breaking-news"
-      );
-
-    const news =
-      await getSetting(
-        "breaking_news"
-      );
-
-    news.video_url =
-      url;
-
-    await saveSetting(
-      "breaking_news",
-      news
-    );
-
+    const file=$("breakingVideoFile").files[0];
+    const url=await uploadSiteMedia(file,"breaking-news","breakingVideoProgress");
+    const news=await getSetting("breaking_news");
+    news.video_url=url;
+    await saveSetting("breaking_news",news);
+    $("breakingVideo").value=url;
     await loadBreaking();
-
-    toast(
-      "Breaking News video replaced."
-    );
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
+    toast("Breaking News video replaced.");
+  }catch(error){showError(error);}
 }
-
 
 async function deleteBreakingVideo(){
-
-  const news =
-    await getSetting(
-      "breaking_news"
-    );
-
-  news.video_url = "";
-
-  await saveSetting(
-    "breaking_news",
-    news
-  );
-
+  const news=await getSetting("breaking_news");
+  news.video_url="";
+  await saveSetting("breaking_news",news);
   await loadBreaking();
-
-  toast(
-    "Breaking News video deleted."
-  );
-
+  toast("Breaking News video deleted.");
 }
+
+/* =========================================================
+   HERO VIDEOS — TWO SEPARATE SLOTS
+========================================================= */
+async function loadHeroVideos(){
+  const videos=await getSetting("videos");
+  $("video1Url").value=videos.video1||"";
+  $("video2Url").value=videos.video2||"";
+  renderHeroVideoPreview("video1",videos.video1||"");
+  renderHeroVideoPreview("video2",videos.video2||"");
+}
+
+function renderHeroVideoPreview(slot,url){
+  $(slot+"Preview").innerHTML=url?`<video class="media-preview" controls src="${escapeHtml(url)}"></video>`:"";
+}
+
+async function uploadHeroVideo(slot){
+  try{
+    const file=$(slot+"File").files[0];
+    const progressId=slot+"Progress";
+    const url=await uploadSiteMedia(file,"hero-videos",progressId);
+    const videos=await getSetting("videos");
+    videos[slot]=url;
+    await saveSetting("videos",videos);
+    $(slot+"Url").value=url;
+    renderHeroVideoPreview(slot,url);
+    toast(slot==="video1"?"Video 1 replaced.":"Video 2 replaced.");
+  }catch(error){showError(error);}
+}
+
+async function deleteHeroVideo(slot){
+  const videos=await getSetting("videos");
+  videos[slot]="";
+  await saveSetting("videos",videos);
+  $(slot+"Url").value="";
+  renderHeroVideoPreview(slot,"");
+  toast(slot==="video1"?"Video 1 deleted.":"Video 2 deleted.");
+}
+
 
 
 /* =========================================================
