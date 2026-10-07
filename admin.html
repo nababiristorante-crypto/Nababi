@@ -1,2372 +1,3394 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Nababi Ristorante — Admin Panel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nababi Ristorante — Admin Panel</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,Helvetica,sans-serif;
- background:#080808;
- color:#f5f1e8;
-}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
+  <style>
+    :root{
+      --bg:#090909;
+      --panel:#111;
+      --panel2:#171717;
+      --gold:#d4af37;
+      --gold2:#f0d477;
+      --text:#fff;
+      --muted:#aaa;
+      --danger:#d9534f;
+      --success:#28a745;
+      --border:#292929;
+    }
 
-:root{
- --gold:#d4af37;
- --gold2:#f2d675;
- --bg:#080808;
- --card:#111;
- --line:#292929;
- --muted:#aaa;
- --danger:#d9534f;
- --green:#35c878;
-}
+    *{box-sizing:border-box}
 
-.login{
- min-height:100vh;
- display:flex;
- justify-content:center;
- align-items:center;
- padding:20px;
- background:
- radial-gradient(circle at top,#2a2110 0,#080808 45%);
-}
-.login-card{
- width:100%;
- max-width:430px;
- background:#111;
- border:1px solid #3b3016;
- border-radius:24px;
- padding:35px 25px;
- box-shadow:0 25px 80px #000;
- text-align:center;
-}
-.logo-mark{
- width:90px;height:90px;
- border-radius:50%;
- object-fit:cover;
- border:2px solid var(--gold);
- margin-bottom:15px;
-}
-.login-card h1{margin:5px 0;color:var(--gold2)}
-.login-card p{color:#999}
-input,select,textarea{
- width:100%;
- background:#0a0a0a;
- border:1px solid #333;
- color:white;
- border-radius:12px;
- padding:13px;
- outline:none;
-}
-input:focus,select:focus,textarea:focus{border-color:var(--gold)}
-textarea{min-height:110px;resize:vertical}
-label{
- display:block;
- margin:15px 0 7px;
- color:#d9c98c;
- font-size:14px;
-}
-.btn{
- border:0;
- border-radius:12px;
- padding:12px 17px;
- font-weight:bold;
-}
-.btn-gold{
- background:linear-gradient(135deg,var(--gold),var(--gold2));
- color:#111;
-}
-.btn-dark{
- background:#191919;
- color:white;
- border:1px solid #333;
-}
-.btn-danger{
- background:#551b1b;
- color:#ffb0ac;
- border:1px solid #813333;
-}
-.btn-green{
- background:#173d28;
- color:#8cffb8;
- border:1px solid #2f7048;
-}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+    body{
+      margin:0;
+      background:linear-gradient(135deg,#050505,#111);
+      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
+    }
 
-.layout{
- min-height:100vh;
- display:grid;
- grid-template-columns:270px 1fr;
-}
-.sidebar{
- background:#0b0b0b;
- border-right:1px solid #252525;
- padding:20px 14px;
- position:sticky;
- top:0;
- height:100vh;
- overflow:auto;
-}
-.brand{
- display:flex;
- align-items:center;
- gap:12px;
- padding:8px;
- margin-bottom:20px;
-}
-.brand img{
- width:52px;height:52px;border-radius:50%;
- border:1px solid var(--gold);
- object-fit:cover;
-}
-.brand strong{color:var(--gold2)}
-.nav-btn{
- width:100%;
- text-align:left;
- border:0;
- background:transparent;
- color:#bbb;
- padding:12px 13px;
- border-radius:10px;
- margin:3px 0;
-}
-.nav-btn:hover,.nav-btn.active{
- background:#211b0d;
- color:var(--gold2);
-}
-.nav-title{
- font-size:11px;
- color:#666;
- padding:17px 10px 6px;
- text-transform:uppercase;
-}
-.main{
- padding:25px;
- min-width:0;
-}
-.topbar{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:15px;
- margin-bottom:25px;
-}
-.topbar h1{margin:0;color:var(--gold2)}
-.top-actions{display:flex;gap:8px;align-items:center}
-.card{
- background:#111;
- border:1px solid #292929;
- border-radius:18px;
- padding:20px;
- margin-bottom:18px;
-}
-.card h2,.card h3{margin-top:0;color:var(--gold2)}
-.grid{
- display:grid;
- grid-template-columns:repeat(2,minmax(0,1fr));
- gap:18px;
-}
-.grid3{
- display:grid;
- grid-template-columns:repeat(3,minmax(0,1fr));
- gap:15px;
-}
-.stat{
- background:#111;
- border:1px solid #292929;
- border-radius:16px;
- padding:18px;
-}
-.stat small{color:#888}
-.stat strong{
- display:block;
- font-size:30px;
- margin-top:8px;
- color:var(--gold2);
-}
-.row{
- display:flex;
- gap:10px;
- flex-wrap:wrap;
- align-items:center;
-}
-.row>*{max-width:100%}
-.media-preview{
- width:100%;
- max-height:240px;
- object-fit:cover;
- border-radius:14px;
- background:#050505;
- border:1px solid #292929;
-}
-.item{
- border:1px solid #292929;
- border-radius:15px;
- padding:15px;
- margin:10px 0;
- background:#0c0c0c;
-}
-.item-head{
- display:flex;
- justify-content:space-between;
- gap:12px;
- align-items:center;
-}
-.thumb{
- width:80px;
- height:65px;
- object-fit:cover;
- border-radius:10px;
- border:1px solid #333;
-}
-.badge{
- display:inline-block;
- padding:5px 9px;
- border-radius:20px;
- font-size:12px;
- background:#222;
- color:#ddd;
-}
-.badge.green{background:#12351f;color:#7cffaa}
-.badge.red{background:#421818;color:#ffaaa6}
-.badge.gold{background:#382d0b;color:#ffe28a}
-.file{
- padding:11px;
- border:1px dashed #555;
- border-radius:12px;
- background:#0b0b0b;
-}
-.note{
- color:#888;
- font-size:13px;
- line-height:1.5;
-}
-.toast{
- position:fixed;
- right:20px;
- bottom:20px;
- background:#171717;
- border:1px solid var(--gold);
- color:white;
- padding:14px 18px;
- border-radius:12px;
- z-index:9999;
- box-shadow:0 15px 40px #000;
-}
-table{
- width:100%;
- border-collapse:collapse;
-}
-th,td{
- padding:11px 8px;
- border-bottom:1px solid #292929;
- text-align:left;
- font-size:14px;
-}
-th{color:#d7bd62}
-.empty{
- text-align:center;
- padding:35px;
- color:#777;
-}
-.modal{
- position:fixed;
- inset:0;
- background:#000b;
- display:flex;
- align-items:center;
- justify-content:center;
- padding:20px;
- z-index:5000;
-}
-.modal-box{
- width:100%;
- max-width:600px;
- max-height:90vh;
- overflow:auto;
- background:#111;
- border:1px solid #4b3a14;
- border-radius:20px;
- padding:22px;
-}
+    button,input,textarea,select{
+      font:inherit;
+    }
 
-@media(max-width:900px){
- .layout{grid-template-columns:1fr}
- .sidebar{
-  position:fixed;
-  left:-285px;
-  width:270px;
-  z-index:3000;
-  transition:.25s;
- }
- .sidebar.open{left:0}
- .main{padding:15px}
- .grid,.grid3{grid-template-columns:1fr}
- .mobile-menu{display:block!important}
-}
-.mobile-menu{display:none}
-</style>
+    .login-screen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .login-card{
+      width:100%;
+      max-width:430px;
+      background:linear-gradient(145deg,#161616,#0d0d0d);
+      border:1px solid #333;
+      border-radius:24px;
+      padding:35px 25px;
+      box-shadow:0 25px 70px rgba(0,0,0,.6);
+    }
+
+    .logo-title{
+      text-align:center;
+      color:var(--gold2);
+      font-size:28px;
+      font-weight:bold;
+      margin-bottom:8px;
+    }
+
+    .subtitle{
+      text-align:center;
+      color:var(--muted);
+      margin-bottom:30px;
+    }
+
+    .field{
+      margin-bottom:16px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:7px;
+      color:#ddd;
+      font-size:14px;
+    }
+
+    input,textarea,select{
+      width:100%;
+      background:#080808;
+      color:#fff;
+      border:1px solid #333;
+      border-radius:12px;
+      padding:13px;
+      outline:none;
+    }
+
+    input:focus,textarea:focus,select:focus{
+      border-color:var(--gold);
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    button{
+      border:0;
+      cursor:pointer;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:bold;
+    }
+
+    .gold-btn{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#111;
+    }
+
+    .dark-btn{
+      background:#222;
+      color:#fff;
+      border:1px solid #444;
+    }
+
+    .danger-btn{
+      background:#571c1c;
+      color:#fff;
+    }
+
+    .success-btn{
+      background:#145b31;
+      color:#fff;
+    }
+
+    .hidden{
+      display:none!important;
+    }
+
+    .app{
+      min-height:100vh;
+      display:flex;
+    }
+
+    .sidebar{
+      width:270px;
+      background:#080808;
+      border-right:1px solid var(--border);
+      padding:20px 14px;
+      position:fixed;
+      left:0;
+      top:0;
+      bottom:0;
+      overflow:auto;
+      z-index:20;
+    }
+
+    .brand{
+      padding:12px;
+      text-align:center;
+      border-bottom:1px solid #222;
+      margin-bottom:15px;
+    }
+
+    .brand strong{
+      color:var(--gold2);
+      font-size:20px;
+    }
+
+    .brand small{
+      display:block;
+      color:#888;
+      margin-top:5px;
+    }
+
+    .nav-btn{
+      width:100%;
+      text-align:left;
+      margin:4px 0;
+      background:transparent;
+      color:#bbb;
+      border:1px solid transparent;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active{
+      background:#171717;
+      border-color:#333;
+      color:var(--gold2);
+    }
+
+    .main{
+      margin-left:270px;
+      width:calc(100% - 270px);
+      padding:25px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      margin-bottom:25px;
+      padding:18px 20px;
+      background:#101010;
+      border:1px solid #252525;
+      border-radius:18px;
+    }
+
+    .topbar h1{
+      margin:0;
+      font-size:22px;
+    }
+
+    .user-info{
+      color:#aaa;
+      font-size:13px;
+      text-align:right;
+    }
+
+    .section{
+      display:none;
+    }
+
+    .section.active{
+      display:block;
+    }
+
+    .section-title{
+      color:var(--gold2);
+      margin:0 0 20px;
+      font-size:24px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:15px;
+    }
+
+    .card{
+      background:linear-gradient(145deg,#151515,#0e0e0e);
+      border:1px solid #292929;
+      border-radius:18px;
+      padding:20px;
+      margin-bottom:18px;
+    }
+
+    .card h3{
+      margin-top:0;
+      color:#eee;
+    }
+
+    .stat{
+      padding:22px;
+      border-radius:18px;
+      background:#151515;
+      border:1px solid #292929;
+    }
+
+    .stat-number{
+      font-size:30px;
+      font-weight:bold;
+      color:var(--gold2);
+    }
+
+    .stat-label{
+      color:#999;
+      margin-top:5px;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .media-preview{
+      width:100%;
+      max-height:260px;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid #333;
+      margin-top:12px;
+    }
+
+    .table-wrap{
+      overflow-x:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:700px;
+    }
+
+    th,td{
+      padding:12px;
+      border-bottom:1px solid #292929;
+      text-align:left;
+      vertical-align:middle;
+    }
+
+    th{
+      color:var(--gold2);
+      font-size:13px;
+    }
+
+    td{
+      color:#ddd;
+      font-size:14px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:5px 9px;
+      border-radius:20px;
+      font-size:11px;
+      font-weight:bold;
+      background:#292929;
+    }
+
+    .badge.gold{
+      color:#111;
+      background:var(--gold);
+    }
+
+    .badge.green{
+      background:#164e2b;
+      color:#9ff0bb;
+    }
+
+    .badge.red{
+      background:#541c1c;
+      color:#ffb0b0;
+    }
+
+    .staff-photo{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      object-fit:cover;
+      border:1px solid var(--gold);
+    }
+
+    .category-card{
+      padding:18px;
+      background:#151515;
+      border:1px solid #292929;
+      border-radius:15px;
+    }
+
+    .category-card img{
+      width:100%;
+      height:130px;
+      object-fit:cover;
+      border-radius:10px;
+      margin-bottom:10px;
+    }
+
+    .mobile-menu{
+      display:none;
+    }
+
+    .message{
+      padding:12px;
+      border-radius:10px;
+      margin-top:12px;
+      display:none;
+    }
+
+    .message.success{
+      display:block;
+      background:#123c25;
+      color:#9ff0bb;
+    }
+
+    .message.error{
+      display:block;
+      background:#481919;
+      color:#ffb0b0;
+    }
+
+    @media(max-width:900px){
+      .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+      }
+
+      .sidebar.open{
+        transform:translateX(0);
+      }
+
+      .main{
+        margin-left:0;
+        width:100%;
+        padding:15px;
+      }
+
+      .mobile-menu{
+        display:block;
+        background:#191919;
+        color:#fff;
+        border:1px solid #333;
+      }
+
+      .grid,
+      .grid-3{
+        grid-template-columns:1fr;
+      }
+
+      .topbar{
+        align-items:flex-start;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="login">
- <div class="login-card">
-  <img id="loginLogo" class="logo-mark" src="" alt="Nababi">
-  <h1>Nababi Ristorante</h1>
-  <p>Administration Panel</p>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
 
-  <label>Email</label>
-  <input id="loginEmail" type="email" placeholder="Admin email">
+    <div class="logo-title">NABABI RISTORANTE</div>
+    <div class="subtitle">Premium Administration</div>
 
-  <label>Password</label>
-  <input id="loginPassword" type="password" placeholder="Password">
+    <div class="field">
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="admin email">
+    </div>
 
-  <button class="btn btn-gold" style="width:100%;margin-top:18px" onclick="login()">
-   🔐 Login
-  </button>
+    <div class="field">
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="password">
+    </div>
 
-  <p id="loginError" style="color:#ff817a"></p>
- </div>
+    <button class="gold-btn" style="width:100%" onclick="login()">
+      🔐 Login
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+  </div>
 </div>
+
 
 <!-- APP -->
-<div id="app" class="layout hidden">
+<div id="app" class="app hidden">
 
- <aside id="sidebar" class="sidebar">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
 
-  <div class="brand">
-   <img id="sideLogo" src="" alt="">
-   <div>
-    <strong>Nababi Ristorante</strong><br>
-    <small id="sideRole" style="color:#888"></small>
-   </div>
-  </div>
-
-  <button class="nav-btn active" data-section="dashboard">🏠 Dashboard</button>
-
-  <div class="nav-title">Website</div>
-  <button class="nav-btn" data-section="home">🖼️ Home & Media</button>
-  <button class="nav-btn" data-section="breaking">📢 Breaking News</button>
-  <button class="nav-btn" data-section="about">ℹ️ About Us</button>
-  <button class="nav-btn" data-section="menu">🍽️ Menu Manager</button>
-  <button class="nav-btn" data-section="gallery">🖼️ Gallery</button>
-
-  <div class="nav-title">Customers</div>
-  <button class="nav-btn" data-section="bookings">📅 Table Bookings</button>
-  <button class="nav-btn" data-section="reviews">⭐ Reviews</button>
-  <button class="nav-btn" data-section="reports">📝 Reports</button>
-
-  <div class="nav-title">Restaurant</div>
-  <button class="nav-btn" data-section="contact">📞 Contact</button>
-  <button class="nav-btn" data-section="social">🌐 Social Media</button>
-  <button class="nav-btn" data-section="hours">🕐 Opening Hours</button>
-
-  <div class="nav-title">Marketing</div>
-  <button class="nav-btn" data-section="discounts">🎟️ Discount Campaign</button>
-  <button class="nav-btn" data-section="codes">🔢 Discount Codes</button>
-
-  <div class="nav-title">Staff</div>
-  <button class="nav-btn super-only" data-section="staff">👥 Staff Management</button>
-  <button class="nav-btn super-only" data-section="performance">📊 Staff Performance</button>
-
-  <button class="nav-btn" style="margin-top:25px" onclick="logout()">🚪 Logout</button>
-
- </aside>
-
- <main class="main">
-
-  <div class="topbar">
-   <div class="row">
-    <button class="btn btn-dark mobile-menu" onclick="toggleSidebar()">☰</button>
-    <div>
-     <h1 id="pageTitle">Dashboard</h1>
-     <small id="welcomeText" style="color:#777"></small>
+    <div class="brand">
+      <strong>🍽️ NABABI</strong>
+      <small>Ristorante Admin</small>
     </div>
-   </div>
 
-   <div class="top-actions">
-    <a href="index.html" target="_blank" class="btn btn-dark">🌐 Website</a>
-   </div>
-  </div>
+    <button class="nav-btn active" onclick="showSection('dashboard',this)">
+      🏠 Dashboard
+    </button>
 
-  <!-- DASHBOARD -->
-  <section id="section-dashboard" class="section">
-   <div class="grid3">
-    <div class="stat"><small>Menu Items</small><strong id="statMenu">0</strong></div>
-    <div class="stat"><small>Gallery Photos</small><strong id="statGallery">0</strong></div>
-    <div class="stat"><small>Bookings</small><strong id="statBookings">0</strong></div>
-    <div class="stat"><small>Reviews</small><strong id="statReviews">0</strong></div>
-    <div class="stat"><small>Reports</small><strong id="statReports">0</strong></div>
-    <div class="stat"><small>Staff</small><strong id="statStaff">0</strong></div>
-   </div>
+    <button class="nav-btn" onclick="showSection('home',this)">
+      🌅 Home / Hero
+    </button>
 
-   <div class="card" style="margin-top:18px">
-    <h2>Welcome to Nababi Ristorante Admin</h2>
-    <p class="note">
-     এখান থেকেই website-এর content, ছবি, ভিডিও, menu, gallery,
-     bookings, reviews, discounts এবং staff management করা যাবে।
-    </p>
-   </div>
-  </section>
+    <button class="nav-btn" onclick="showSection('about',this)">
+      📖 About Us
+    </button>
 
-  <!-- HOME -->
-  <section id="section-home" class="section hidden">
+    <button class="nav-btn" onclick="showSection('media',this)">
+      🎬 Videos & Media
+    </button>
 
-   <div class="card">
-    <h2>🏠 Hero Section</h2>
+    <button class="nav-btn" onclick="showSection('contact',this)">
+      📞 Contact
+    </button>
 
-    <label>Hero Title</label>
-    <input id="heroTitle">
+    <button class="nav-btn" onclick="showSection('social',this)">
+      🌐 Social Media
+    </button>
 
-    <label>Hero Text</label>
-    <textarea id="heroText"></textarea>
+    <button class="nav-btn" onclick="showSection('hours',this)">
+      🕐 Opening Hours
+    </button>
 
-    <label>Hero Image — ফোন থেকে ছবি Upload</label>
-    <input id="heroImageFile" class="file" type="file" accept="image/*">
+    <button class="nav-btn" onclick="showSection('menu',this)">
+      🍛 Menu Manager
+    </button>
 
-    <div id="heroImageCurrent" style="margin-top:12px"></div>
+    <button class="nav-btn" onclick="showSection('gallery',this)">
+      🖼️ Gallery
+    </button>
 
-    <button class="btn btn-gold" onclick="saveHero()">💾 Save Hero</button>
-   </div>
+    <button class="nav-btn" onclick="showSection('bookings',this)">
+      📅 Table Bookings
+    </button>
 
-   <div class="card">
-    <h2>👑 Restaurant Logo</h2>
+    <button class="nav-btn" onclick="showSection('reviews',this)">
+      ⭐ Reviews
+    </button>
 
-    <label>নতুন Logo Upload</label>
-    <input id="logoFile" class="file" type="file" accept="image/*">
+    <button class="nav-btn" onclick="showSection('reports',this)">
+      📩 Customer Reports
+    </button>
 
-    <div id="logoCurrent" style="margin-top:12px"></div>
+    <button class="nav-btn" onclick="showSection('discount',this)">
+      🎟️ Discount Campaign
+    </button>
 
-    <button class="btn btn-gold" onclick="saveLogo()">💾 Upload & Save Logo</button>
-   </div>
+    <button class="nav-btn" onclick="showSection('staff',this)">
+      👥 Staff Management
+    </button>
 
-   <div class="card">
-    <h2>🎬 Two Separate Hero Videos</h2>
-    <p class="note">
-     Video 1 এবং Video 2 আলাদা। একটির পরিবর্তন অন্যটিকে পরিবর্তন করবে না।
-    </p>
+    <button class="nav-btn" onclick="showSection('performance',this)">
+      📊 Staff Performance
+    </button>
 
-    <div class="grid">
+    <hr style="border-color:#222;margin:15px 0">
 
-     <div>
-      <h3>Video 1</h3>
-      <input id="video1File" class="file" type="file" accept="video/*">
-      <div id="video1Current"></div>
-      <button class="btn btn-gold" onclick="saveVideo(1)">Upload Video 1</button>
-     </div>
+    <button class="nav-btn" onclick="openWebsite()">
+      🌐 Open Website
+    </button>
 
-     <div>
-      <h3>Video 2</h3>
-      <input id="video2File" class="file" type="file" accept="video/*">
-      <div id="video2Current"></div>
-      <button class="btn btn-gold" onclick="saveVideo(2)">Upload Video 2</button>
-     </div>
+    <button class="nav-btn" onclick="logout()">
+      🚪 Logout
+    </button>
 
+  </aside>
+
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+        <h1 id="pageTitle" style="display:inline-block;margin-left:8px">
+          Dashboard
+        </h1>
+      </div>
+
+      <div class="user-info">
+        <div id="currentUser">Checking...</div>
+        <div id="currentRole"></div>
+      </div>
     </div>
-   </div>
-  </section>
 
-  <!-- BREAKING -->
-  <section id="section-breaking" class="section hidden">
 
-   <div class="card">
-    <h2>📢 Breaking News</h2>
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
 
-    <label>
-     <input id="breakingEnabled" type="checkbox" style="width:auto">
-     Enable Breaking News
-    </label>
+      <h2 class="section-title">Dashboard</h2>
 
-    <label>Text</label>
-    <textarea id="breakingText"></textarea>
+      <div class="grid-3">
 
-    <label>Start Date & Time</label>
-    <input id="breakingStart" type="datetime-local">
+        <div class="stat">
+          <div id="statMenu" class="stat-number">0</div>
+          <div class="stat-label">Menu Items</div>
+        </div>
 
-    <label>End Date & Time</label>
-    <input id="breakingEnd" type="datetime-local">
+        <div class="stat">
+          <div id="statBookings" class="stat-number">0</div>
+          <div class="stat-label">Bookings</div>
+        </div>
 
-    <label>Optional Image</label>
-    <input id="breakingImageFile" class="file" type="file" accept="image/*">
+        <div class="stat">
+          <div id="statReviews" class="stat-number">0</div>
+          <div class="stat-label">Reviews</div>
+        </div>
 
-    <label>Optional Video</label>
-    <input id="breakingVideoFile" class="file" type="file" accept="video/*">
+        <div class="stat">
+          <div id="statReports" class="stat-number">0</div>
+          <div class="stat-label">Reports</div>
+        </div>
 
-    <button class="btn btn-gold" onclick="saveBreaking()">💾 Save Breaking News</button>
-   </div>
+        <div class="stat">
+          <div id="statStaff" class="stat-number">0</div>
+          <div class="stat-label">Staff</div>
+        </div>
 
-  </section>
+        <div class="stat">
+          <div id="statCodes" class="stat-number">0</div>
+          <div class="stat-label">Discount Codes Used</div>
+        </div>
 
-  <!-- ABOUT -->
-  <section id="section-about" class="section hidden">
+      </div>
 
-   <div class="card">
-    <h2>ℹ️ About Us</h2>
+      <div class="card" style="margin-top:20px">
+        <h3>Welcome to Nababi Ristorante Admin</h3>
+        <p style="color:#aaa">
+          এখান থেকে আপনার Restaurant Website-এর সমস্ত গুরুত্বপূর্ণ
+          content এবং management control করা যাবে।
+        </p>
+      </div>
 
-    <label>Title</label>
-    <input id="aboutTitle">
+    </section>
 
-    <label>About Text</label>
-    <textarea id="aboutText" style="min-height:220px"></textarea>
 
-    <label>About Image / Video</label>
-    <input id="aboutMediaFile" class="file" type="file" accept="image/*,video/*">
+    <!-- HOME -->
+    <section id="home" class="section">
 
-    <div id="aboutCurrent"></div>
+      <h2 class="section-title">Home / Hero</h2>
 
-    <button class="btn btn-gold" onclick="saveAbout()">💾 Save About</button>
-   </div>
+      <div class="card">
 
-  </section>
+        <div class="field">
+          <label>Hero Title</label>
+          <input id="heroTitle">
+        </div>
 
-  <!-- MENU -->
-  <section id="section-menu" class="section hidden">
+        <div class="field">
+          <label>Hero Text</label>
+          <textarea id="heroText"></textarea>
+        </div>
 
-   <div class="card">
-    <h2>📂 Categories</h2>
+        <div class="field">
+          <label>Hero Image</label>
+          <input id="heroImageFile" type="file" accept="image/*">
+        </div>
 
-    <div class="grid">
-     <div>
-      <label>New Category Name</label>
-      <input id="categoryName" placeholder="Example: Special Menu">
+        <img id="heroPreview" class="media-preview hidden">
 
-      <label>Category Image</label>
-      <input id="categoryImageFile" class="file" type="file" accept="image/*">
+        <button class="gold-btn" onclick="saveHero()">
+          💾 Save Hero
+        </button>
 
-      <button class="btn btn-gold" onclick="addCategory()">➕ Add Category</button>
-     </div>
+        <div id="heroMessage" class="message"></div>
 
-     <div id="categoryList"></div>
-    </div>
-   </div>
+      </div>
 
-   <div class="card">
-    <h2>🍽️ Add Menu Item</h2>
 
-    <label>Food Name</label>
-    <input id="menuName" placeholder="Chicken Biryani">
+      <div class="card">
 
-    <label>Price</label>
-    <input id="menuPrice" placeholder="€12.00">
+        <h3>🍽️ Restaurant Logo</h3>
 
-    <label>Category</label>
-    <select id="menuCategory">
-     <option value="">Select Category</option>
-    </select>
+        <input id="logoFile" type="file" accept="image/*">
 
-    <label>Description</label>
-    <textarea id="menuDescription" placeholder="Optional"></textarea>
+        <img id="logoPreview" class="media-preview hidden">
 
-    <label>Food Photo — ফোন থেকে Upload</label>
-    <input id="menuImageFile" class="file" type="file" accept="image/*">
+        <div class="actions">
 
-    <button class="btn btn-gold" onclick="addMenu()">➕ Add Food</button>
-   </div>
+          <button class="gold-btn" onclick="saveLogo()">
+            Upload / Change Logo
+          </button>
 
-   <div class="card">
-    <h2>🍴 Menu Items</h2>
-    <div id="menuList"></div>
-   </div>
+          <button class="danger-btn" onclick="removeLogo()">
+            Remove Logo
+          </button>
 
-  </section>
+        </div>
 
-  <!-- GALLERY -->
-  <section id="section-gallery" class="section hidden">
-
-   <div class="card">
-    <h2>🖼️ Gallery Upload</h2>
+        <div id="logoMessage" class="message"></div>
 
-    <label>Photo — ফোনের Gallery/Photos থেকে নির্বাচন করুন</label>
-    <input id="galleryFile" class="file" type="file" accept="image/*" multiple>
+      </div>
 
-    <label>Title</label>
-    <input id="galleryTitle" placeholder="Restaurant / Food / Event">
 
-    <label>Category</label>
-    <input id="galleryCategory" value="Restaurant">
+      <div class="card">
 
-    <button class="btn btn-gold" onclick="uploadGallery()">⬆️ Upload Gallery Photo</button>
+        <h3>📢 Breaking News</h3>
 
-    <p class="note">
-     এখানে URL লিখতে হবে না। সরাসরি ফোন থেকে ছবি upload হবে।
-    </p>
-   </div>
+        <div class="field">
+          <label>Enable</label>
+          <select id="newsEnabled">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+          </select>
+        </div>
 
-   <div class="card">
-    <h2>Gallery Photos</h2>
-    <div id="galleryList"></div>
-   </div>
+        <div class="field">
+          <label>News Text</label>
+          <textarea id="newsText"></textarea>
+        </div>
 
-  </section>
+        <div class="grid">
 
-  <!-- BOOKINGS -->
-  <section id="section-bookings" class="section hidden">
-   <div class="card">
-    <h2>📅 Table Bookings</h2>
-    <div id="bookingList"></div>
-   </div>
-  </section>
+          <div class="field">
+            <label>Start Date / Time</label>
+            <input id="newsStart" type="datetime-local">
+          </div>
 
-  <!-- REVIEWS -->
-  <section id="section-reviews" class="section hidden">
-   <div class="card">
-    <h2>⭐ Reviews</h2>
-    <div id="reviewList"></div>
-   </div>
-  </section>
-
-  <!-- REPORTS -->
-  <section id="section-reports" class="section hidden">
-   <div class="card">
-    <h2>📝 Customer Reports</h2>
-    <div id="reportList"></div>
-   </div>
-  </section>
+          <div class="field">
+            <label>End Date / Time</label>
+            <input id="newsEnd" type="datetime-local">
+          </div>
 
-  <!-- CONTACT -->
-  <section id="section-contact" class="section hidden">
-   <div class="card">
-    <h2>📞 Contact Information</h2>
+        </div>
 
-    <label>Address</label>
-    <input id="contactAddress">
+        <button class="gold-btn" onclick="saveNews()">
+          💾 Save Breaking News
+        </button>
 
-    <label>Phone 1</label>
-    <input id="contactPhone1">
+        <div id="newsMessage" class="message"></div>
 
-    <label>Phone 2</label>
-    <input id="contactPhone2">
+      </div>
 
-    <label>WhatsApp</label>
-    <input id="contactWhatsapp">
+    </section>
 
-    <label>Google Maps URL</label>
-    <input id="contactMaps">
 
-    <button class="btn btn-gold" onclick="saveContact()">💾 Save Contact</button>
-   </div>
-  </section>
+    <!-- ABOUT -->
+    <section id="about" class="section">
 
-  <!-- SOCIAL -->
-  <section id="section-social" class="section hidden">
-   <div class="card">
-    <h2>🌐 Social Media</h2>
+      <h2 class="section-title">About Us</h2>
 
-    <label>Facebook</label>
-    <input id="socialFacebook">
-
-    <label>Instagram</label>
-    <input id="socialInstagram">
-
-    <label>TikTok</label>
-    <input id="socialTikTok">
-
-    <label>YouTube</label>
-    <input id="socialYoutube">
-
-    <button class="btn btn-gold" onclick="saveSocial()">💾 Save Social Media</button>
-   </div>
-  </section>
-
-  <!-- HOURS -->
-  <section id="section-hours" class="section hidden">
-   <div class="card">
-    <h2>🕐 Opening Hours</h2>
-
-    <div id="hoursForm"></div>
-
-    <button class="btn btn-gold" onclick="saveHours()">💾 Save Opening Hours</button>
-   </div>
-  </section>
+      <div class="card">
 
-  <!-- DISCOUNTS -->
-  <section id="section-discounts" class="section hidden">
-   <div class="card">
-    <h2>🎟️ Discount Campaign</h2>
+        <div class="field">
+          <label>About Title</label>
+          <input id="aboutTitle">
+        </div>
 
-    <label>Campaign Name</label>
-    <input id="discountName" placeholder="Nababi Special Offer">
+        <div class="field">
+          <label>About Text</label>
+          <textarea id="aboutText"></textarea>
+        </div>
 
-    <label>Discount %</label>
-    <input id="discountPercent" type="number" min="1" max="100">
+        <div class="field">
+          <label>About Image / Video</label>
+          <input id="aboutFile" type="file" accept="image/*,video/*">
+        </div>
 
-    <label>Prefix</label>
-    <input id="discountPrefix" value="NB">
+        <img id="aboutImagePreview" class="media-preview hidden">
 
-    <label>
-     <input id="discountEnabled" type="checkbox" style="width:auto">
-     Enable Campaign
-    </label>
+        <button class="gold-btn" onclick="saveAbout()">
+          💾 Save About
+        </button>
 
-    <button class="btn btn-gold" onclick="saveDiscountCampaign()">💾 Save Campaign</button>
-   </div>
+        <div id="aboutMessage" class="message"></div>
 
-   <div class="grid3">
-    <div class="stat"><small>Generated Codes</small><strong id="discountCount">0</strong></div>
-    <div class="stat"><small>Used Codes</small><strong id="usedCount">0</strong></div>
-    <div class="stat"><small>Status</small><strong id="discountStatus">OFF</strong></div>
-   </div>
-  </section>
+      </div>
 
-  <!-- CODES -->
-  <section id="section-codes" class="section hidden">
-   <div class="card">
-    <h2>🔢 Discount Codes</h2>
-    <div id="codesList"></div>
-   </div>
-  </section>
+    </section>
 
-  <!-- STAFF -->
-  <section id="section-staff" class="section hidden">
 
-   <div class="card">
-    <h2>👥 Staff Management</h2>
+    <!-- MEDIA -->
+    <section id="media" class="section">
 
-    <div class="grid">
+      <h2 class="section-title">Videos & Media</h2>
 
-     <div>
-      <label>Full Name</label>
-      <input id="staffName" placeholder="Staff Name">
+      <div class="grid">
 
-      <label>Email</label>
-      <input id="staffEmail" type="email" placeholder="staff@email.com">
+        <div class="card">
 
-      <label>Password</label>
-      <input id="staffPassword" type="password" placeholder="Minimum 8 characters">
+          <h3>🎬 Hero Video 1</h3>
 
-      <label>Role</label>
-      <select id="staffRole">
-       <option value="DISCOUNT_STAFF">DISCOUNT STAFF</option>
-       <option value="BOOKING_STAFF">BOOKING STAFF</option>
-       <option value="SUPER_ADMIN">SUPER ADMIN</option>
-      </select>
+          <input id="video1File" type="file" accept="video/*">
 
-      <label>
-       <input id="staffEnabled" type="checkbox" checked style="width:auto">
-       Account Enabled
-      </label>
+          <video id="video1Preview"
+                 class="media-preview hidden"
+                 controls></video>
 
-      <button class="btn btn-gold" onclick="createStaff()">➕ Create Staff Account</button>
-     </div>
+          <button class="gold-btn" onclick="saveVideo(1)">
+            Upload / Change Video 1
+          </button>
 
-     <div>
-      <h3>Staff Roles</h3>
-      <p class="note">
-       <b>DISCOUNT_STAFF</b> → Staff-এর আলাদা Discount Code Panel খুলবে।<br><br>
-       <b>BOOKING_STAFF</b> → শুধু Table Booking Management দেখবে।<br><br>
-       <b>SUPER_ADMIN</b> → পুরো Admin Panel ব্যবহার করতে পারবে।
-      </p>
-     </div>
+          <button class="danger-btn" onclick="removeVideo(1)">
+            Remove Video 1
+          </button>
 
-    </div>
-   </div>
+        </div>
 
-   <div class="card">
-    <h2>Staff Accounts</h2>
-    <div id="staffList"></div>
-   </div>
 
-  </section>
+        <div class="card">
 
-  <!-- PERFORMANCE -->
-  <section id="section-performance" class="section hidden">
+          <h3>🎬 Hero Video 2</h3>
 
-   <div class="card">
-    <h2>📊 Staff Performance</h2>
-    <div id="performanceList"></div>
-   </div>
+          <input id="video2File" type="file" accept="video/*">
 
-  </section>
+          <video id="video2Preview"
+                 class="media-preview hidden"
+                 controls></video>
 
- </main>
+          <button class="gold-btn" onclick="saveVideo(2)">
+            Upload / Change Video 2
+          </button>
+
+          <button class="danger-btn" onclick="removeVideo(2)">
+            Remove Video 2
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+
+      <h2 class="section-title">Contact</h2>
+
+      <div class="card">
+
+        <div class="field">
+          <label>Address</label>
+          <input id="contactAddress">
+        </div>
+
+        <div class="field">
+          <label>Phone 1</label>
+          <input id="contactPhone1">
+        </div>
+
+        <div class="field">
+          <label>Phone 2</label>
+          <input id="contactPhone2">
+        </div>
+
+        <div class="field">
+          <label>WhatsApp</label>
+          <input id="contactWhatsapp">
+        </div>
+
+        <div class="field">
+          <label>Google Maps URL</label>
+          <input id="contactMaps">
+        </div>
+
+        <button class="gold-btn" onclick="saveContact()">
+          💾 Save Contact
+        </button>
+
+        <div id="contactMessage" class="message"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SOCIAL -->
+    <section id="social" class="section">
+
+      <h2 class="section-title">Social Media</h2>
+
+      <div class="card">
+
+        <div class="field">
+          <label>Facebook</label>
+          <input id="socialFacebook">
+        </div>
+
+        <div class="field">
+          <label>Instagram</label>
+          <input id="socialInstagram">
+        </div>
+
+        <div class="field">
+          <label>TikTok</label>
+          <input id="socialTikTok">
+        </div>
+
+        <button class="gold-btn" onclick="saveSocial()">
+          💾 Save Social Media
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- HOURS -->
+    <section id="hours" class="section">
+
+      <h2 class="section-title">Opening Hours</h2>
+
+      <div class="card">
+
+        <div id="hoursForm"></div>
+
+        <button class="gold-btn" onclick="saveHours()">
+          💾 Save Opening Hours
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- MENU -->
+    <section id="menu" class="section">
+
+      <h2 class="section-title">Menu Manager</h2>
+
+      <div class="card">
+
+        <h3>Add / Edit Menu Item</h3>
+
+        <input type="hidden" id="menuId">
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Food Name</label>
+            <input id="menuName">
+          </div>
+
+          <div class="field">
+            <label>Price</label>
+            <input id="menuPrice">
+          </div>
+
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <select id="menuCategory"></select>
+        </div>
+
+        <div class="field">
+          <label>Description</label>
+          <textarea id="menuDescription"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Food Photo</label>
+          <input id="menuImageFile" type="file" accept="image/*">
+        </div>
+
+        <div class="actions">
+
+          <button class="gold-btn" onclick="saveMenuItem()">
+            💾 Save Menu Item
+          </button>
+
+          <button class="dark-btn" onclick="clearMenuForm()">
+            Clear
+          </button>
+
+        </div>
+
+        <div id="menuMessage" class="message"></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>➕ Add New Category</h3>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Category Name</label>
+            <input id="newCategoryName" placeholder="Example: Special Menu">
+          </div>
+
+          <div class="field">
+            <label>Category Image</label>
+            <input id="categoryImageFile" type="file" accept="image/*">
+          </div>
+
+        </div>
+
+        <button class="gold-btn" onclick="addCategory()">
+          ➕ Create Category
+        </button>
+
+        <div id="categoryMessage" class="message"></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>Categories</h3>
+        <div id="categoryList" class="grid-3"></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>Menu Items</h3>
+
+        <div class="table-wrap">
+          <table>
+
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="menuTable"></tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- GALLERY -->
+    <section id="gallery" class="section">
+
+      <h2 class="section-title">Gallery</h2>
+
+      <div class="card">
+
+        <h3>Upload Gallery Photo</h3>
+
+        <div class="field">
+          <label>Photo</label>
+          <input id="galleryFile" type="file" accept="image/*">
+        </div>
+
+        <div class="field">
+          <label>Title</label>
+          <input id="galleryTitle">
+        </div>
+
+        <div class="field">
+          <label>Category</label>
+          <input id="galleryCategory" value="Restaurant">
+        </div>
+
+        <button class="gold-btn" onclick="uploadGallery()">
+          🖼️ Upload Photo
+        </button>
+
+        <div id="galleryMessage" class="message"></div>
+
+      </div>
+
+      <div class="card">
+
+        <h3>Gallery Photos</h3>
+
+        <div id="galleryList" class="grid-3"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- BOOKINGS -->
+    <section id="bookings" class="section">
+
+      <h2 class="section-title">Table Bookings</h2>
+
+      <div class="card">
+
+        <button class="gold-btn" onclick="loadBookings()">
+          🔄 Refresh Bookings
+        </button>
+
+        <div class="table-wrap" style="margin-top:15px">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Guests</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="bookingTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- REVIEWS -->
+    <section id="reviews" class="section">
+
+      <h2 class="section-title">Reviews</h2>
+
+      <div class="card">
+
+        <button class="gold-btn" onclick="loadReviews()">
+          🔄 Refresh Reviews
+        </button>
+
+        <div class="table-wrap" style="margin-top:15px">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Rating</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="reviewTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- REPORTS -->
+    <section id="reports" class="section">
+
+      <h2 class="section-title">Customer Reports</h2>
+
+      <div class="card">
+
+        <button class="gold-btn" onclick="loadReports()">
+          🔄 Refresh Reports
+        </button>
+
+        <div class="table-wrap" style="margin-top:15px">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody id="reportTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- DISCOUNT -->
+    <section id="discount" class="section">
+
+      <h2 class="section-title">Discount Campaign</h2>
+
+      <div class="card">
+
+        <div class="field">
+          <label>Campaign Name</label>
+          <input id="discountName" value="Nababi Welcome Discount">
+        </div>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Discount %</label>
+            <input id="discountPercent" type="number" value="10">
+          </div>
+
+          <div class="field">
+            <label>Maximum Uses</label>
+            <input id="discountMaxUses" type="number" value="100">
+          </div>
+
+        </div>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Start</label>
+            <input id="discountStart" type="datetime-local">
+          </div>
+
+          <div class="field">
+            <label>End</label>
+            <input id="discountEnd" type="datetime-local">
+          </div>
+
+        </div>
+
+        <div class="field">
+          <label>Enabled</label>
+          <select id="discountEnabled">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+          </select>
+        </div>
+
+        <button class="gold-btn" onclick="saveDiscountCampaign()">
+          💾 Save Campaign
+        </button>
+
+        <div id="discountMessage" class="message"></div>
+
+      </div>
+
+
+      <div class="grid">
+
+        <div class="stat">
+          <div id="discountCodes" class="stat-number">0</div>
+          <div class="stat-label">Codes Created</div>
+        </div>
+
+        <div class="stat">
+          <div id="discountUsed" class="stat-number">0</div>
+          <div class="stat-label">Codes Used</div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- STAFF -->
+    <section id="staff" class="section">
+
+      <h2 class="section-title">Staff Management</h2>
+
+      <div class="card">
+
+        <h3>➕ Create Staff Account</h3>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Full Name</label>
+            <input id="staffName">
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input id="staffEmail" type="email">
+          </div>
+
+        </div>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Password</label>
+            <input id="staffPassword" type="password">
+          </div>
+
+          <div class="field">
+            <label>Role</label>
+            <select id="staffRole">
+              <option value="DISCOUNT_STAFF">Discount Staff</option>
+              <option value="BOOKING_STAFF">Booking Staff</option>
+              <option value="SUPER_ADMIN">Super Admin</option>
+            </select>
+          </div>
+
+        </div>
+
+        <button class="gold-btn" onclick="createStaff()">
+          👤 Create Staff
+        </button>
+
+        <div id="staffMessage" class="message"></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>Staff Accounts</h3>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Photo Upload</th>
+              </tr>
+            </thead>
+
+            <tbody id="staffTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- PERFORMANCE -->
+    <section id="performance" class="section">
+
+      <h2 class="section-title">Staff Performance</h2>
+
+      <div class="card">
+
+        <button class="gold-btn" onclick="loadPerformance()">
+          🔄 Refresh Performance
+        </button>
+
+        <div class="table-wrap" style="margin-top:15px">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Staff</th>
+                <th>Role</th>
+                <th>Checked</th>
+                <th>Used</th>
+                <th>Invalid</th>
+                <th>Bookings Viewed</th>
+                <th>Confirmed</th>
+                <th>Cancelled</th>
+              </tr>
+            </thead>
+
+            <tbody id="performanceTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
 </div>
 
-<!-- EDIT MENU MODAL -->
-<div id="menuModal" class="modal hidden">
- <div class="modal-box">
-  <h2>✏️ Edit Menu Item</h2>
-
-  <input id="editMenuId" type="hidden">
-
-  <label>Name</label>
-  <input id="editMenuName">
-
-  <label>Price</label>
-  <input id="editMenuPrice">
-
-  <label>Category</label>
-  <select id="editMenuCategory"></select>
-
-  <label>Description</label>
-  <textarea id="editMenuDescription"></textarea>
-
-  <label>Change Photo</label>
-  <input id="editMenuImageFile" class="file" type="file" accept="image/*">
-
-  <div class="row" style="margin-top:18px">
-   <button class="btn btn-gold" onclick="saveMenuEdit()">Save Changes</button>
-   <button class="btn btn-dark" onclick="closeMenuModal()">Cancel</button>
-  </div>
- </div>
-</div>
-
-<div id="toast" class="toast hidden"></div>
 
 <script>
-const sb = window.supabase.createClient(
-  window.SUPABASE_URL,
-  window.SUPABASE_ANON_KEY
-);
+
+const SUPABASE_URL = "https://rzvaaxjtkvriekokeolo.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
 
 const ADMIN_FUNCTION_NAME = "create-staff";
 
+const { createClient } =
+  supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
 let currentUser = null;
 let currentAdmin = null;
-let settings = {};
-let categories = [];
-let menuItems = [];
 
-const $ = id => document.getElementById(id);
-
-function toast(message){
- const t=$("toast");
- t.textContent=message;
- t.classList.remove("hidden");
- setTimeout(()=>t.classList.add("hidden"),3000);
-}
-
-function escapeHtml(value){
- return String(value ?? "")
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
-}
-
-function slug(){
- return Date.now()+"-"+Math.random().toString(36).slice(2,8);
-}
-
-async function login(){
- const email=$("loginEmail").value.trim();
- const password=$("loginPassword").value;
-
- $("loginError").textContent="";
-
- if(!email || !password){
-  $("loginError").textContent="Email এবং Password দিন";
-  return;
- }
-
- const {data,error}=await sb.auth.signInWithPassword({email,password});
-
- if(error){
-  $("loginError").textContent=error.message;
-  return;
- }
-
- currentUser=data.user;
- await checkAdmin();
-}
-
-async function checkAdmin(){
- if(!currentUser) return;
-
- const {data,error}=await sb
-  .from("admin_staff")
-  .select("*")
-  .ilike("email",currentUser.email)
-  .maybeSingle();
-
- if(error || !data){
-  await sb.auth.signOut();
-  $("loginError").textContent="এই account-এর Admin access নেই।";
-  return;
- }
-
- if(data.enabled !== true){
-  await sb.auth.signOut();
-  $("loginError").textContent="এই staff account disabled.";
-  return;
- }
-
- currentAdmin=data;
-
- if(data.role==="DISCOUNT_STAFF"){
-  location.href="staff.html";
-  return;
- }
-
- $("loginScreen").classList.add("hidden");
- $("app").classList.remove("hidden");
-
- $("sideRole").textContent=data.role;
- $("welcomeText").textContent="Logged in as "+data.full_name;
-
- if(data.avatar_url){
-  $("sideLogo").src=data.avatar_url;
-  $("loginLogo").src=data.avatar_url;
- }
-
- if(data.role!=="SUPER_ADMIN"){
-  document.querySelectorAll(".super-only").forEach(x=>x.remove());
- }
-
- await loadAll();
-}
-
-async function logout(){
- await sb.auth.signOut();
- location.reload();
-}
-
-function toggleSidebar(){
- $("sidebar").classList.toggle("open");
-}
-
-document.querySelectorAll(".nav-btn").forEach(btn=>{
- btn.addEventListener("click",()=>{
-  const section=btn.dataset.section;
-  if(!section) return;
-
-  document.querySelectorAll(".section").forEach(x=>x.classList.add("hidden"));
-  $("section-"+section).classList.remove("hidden");
-
-  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));
-  btn.classList.add("active");
-
-  $("pageTitle").textContent=btn.textContent.trim();
-
-  if(window.innerWidth<900) $("sidebar").classList.remove("open");
-
-  if(section==="menu") loadMenu();
-  if(section==="gallery") loadGallery();
-  if(section==="bookings") loadBookings();
-  if(section==="reviews") loadReviews();
-  if(section==="reports") loadReports();
-  if(section==="codes") loadCodes();
-  if(section==="staff") loadStaff();
-  if(section==="performance") loadPerformance();
-});
-
-async function loadAll(){
- await loadSettings();
- await loadCategories();
- await loadMenu();
- await loadGallery();
- await loadDashboard();
- await loadBookings();
- await loadReviews();
- await loadReports();
- await loadDiscount();
- await loadCodes();
- await loadStaff();
- await loadPerformance();
-}
-
-async function getSetting(key, fallback={}){
- const {data}=await sb
-  .from("site_settings")
-  .select("value")
-  .eq("key",key)
-  .maybeSingle();
-
- return data?.value ?? fallback;
-}
-
-async function saveSetting(key,value){
- const {error}=await sb
-  .from("site_settings")
-  .upsert({
-   key,
-   value,
-   updated_at:new Date().toISOString()
-  });
-
- if(error) throw error;
-}
-
-async function loadSettings(){
- settings={};
-
- for(const key of [
-  "hero","logo","videos","breaking_news","about",
-  "contact","social","hours"
- ]){
-  settings[key]=await getSetting(key,{});
- }
-
- const hero=settings.hero||{};
- $("heroTitle").value=hero.title||"";
- $("heroText").value=hero.text||"";
-
- const logo=settings.logo||{};
- if(logo.url) $("logoCurrent").innerHTML=
-  `<img class="media-preview" src="${escapeHtml(logo.url)}">`;
-
- const videos=settings.videos||{};
- if(videos.video1) $("video1Current").innerHTML=
-  `<video class="media-preview" controls src="${escapeHtml(videos.video1)}"></video>`;
- if(videos.video2) $("video2Current").innerHTML=
-  `<video class="media-preview" controls src="${escapeHtml(videos.video2)}"></video>`;
-
- const breaking=settings.breaking_news||{};
- $("breakingEnabled").checked=breaking.enabled!==false;
- $("breakingText").value=breaking.text||"";
- $("breakingStart").value=toLocalDateTime(breaking.start_at);
- $("breakingEnd").value=toLocalDateTime(breaking.end_at);
-
- const about=settings.about||{};
- $("aboutTitle").value=about.title||"";
- $("aboutText").value=about.text||"";
- if(about.media_url){
-  $("aboutCurrent").innerHTML=about.media_type==="video"
-   ? `<video class="media-preview" controls src="${escapeHtml(about.media_url)}"></video>`
-   : `<img class="media-preview" src="${escapeHtml(about.media_url)}">`;
- }
-
- const contact=settings.contact||{};
- $("contactAddress").value=contact.address||"Via Vespasiano 73/75/77 Roma";
- $("contactPhone1").value=contact.phone1||"+39 333 7687319";
- $("contactPhone2").value=contact.phone2||"+39 393 3805350";
- $("contactWhatsapp").value=contact.whatsapp||"+39 333 7687319";
- $("contactMaps").value=contact.maps||"";
-
- const social=settings.social||{};
- $("socialFacebook").value=social.facebook||"";
- $("socialInstagram").value=social.instagram||"";
- $("socialTikTok").value=social.tiktok||"";
- $("socialYoutube").value=social.youtube||"";
-
- loadHours(settings.hours||{});
-}
-
-function toLocalDateTime(v){
- if(!v)return "";
- const d=new Date(v);
- if(isNaN(d))return "";
- const pad=n=>String(n).padStart(2,"0");
- return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-async function uploadFile(file,bucket,folder){
- if(!file) throw new Error("File নির্বাচন করুন");
-
- const ext=(file.name.split(".").pop()||"bin").toLowerCase();
- const path=`${folder}/${Date.now()}-${Math.random().toString(36).slice(2,9)}.${ext}`;
-
- const {error}=await sb.storage
-  .from(bucket)
-  .upload(path,file,{
-   upsert:false,
-   contentType:file.type||undefined
-  });
-
- if(error) throw error;
-
- const {data}=sb.storage.from(bucket).getPublicUrl(path);
-
- return {
-  url:data.publicUrl,
-  path
- };
-}
-
-async function deleteStorage(bucket,path){
- if(!path)return;
- try{
-  await sb.storage.from(bucket).remove([path]);
- }catch(e){}
-}
-
-async function saveHero(){
- try{
-  const hero={
-   ...(settings.hero||{}),
-   title:$("heroTitle").value.trim(),
-   text:$("heroText").value.trim()
-  };
-
-  const file=$("heroImageFile").files[0];
-
-  if(file){
-   const old=hero.image_path;
-   const uploaded=await uploadFile(file,"site-media","hero");
-   hero.image_url=uploaded.url;
-   hero.image_path=uploaded.path;
-   await deleteStorage("site-media",old);
-  }
-
-  await saveSetting("hero",hero);
-  settings.hero=hero;
-
-  $("heroImageFile").value="";
-  $("heroImageCurrent").innerHTML=hero.image_url
-   ? `<img class="media-preview" src="${escapeHtml(hero.image_url)}">`
-   : "";
-
-  toast("Hero saved successfully");
- }catch(e){
-  toast("Hero error: "+e.message);
- }
-}
-
-async function saveLogo(){
- try{
-  const file=$("logoFile").files[0];
-  if(!file) throw new Error("Logo photo নির্বাচন করুন");
-
-  const old=settings.logo||{};
-  const uploaded=await uploadFile(file,"site-media","logo");
-
-  const logo={
-   url:uploaded.url,
-   path:uploaded.path
-  };
-
-  await saveSetting("logo",logo);
-  await deleteStorage("site-media",old.path);
-
-  settings.logo=logo;
-
-  $("logoCurrent").innerHTML=
-   `<img class="media-preview" src="${escapeHtml(logo.url)}">`;
-
-  $("sideLogo").src=logo.url;
-  $("loginLogo").src=logo.url;
-
-  $("logoFile").value="";
-  toast("Logo updated");
- }catch(e){
-  toast("Logo error: "+e.message);
- }
-}
-
-async function saveVideo(number){
- try{
-  const file=$(`video${number}File`).files[0];
-  if(!file) throw new Error("Video নির্বাচন করুন");
-
-  const videos={...(settings.videos||{})};
-
-  const uploaded=await uploadFile(file,"site-media","videos");
-
-  const oldPath=videos[`video${number}_path`];
-
-  videos[`video${number}`]=uploaded.url;
-  videos[`video${number}_path`]=uploaded.path;
-
-  await saveSetting("videos",videos);
-  await deleteStorage("site-media",oldPath);
-
-  settings.videos=videos;
-
-  $(`video${number}Current`).innerHTML=
-   `<video class="media-preview" controls src="${escapeHtml(uploaded.url)}"></video>`;
-
-  $(`video${number}File`).value="";
-  toast("Video "+number+" uploaded");
- }catch(e){
-  toast("Video error: "+e.message);
- }
-}
-
-async function saveBreaking(){
- try{
-  const b={...(settings.breaking_news||{})};
-
-  b.enabled=$("breakingEnabled").checked;
-  b.text=$("breakingText").value.trim();
-  b.start_at=$("breakingStart").value
-   ? new Date($("breakingStart").value).toISOString()
-   : null;
-  b.end_at=$("breakingEnd").value
-   ? new Date($("breakingEnd").value).toISOString()
-   : null;
-
-  const image=$("breakingImageFile").files[0];
-  const video=$("breakingVideoFile").files[0];
-
-  if(image){
-   const up=await uploadFile(image,"site-media","breaking");
-   await deleteStorage("site-media",b.image_path);
-   b.image_url=up.url;
-   b.image_path=up.path;
-   b.media_type="image";
-  }
-
-  if(video){
-   const up=await uploadFile(video,"site-media","breaking");
-   await deleteStorage("site-media",b.video_path);
-   b.video_url=up.url;
-   b.video_path=up.path;
-   b.media_type="video";
-  }
-
-  await saveSetting("breaking_news",b);
-  settings.breaking_news=b;
-
-  $("breakingImageFile").value="";
-  $("breakingVideoFile").value="";
-
-  toast("Breaking News saved");
- }catch(e){
-  toast("Breaking News error: "+e.message);
- }
-}
-
-async function saveAbout(){
- try{
-  const a={
-   ...(settings.about||{}),
-   title:$("aboutTitle").value.trim(),
-   text:$("aboutText").value.trim()
-  };
-
-  const file=$("aboutMediaFile").files[0];
-
-  if(file){
-   const up=await uploadFile(file,"site-media","about");
-   await deleteStorage("site-media",a.media_path);
-
-   a.media_url=up.url;
-   a.media_path=up.path;
-   a.media_type=file.type.startsWith("video/")?"video":"image";
-  }
-
-  await saveSetting("about",a);
-  settings.about=a;
-
-  $("aboutMediaFile").value="";
-
-  if(a.media_url){
-   $("aboutCurrent").innerHTML=a.media_type==="video"
-    ? `<video class="media-preview" controls src="${escapeHtml(a.media_url)}"></video>`
-    : `<img class="media-preview" src="${escapeHtml(a.media_url)}">`;
-  }
-
-  toast("About saved");
- }catch(e){
-  toast("About error: "+e.message);
- }
-}
-
-async function saveContact(){
- try{
-  const value={
-   address:$("contactAddress").value.trim(),
-   phone1:$("contactPhone1").value.trim(),
-   phone2:$("contactPhone2").value.trim(),
-   whatsapp:$("contactWhatsapp").value.trim(),
-   maps:$("contactMaps").value.trim()
-  };
-
-  await saveSetting("contact",value);
-  settings.contact=value;
-  toast("Contact saved");
- }catch(e){toast(e.message)}
-}
-
-async function saveSocial(){
- try{
-  const value={
-   facebook:$("socialFacebook").value.trim(),
-   instagram:$("socialInstagram").value.trim(),
-   tiktok:$("socialTikTok").value.trim(),
-   youtube:$("socialYoutube").value.trim()
-  };
-
-  await saveSetting("social",value);
-  settings.social=value;
-  toast("Social Media saved");
- }catch(e){toast(e.message)}
-}
-
-const days=[
- "Monday","Tuesday","Wednesday","Thursday",
- "Friday","Saturday","Sunday"
+const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
 ];
 
-function loadHours(hours){
- $("hoursForm").innerHTML=days.map(day=>{
-  const d=hours[day]||{};
-  return `
-   <div class="item">
-    <div class="item-head"><b>${day}</b></div>
-    <div class="grid">
-     <input data-day="${day}" data-type="open" type="time" value="${escapeHtml(d.open||"12:00")}">
-     <input data-day="${day}" data-type="close" type="time" value="${escapeHtml(d.close||"23:00")}">
-    </div>
-   </div>
-  `;
- }).join("");
-}
 
-async function saveHours(){
- try{
-  const hours={};
+// ---------------- LOGIN ----------------
 
-  document.querySelectorAll("#hoursForm input").forEach(input=>{
-   const day=input.dataset.day;
-   const type=input.dataset.type;
-   hours[day]=hours[day]||{};
-   hours[day][type]=input.value;
-  });
+async function login(){
 
-  await saveSetting("hours",hours);
-  settings.hours=hours;
-  toast("Opening hours saved");
- }catch(e){toast(e.message)}
-}
+  const email =
+    document.getElementById("loginEmail").value.trim();
 
-/* CATEGORIES */
+  const password =
+    document.getElementById("loginPassword").value;
 
-async function loadCategories(){
- const {data,error}=await sb
-  .from("menu_categories")
-  .select("*")
-  .order("sort_order",{ascending:true})
-  .order("name",{ascending:true});
+  const msg =
+    document.getElementById("loginMessage");
 
- if(error){
-  toast("Category error: "+error.message);
-  return;
- }
+  msg.className="message";
 
- categories=data||[];
- renderCategories();
- fillCategorySelects();
-}
+  if(!email || !password){
 
-function renderCategories(){
- if(!categories.length){
-  $("categoryList").innerHTML='<div class="empty">No categories yet</div>';
-  return;
- }
-
- $("categoryList").innerHTML=categories.map(c=>`
-  <div class="item">
-   <div class="item-head">
-    <div>
-     <b>${escapeHtml(c.name)}</b><br>
-     <span class="badge">${c.sort_order||0}</span>
-    </div>
-    <button class="btn btn-danger" onclick="deleteCategory(${c.id})">Delete</button>
-   </div>
-  </div>
- `).join("");
-}
-
-function fillCategorySelects(){
- const options=
-  '<option value="">Select Category</option>'+
-  categories.map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("");
-
- $("menuCategory").innerHTML=options;
- $("editMenuCategory").innerHTML=options;
-}
-
-async function addCategory(){
- try{
-  const name=$("categoryName").value.trim();
-  if(!name)throw new Error("Category name দিন");
-
-  let image_url=null;
-  let image_path=null;
-
-  const file=$("categoryImageFile").files[0];
-
-  if(file){
-   const up=await uploadFile(file,"menu-images","categories");
-   image_url=up.url;
-   image_path=up.path;
+    msg.textContent="Email and password required.";
+    msg.className="message error";
+    return;
   }
 
-  const {error}=await sb.from("menu_categories").insert({
-   name,
-   sort_order:categories.length,
-   image_url
-  });
-
-  if(error)throw error;
-
-  $("categoryName").value="";
-  $("categoryImageFile").value="";
-
-  await loadCategories();
-  toast("Category added");
- }catch(e){
-  toast("Category error: "+e.message);
- }
-}
-
-async function deleteCategory(id){
- if(!confirm("এই category delete করবেন?"))return;
-
- const c=categories.find(x=>x.id===id);
-
- const {error}=await sb
-  .from("menu_categories")
-  .delete()
-  .eq("id",id);
-
- if(error){
-  toast(error.message);
-  return;
- }
-
- if(c?.image_url){
-  // image_path isn't stored in category schema, so public URL deletion
-  // is intentionally skipped.
- }
-
- await loadCategories();
- toast("Category deleted");
-}
-
-/* MENU */
-
-async function addMenu(){
- try{
-  const name=$("menuName").value.trim();
-  const price=$("menuPrice").value.trim();
-  const category=$("menuCategory").value;
-  const description=$("menuDescription").value.trim();
-  const file=$("menuImageFile").files[0];
-
-  if(!name)throw new Error("Food name দিন");
-  if(!category)throw new Error("Category select করুন");
-  if(!file)throw new Error("Food photo select করুন");
-
-  const up=await uploadFile(file,"menu-images","menu");
-
-  const {error}=await sb.from("Menu").insert({
-   name,
-   price,
-   category,
-   description,
-   image_url:up.url,
-   image_path:up.path
-  });
+  const {data,error} =
+    await createClient(SUPABASE_URL,SUPABASE_KEY)
+      .auth.signInWithPassword({
+        email,
+        password
+      });
 
   if(error){
-   await deleteStorage("menu-images",up.path);
-   throw error;
+
+    msg.textContent=error.message;
+    msg.className="message error";
+    return;
   }
 
-  $("menuName").value="";
-  $("menuPrice").value="";
-  $("menuCategory").value="";
-  $("menuDescription").value="";
-  $("menuImageFile").value="";
+  currentUser=data.user;
 
-  await loadMenu();
-  await loadDashboard();
+  await checkAdmin();
 
-  toast("Menu item added");
- }catch(e){
-  toast("Menu error: "+e.message);
- }
 }
 
-async function loadMenu(){
- const {data,error}=await sb
-  .from("Menu")
-  .select("*")
-  .order("id",{ascending:false});
 
- if(error){
-  toast("Menu load error: "+error.message);
-  return;
- }
+async function checkAdmin(){
 
- menuItems=data||[];
- renderMenu();
-}
+  const {data,error} =
+    await supabaseClient()
+      .from("admin_staff")
+      .select("*")
+      .ilike("email",currentUser.email)
+      .maybeSingle();
 
-function renderMenu(){
- if(!menuItems.length){
-  $("menuList").innerHTML='<div class="empty">No menu items</div>';
-  return;
- }
+  if(error || !data || data.enabled !== true){
 
- $("menuList").innerHTML=menuItems.map(item=>`
-  <div class="item">
-   <div class="item-head">
-    <div class="row">
-     ${item.image_url
-      ? `<img class="thumb" src="${escapeHtml(item.image_url)}">`
-      : ""}
-     <div>
-      <b>${escapeHtml(item.name)}</b><br>
-      <span class="badge gold">${escapeHtml(item.category||"")}</span>
-      <span class="badge">${escapeHtml(item.price||"")}</span>
-     </div>
-    </div>
-
-    <div class="row">
-     <button class="btn btn-dark" onclick="editMenu(${item.id})">✏️ Edit</button>
-     <button class="btn btn-danger" onclick="deleteMenu(${item.id})">🗑 Delete</button>
-    </div>
-   </div>
-
-   ${item.description
-    ? `<p class="note">${escapeHtml(item.description)}</p>`
-    : ""}
-
-   <label>Change Photo</label>
-   <input id="photo-${item.id}" class="file" type="file" accept="image/*">
-   <button class="btn btn-gold" style="margin-top:8px"
-    onclick="changeMenuPhoto(${item.id})">
-    📷 Change Photo
-   </button>
-  </div>
- `).join("");
-}
-
-function editMenu(id){
- const item=menuItems.find(x=>x.id===id);
- if(!item)return;
-
- $("editMenuId").value=id;
- $("editMenuName").value=item.name||"";
- $("editMenuPrice").value=item.price||"";
- $("editMenuCategory").value=item.category||"";
- $("editMenuDescription").value=item.description||"";
- $("editMenuImageFile").value="";
-
- $("menuModal").classList.remove("hidden");
-}
-
-function closeMenuModal(){
- $("menuModal").classList.add("hidden");
-}
-
-async function saveMenuEdit(){
- try{
-  const id=Number($("editMenuId").value);
-  const item=menuItems.find(x=>x.id===id);
-
-  const update={
-   name:$("editMenuName").value.trim(),
-   price:$("editMenuPrice").value.trim(),
-   category:$("editMenuCategory").value,
-   description:$("editMenuDescription").value.trim()
-  };
-
-  if(!update.name||!update.category)
-   throw new Error("Name এবং Category দিন");
-
-  const file=$("editMenuImageFile").files[0];
-
-  if(file){
-   const up=await uploadFile(file,"menu-images","menu");
-   update.image_url=up.url;
-   update.image_path=up.path;
+    await logout();
+    alert("You are not authorized.");
+    return;
   }
 
-  const {error}=await sb
-   .from("Menu")
-   .update(update)
-   .eq("id",id);
+  currentAdmin=data;
 
-  if(error){
-   if(update.image_path)await deleteStorage("menu-images",update.image_path);
-   throw error;
+  document.getElementById("loginScreen")
+    .classList.add("hidden");
+
+  document.getElementById("app")
+    .classList.remove("hidden");
+
+  document.getElementById("currentUser")
+    .textContent=data.full_name || currentUser.email;
+
+  document.getElementById("currentRole")
+    .textContent=data.role;
+
+  if(data.role==="DISCOUNT_STAFF"){
+
+    window.location.href="staff.html";
+    return;
   }
 
-  if(file && item?.image_path){
-   await deleteStorage("menu-images",item.image_path);
+  loadEverything();
+}
+
+
+function supabaseClient(){
+
+  return supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+}
+
+
+async function logout(){
+
+  await supabaseClient().auth.signOut();
+
+  location.reload();
+}
+
+
+// ---------------- NAVIGATION ----------------
+
+function showSection(id,btn){
+
+  document.querySelectorAll(".section")
+    .forEach(x=>x.classList.remove("active"));
+
+  document.getElementById(id)
+    .classList.add("active");
+
+  document.querySelectorAll(".nav-btn")
+    .forEach(x=>x.classList.remove("active"));
+
+  if(btn) btn.classList.add("active");
+
+  const title =
+    id.charAt(0).toUpperCase()+id.slice(1);
+
+  document.getElementById("pageTitle")
+    .textContent=title;
+
+  document.getElementById("sidebar")
+    .classList.remove("open");
+
+  if(id==="menu"){
+    loadCategories();
+    loadMenu();
   }
 
-  closeMenuModal();
-  await loadMenu();
-  toast("Menu updated");
- }catch(e){
-  toast("Menu update error: "+e.message);
- }
+  if(id==="gallery") loadGallery();
+
+  if(id==="bookings") loadBookings();
+
+  if(id==="reviews") loadReviews();
+
+  if(id==="reports") loadReports();
+
+  if(id==="staff") loadStaff();
+
+  if(id==="performance") loadPerformance();
 }
 
-async function changeMenuPhoto(id){
- try{
-  const file=$(`photo-${id}`).files[0];
-  if(!file)throw new Error("নতুন photo select করুন");
 
-  const item=menuItems.find(x=>x.id===id);
-  const up=await uploadFile(file,"menu-images","menu");
+function toggleSidebar(){
 
-  const {error}=await sb
-   .from("Menu")
-   .update({
-    image_url:up.url,
-    image_path:up.path
-   })
-   .eq("id",id);
+  document.getElementById("sidebar")
+    .classList.toggle("open");
 
-  if(error){
-   await deleteStorage("menu-images",up.path);
-   throw error;
-  }
-
-  await deleteStorage("menu-images",item?.image_path);
-
-  await loadMenu();
-  toast("Photo changed");
- }catch(e){
-  toast("Photo error: "+e.message);
- }
 }
 
-async function deleteMenu(id){
- if(!confirm("এই food delete করবেন?"))return;
 
- const item=menuItems.find(x=>x.id===id);
+function openWebsite(){
 
- const {error}=await sb.from("Menu").delete().eq("id",id);
-
- if(error){
-  toast(error.message);
-  return;
- }
-
- await deleteStorage("menu-images",item?.image_path);
-
- await loadMenu();
- await loadDashboard();
- toast("Menu item deleted");
-}
-
-/* GALLERY */
-
-async function uploadGallery(){
- try{
-  const files=[...$("galleryFile").files];
-  if(!files.length)throw new Error("Photo select করুন");
-
-  const title=$("galleryTitle").value.trim();
-  const category=$("galleryCategory").value.trim()||"Restaurant";
-
-  for(const file of files){
-   const up=await uploadFile(file,"site-media","gallery");
-
-   const {error}=await sb.from("gallery").insert({
-    image_url:up.url,
-    storage_path:up.path,
-    title,
-    category,
-    is_visible:true
-   });
-
-   if(error){
-    await deleteStorage("site-media",up.path);
-    throw error;
-   }
-  }
-
-  $("galleryFile").value="";
-  $("galleryTitle").value="";
-
-  await loadGallery();
-  await loadDashboard();
-
-  toast(files.length+" photo uploaded");
- }catch(e){
-  toast("Gallery upload error: "+e.message);
- }
-}
-
-async function loadGallery(){
- const {data,error}=await sb
-  .from("gallery")
-  .select("*")
-  .order("sort_order",{ascending:true})
-  .order("id",{ascending:false});
-
- if(error){
-  toast("Gallery error: "+error.message);
-  return;
- }
-
- const list=data||[];
-
- if(!list.length){
-  $("galleryList").innerHTML='<div class="empty">No gallery photos</div>';
-  return;
- }
-
- $("galleryList").innerHTML=list.map(g=>`
-  <div class="item">
-   <div class="item-head">
-    <div class="row">
-     <img class="thumb" src="${escapeHtml(g.image_url)}">
-     <div>
-      <b>${escapeHtml(g.title||"Gallery")}</b><br>
-      <span class="badge">${escapeHtml(g.category||"Restaurant")}</span>
-      ${g.is_visible
-       ? '<span class="badge green">Visible</span>'
-       : '<span class="badge red">Hidden</span>'}
-     </div>
-    </div>
-
-    <div class="row">
-     <button class="btn btn-dark" onclick="toggleGallery(${g.id},${!g.is_visible})">
-      ${g.is_visible?"Hide":"Show"}
-     </button>
-     <button class="btn btn-danger" onclick="deleteGallery(${g.id})">
-      Delete
-     </button>
-    </div>
-   </div>
-  </div>
- `).join("");
-}
-
-async function toggleGallery(id,value){
- const {error}=await sb
-  .from("gallery")
-  .update({is_visible:value})
-  .eq("id",id);
-
- if(error){toast(error.message);return}
- await loadGallery();
-}
-
-async function deleteGallery(id){
- if(!confirm("এই gallery photo delete করবেন?"))return;
-
- const {data}=await sb
-  .from("gallery")
-  .select("storage_path")
-  .eq("id",id)
-  .maybeSingle();
-
- const {error}=await sb.from("gallery").delete().eq("id",id);
-
- if(error){toast(error.message);return}
-
- await deleteStorage("site-media",data?.storage_path);
-
- await loadGallery();
- await loadDashboard();
- toast("Gallery photo deleted");
-}
-
-/* BOOKINGS */
-
-async function loadBookings(){
- const {data,error}=await sb
-  .from("table_bookings")
-  .select("*")
-  .order("created_at",{ascending:false});
-
- if(error){
-  $("bookingList").innerHTML=`<p class="note">${escapeHtml(error.message)}</p>`;
-  return;
- }
-
- if(!data?.length){
-  $("bookingList").innerHTML='<div class="empty">No bookings</div>';
-  return;
- }
-
- $("bookingList").innerHTML=data.map(b=>`
-  <div class="item">
-   <div class="item-head">
-    <div>
-     <b>${escapeHtml(b.customer_name)}</b><br>
-     <span class="badge gold">${escapeHtml(b.booking_reference||"")}</span>
-     <span class="badge">${escapeHtml(b.status||"Pending")}</span>
-    </div>
-    <select onchange="updateBooking(${b.id},this.value)">
-     ${["Pending","Confirmed","Cancelled"].map(s=>
-      `<option ${b.status===s?"selected":""}>${s}</option>`
-     ).join("")}
-    </select>
-   </div>
-
-   <p class="note">
-    📅 ${escapeHtml(b.booking_date||"")}
-    &nbsp; 🕐 ${escapeHtml(b.booking_time||"")}
-    &nbsp; 👥 ${escapeHtml(b.guests||"")}
-   </p>
-
-   <p class="note">
-    📞 ${escapeHtml(b.phone||"")}
-    ${b.email?" | ✉️ "+escapeHtml(b.email):""}
-   </p>
-
-   ${b.special_request
-    ? `<p>${escapeHtml(b.special_request)}</p>`
-    : ""}
-  </div>
- `).join("");
-}
-
-async function updateBooking(id,status){
- const {data:booking}=await sb
-  .from("table_bookings")
-  .select("*")
-  .eq("id",id)
-  .maybeSingle();
-
- const {error}=await sb
-  .from("table_bookings")
-  .update({
-   status,
-   updated_at:new Date().toISOString()
-  })
-  .eq("id",id);
-
- if(error){
-  toast(error.message);
-  return;
- }
-
- if(currentAdmin){
-  await sb.from("booking_staff_activity").insert({
-   staff_email:currentAdmin.email,
-   staff_name:currentAdmin.full_name,
-   booking_id:id,
-   booking_reference:booking?.booking_reference||"",
-   action:status==="Confirmed"?"CONFIRMED":
-          status==="Cancelled"?"CANCELLED":"UPDATED"
-  });
- }
-
- await loadBookings();
- toast("Booking updated");
-}
-
-/* REVIEWS */
-
-async function loadReviews(){
- const {data,error}=await sb
-  .from("reviews")
-  .select("*")
-  .order("created_at",{ascending:false});
-
- if(error){
-  $("reviewList").innerHTML=`<p class="note">${escapeHtml(error.message)}</p>`;
-  return;
- }
-
- if(!data?.length){
-  $("reviewList").innerHTML='<div class="empty">No reviews</div>';
-  return;
- }
-
- $("reviewList").innerHTML=data.map(r=>`
-  <div class="item">
-   <div class="item-head">
-    <div>
-     <b>${escapeHtml(r.customer_name)}</b>
-     <span class="badge gold">${"★".repeat(Math.max(1,Math.min(5,r.rating||5)))}</span>
-     <span class="badge">${escapeHtml(r.status||"Pending")}</span>
-    </div>
-    <div class="row">
-     <button class="btn btn-green" onclick="reviewStatus(${r.id},'Approved')">Approve</button>
-     <button class="btn btn-dark" onclick="reviewStatus(${r.id},'Hidden')">Hide</button>
-     <button class="btn btn-danger" onclick="deleteReview(${r.id})">Delete</button>
-    </div>
-   </div>
-   <p>${escapeHtml(r.message)}</p>
-  </div>
- `).join("");
-}
-
-async function reviewStatus(id,status){
- const {error}=await sb.from("reviews").update({status}).eq("id",id);
- if(error){toast(error.message);return}
- await loadReviews();
- toast("Review updated");
-}
-
-async function deleteReview(id){
- if(!confirm("Review delete করবেন?"))return;
-
- const {error}=await sb.from("reviews").delete().eq("id",id);
- if(error){toast(error.message);return}
-
- await loadReviews();
- toast("Review deleted");
-}
-
-/* REPORTS */
-
-async function loadReports(){
- const {data,error}=await sb
-  .from("customer_reports")
-  .select("*")
-  .order("created_at",{ascending:false});
-
- if(error){
-  $("reportList").innerHTML=`<p class="note">${escapeHtml(error.message)}</p>`;
-  return;
- }
-
- if(!data?.length){
-  $("reportList").innerHTML='<div class="empty">No reports</div>';
-  return;
- }
-
- $("reportList").innerHTML=data.map(r=>`
-  <div class="item">
-   <div class="item-head">
-    <div>
-     <b>${escapeHtml(r.customer_name||"Customer")}</b><br>
-     <span class="badge">${escapeHtml(r.status||"New")}</span>
-    </div>
-    <select onchange="updateReport(${r.id},this.value)">
-     ${["New","In Progress","Resolved"].map(s=>
-      `<option ${r.status===s?"selected":""}>${s}</option>`
-     ).join("")}
-    </select>
-   </div>
-   <p><b>${escapeHtml(r.subject||"Report")}</b></p>
-   <p>${escapeHtml(r.message)}</p>
-   <p class="note">
-    📞 ${escapeHtml(r.phone||"")}
-    ${r.email?" | ✉️ "+escapeHtml(r.email):""}
-   </p>
-  </div>
- `).join("");
-}
-
-async function updateReport(id,status){
- const {error}=await sb
-  .from("customer_reports")
-  .update({status})
-  .eq("id",id);
-
- if(error){toast(error.message);return}
- await loadReports();
-}
-
-/* DISCOUNTS */
-
-async function loadDiscount(){
- const {data}=await sb
-  .from("discount_campaign")
-  .select("*")
-  .order("id",{ascending:false})
-  .limit(1)
-  .maybeSingle();
-
- if(data){
-  $("discountName").value=data.name||"";
-  $("discountPercent").value=data.discount_percent||"";
-  $("discountPrefix").value=data.prefix||"NB";
-  $("discountEnabled").checked=!!data.enabled;
-  $("discountStatus").textContent=data.enabled?"ON":"OFF";
- }
-}
-
-async function saveDiscountCampaign(){
- try{
-  const {data:old}=await sb
-   .from("discount_campaign")
-   .select("id")
-   .order("id",{ascending:false})
-   .limit(1)
-   .maybeSingle();
-
-  const obj={
-   name:$("discountName").value.trim(),
-   discount_percent:Number($("discountPercent").value),
-   prefix:$("discountPrefix").value.trim()||"NB",
-   enabled:$("discountEnabled").checked
-  };
-
-  if(!obj.name||!obj.discount_percent)
-   throw new Error("Campaign name এবং discount দিন");
-
-  let result;
-
-  if(old?.id){
-   result=await sb.from("discount_campaign").update(obj).eq("id",old.id);
-  }else{
-   result=await sb.from("discount_campaign").insert(obj);
-  }
-
-  if(result.error)throw result.error;
-
-  await loadDiscount();
-  toast("Discount campaign saved");
- }catch(e){toast(e.message)}
-}
-
-async function loadCodes(){
- const {data,error}=await sb
-  .from("discount_codes")
-  .select("*")
-  .order("created_at",{ascending:false})
-  .limit(100);
-
- if(error){
-  $("codesList").innerHTML=`<p class="note">${escapeHtml(error.message)}</p>`;
-  return;
- }
-
- if(!data?.length){
-  $("codesList").innerHTML='<div class="empty">No discount codes</div>';
-  return;
- }
-
- $("codesList").innerHTML=data.map(c=>`
-  <div class="item">
-   <div class="item-head">
-    <div>
-     <b style="font-size:20px;color:var(--gold2)">
-      ${escapeHtml(c.code)}
-     </b><br>
-     <span class="badge">${escapeHtml(c.status||"ACTIVE")}</span>
-    </div>
-    <span class="badge">${escapeHtml(c.discount_percent||"")} %</span>
-   </div>
-  </div>
- `).join("");
-
- $("discountCount").textContent=data.length;
- $("usedCount").textContent=data.filter(x=>String(x.status).toLowerCase()==="used").length;
-}
-
-/* STAFF */
-
-async function createStaff(){
- try{
-  const body={
-   email:$("staffEmail").value.trim(),
-   password:$("staffPassword").value,
-   full_name:$("staffName").value.trim(),
-   role:$("staffRole").value,
-   enabled:$("staffEnabled").checked
-  };
-
-  if(!body.email||!body.password||!body.full_name)
-   throw new Error("সব field পূরণ করুন");
-
-  const {data:{session}}=await sb.auth.getSession();
-
-  if(!session?.access_token)
-   throw new Error("Admin session expired. আবার login করুন");
-
-  const response=await fetch(
-   `${window.SUPABASE_URL}/functions/v1/${ADMIN_FUNCTION_NAME}`,
-   {
-    method:"POST",
-    headers:{
-     "Authorization":"Bearer "+session.access_token,
-     "apikey":window.SUPABASE_ANON_KEY,
-     "Content-Type":"application/json"
-    },
-    body:JSON.stringify(body)
-   }
+  window.open(
+    "https://nababi-ristorante-1fbm7ltxg-nababiristorante.vercel.app/",
+    "_blank"
   );
 
-  const result=await response.json();
-
-  if(!response.ok || !result.success)
-   throw new Error(result.error||"Staff account create failed");
-
-  $("staffName").value="";
-  $("staffEmail").value="";
-  $("staffPassword").value="";
-
-  await loadStaff();
-  toast("Staff account created successfully");
- }catch(e){
-  toast("Staff error: "+e.message);
- }
 }
 
-async function loadStaff(){
- const {data,error}=await sb
-  .from("admin_staff")
-  .select("*")
-  .order("created_at",{ascending:false});
 
- if(error){
-  $("staffList").innerHTML=`<p class="note">${escapeHtml(error.message)}</p>`;
-  return;
- }
+// ---------------- STORAGE ----------------
 
- if(!data?.length){
-  $("staffList").innerHTML='<div class="empty">No staff</div>';
-  return;
- }
+async function uploadFile(bucket,file,folder){
 
- $("staffList").innerHTML=data.map(s=>`
-  <div class="item">
-   <div class="item-head">
+  if(!file) return null;
 
-    <div class="row">
-     ${s.avatar_url
-      ? `<img class="thumb" src="${escapeHtml(s.avatar_url)}">`
-      : `<div class="thumb" style="display:flex;align-items:center;justify-content:center">👤</div>`}
+  const safeName =
+    file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
 
-     <div>
-      <b>${escapeHtml(s.full_name||"Staff")}</b><br>
-      <span class="note">${escapeHtml(s.email)}</span><br>
-      <span class="badge gold">${escapeHtml(s.role)}</span>
-      ${s.enabled
-       ? '<span class="badge green">Enabled</span>'
-       : '<span class="badge red">Disabled</span>'}
-     </div>
-    </div>
+  const path =
+    folder+"/"+Date.now()+"_"+safeName;
 
-    <div class="row">
-     ${s.email!==currentAdmin.email
-      ? `<button class="btn btn-dark" onclick="toggleStaff('${escapeHtml(s.email)}',${!s.enabled})">
-          ${s.enabled?"Disable":"Enable"}
-        </button>`
-      : '<span class="badge gold">YOU</span>'}
-    </div>
+  const client=supabaseClient();
 
-   </div>
+  const {error} =
+    await client.storage
+      .from(bucket)
+      .upload(path,file,{
+        upsert:true
+      });
 
-   <label>Profile Photo</label>
-   <input id="staff-photo-${encodeURIComponent(s.email)}"
-    class="file" type="file" accept="image/*">
+  if(error) throw error;
 
-   <div class="row" style="margin-top:8px">
-    <button class="btn btn-gold"
-     onclick="uploadStaffPhoto('${escapeHtml(s.email)}')">
-     📷 Upload / Change Photo
-    </button>
+  const {data} =
+    client.storage
+      .from(bucket)
+      .getPublicUrl(path);
 
-    ${s.avatar_url
-     ? `<button class="btn btn-danger"
-         onclick="removeStaffPhoto('${escapeHtml(s.email)}','${escapeHtml(s.avatar_url)}')">
-         Remove Photo
-        </button>`
-     : ""}
-   </div>
-
-   <div class="row" style="margin-top:12px">
-    <input id="staff-name-${encodeURIComponent(s.email)}"
-     value="${escapeHtml(s.full_name||"")}"
-     placeholder="Full Name">
-
-    <button class="btn btn-dark"
-     onclick="updateStaffName('${escapeHtml(s.email)}')">
-     Save Name
-    </button>
-   </div>
-
-  </div>
- `).join("");
+  return data.publicUrl;
 }
 
-async function toggleStaff(email,enabled){
- const {error}=await sb
-  .from("admin_staff")
-  .update({enabled,updated_at:new Date().toISOString()})
-  .eq("email",email);
 
- if(error){toast(error.message);return}
+// ---------------- SETTINGS ----------------
 
- await loadStaff();
- toast(enabled?"Staff enabled":"Staff disabled");
+async function getSetting(key){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("site_settings")
+      .select("value")
+      .eq("key",key)
+      .maybeSingle();
+
+  if(error) throw error;
+
+  return data ? data.value : {};
 }
 
-function staffInputId(email){
- return "staff-photo-"+encodeURIComponent(email);
+
+async function saveSetting(key,value){
+
+  const {error} =
+    await supabaseClient()
+      .from("site_settings")
+      .upsert({
+        key,
+        value,
+        updated_at:new Date().toISOString()
+      });
+
+  if(error) throw error;
 }
 
-async function uploadStaffPhoto(email){
- try{
-  const file=$(staffInputId(email)).files[0];
-  if(!file)throw new Error("Photo select করুন");
 
-  const {data:staff}=await sb
-   .from("admin_staff")
-   .select("avatar_url")
-   .eq("email",email)
-   .maybeSingle();
+// ---------------- LOAD EVERYTHING ----------------
 
-  const up=await uploadFile(file,"staff-photos","staff");
+async function loadEverything(){
 
-  const {error}=await sb
-   .from("admin_staff")
-   .update({
-    avatar_url:up.url,
-    updated_at:new Date().toISOString()
-   })
-   .eq("email",email);
+  await Promise.allSettled([
+    loadHero(),
+    loadAbout(),
+    loadContact(),
+    loadSocial(),
+    loadHours(),
+    loadNews(),
+    loadLogo(),
+    loadDashboard(),
+    loadDiscountCampaign()
+  ]);
 
-  if(error){
-   await deleteStorage("staff-photos",up.path);
-   throw error;
-  }
-
-  await loadStaff();
-  await loadPerformance();
-  toast("Staff photo updated");
- }catch(e){toast(e.message)}
 }
 
-async function removeStaffPhoto(email,url){
- if(!confirm("Staff photo remove করবেন?"))return;
 
- const {error}=await sb
-  .from("admin_staff")
-  .update({
-   avatar_url:null,
-   updated_at:new Date().toISOString()
-  })
-  .eq("email",email);
+// ---------------- DASHBOARD ----------------
 
- if(error){toast(error.message);return}
+async function countTable(table){
 
- await loadStaff();
- await loadPerformance();
- toast("Photo removed");
+  const {count} =
+    await supabaseClient()
+      .from(table)
+      .select("*",{count:"exact",head:true});
+
+  return count || 0;
 }
 
-async function updateStaffName(email){
- const id="staff-name-"+encodeURIComponent(email);
- const name=$(id).value.trim();
-
- if(!name){
-  toast("Name দিন");
-  return;
- }
-
- const {error}=await sb
-  .from("admin_staff")
-  .update({
-   full_name:name,
-   updated_at:new Date().toISOString()
-  })
-  .eq("email",email);
-
- if(error){toast(error.message);return}
-
- await loadStaff();
- await loadPerformance();
- toast("Staff name updated");
-}
-
-/* PERFORMANCE */
-
-async function loadPerformance(){
- if(currentAdmin?.role!=="SUPER_ADMIN")return;
-
- const {data,error}=await sb.rpc("get_staff_performance");
-
- if(error){
-  $("performanceList").innerHTML=
-   `<p class="note">${escapeHtml(error.message)}</p>`;
-  return;
- }
-
- if(!data?.length){
-  $("performanceList").innerHTML='<div class="empty">No performance data</div>';
-  return;
- }
-
- $("performanceList").innerHTML=data.map(s=>`
-  <div class="item">
-   <div class="item-head">
-    <div class="row">
-     ${s.avatar_url
-      ? `<img class="thumb" src="${escapeHtml(s.avatar_url)}">`
-      : `<div class="thumb" style="display:flex;align-items:center;justify-content:center">👤</div>`}
-     <div>
-      <b>${escapeHtml(s.staff_name||"Staff")}</b><br>
-      <span class="note">${escapeHtml(s.staff_email)}</span><br>
-      <span class="badge gold">${escapeHtml(s.role)}</span>
-     </div>
-    </div>
-   </div>
-
-   <div class="grid3" style="margin-top:12px">
-
-    <div class="stat">
-     <small>Discount Checked</small>
-     <strong>${s.discount_checked||0}</strong>
-    </div>
-
-    <div class="stat">
-     <small>Discount Used</small>
-     <strong>${s.discount_used||0}</strong>
-    </div>
-
-    <div class="stat">
-     <small>Invalid Codes</small>
-     <strong>${s.discount_invalid||0}</strong>
-    </div>
-
-    <div class="stat">
-     <small>Bookings Viewed</small>
-     <strong>${s.bookings_viewed||0}</strong>
-    </div>
-
-    <div class="stat">
-     <small>Bookings Confirmed</small>
-     <strong>${s.bookings_confirmed||0}</strong>
-    </div>
-
-    <div class="stat">
-     <small>Bookings Cancelled</small>
-     <strong>${s.bookings_cancelled||0}</strong>
-    </div>
-
-   </div>
-  </div>
- `).join("");
-}
-
-/* DASHBOARD */
 
 async function loadDashboard(){
- const [
-  menu,
-  gallery,
-  bookings,
-  reviews,
-  reports,
-  staff
- ]=await Promise.all([
-  sb.from("Menu").select("id",{count:"exact",head:true}),
-  sb.from("gallery").select("id",{count:"exact",head:true}),
-  sb.from("table_bookings").select("id",{count:"exact",head:true}),
-  sb.from("reviews").select("id",{count:"exact",head:true}),
-  sb.from("customer_reports").select("id",{count:"exact",head:true}),
-  sb.from("admin_staff").select("email",{count:"exact",head:true})
- ]);
 
- $("statMenu").textContent=menu.count||0;
- $("statGallery").textContent=gallery.count||0;
- $("statBookings").textContent=bookings.count||0;
- $("statReviews").textContent=reviews.count||0;
- $("statReports").textContent=reports.count||0;
- $("statStaff").textContent=staff.count||0;
+  document.getElementById("statMenu")
+    .textContent=await countTable("Menu");
+
+  document.getElementById("statBookings")
+    .textContent=await countTable("table_bookings");
+
+  document.getElementById("statReviews")
+    .textContent=await countTable("reviews");
+
+  document.getElementById("statReports")
+    .textContent=await countTable("customer_reports");
+
+  document.getElementById("statStaff")
+    .textContent=await countTable("admin_staff");
+
+  const {count} =
+    await supabaseClient()
+      .from("discount_codes")
+      .select("*",{count:"exact",head:true})
+      .eq("status","USED");
+
+  document.getElementById("statCodes")
+    .textContent=count || 0;
+
 }
 
-/* SESSION */
 
-(async function init(){
- const {data}=await sb.auth.getSession();
+// ---------------- HERO ----------------
 
- if(data?.session?.user){
-  currentUser=data.session.user;
-  await checkAdmin();
- }
+async function loadHero(){
+
+  const v=await getSetting("hero");
+
+  document.getElementById("heroTitle").value=v.title||"";
+  document.getElementById("heroText").value=v.text||"";
+
+  if(v.image_url){
+
+    const p=document.getElementById("heroPreview");
+
+    p.src=v.image_url;
+    p.classList.remove("hidden");
+
+  }
+
+}
+
+
+async function saveHero(){
+
+  try{
+
+    let v=await getSetting("hero");
+
+    const file =
+      document.getElementById("heroImageFile").files[0];
+
+    let imageUrl=v.image_url||"";
+
+    if(file){
+
+      imageUrl =
+        await uploadFile("site-media",file,"hero");
+    }
+
+    await saveSetting("hero",{
+      title:document.getElementById("heroTitle").value,
+      text:document.getElementById("heroText").value,
+      image_url:imageUrl
+    });
+
+    showMessage("heroMessage","Hero saved successfully.","success");
+
+    loadHero();
+
+  }catch(e){
+
+    showMessage("heroMessage",e.message,"error");
+
+  }
+
+}
+
+
+// ---------------- LOGO ----------------
+
+async function loadLogo(){
+
+  const v=await getSetting("logo");
+
+  if(v.url){
+
+    const p=document.getElementById("logoPreview");
+
+    p.src=v.url;
+    p.classList.remove("hidden");
+
+  }
+
+}
+
+
+async function saveLogo(){
+
+  try{
+
+    const file =
+      document.getElementById("logoFile").files[0];
+
+    if(!file){
+
+      showMessage(
+        "logoMessage",
+        "Please select a logo image.",
+        "error"
+      );
+
+      return;
+    }
+
+    const url =
+      await uploadFile("site-media",file,"logo");
+
+    await saveSetting("logo",{
+      url
+    });
+
+    showMessage(
+      "logoMessage",
+      "Logo uploaded successfully.",
+      "success"
+    );
+
+    loadLogo();
+
+  }catch(e){
+
+    showMessage("logoMessage",e.message,"error");
+
+  }
+
+}
+
+
+async function removeLogo(){
+
+  await saveSetting("logo",{url:""});
+
+  document.getElementById("logoPreview")
+    .classList.add("hidden");
+
+  showMessage(
+    "logoMessage",
+    "Logo removed from website settings.",
+    "success"
+  );
+
+}
+
+
+// ---------------- ABOUT ----------------
+
+async function loadAbout(){
+
+  const v=await getSetting("about");
+
+  document.getElementById("aboutTitle").value=v.title||"";
+  document.getElementById("aboutText").value=v.text||"";
+
+}
+
+
+async function saveAbout(){
+
+  try{
+
+    let v=await getSetting("about");
+
+    const file =
+      document.getElementById("aboutFile").files[0];
+
+    let mediaUrl=v.media_url||"";
+
+    if(file){
+
+      mediaUrl =
+        await uploadFile("site-media",file,"about");
+
+    }
+
+    await saveSetting("about",{
+      title:document.getElementById("aboutTitle").value,
+      text:document.getElementById("aboutText").value,
+      media_url:mediaUrl
+    });
+
+    showMessage(
+      "aboutMessage",
+      "About section saved.",
+      "success"
+    );
+
+  }catch(e){
+
+    showMessage("aboutMessage",e.message,"error");
+
+  }
+
+}
+
+
+// ---------------- VIDEOS ----------------
+
+async function loadVideos(){
+
+  const v=await getSetting("videos");
+
+  if(v.video1){
+
+    document.getElementById("video1Preview").src=v.video1;
+    document.getElementById("video1Preview")
+      .classList.remove("hidden");
+
+  }
+
+  if(v.video2){
+
+    document.getElementById("video2Preview").src=v.video2;
+    document.getElementById("video2Preview")
+      .classList.remove("hidden");
+
+  }
+
+}
+
+
+async function saveVideo(number){
+
+  try{
+
+    const input =
+      document.getElementById("video"+number+"File");
+
+    const file=input.files[0];
+
+    if(!file){
+
+      alert("Please select a video.");
+      return;
+    }
+
+    const url =
+      await uploadFile(
+        "site-media",
+        file,
+        "videos"
+      );
+
+    const v=await getSetting("videos");
+
+    v["video"+number]=url;
+
+    await saveSetting("videos",v);
+
+    loadVideos();
+
+    alert("Video "+number+" uploaded successfully.");
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+async function removeVideo(number){
+
+  const v=await getSetting("videos");
+
+  v["video"+number]="";
+
+  await saveSetting("videos",v);
+
+  document.getElementById("video"+number+"Preview")
+    .classList.add("hidden");
+
+}
+
+
+// ---------------- NEWS ----------------
+
+async function loadNews(){
+
+  const v=await getSetting("breaking_news");
+
+  document.getElementById("newsEnabled").value=
+    String(v.enabled!==false);
+
+  document.getElementById("newsText").value=v.text||"";
+
+}
+
+
+async function saveNews(){
+
+  try{
+
+    await saveSetting("breaking_news",{
+
+      enabled:
+        document.getElementById("newsEnabled").value==="true",
+
+      text:
+        document.getElementById("newsText").value,
+
+      start:
+        document.getElementById("newsStart").value,
+
+      end:
+        document.getElementById("newsEnd").value
+
+    });
+
+    showMessage(
+      "newsMessage",
+      "Breaking News saved.",
+      "success"
+    );
+
+  }catch(e){
+
+    showMessage(
+      "newsMessage",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+// ---------------- CONTACT ----------------
+
+async function loadContact(){
+
+  const v=await getSetting("contact");
+
+  document.getElementById("contactAddress").value=v.address||"";
+  document.getElementById("contactPhone1").value=v.phone1||"";
+  document.getElementById("contactPhone2").value=v.phone2||"";
+  document.getElementById("contactWhatsapp").value=v.whatsapp||"";
+  document.getElementById("contactMaps").value=v.maps||"";
+
+}
+
+
+async function saveContact(){
+
+  await saveSetting("contact",{
+
+    address:
+      document.getElementById("contactAddress").value,
+
+    phone1:
+      document.getElementById("contactPhone1").value,
+
+    phone2:
+      document.getElementById("contactPhone2").value,
+
+    whatsapp:
+      document.getElementById("contactWhatsapp").value,
+
+    maps:
+      document.getElementById("contactMaps").value
+
+  });
+
+  showMessage(
+    "contactMessage",
+    "Contact saved successfully.",
+    "success"
+  );
+
+}
+
+
+// ---------------- SOCIAL ----------------
+
+async function loadSocial(){
+
+  const v=await getSetting("social");
+
+  document.getElementById("socialFacebook").value=v.facebook||"";
+  document.getElementById("socialInstagram").value=v.instagram||"";
+  document.getElementById("socialTikTok").value=v.tiktok||"";
+
+}
+
+
+async function saveSocial(){
+
+  await saveSetting("social",{
+
+    facebook:
+      document.getElementById("socialFacebook").value,
+
+    instagram:
+      document.getElementById("socialInstagram").value,
+
+    tiktok:
+      document.getElementById("socialTikTok").value
+
+  });
+
+  alert("Social media saved.");
+
+}
+
+
+// ---------------- HOURS ----------------
+
+async function loadHours(){
+
+  const v=await getSetting("hours");
+
+  const box=document.getElementById("hoursForm");
+
+  box.innerHTML="";
+
+  days.forEach(day=>{
+
+    const row=document.createElement("div");
+
+    row.className="grid";
+
+    row.innerHTML=`
+
+      <div class="field">
+        <label>${day}</label>
+        <input id="open_${day}"
+               value="${v[day]?.open||""}">
+      </div>
+
+      <div class="field">
+        <label>Closing</label>
+        <input id="close_${day}"
+               value="${v[day]?.close||""}">
+      </div>
+
+    `;
+
+    box.appendChild(row);
+
+  });
+
+}
+
+
+async function saveHours(){
+
+  const data={};
+
+  days.forEach(day=>{
+
+    data[day]={
+
+      open:
+        document.getElementById("open_"+day).value,
+
+      close:
+        document.getElementById("close_"+day).value
+
+    };
+
+  });
+
+  await saveSetting("hours",data);
+
+  alert("Opening hours saved.");
+
+}
+
+
+// ---------------- MENU CATEGORIES ----------------
+
+async function loadCategories(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("menu_categories")
+      .select("*")
+      .order("sort_order",{ascending:true})
+      .order("name",{ascending:true});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const select =
+    document.getElementById("menuCategory");
+
+  select.innerHTML=
+    `<option value="">Select Category</option>`;
+
+  data.forEach(c=>{
+
+    const option=document.createElement("option");
+
+    option.value=c.name;
+    option.textContent=c.name;
+
+    select.appendChild(option);
+
+  });
+
+
+  const list =
+    document.getElementById("categoryList");
+
+  list.innerHTML="";
+
+  data.forEach(c=>{
+
+    const div=document.createElement("div");
+
+    div.className="category-card";
+
+    div.innerHTML=`
+
+      ${
+        c.image_url
+        ? `<img src="${c.image_url}">`
+        : `<div style="height:130px;display:flex;align-items:center;justify-content:center;background:#222;border-radius:10px">🍽️</div>`
+      }
+
+      <strong>${escapeHtml(c.name)}</strong>
+
+      <div class="actions">
+
+        <button class="danger-btn"
+          onclick="deleteCategory(${c.id},'${escapeAttr(c.name)}')">
+          Delete
+        </button>
+
+      </div>
+    `;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+async function addCategory(){
+
+  try{
+
+    const name =
+      document.getElementById("newCategoryName")
+        .value.trim();
+
+    if(!name){
+
+      showMessage(
+        "categoryMessage",
+        "Category name required.",
+        "error"
+      );
+
+      return;
+    }
+
+    const file =
+      document.getElementById("categoryImageFile")
+        .files[0];
+
+    let imageUrl="";
+
+    if(file){
+
+      imageUrl =
+        await uploadFile(
+          "menu-images",
+          file,
+          "categories"
+        );
+
+    }
+
+    const {error} =
+      await supabaseClient()
+        .from("menu_categories")
+        .insert({
+
+          name,
+          image_url:imageUrl,
+          sort_order:0
+
+        });
+
+    if(error) throw error;
+
+    document.getElementById("newCategoryName")
+      .value="";
+
+    document.getElementById("categoryImageFile")
+      .value="";
+
+    showMessage(
+      "categoryMessage",
+      "New category created.",
+      "success"
+    );
+
+    loadCategories();
+
+  }catch(e){
+
+    showMessage(
+      "categoryMessage",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function deleteCategory(id,name){
+
+  if(!confirm(
+    "Delete category '"+name+"'?"
+  )) return;
+
+  const {error} =
+    await supabaseClient()
+      .from("menu_categories")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+    return;
+  }
+
+  loadCategories();
+
+}
+
+
+// ---------------- MENU ----------------
+
+async function loadMenu(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("Menu")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const table =
+    document.getElementById("menuTable");
+
+  table.innerHTML="";
+
+  data.forEach(item=>{
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>
+        ${
+          item.image_url
+          ? `<img src="${item.image_url}"
+                  style="width:55px;height:55px;object-fit:cover;border-radius:10px">`
+          : "—"
+        }
+      </td>
+
+      <td>${escapeHtml(item.name||"")}</td>
+
+      <td>${escapeHtml(item.price||"")}</td>
+
+      <td>${escapeHtml(item.category||"")}</td>
+
+      <td>
+
+        <div class="actions">
+
+          <button class="dark-btn"
+            onclick='editMenu(${JSON.stringify(item)})'>
+            Edit
+          </button>
+
+          <button class="danger-btn"
+            onclick="deleteMenu(${item.id})">
+            Delete
+          </button>
+
+        </div>
+
+      </td>
+
+    `;
+
+    table.appendChild(tr);
+
+  });
+
+}
+
+
+function editMenu(item){
+
+  document.getElementById("menuId").value=item.id;
+  document.getElementById("menuName").value=item.name||"";
+  document.getElementById("menuPrice").value=item.price||"";
+  document.getElementById("menuCategory").value=item.category||"";
+  document.getElementById("menuDescription").value=
+    item.description||"";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+function clearMenuForm(){
+
+  document.getElementById("menuId").value="";
+  document.getElementById("menuName").value="";
+  document.getElementById("menuPrice").value="";
+  document.getElementById("menuCategory").value="";
+  document.getElementById("menuDescription").value="";
+  document.getElementById("menuImageFile").value="";
+
+}
+
+
+async function saveMenuItem(){
+
+  try{
+
+    const id =
+      document.getElementById("menuId").value;
+
+    const name =
+      document.getElementById("menuName").value.trim();
+
+    const price =
+      document.getElementById("menuPrice").value.trim();
+
+    const category =
+      document.getElementById("menuCategory").value;
+
+    const description =
+      document.getElementById("menuDescription").value;
+
+    if(!name || !category){
+
+      showMessage(
+        "menuMessage",
+        "Food name and category are required.",
+        "error"
+      );
+
+      return;
+    }
+
+    const file =
+      document.getElementById("menuImageFile")
+        .files[0];
+
+    let imageUrl="";
+
+    if(file){
+
+      imageUrl =
+        await uploadFile(
+          "menu-images",
+          file,
+          "foods"
+        );
+
+    }
+
+    const payload={
+      name,
+      price,
+      category,
+      description
+    };
+
+    if(imageUrl){
+
+      payload.image_url=imageUrl;
+
+    }
+
+    if(id){
+
+      const {error} =
+        await supabaseClient()
+          .from("Menu")
+          .update(payload)
+          .eq("id",id);
+
+      if(error) throw error;
+
+    }else{
+
+      const {error} =
+        await supabaseClient()
+          .from("Menu")
+          .insert(payload);
+
+      if(error) throw error;
+
+    }
+
+    showMessage(
+      "menuMessage",
+      id
+      ? "Menu item updated."
+      : "Menu item created.",
+      "success"
+    );
+
+    clearMenuForm();
+    loadMenu();
+
+  }catch(e){
+
+    showMessage(
+      "menuMessage",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function deleteMenu(id){
+
+  if(!confirm("Delete this menu item?"))
+    return;
+
+  const {error} =
+    await supabaseClient()
+      .from("Menu")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+    return;
+  }
+
+  loadMenu();
+
+}
+
+
+// ---------------- GALLERY ----------------
+
+async function uploadGallery(){
+
+  try{
+
+    const file =
+      document.getElementById("galleryFile")
+        .files[0];
+
+    if(!file){
+
+      showMessage(
+        "galleryMessage",
+        "Please select a photo.",
+        "error"
+      );
+
+      return;
+    }
+
+    const url =
+      await uploadFile(
+        "site-media",
+        file,
+        "gallery"
+      );
+
+    const {error} =
+      await supabaseClient()
+        .from("gallery")
+        .insert({
+
+          image_url:url,
+
+          storage_path:url,
+
+          title:
+            document.getElementById("galleryTitle")
+              .value,
+
+          category:
+            document.getElementById("galleryCategory")
+              .value || "Restaurant",
+
+          is_visible:true
+
+        });
+
+    if(error) throw error;
+
+    showMessage(
+      "galleryMessage",
+      "Gallery photo uploaded.",
+      "success"
+    );
+
+    document.getElementById("galleryFile").value="";
+    document.getElementById("galleryTitle").value="";
+
+    loadGallery();
+
+  }catch(e){
+
+    showMessage(
+      "galleryMessage",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function loadGallery(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("gallery")
+      .select("*")
+      .order("sort_order",{ascending:true})
+      .order("created_at",{ascending:false});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const box =
+    document.getElementById("galleryList");
+
+  box.innerHTML="";
+
+  data.forEach(item=>{
+
+    const div=document.createElement("div");
+
+    div.className="category-card";
+
+    div.innerHTML=`
+
+      <img src="${item.image_url}">
+
+      <strong>
+        ${escapeHtml(item.title||"Gallery Photo")}
+      </strong>
+
+      <div style="color:#888;margin-top:6px">
+        ${escapeHtml(item.category||"")}
+      </div>
+
+      <div class="actions">
+
+        <button class="danger-btn"
+          onclick="deleteGallery(${item.id})">
+          Delete
+        </button>
+
+      </div>
+
+    `;
+
+    box.appendChild(div);
+
+  });
+
+}
+
+
+async function deleteGallery(id){
+
+  if(!confirm("Delete this gallery photo?"))
+    return;
+
+  const {error} =
+    await supabaseClient()
+      .from("gallery")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+    return;
+  }
+
+  loadGallery();
+
+}
+
+
+// ---------------- BOOKINGS ----------------
+
+async function loadBookings(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("table_bookings")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const table =
+    document.getElementById("bookingTable");
+
+  table.innerHTML="";
+
+  data.forEach(b=>{
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>${escapeHtml(b.booking_reference||"—")}</td>
+
+      <td>${escapeHtml(b.customer_name||"")}</td>
+
+      <td>${escapeHtml(b.booking_date||"")}</td>
+
+      <td>${escapeHtml(b.booking_time||"")}</td>
+
+      <td>${b.guests||""}</td>
+
+      <td>
+        <span class="badge">${escapeHtml(b.status||"Pending")}</span>
+      </td>
+
+      <td>
+
+        <select
+          onchange="updateBookingStatus(${b.id},this.value)">
+
+          <option ${b.status==="Pending"?"selected":""}>
+            Pending
+          </option>
+
+          <option ${b.status==="Confirmed"?"selected":""}>
+            Confirmed
+          </option>
+
+          <option ${b.status==="Cancelled"?"selected":""}>
+            Cancelled
+          </option>
+
+        </select>
+
+      </td>
+
+    `;
+
+    table.appendChild(tr);
+
+  });
+
+}
+
+
+async function updateBookingStatus(id,status){
+
+  const {error} =
+    await supabaseClient()
+      .from("table_bookings")
+      .update({
+        status,
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+    return;
+  }
+
+  loadBookings();
+
+}
+
+
+// ---------------- REVIEWS ----------------
+
+async function loadReviews(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("reviews")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const table =
+    document.getElementById("reviewTable");
+
+  table.innerHTML="";
+
+  data.forEach(r=>{
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>${escapeHtml(r.customer_name||"")}</td>
+
+      <td>⭐ ${r.rating||0}</td>
+
+      <td>${escapeHtml(r.message||"")}</td>
+
+      <td>${escapeHtml(r.status||"")}</td>
+
+      <td>
+
+        <div class="actions">
+
+          <button class="success-btn"
+            onclick="approveReview(${r.id})">
+            Approve
+          </button>
+
+          <button class="danger-btn"
+            onclick="deleteReview(${r.id})">
+            Delete
+          </button>
+
+        </div>
+
+      </td>
+
+    `;
+
+    table.appendChild(tr);
+
+  });
+
+}
+
+
+async function approveReview(id){
+
+  const {error} =
+    await supabaseClient()
+      .from("reviews")
+      .update({
+        status:"Approved"
+      })
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+    return;
+  }
+
+  loadReviews();
+
+}
+
+
+async function deleteReview(id){
+
+  if(!confirm("Delete this review?"))
+    return;
+
+  const {error} =
+    await supabaseClient()
+      .from("reviews")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+    return;
+  }
+
+  loadReviews();
+
+}
+
+
+// ---------------- REPORTS ----------------
+
+async function loadReports(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("customer_reports")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const table =
+    document.getElementById("reportTable");
+
+  table.innerHTML="";
+
+  data.forEach(r=>{
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>${escapeHtml(r.customer_name||"")}</td>
+
+      <td>${escapeHtml(r.phone||"")}</td>
+
+      <td>${escapeHtml(r.email||"")}</td>
+
+      <td>${escapeHtml(r.subject||"")}</td>
+
+      <td>${escapeHtml(r.message||"")}</td>
+
+      <td>${escapeHtml(r.status||"New")}</td>
+
+    `;
+
+    table.appendChild(tr);
+
+  });
+
+}
+
+
+// ---------------- DISCOUNT ----------------
+
+async function loadDiscountCampaign(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("discount_campaign")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(1)
+      .maybeSingle();
+
+  if(error || !data) return;
+
+  document.getElementById("discountName").value=
+    data.name||"";
+
+  document.getElementById("discountPercent").value=
+    data.discount_percent||10;
+
+  document.getElementById("discountMaxUses").value=
+    data.max_uses||100;
+
+  document.getElementById("discountEnabled").value=
+    String(data.enabled!==false);
+
+  loadDiscountStats();
+
+}
+
+
+async function saveDiscountCampaign(){
+
+  try{
+
+    const {data:existing} =
+      await supabaseClient()
+        .from("discount_campaign")
+        .select("id")
+        .order("created_at",{ascending:false})
+        .limit(1)
+        .maybeSingle();
+
+    const payload={
+
+      name:
+        document.getElementById("discountName").value,
+
+      discount_percent:
+        Number(document.getElementById("discountPercent").value),
+
+      max_uses:
+        Number(document.getElementById("discountMaxUses").value),
+
+      enabled:
+        document.getElementById("discountEnabled").value==="true"
+
+    };
+
+    let error;
+
+    if(existing){
+
+      ({error} =
+        await supabaseClient()
+          .from("discount_campaign")
+          .update(payload)
+          .eq("id",existing.id));
+
+    }else{
+
+      ({error} =
+        await supabaseClient()
+          .from("discount_campaign")
+          .insert(payload));
+
+    }
+
+    if(error) throw error;
+
+    showMessage(
+      "discountMessage",
+      "Discount campaign saved.",
+      "success"
+    );
+
+    loadDiscountStats();
+
+  }catch(e){
+
+    showMessage(
+      "discountMessage",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function loadDiscountStats(){
+
+  const {count:codes} =
+    await supabaseClient()
+      .from("discount_codes")
+      .select("*",{count:"exact",head:true});
+
+  const {count:used} =
+    await supabaseClient()
+      .from("discount_codes")
+      .select("*",{count:"exact",head:true})
+      .eq("status","USED");
+
+  document.getElementById("discountCodes")
+    .textContent=codes||0;
+
+  document.getElementById("discountUsed")
+    .textContent=used||0;
+
+}
+
+
+// ---------------- STAFF ----------------
+
+async function createStaff(){
+
+  try{
+
+    const full_name =
+      document.getElementById("staffName").value.trim();
+
+    const email =
+      document.getElementById("staffEmail").value.trim();
+
+    const password =
+      document.getElementById("staffPassword").value;
+
+    const role =
+      document.getElementById("staffRole").value;
+
+    if(!full_name || !email || !password){
+
+      showMessage(
+        "staffMessage",
+        "Name, email and password are required.",
+        "error"
+      );
+
+      return;
+    }
+
+    const {
+      data:sessionData
+    } =
+      await supabaseClient()
+        .auth.getSession();
+
+    const token =
+      sessionData.session?.access_token;
+
+    if(!token){
+
+      showMessage(
+        "staffMessage",
+        "Admin session expired. Login again.",
+        "error"
+      );
+
+      return;
+    }
+
+    const response =
+      await fetch(
+        `${SUPABASE_URL}/functions/v1/${ADMIN_FUNCTION_NAME}`,
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "Authorization":`Bearer ${token}`
+          },
+          body:JSON.stringify({
+            full_name,
+            email,
+            password,
+            role,
+            enabled:true
+          })
+        }
+      );
+
+    const result=await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        result.error ||
+        result.message ||
+        "Unable to create staff."
+      );
+
+    }
+
+    showMessage(
+      "staffMessage",
+      "Staff account created successfully.",
+      "success"
+    );
+
+    document.getElementById("staffName").value="";
+    document.getElementById("staffEmail").value="";
+    document.getElementById("staffPassword").value="";
+
+    loadStaff();
+
+  }catch(e){
+
+    showMessage(
+      "staffMessage",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function loadStaff(){
+
+  const {data,error} =
+    await supabaseClient()
+      .from("admin_staff")
+      .select("*")
+      .order("created_at",{ascending:false});
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const table =
+    document.getElementById("staffTable");
+
+  table.innerHTML="";
+
+  data.forEach(s=>{
+
+    const safeId =
+      encodeURIComponent(s.email);
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>
+
+        ${
+          s.avatar_url
+          ? `<img class="staff-photo"
+                  src="${s.avatar_url}">`
+          : "👤"
+        }
+
+      </td>
+
+      <td>${escapeHtml(s.full_name||"")}</td>
+
+      <td>${escapeHtml(s.email||"")}</td>
+
+      <td>
+        <span class="badge gold">
+          ${escapeHtml(s.role||"")}
+        </span>
+      </td>
+
+      <td>
+
+        ${
+          s.enabled
+          ? `<span class="badge green">Enabled</span>`
+          : `<span class="badge red">Disabled</span>`
+        }
+
+      </td>
+
+      <td>
+
+        <input
+          type="file"
+          accept="image/*"
+          id="staffPhoto_${safeId}"
+          onchange="uploadStaffPhoto('${escapeAttr(s.email)}',this)">
+
+      </td>
+
+    `;
+
+    table.appendChild(tr);
+
+  });
+
+}
+
+
+async function uploadStaffPhoto(email,input){
+
+  const file=input.files[0];
+
+  if(!file) return;
+
+  try{
+
+    const url =
+      await uploadFile(
+        "staff-photos",
+        file,
+        "profiles"
+      );
+
+    const {error} =
+      await supabaseClient()
+        .from("admin_staff")
+        .update({
+          avatar_url:url,
+          updated_at:new Date().toISOString()
+        })
+        .ilike("email",email);
+
+    if(error) throw error;
+
+    alert("Staff photo updated.");
+
+    loadStaff();
+    loadPerformance();
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+// ---------------- PERFORMANCE ----------------
+
+async function loadPerformance(){
+
+  const {data,error} =
+    await supabaseClient()
+      .rpc("get_staff_performance");
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+  const table =
+    document.getElementById("performanceTable");
+
+  table.innerHTML="";
+
+  (data||[]).forEach(s=>{
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+
+      <td>
+
+        <div style="display:flex;align-items:center;gap:10px">
+
+          ${
+            s.avatar_url
+            ? `<img class="staff-photo"
+                    src="${s.avatar_url}">`
+            : "👤"
+          }
+
+          <div>
+            <strong>${escapeHtml(s.staff_name||"")}</strong>
+            <div style="color:#777;font-size:12px">
+              ${escapeHtml(s.staff_email||"")}
+            </div>
+          </div>
+
+        </div>
+
+      </td>
+
+      <td>${escapeHtml(s.role||"")}</td>
+
+      <td>${s.discount_checked||0}</td>
+
+      <td>${s.discount_used||0}</td>
+
+      <td>${s.discount_invalid||0}</td>
+
+      <td>${s.bookings_viewed||0}</td>
+
+      <td>${s.bookings_confirmed||0}</td>
+
+      <td>${s.bookings_cancelled||0}</td>
+
+    `;
+
+    table.appendChild(tr);
+
+  });
+
+}
+
+
+// ---------------- HELPERS ----------------
+
+function showMessage(id,text,type){
+
+  const el=document.getElementById(id);
+
+  el.textContent=text;
+
+  el.className="message "+type;
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+
+  return String(value??"")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'");
+
+}
+
+
+// ---------------- START ----------------
+
+(async function(){
+
+  try{
+
+    const {
+      data:{session}
+    } =
+      await supabaseClient()
+        .auth.getSession();
+
+    if(session){
+
+      currentUser=session.user;
+
+      await checkAdmin();
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
 })();
+
 </script>
 
 </body>
