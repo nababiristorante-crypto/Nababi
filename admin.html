@@ -1,655 +1,849 @@
-/* =========================================================
-   NABABI RISTORANTE — ADMIN LOGIN
-   ========================================================= */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nababi Ristorante — Admin</title>
 
-let supabaseClient = null;
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 
+<style>
+*{box-sizing:border-box}
 
-/* ---------------------------------------------------------
-   SUPABASE INITIALIZATION
-   --------------------------------------------------------- */
-
-function initSupabase(){
-
-  try{
-
-    if(
-      typeof window.supabase === "undefined"
-    ){
-      throw new Error("Supabase library not loaded.");
-    }
-
-    if(
-      typeof SUPABASE_URL === "undefined" ||
-      typeof SUPABASE_ANON_KEY === "undefined"
-    ){
-      throw new Error(
-        "SUPABASE_URL or SUPABASE_ANON_KEY is missing in config.js"
-      );
-    }
-
-    supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-
-    return true;
-
-  }catch(error){
-
-    console.error(error);
-
-    showLoginError(
-      "Supabase configuration সমস্যা হয়েছে। config.js check করুন।"
-    );
-
-    return false;
-  }
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  background:#0b0d10;
+  color:#fff;
 }
 
-
-/* ---------------------------------------------------------
-   LOGIN ERROR
-   --------------------------------------------------------- */
-
-function showLoginError(message){
-
-  const box = document.getElementById("loginError");
-
-  if(!box) return;
-
-  box.textContent = message;
-  box.classList.remove("hidden");
+button,input,select,textarea{
+  font:inherit;
 }
 
-
-/* ---------------------------------------------------------
-   CLEAR ERROR
-   --------------------------------------------------------- */
-
-function clearLoginError(){
-
-  const box = document.getElementById("loginError");
-
-  if(!box) return;
-
-  box.textContent = "";
-  box.classList.add("hidden");
+.hidden{
+  display:none!important;
 }
 
+/* LOGIN */
 
-/* ---------------------------------------------------------
-   SHOW ADMIN
-   --------------------------------------------------------- */
-
-function showAdmin(user){
-
-  const loginPage =
-    document.getElementById("loginPage");
-
-  const adminApp =
-    document.getElementById("adminApp");
-
-  const userEmail =
-    document.getElementById("userEmail");
-
-  if(loginPage){
-    loginPage.classList.add("hidden");
-  }
-
-  if(adminApp){
-    adminApp.classList.remove("hidden");
-  }
-
-  if(userEmail && user){
-    userEmail.textContent =
-      user.email || "Administrator";
-  }
-
+#loginPage{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top,#2b2112 0,#0b0d10 48%);
 }
 
-
-/* ---------------------------------------------------------
-   SHOW LOGIN
-   --------------------------------------------------------- */
-
-function showLogin(){
-
-  const loginPage =
-    document.getElementById("loginPage");
-
-  const adminApp =
-    document.getElementById("adminApp");
-
-  if(loginPage){
-    loginPage.classList.remove("hidden");
-  }
-
-  if(adminApp){
-    adminApp.classList.add("hidden");
-  }
-
+.login-card{
+  width:100%;
+  max-width:430px;
+  background:#15181d;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:24px;
+  padding:32px 25px;
+  box-shadow:0 25px 80px rgba(0,0,0,.5);
 }
 
-
-/* ---------------------------------------------------------
-   LOGIN
-   --------------------------------------------------------- */
-
-async function login(email,password){
-
-  if(!supabaseClient){
-
-    if(!initSupabase()){
-      return;
-    }
-  }
-
-  clearLoginError();
-
-  const button =
-    document.getElementById("loginBtn");
-
-  if(button){
-
-    button.disabled = true;
-    button.textContent = "Logging in...";
-
-  }
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-
-
-    if(error){
-
-      console.error("LOGIN ERROR:",error);
-
-      throw error;
-    }
-
-
-    if(!data || !data.user){
-
-      throw new Error(
-        "Login successful হলেও user পাওয়া যায়নি।"
-      );
-
-    }
-
-
-    /*
-      IMPORTANT:
-      এখানে কোনো admin_staff table check করা হচ্ছে না।
-      তাই valid Supabase login-কে role table-এর কারণে
-      আটকে দেওয়া হবে না।
-    */
-
-    showAdmin(data.user);
-
-
-  }catch(error){
-
-    console.error(error);
-
-    let message =
-      "Login করা যায়নি। Email অথবা password check করুন।";
-
-    if(error && error.message){
-
-      message = error.message;
-
-    }
-
-    showLoginError(message);
-
-  }finally{
-
-    if(button){
-
-      button.disabled = false;
-      button.textContent = "Login";
-
-    }
-
-  }
-
+.logo{
+  width:82px;
+  height:82px;
+  margin:0 auto 18px;
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+  background:#222;
 }
 
-
-/* ---------------------------------------------------------
-   LOGOUT
-   --------------------------------------------------------- */
-
-async function logout(){
-
-  try{
-
-    if(supabaseClient){
-
-      await supabaseClient.auth.signOut();
-
-    }
-
-  }catch(error){
-
-    console.error("Logout error:",error);
-
-  }
-
-  showLogin();
-
+.login-card h1{
+  text-align:center;
+  margin:0 0 8px;
+  font-size:27px;
 }
 
-
-/* ---------------------------------------------------------
-   CHECK EXISTING SESSION
-   --------------------------------------------------------- */
-
-async function checkSession(){
-
-  if(!supabaseClient) return;
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient.auth.getSession();
-
-    if(error){
-
-      console.error(error);
-      return;
-
-    }
-
-    if(
-      data &&
-      data.session &&
-      data.session.user
-    ){
-
-      showAdmin(data.session.user);
-
-    }else{
-
-      showLogin();
-
-    }
-
-  }catch(error){
-
-    console.error("Session error:",error);
-
-    showLogin();
-
-  }
-
+.login-card p{
+  text-align:center;
+  color:#aeb3bb;
+  margin:0 0 28px;
 }
 
-
-/* ---------------------------------------------------------
-   NAVIGATION
-   --------------------------------------------------------- */
-
-function setupNavigation(){
-
-  const buttons =
-    document.querySelectorAll(
-      ".nav button[data-section]"
-    );
-
-  const sections =
-    document.querySelectorAll(
-      ".section"
-    );
-
-  const title =
-    document.getElementById("pageTitle");
-
-
-  buttons.forEach(button => {
-
-    button.addEventListener("click",function(){
-
-      const target =
-        this.dataset.section;
-
-      buttons.forEach(btn =>
-        btn.classList.remove("active")
-      );
-
-      this.classList.add("active");
-
-
-      sections.forEach(section => {
-
-        section.classList.remove("active");
-
-      });
-
-
-      const targetSection =
-        document.getElementById(target);
-
-      if(targetSection){
-
-        targetSection.classList.add("active");
-
-      }
-
-
-      const text =
-        this.textContent
-          .replace(/[^\p{L}\p{N}\s&/+-]/gu,"")
-          .trim();
-
-      if(title){
-
-        title.textContent =
-          text || "Admin";
-
-      }
-
-
-      const sidebar =
-        document.getElementById("sidebar");
-
-      if(
-        window.innerWidth <= 800 &&
-        sidebar
-      ){
-
-        sidebar.classList.remove("open");
-
-      }
-
-    });
-
-  });
-
+.field{
+  margin-bottom:17px;
 }
 
-
-/* ---------------------------------------------------------
-   MOBILE MENU
-   --------------------------------------------------------- */
-
-function setupMobileMenu(){
-
-  const toggle =
-    document.getElementById("menuToggle");
-
-  const sidebar =
-    document.getElementById("sidebar");
-
-  if(!toggle || !sidebar) return;
-
-  toggle.addEventListener("click",function(){
-
-    sidebar.classList.toggle("open");
-
-  });
-
+.field label{
+  display:block;
+  margin-bottom:7px;
+  color:#c9cdd3;
+  font-size:14px;
 }
 
-
-/* ---------------------------------------------------------
-   HERO SAVE
-   --------------------------------------------------------- */
-
-function saveHero(){
-
-  const message =
-    document.getElementById("heroMessage");
-
-  if(message){
-
-    message.textContent =
-      "Hero information ready to save.";
-
-  }
-
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid #30343b;
+  background:#0e1014;
+  color:#fff;
+  border-radius:12px;
+  padding:13px 14px;
+  outline:none;
 }
 
-
-/* ---------------------------------------------------------
-   ABOUT SAVE
-   --------------------------------------------------------- */
-
-function saveAbout(){
-
-  const message =
-    document.getElementById("aboutMessage");
-
-  if(message){
-
-    message.textContent =
-      "About information ready to save.";
-
-  }
-
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:#c9a45c;
 }
 
-
-/* ---------------------------------------------------------
-   CONTACT SAVE
-   --------------------------------------------------------- */
-
-function saveContact(){
-
-  const message =
-    document.getElementById("contactMessage");
-
-  if(message){
-
-    message.textContent =
-      "Contact information ready to save.";
-
-  }
-
+.primary{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:14px;
+  background:#c9a45c;
+  color:#111;
+  font-weight:800;
+  cursor:pointer;
 }
 
-
-/* ---------------------------------------------------------
-   SOCIAL SAVE
-   --------------------------------------------------------- */
-
-function saveSocial(){
-
-  const message =
-    document.getElementById("socialMessage");
-
-  if(message){
-
-    message.textContent =
-      "Social media information ready to save.";
-
-  }
-
+.primary:disabled{
+  opacity:.6;
 }
 
-
-/* ---------------------------------------------------------
-   HOURS SAVE
-   --------------------------------------------------------- */
-
-function saveHours(){
-
-  const message =
-    document.getElementById("hoursMessage");
-
-  if(message){
-
-    message.textContent =
-      "Opening hours ready to save.";
-
-  }
-
+.error{
+  margin-top:15px;
+  padding:11px 13px;
+  border-radius:10px;
+  background:#35171b;
+  color:#ff9da7;
+  font-size:14px;
 }
 
+/* APP */
 
-/* ---------------------------------------------------------
-   ADD CATEGORY
-   --------------------------------------------------------- */
-
-function addCategory(){
-
-  const input =
-    document.getElementById("newCategory");
-
-  const select =
-    document.getElementById("menuCategory");
-
-  const message =
-    document.getElementById("categoryMessage");
-
-  if(!input || !select) return;
-
-  const name =
-    input.value.trim();
-
-  if(!name){
-
-    if(message){
-
-      message.textContent =
-        "আগে একটি category name লিখুন.";
-
-    }
-
-    return;
-
-  }
-
-
-  const exists =
-    [...select.options].some(
-      option =>
-        option.value.toLowerCase() ===
-        name.toLowerCase()
-    );
-
-
-  if(exists){
-
-    if(message){
-
-      message.textContent =
-        "এই category ইতিমধ্যে আছে.";
-
-    }
-
-    return;
-
-  }
-
-
-  const option =
-    document.createElement("option");
-
-  option.value = name;
-  option.textContent = name;
-
-  select.appendChild(option);
-
-  select.value = name;
-
-  input.value = "";
-
-  if(message){
-
-    message.textContent =
-      "New category added.";
-
-  }
-
+#adminApp{
+  min-height:100vh;
+  display:flex;
 }
 
-
-/* ---------------------------------------------------------
-   LOGIN FORM
-   --------------------------------------------------------- */
-
-function setupLogin(){
-
-  const form =
-    document.getElementById("loginForm");
-
-  if(!form) return;
-
-
-  form.addEventListener("submit",async function(event){
-
-    event.preventDefault();
-
-    const email =
-      document.getElementById("email")
-        .value
-        .trim();
-
-    const password =
-      document.getElementById("password")
-        .value;
-
-
-    if(!email || !password){
-
-      showLoginError(
-        "Email এবং password দুটোই দিতে হবে।"
-      );
-
-      return;
-
-    }
-
-
-    await login(email,password);
-
-  });
-
+.sidebar{
+  width:260px;
+  min-height:100vh;
+  background:#111419;
+  border-right:1px solid #292d33;
+  padding:22px 15px;
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  overflow:auto;
 }
 
+.brand{
+  padding:10px 12px 24px;
+  border-bottom:1px solid #292d33;
+  margin-bottom:18px;
+}
 
-/* ---------------------------------------------------------
-   START
-   --------------------------------------------------------- */
+.brand strong{
+  display:block;
+  font-size:20px;
+}
 
-document.addEventListener("DOMContentLoaded",async function(){
+.brand small{
+  color:#9298a1;
+}
 
-  const ready =
-    initSupabase();
+.nav button{
+  width:100%;
+  text-align:left;
+  border:0;
+  background:transparent;
+  color:#bfc4cb;
+  padding:12px 13px;
+  border-radius:10px;
+  margin-bottom:5px;
+  cursor:pointer;
+}
 
-  if(!ready) return;
+.nav button:hover,
+.nav button.active{
+  background:#28221a;
+  color:#e0bc72;
+}
 
-  setupLogin();
+.logout{
+  margin-top:20px;
+  width:100%;
+  border:1px solid #40363a;
+  background:#1a1517;
+  color:#ff9da7;
+  padding:11px;
+  border-radius:10px;
+  cursor:pointer;
+}
 
-  setupNavigation();
+.main{
+  margin-left:260px;
+  width:calc(100% - 260px);
+  padding:28px;
+}
 
-  setupMobileMenu();
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:25px;
+}
 
-  const logoutButton =
-    document.getElementById("logoutBtn");
+.topbar h1{
+  margin:0;
+  font-size:28px;
+}
 
-  if(logoutButton){
+.user-badge{
+  color:#c9a45c;
+  background:#211c15;
+  border:1px solid #443824;
+  padding:9px 13px;
+  border-radius:20px;
+  font-size:13px;
+}
 
-    logoutButton.addEventListener(
-      "click",
-      logout
-    );
+.section{
+  display:none;
+}
 
+.section.active{
+  display:block;
+}
+
+.card{
+  background:#15181d;
+  border:1px solid #292d33;
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:20px;
+}
+
+.card h2{
+  margin:0 0 18px;
+  font-size:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:17px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+.save-row{
+  margin-top:18px;
+}
+
+.message{
+  margin-top:12px;
+  color:#8fe0a7;
+  font-size:14px;
+}
+
+.info{
+  color:#9da3ac;
+  line-height:1.6;
+}
+
+/* MOBILE */
+
+.mobile-top{
+  display:none;
+}
+
+@media(max-width:800px){
+
+  .sidebar{
+    width:100%;
+    min-height:auto;
+    position:relative;
+    padding:10px;
+    display:none;
   }
 
-  await checkSession();
+  .sidebar.open{
+    display:block;
+  }
 
-});
+  .main{
+    margin-left:0;
+    width:100%;
+    padding:16px;
+  }
+
+  .mobile-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+
+  .mobile-top button{
+    background:#191c21;
+    color:#fff;
+    border:1px solid #30343b;
+    border-radius:10px;
+    padding:10px 13px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+
+  <div class="login-card">
+
+    <img
+      class="logo"
+      src="https://placehold.co/200x200/191919/c9a45c?text=N"
+      alt="Nababi Ristorante">
+
+    <h1>Admin Login</h1>
+    <p>Nababi Ristorante Management</p>
+
+    <form id="loginForm">
+
+      <div class="field">
+        <label>Email</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="username"
+          placeholder="Admin email"
+          required>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Password"
+          required>
+      </div>
+
+      <button id="loginBtn" class="primary" type="submit">
+        Login
+      </button>
+
+      <div id="loginError" class="error hidden"></div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- ADMIN APP -->
+<div id="adminApp" class="hidden">
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+      <strong>Nababi Ristorante</strong>
+      <small>Master Admin Panel</small>
+    </div>
+
+    <nav class="nav">
+
+      <button class="active" data-section="dashboard">
+        🏠 Dashboard
+      </button>
+
+      <button data-section="hero">
+        🖼️ Home / Hero
+      </button>
+
+      <button data-section="about">
+        ℹ️ About Us
+      </button>
+
+      <button data-section="contact">
+        📞 Contact
+      </button>
+
+      <button data-section="social">
+        🌐 Social Media
+      </button>
+
+      <button data-section="hours">
+        🕐 Opening Hours
+      </button>
+
+      <button data-section="menu">
+        🍽️ Menu Manager
+      </button>
+
+      <button data-section="gallery">
+        🖼️ Gallery
+      </button>
+
+      <button data-section="booking">
+        📅 Table Booking
+      </button>
+
+      <button data-section="reviews">
+        ⭐ Reviews
+      </button>
+
+      <button data-section="reports">
+        🚨 Customer Reports
+      </button>
+
+      <button data-section="campaigns">
+        🎁 Discount Campaign
+      </button>
+
+      <button data-section="coupons">
+        🎟️ Coupon Codes
+      </button>
+
+      <button data-section="staff">
+        👥 Staff & Permissions
+      </button>
+
+    </nav>
+
+    <button class="logout" id="logoutBtn">
+      Logout
+    </button>
+
+  </aside>
+
+
+  <main class="main">
+
+    <div class="mobile-top">
+      <strong>Master Admin</strong>
+      <button id="menuToggle">☰ Menu</button>
+    </div>
+
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="user-badge" id="userEmail"></div>
+    </div>
+
+
+    <!-- DASHBOARD -->
+
+    <section class="section active" id="dashboard">
+
+      <div class="card">
+        <h2>Welcome to Master Admin</h2>
+        <p class="info">
+          আপনার Admin Login সফল হয়েছে। এখান থেকে Website,
+          Menu, Gallery, Booking, Reviews, Campaign এবং Staff
+          permissions পরিচালনা করা যাবে।
+        </p>
+      </div>
+
+      <div class="grid">
+
+        <div class="card">
+          <h2>Website</h2>
+          <p class="info">
+            Home, Hero, About, Contact, Social Media এবং Opening Hours।
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>Restaurant</h2>
+          <p class="info">
+            Menu, Gallery, Booking এবং Reviews management।
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- HERO -->
+
+    <section class="section" id="hero">
+
+      <div class="card">
+
+        <h2>Home / Hero</h2>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Hero Title</label>
+            <input id="heroTitle" placeholder="Hero title">
+          </div>
+
+          <div class="field">
+            <label>Hero Image URL</label>
+            <input id="heroImage" placeholder="Image URL">
+          </div>
+
+          <div class="field full">
+            <label>Hero Text</label>
+            <textarea id="heroText" rows="5"
+              placeholder="Hero text"></textarea>
+          </div>
+
+        </div>
+
+        <div class="save-row">
+          <button class="primary" onclick="saveHero()">
+            Save Hero
+          </button>
+          <div id="heroMessage" class="message"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ABOUT -->
+
+    <section class="section" id="about">
+
+      <div class="card">
+
+        <h2>About Us</h2>
+
+        <div class="field">
+          <label>About Title</label>
+          <input id="aboutTitle" placeholder="About title">
+        </div>
+
+        <div class="field">
+          <label>About Text</label>
+          <textarea id="aboutText" rows="8"
+            placeholder="About Nababi Ristorante"></textarea>
+        </div>
+
+        <button class="primary" onclick="saveAbout()">
+          Save About
+        </button>
+
+        <div id="aboutMessage" class="message"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CONTACT -->
+
+    <section class="section" id="contact">
+
+      <div class="card">
+
+        <h2>Contact</h2>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Address</label>
+            <input id="address"
+              placeholder="Restaurant address">
+          </div>
+
+          <div class="field">
+            <label>Phone</label>
+            <input id="phone"
+              placeholder="+39 ...">
+          </div>
+
+          <div class="field">
+            <label>WhatsApp</label>
+            <input id="whatsapp"
+              placeholder="+39 ...">
+          </div>
+
+        </div>
+
+        <button class="primary" onclick="saveContact()">
+          Save Contact
+        </button>
+
+        <div id="contactMessage" class="message"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SOCIAL -->
+
+    <section class="section" id="social">
+
+      <div class="card">
+
+        <h2>Social Media</h2>
+
+        <div class="field">
+          <label>Facebook</label>
+          <input id="facebook" placeholder="Facebook URL">
+        </div>
+
+        <div class="field">
+          <label>Instagram</label>
+          <input id="instagram" placeholder="Instagram URL">
+        </div>
+
+        <div class="field">
+          <label>TikTok</label>
+          <input id="tiktok" placeholder="TikTok URL">
+        </div>
+
+        <button class="primary" onclick="saveSocial()">
+          Save Social Media
+        </button>
+
+        <div id="socialMessage" class="message"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- HOURS -->
+
+    <section class="section" id="hours">
+
+      <div class="card">
+
+        <h2>Opening Hours</h2>
+
+        <div class="field">
+          <label>Opening Hours</label>
+          <textarea id="openingHours" rows="8"
+            placeholder="Monday: 12:00 - 23:00"></textarea>
+        </div>
+
+        <button class="primary" onclick="saveHours()">
+          Save Opening Hours
+        </button>
+
+        <div id="hoursMessage" class="message"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- MENU -->
+
+    <section class="section" id="menu">
+
+      <div class="card">
+
+        <h2>Menu Manager</h2>
+
+        <p class="info">
+          এখানে Menu Manager-এর database connection পরের ধাপে
+          আপনার বর্তমান Menu table অনুযায়ী যুক্ত করা হবে।
+        </p>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Dish Name</label>
+            <input id="menuName" placeholder="Dish name">
+          </div>
+
+          <div class="field">
+            <label>Price</label>
+            <input id="menuPrice" placeholder="€ 0.00">
+          </div>
+
+          <div class="field">
+            <label>Category</label>
+            <select id="menuCategory">
+              <option value="">Select Category</option>
+              <option>Antipasti</option>
+              <option>Primi</option>
+              <option>Secondi</option>
+              <option>Pizza</option>
+              <option>Dolci</option>
+              <option>Drinks</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>New Category</label>
+            <input id="newCategory"
+              placeholder="Create new category">
+          </div>
+
+        </div>
+
+        <button class="primary" onclick="addCategory()">
+          + Add New Category
+        </button>
+
+        <div id="categoryMessage" class="message"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- GALLERY -->
+
+    <section class="section" id="gallery">
+
+      <div class="card">
+        <h2>Gallery</h2>
+
+        <p class="info">
+          Gallery image upload management এখানে থাকবে।
+        </p>
+
+        <input type="file" id="galleryFile"
+          accept="image/*">
+
+      </div>
+
+    </section>
+
+
+    <!-- BOOKING -->
+
+    <section class="section" id="booking">
+
+      <div class="card">
+        <h2>Table Booking</h2>
+        <p class="info">
+          এখানে Table Booking management থাকবে।
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- REVIEWS -->
+
+    <section class="section" id="reviews">
+
+      <div class="card">
+        <h2>Reviews</h2>
+        <p class="info">
+          Customer reviews management।
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- REPORTS -->
+
+    <section class="section" id="reports">
+
+      <div class="card">
+        <h2>Customer Reports</h2>
+        <p class="info">
+          Customer reports management।
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- CAMPAIGNS -->
+
+    <section class="section" id="campaigns">
+
+      <div class="card">
+        <h2>Discount Campaign</h2>
+        <p class="info">
+          Discount campaign management।
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- COUPONS -->
+
+    <section class="section" id="coupons">
+
+      <div class="card">
+        <h2>Coupon Codes</h2>
+        <p class="info">
+          Coupon code management।
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- STAFF -->
+
+    <section class="section" id="staff">
+
+      <div class="card">
+
+        <h2>Staff & Permissions</h2>
+
+        <p class="info">
+          Staff members-এর জন্য কোন section দেখা বা modify করা যাবে,
+          সেই permissions এখানে পরিচালনা করা হবে।
+        </p>
+
+        <div class="grid">
+
+          <div class="field">
+            <label>Staff Email</label>
+            <input placeholder="staff@email.com">
+          </div>
+
+          <div class="field">
+            <label>Role</label>
+            <select>
+              <option>Staff</option>
+              <option>Manager</option>
+              <option>Admin</option>
+            </select>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<script src="admin.js"></script>
+
+</body>
+</html>
