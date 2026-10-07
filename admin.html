@@ -497,7 +497,7 @@ textarea{
 🔢 Coupon Codes
 </button>
 
-<button class="nav" data-section="staff" onclick="focusStaffCoupon()">
+<button class="nav" data-section="secretCoupon">
 🔐 Secret Coupon Box
 </button>
 
@@ -1196,7 +1196,7 @@ Clear
 
 <input
  id="newCategoryName"
- placeholder="Category Name"
+ placeholder="New Category Name"
 >
 
 <input
@@ -1204,16 +1204,6 @@ Clear
  type="number"
  placeholder="Sort Order"
 >
-
-<input
- id="newCategoryImageFile"
- type="file"
- accept="image/*"
->
-
-<div id="categoryImageProgress"></div>
-
-<div id="categoryImagePreview"></div>
 
 <button
  class="btn"
@@ -1456,6 +1446,20 @@ Customers collect the code and show it to restaurant staff.
 </section>
 
 
+<!-- SECRET COUPON -->
+<section id="secretCoupon" class="section">
+<h2>🔐 Secret Coupon Box</h2>
+<div class="card">
+<p class="muted">Staff enters a coupon code to verify and redeem it.</p>
+<div class="row">
+<input id="secretCouponCode" placeholder="Enter coupon code" style="flex:1;min-width:220px">
+<button class="btn green" onclick="checkSecretCoupon()">🟢 পাঠান</button>
+<button class="btn red" onclick="clearSecretCoupon()">🔴 বাতিল</button>
+</div>
+<div id="secretCouponResult" style="margin-top:12px"></div>
+</div>
+</section>
+
 <!-- STAFF -->
 <section
  id="staff"
@@ -1475,18 +1479,8 @@ Refresh
 
 </div>
 
-<div class="card" style="margin-top:16px;border:2px solid rgba(212,175,55,.35)">
-<h3>🔐 Staff Coupon Verification</h3>
-<p class="muted">Staff login করার পর এখানে Coupon Code দিয়ে Verify / Use করুন।</p>
-<div class="row">
-<input id="staffCouponCode" placeholder="Coupon Number / Code" style="flex:1;min-width:220px;text-transform:uppercase">
-<button class="btn green" onclick="verifyStaffCoupon()">🟢 পাঠান</button>
-<button class="btn red" onclick="clearStaffCoupon()">🔴 বাতিল</button>
-</div>
-<div id="staffCouponResult" style="margin-top:12px"></div>
-</div>
 
-<div class="card" style="margin-top:16px">
+<div class="card">
 
 <h3>Create Staff Account</h3>
 
@@ -1510,9 +1504,11 @@ Refresh
 >
 
 <select id="staffRole">
+<option value="SUPER_ADMIN">SUPER ADMIN</option>
 <option value="BOOKING_STAFF">BOOKING STAFF</option>
 <option value="REVIEW_STAFF">REVIEW STAFF</option>
 <option value="DISCOUNT_STAFF">DISCOUNT STAFF</option>
+<option value="MENU_STAFF">MENU STAFF</option>
 <option value="CONTENT_STAFF">CONTENT STAFF</option>
 </select>
 
@@ -2780,54 +2776,160 @@ async function saveHours(){
 
 async function loadCategories(){
 
-  const {data,error}=await supabaseClient.from("menu_categories").select("*").order("sort_order");
-  if(error) throw error;
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("menu_categories")
+    .select("*")
+    .order("sort_order");
 
-  $("menuCategory").innerHTML='<option value="">Select Category</option>'+(data||[]).map(item=>`<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
+  if(error)
+    throw error;
 
-  $("categoryList").innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Photo</th><th>Category</th><th>Order</th><th>Action</th></tr></thead><tbody>${(data||[]).map(item=>`<tr><td>${item.image_url?`<img src="${escapeHtml(item.image_url)}" style="width:72px;height:54px;object-fit:cover;border-radius:10px">`:'—'}</td><td>${escapeHtml(item.name)}</td><td>${item.sort_order??0}</td><td><button class="btn small" onclick="editCategory(${item.id},${JSON.stringify(item.name)},${JSON.stringify(item.image_url||'')})">Edit</button> <button class="btn red small" onclick="deleteCategory(${item.id})">Delete</button></td></tr>`).join("")}</tbody></table></div>`;
+  $("menuCategory").innerHTML =
+    `<option value="">
+      Select Category
+    </option>` +
+    (data || []).map(item=>
+      `<option value="${escapeHtml(item.name)}">
+        ${escapeHtml(item.name)}
+      </option>`
+    ).join("");
+
+  $("categoryList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+    <tr>
+      <th>Category</th>
+      <th>Order</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+          ${escapeHtml(item.name)}
+        </td>
+
+        <td>
+          ${item.sort_order ?? 0}
+        </td>
+
+        <td>
+
+          <button
+            class="btn red small"
+            onclick="deleteCategory(${item.id})"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
 }
+
 
 async function createCategory(){
-  const name=$("newCategoryName").value.trim();
-  if(!name){alert("Enter a category name.");return;}
-  try{
-    let image_url="";
-    const file=$("newCategoryImageFile").files[0];
-    if(file) image_url=await uploadSiteMedia(file,"categories","categoryImageProgress");
-    const {error}=await supabaseClient.from("menu_categories").insert({name,sort_order:Number($("newCategoryOrder").value||0),image_url});
-    if(error) throw error;
-    $("newCategoryName").value="";$("newCategoryOrder").value="";$("newCategoryImageFile").value="";$("categoryImagePreview").innerHTML="";
-    await loadCategories(); toast("Category created with image.");
-  }catch(error){showError(error);}
+
+  const name =
+    $("newCategoryName")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert(
+      "Enter a category name."
+    );
+
+    return;
+
+  }
+
+  const {
+    error
+  } =
+  await supabaseClient
+    .from("menu_categories")
+    .insert({
+      name,
+      sort_order:
+        Number(
+          $("newCategoryOrder").value || 0
+        )
+    });
+
+  if(error){
+
+    showError(error);
+
+    return;
+
+  }
+
+  $("newCategoryName").value="";
+  $("newCategoryOrder").value="";
+
+  await loadCategories();
+
+  toast(
+    "New category created."
+  );
+
 }
 
-async function editCategory(id,oldName,oldImage){
-  const name=prompt("Category name:",oldName);
-  if(name===null) return;
-  const newName=name.trim(); if(!newName) return;
-  let image_url=oldImage||"";
-  const replace=confirm("Change category image? Press OK to choose a new image, Cancel to keep the current image.");
-  if(replace){
-    const input=document.createElement("input");input.type="file";input.accept="image/*";
-    input.onchange=async()=>{try{if(input.files[0]) image_url=await uploadSiteMedia(input.files[0],"categories","categoryImageProgress");await updateCategoryRecord(id,oldName,newName,image_url);}catch(e){showError(e);}};input.click();
-  }else await updateCategoryRecord(id,oldName,newName,image_url);
-}
-
-async function updateCategoryRecord(id,oldName,newName,image_url){
-  const {error}=await supabaseClient.from("menu_categories").update({name:newName,image_url}).eq("id",id);
-  if(error){showError(error);return;}
-  if(oldName!==newName){const {error:e}=await supabaseClient.from("Menu").update({category:newName}).eq("category",oldName);if(e){showError(e);return;}}
-  await loadCategories();await loadMenu();toast("Category updated.");
-}
 
 async function deleteCategory(id){
-  if(!confirm("Delete this category? Menu items using it must be reassigned first.")) return;
-  const {data:cat,error:ce}=await supabaseClient.from("menu_categories").select("name").eq("id",id).maybeSingle();
-  if(ce) {showError(ce);return;}
-  if(cat?.name){const {count,error:me}=await supabaseClient.from("Menu").select("id",{count:"exact",head:true}).eq("category",cat.name);if(me){showError(me);return;}if((count||0)>0){alert("This category is still used by menu items. Reassign them first.");return;}}
-  const {error}=await supabaseClient.from("menu_categories").delete().eq("id",id);if(error){showError(error);return;}
-  await loadCategories();toast("Category deleted.");
+
+  if(!confirm(
+    "Delete this category?"
+  ))
+    return;
+
+  const {
+    error
+  } =
+  await supabaseClient
+    .from("menu_categories")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    showError(error);
+
+    return;
+
+  }
+
+  await loadCategories();
+
+  toast(
+    "Category deleted."
+  );
+
 }
 
 
@@ -3896,13 +3998,14 @@ async function loadCoupons(){
 ========================================================= */
 const ROLE_PERMISSIONS_DEFAULT={
  SUPER_ADMIN:{all:true},
- BOOKING_STAFF:{view:["dashboard","staff","bookings"]},
- REVIEW_STAFF:{view:["dashboard","staff","reviews","reports"]},
- DISCOUNT_STAFF:{view:["dashboard","staff","discount","coupons","secretCoupon"]},
- CONTENT_STAFF:{view:["dashboard","staff","hero","videos","about","breaking","gallery","contact","social","hours"]}
+ BOOKING_STAFF:{view:["dashboard","bookings"]},
+ REVIEW_STAFF:{view:["dashboard","reviews","reports"]},
+ DISCOUNT_STAFF:{view:["dashboard","discount","coupons","secretCoupon"]},
+ MENU_STAFF:{view:["dashboard","menu","categories"]},
+ CONTENT_STAFF:{view:["dashboard","hero","videos","about","breaking","gallery","contact","social","hours"]}
 };
 const PERMISSION_SECTIONS=["dashboard","hero","videos","about","breaking","gallery","contact","social","hours","menu","categories","bookings","reviews","reports","discount","coupons","secretCoupon","staff","performance"];
-const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","CONTENT_STAFF"];
+const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","MENU_STAFF","CONTENT_STAFF"];
 
 async function getStaffPermissions(){
   const saved=await getSetting("staff_permissions");
@@ -3936,43 +4039,9 @@ async function applyCurrentRolePermissions(){
     const allowed=role==="SUPER_ADMIN" || Boolean(permissions?.[role]?.view?.includes(section));
     nav.style.display=allowed?"block":"none";
   });
-  const active=document.querySelector(".nav.active");
-  if(active && active.style.display==="none") active.classList.remove("active");
-  if(role!=="SUPER_ADMIN"){
-    const staffNav=document.querySelector('.nav[data-section="staff"]');
-    if(staffNav && staffNav.style.display!=="none") staffNav.click();
-  }else if(!active || active.style.display==="none"){
-    const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
-    if(first) first.click();
-  }
+  const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
+  if(first){ const active=document.querySelector(".nav.active"); if(!active || active.style.display==="none") first.click(); }
 }
-function focusStaffCoupon(){
-  const nav=document.querySelector('.nav[data-section="staff"]');
-  if(nav) nav.click();
-  setTimeout(()=>$("staffCouponCode")?.focus(),100);
-}
-
-async function verifyStaffCoupon(){
-  const input=$("staffCouponCode"); const box=$("staffCouponResult"); const code=input.value.trim().toUpperCase();
-  if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
-  box.innerHTML='<div class="muted">Checking coupon…</div>';
-  try{
-    const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
-    if(error) throw error;
-    if(!data){box.innerHTML='<div class="card bad">🔴 Invalid Coupon Code</div>';return;}
-    const status=String(data.status||"active").toLowerCase();
-    if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
-    const now=new Date();
-    if(data.start_at && new Date(data.start_at)>now){box.innerHTML='<div class="card bad">🔴 Coupon is not active yet.</div>';return;}
-    if(data.expires_at && new Date(data.expires_at)<now){box.innerHTML='<div class="card bad">🔴 Coupon Expired</div>';return;}
-    const {error:updateError}=await supabaseClient.from("discount_codes").update({status:"used",used_at:now.toISOString()}).eq("id",data.id);
-    if(updateError) throw updateError;
-    box.innerHTML='<div class="card ok" style="font-size:18px">🟢 Coupon Valid — Successfully Used</div>';
-    await loadDashboard(); await loadCoupons();
-  }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||"Coupon verification failed")+'</div>';}
-}
-function clearStaffCoupon(){$("staffCouponCode").value="";$("staffCouponResult").innerHTML="";$("staffCouponCode").focus();}
-
 async function checkSecretCoupon(){
   const code=$("secretCouponCode").value.trim().toUpperCase();
   const box=$("secretCouponResult");
@@ -4000,6 +4069,11 @@ function clearSecretCoupon(){$("secretCouponCode").value="";$("secretCouponResul
 ========================================================= */
 
 async function createStaffAccount(){
+\n  if(currentUser && currentStaff && currentStaff.role !== "SUPER_ADMIN"){
+    toast("Only SUPER_ADMIN can create staff accounts.");
+    return;
+  }
+
 
   try{
 
