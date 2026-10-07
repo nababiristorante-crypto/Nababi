@@ -1,331 +1,654 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nababi Ristorante — Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nababi Ristorante — Admin Panel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 
 <style>
-:root{
-  --gold:#d4af37;
-  --gold2:#f3d675;
-  --black:#080808;
-  --panel:#111;
-  --panel2:#171717;
-  --border:#292929;
-  --text:#f5f5f5;
-  --muted:#999;
-  --danger:#e05252;
-  --success:#43c77a;
-}
-*{box-sizing:border-box}
-body{
+*{
+  box-sizing:border-box;
   margin:0;
-  background:#050505;
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+  padding:0;
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
 
-.login{
+:root{
+  --bg:#080808;
+  --panel:#111;
+  --panel2:#161616;
+  --gold:#d6ad55;
+  --gold2:#f0cf79;
+  --text:#f7f2e8;
+  --muted:#aaa;
+  --border:rgba(214,173,85,.22);
+  --danger:#d9534f;
+  --success:#31b56b;
+  --blue:#4d9fff;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* LOGIN */
+
+#loginScreen{
   min-height:100vh;
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   padding:20px;
   background:
-    radial-gradient(circle at top,#30250c 0,#090909 35%,#050505 70%);
+    radial-gradient(circle at top,#241d0e 0,#080808 45%,#000 100%);
 }
-.login-card{
+
+.loginCard{
   width:100%;
   max-width:430px;
   background:rgba(17,17,17,.96);
-  border:1px solid #3b3017;
-  border-radius:24px;
-  padding:35px;
-  box-shadow:0 30px 100px #000;
-}
-.logo-mark{
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  border:2px solid var(--gold);
-  object-fit:cover;
-  display:block;
-  margin:0 auto 20px;
-}
-.login-card h1{
-  text-align:center;
-  color:var(--gold2);
-  margin:0 0 8px;
-}
-.login-card p{
-  text-align:center;
-  color:var(--muted);
-}
-input,textarea,select{
-  width:100%;
-  background:#0b0b0b;
-  color:white;
   border:1px solid var(--border);
-  border-radius:12px;
-  padding:13px;
-  outline:none;
+  border-radius:24px;
+  padding:34px;
+  box-shadow:0 30px 90px rgba(0,0,0,.6);
 }
-input:focus,textarea:focus,select:focus{
-  border-color:var(--gold);
-}
-textarea{min-height:130px;resize:vertical}
-label{
-  display:block;
-  color:#ddd;
-  font-size:13px;
-  margin:15px 0 7px;
-}
-.btn{
-  border:0;
-  border-radius:11px;
-  padding:11px 17px;
-  background:var(--gold);
-  color:#080808;
+
+.logoMark{
+  width:75px;
+  height:75px;
+  margin:0 auto 18px;
+  border-radius:50%;
+  border:1px solid var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold2);
+  font-size:28px;
   font-weight:bold;
 }
-.btn:hover{background:var(--gold2)}
-.btn.dark{
-  background:#222;
-  color:#fff;
-  border:1px solid #333;
+
+.loginCard h1{
+  text-align:center;
+  color:var(--gold2);
+  margin-bottom:8px;
 }
-.btn.danger{
-  background:#531b1b;
-  color:#ffb0b0;
-  border:1px solid #813333;
+
+.loginCard p{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:25px;
 }
-.btn.success{
-  background:#164d32;
-  color:#a9ffd0;
+
+.field{
+  margin-bottom:15px;
 }
-.btn.small{
-  padding:7px 11px;
-  font-size:12px;
-}
-.error{
-  color:#ff8d8d;
-  margin-top:12px;
-  font-size:14px;
-}
-.success-msg{
-  color:#8ff0b5;
-  margin-top:12px;
+
+.field label{
+  display:block;
+  margin-bottom:7px;
+  color:#ddd;
   font-size:14px;
 }
 
-.app{min-height:100vh;display:flex}
-.sidebar{
-  width:270px;
+input,
+textarea,
+select{
+  width:100%;
+  background:#0b0b0b;
+  border:1px solid #333;
+  border-radius:12px;
+  color:white;
+  padding:13px 14px;
+  outline:none;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--gold);
+}
+
+.primaryBtn{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:14px;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:#111;
+  font-weight:800;
+}
+
+.message{
+  margin-top:14px;
+  padding:12px;
+  border-radius:10px;
+  display:none;
+  font-size:14px;
+}
+
+.message.show{
+  display:block;
+}
+
+.message.error{
+  background:rgba(217,83,79,.15);
+  color:#ff9d98;
+  border:1px solid rgba(217,83,79,.35);
+}
+
+.message.success{
+  background:rgba(49,181,107,.12);
+  color:#74e3a5;
+  border:1px solid rgba(49,181,107,.3);
+}
+
+/* APP */
+
+#app{
+  display:none;
+}
+
+.topbar{
+  height:70px;
   position:fixed;
   left:0;
+  right:0;
   top:0;
-  bottom:0;
-  background:#090909;
-  border-right:1px solid var(--border);
-  padding:20px 14px;
-  overflow:auto;
-  z-index:20;
+  z-index:1000;
+  background:rgba(8,8,8,.95);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 22px;
 }
+
 .brand{
   display:flex;
   align-items:center;
   gap:12px;
-  padding:5px 8px 20px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:15px;
 }
-.brand img{
-  width:48px;height:48px;border-radius:50%;
-  border:1px solid var(--gold);object-fit:cover;
+
+.brandIcon{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold2);
+  font-weight:bold;
 }
-.brand strong{color:var(--gold2)}
-.brand small{display:block;color:#777;margin-top:3px}
-.nav-btn{
-  width:100%;
-  text-align:left;
-  border:0;
-  background:transparent;
-  color:#aaa;
-  padding:12px 13px;
-  border-radius:10px;
-  margin:2px 0;
-}
-.nav-btn:hover,.nav-btn.active{
-  background:#211b0c;
+
+.brand strong{
   color:var(--gold2);
 }
-.nav-group{
-  color:#555;
-  font-size:11px;
-  text-transform:uppercase;
-  padding:18px 12px 6px;
-  letter-spacing:1px;
-}
-.main{
-  margin-left:270px;
-  width:calc(100% - 270px);
-  padding:25px;
-}
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:25px;
-  border-bottom:1px solid var(--border);
-  padding-bottom:18px;
-}
-.topbar h2{margin:0;color:var(--gold2)}
-.userbox{
+
+.userInfo{
   display:flex;
   align-items:center;
   gap:10px;
-  color:#aaa;
 }
-.avatar{
-  width:38px;height:38px;border-radius:50%;
-  object-fit:cover;border:1px solid var(--gold);
+
+.userAvatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid var(--gold);
+  background:#222;
 }
-.section{display:none}
-.section.active{display:block}
+
+.logoutBtn{
+  border:1px solid #444;
+  background:#151515;
+  color:#ddd;
+  border-radius:10px;
+  padding:9px 13px;
+}
+
+.layout{
+  display:flex;
+  padding-top:70px;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:255px;
+  position:fixed;
+  top:70px;
+  bottom:0;
+  left:0;
+  overflow-y:auto;
+  background:#0d0d0d;
+  border-right:1px solid var(--border);
+  padding:15px;
+}
+
+.navTitle{
+  font-size:11px;
+  color:#777;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  margin:14px 10px 7px;
+}
+
+.navBtn{
+  width:100%;
+  text-align:left;
+  border:1px solid transparent;
+  background:transparent;
+  color:#ccc;
+  padding:12px 13px;
+  border-radius:10px;
+  margin-bottom:4px;
+}
+
+.navBtn:hover,
+.navBtn.active{
+  background:rgba(214,173,85,.1);
+  border-color:var(--border);
+  color:var(--gold2);
+}
+
+.main{
+  margin-left:255px;
+  width:calc(100% - 255px);
+  padding:28px;
+}
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+.sectionHeader{
+  margin-bottom:22px;
+}
+
+.sectionHeader h2{
+  color:var(--gold2);
+  font-size:28px;
+  margin-bottom:7px;
+}
+
+.sectionHeader p{
+  color:var(--muted);
+}
+
+/* CARDS */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
 .card{
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:17px;
   padding:20px;
-  margin-bottom:20px;
+  margin-bottom:18px;
 }
-.card h3{
-  margin:0 0 15px;
+
+.stat{
+  min-height:130px;
+}
+
+.statLabel{
+  color:#999;
+  font-size:13px;
+}
+
+.statValue{
   color:var(--gold2);
+  font-size:34px;
+  font-weight:bold;
+  margin-top:12px;
 }
-.grid{
+
+.two{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:1fr 1fr;
   gap:18px;
 }
-.grid3{
+
+.formGrid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:15px;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
 }
-.stat{
-  background:var(--panel2);
-  border:1px solid var(--border);
-  border-radius:15px;
-  padding:20px;
+
+.full{
+  grid-column:1/-1;
 }
-.stat small{color:#777}
-.stat strong{
-  display:block;
-  font-size:30px;
-  color:var(--gold2);
-  margin-top:8px;
+
+.goldBtn,
+.darkBtn,
+.dangerBtn,
+.greenBtn,
+.blueBtn{
+  border-radius:10px;
+  padding:11px 15px;
+  border:1px solid;
+  font-weight:700;
 }
+
+.goldBtn{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:#111;
+  border-color:var(--gold);
+}
+
+.darkBtn{
+  background:#171717;
+  color:#ddd;
+  border-color:#444;
+}
+
+.dangerBtn{
+  background:rgba(217,83,79,.1);
+  color:#ff8d87;
+  border-color:rgba(217,83,79,.4);
+}
+
+.greenBtn{
+  background:rgba(49,181,107,.1);
+  color:#70e4a0;
+  border-color:rgba(49,181,107,.35);
+}
+
+.blueBtn{
+  background:rgba(77,159,255,.1);
+  color:#7fb9ff;
+  border-color:rgba(77,159,255,.35);
+}
+
 .actions{
   display:flex;
-  gap:8px;
   flex-wrap:wrap;
+  gap:8px;
   margin-top:15px;
 }
-.table-wrap{overflow:auto}
+
+.preview{
+  width:100%;
+  max-height:280px;
+  object-fit:cover;
+  border-radius:14px;
+  margin-top:12px;
+  border:1px solid #333;
+}
+
+.tableWrap{
+  overflow-x:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:650px;
+  min-width:750px;
 }
-th,td{
+
+th,
+td{
   padding:12px;
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid #292929;
   text-align:left;
   vertical-align:middle;
 }
-th{color:var(--gold2);font-size:13px}
-td{color:#ccc;font-size:14px}
-.thumb{
-  width:65px;
-  height:50px;
-  object-fit:cover;
-  border-radius:8px;
-  border:1px solid #333;
+
+th{
+  color:var(--gold2);
+  font-size:13px;
 }
-.preview{
-  max-width:180px;
-  max-height:120px;
-  border-radius:12px;
-  margin-top:10px;
-  border:1px solid #333;
+
+td{
+  color:#ddd;
+  font-size:14px;
 }
+
 .badge{
   display:inline-block;
-  padding:5px 8px;
+  padding:5px 9px;
   border-radius:20px;
-  background:#242424;
-  color:#bbb;
   font-size:11px;
+  font-weight:bold;
 }
-.badge.gold{background:#3a2d0d;color:var(--gold2)}
-.badge.green{background:#123823;color:#9ff0bc}
-.badge.red{background:#3b1717;color:#ffaaaa}
 
-.filebox{
-  border:1px dashed #555;
-  border-radius:12px;
-  padding:15px;
-  text-align:center;
-  background:#0c0c0c;
+.badge.green{
+  color:#72e4a0;
+  background:rgba(49,181,107,.12);
 }
-.filebox input{border:0;padding:0;background:none}
 
-.staff-card{
-  display:flex;
+.badge.red{
+  color:#ff9290;
+  background:rgba(217,83,79,.12);
+}
+
+.badge.gold{
+  color:var(--gold2);
+  background:rgba(214,173,85,.12);
+}
+
+.badge.blue{
+  color:#82bcff;
+  background:rgba(77,159,255,.12);
+}
+
+/* MENU */
+
+.menuItem{
+  display:grid;
+  grid-template-columns:90px 1fr auto;
+  gap:14px;
   align-items:center;
-  gap:15px;
+  background:#101010;
+  border:1px solid #292929;
+  padding:12px;
+  border-radius:13px;
+  margin-bottom:10px;
 }
-.staff-photo{
-  width:70px;height:70px;border-radius:50%;
-  object-fit:cover;border:2px solid var(--gold);
+
+.menuItem img{
+  width:90px;
+  height:70px;
+  object-fit:cover;
+  border-radius:9px;
+  background:#222;
 }
-.muted{color:var(--muted)}
+
+.menuName{
+  font-weight:bold;
+  color:#eee;
+}
+
+.menuMeta{
+  color:#999;
+  font-size:12px;
+  margin-top:5px;
+}
+
+/* GALLERY */
+
+.galleryGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.galleryItem{
+  background:#111;
+  border:1px solid #292929;
+  border-radius:13px;
+  overflow:hidden;
+}
+
+.galleryItem img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+}
+
+.galleryBody{
+  padding:10px;
+}
+
+/* STAFF */
+
+.staffCard{
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:14px;
+  align-items:center;
+  background:#111;
+  border:1px solid #292929;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:10px;
+}
+
+.staffAvatar{
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:50%;
+  border:1px solid var(--gold);
+  background:#222;
+}
+
+.small{
+  font-size:12px;
+  color:#888;
+}
+
 .empty{
   padding:30px;
   text-align:center;
-  color:#666;
+  color:#777;
 }
-.mobile-menu{display:none}
+
+/* MOBILE */
+
+.mobileMenu{
+  display:none;
+  border:1px solid #444;
+  background:#151515;
+  color:white;
+  border-radius:9px;
+  padding:8px 11px;
+}
 
 @media(max-width:900px){
+
+  .mobileMenu{
+    display:block;
+  }
+
   .sidebar{
     transform:translateX(-100%);
     transition:.25s;
+    z-index:999;
+    width:275px;
   }
-  .sidebar.open{transform:translateX(0)}
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
   .main{
     margin-left:0;
     width:100%;
-    padding:15px;
+    padding:18px;
   }
-  .mobile-menu{
-    display:block;
-    background:#181818;
-    color:var(--gold2);
-    border:1px solid #333;
-    border-radius:9px;
-    padding:8px 12px;
+
+  .grid{
+    grid-template-columns:1fr 1fr;
   }
-  .grid,.grid3{grid-template-columns:1fr}
+
+  .two{
+    grid-template-columns:1fr;
+  }
+
+  .galleryGrid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:600px){
+
+  .topbar{
+    padding:0 12px;
+  }
+
+  .brand span{
+    display:none;
+  }
+
+  .userInfo > div{
+    display:none;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .formGrid{
+    grid-template-columns:1fr;
+  }
+
+  .galleryGrid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .menuItem{
+    grid-template-columns:65px 1fr;
+  }
+
+  .menuItem .actions{
+    grid-column:1/-1;
+  }
+
+  .menuItem img{
+    width:65px;
+    height:65px;
+  }
+
+  .loginCard{
+    padding:24px;
+  }
 }
 </style>
 </head>
@@ -333,580 +656,1153 @@ td{color:#ccc;font-size:14px}
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="login">
-  <div class="login-card">
-    <img id="loginLogo" class="logo-mark" alt="Nababi Ristorante">
+
+<div id="loginScreen">
+
+  <div class="loginCard">
+
+    <div class="logoMark">N</div>
+
     <h1>Nababi Ristorante</h1>
-    <p>Secure Admin Panel</p>
+    <p>Premium Administration Panel</p>
 
-    <label>Email</label>
-    <input id="loginEmail" type="email" placeholder="Admin email">
-
-    <label>Password</label>
-    <input id="loginPassword" type="password" placeholder="Password">
-
-    <div class="actions">
-      <button class="btn" style="width:100%" onclick="login()">Login</button>
+    <div class="field">
+      <label>Email</label>
+      <input id="loginEmail" type="email" autocomplete="username">
     </div>
 
-    <div id="loginMessage"></div>
+    <div class="field">
+      <label>Password</label>
+      <input id="loginPassword" type="password" autocomplete="current-password">
+    </div>
+
+    <button class="primaryBtn" id="loginBtn">
+      Login to Admin
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+
   </div>
+
 </div>
+
 
 <!-- APP -->
-<div id="app" class="app hidden">
 
-<aside id="sidebar" class="sidebar">
-  <div class="brand">
-    <img id="sideLogo" alt="Logo">
-    <div>
-      <strong>Nababi Ristorante</strong>
-      <small id="sideRole">Admin</small>
+<div id="app">
+
+  <header class="topbar">
+
+    <div class="brand">
+      <button class="mobileMenu" onclick="toggleSidebar()">☰</button>
+
+      <div class="brandIcon">N</div>
+
+      <span>
+        <strong>Nababi Ristorante</strong>
+        <small style="color:#777"> — Admin</small>
+      </span>
     </div>
+
+    <div class="userInfo">
+
+      <img id="topAvatar" class="userAvatar" src="" alt="">
+
+      <div>
+        <div id="topName" style="font-size:13px"></div>
+        <div id="topRole" style="font-size:11px;color:#888"></div>
+      </div>
+
+      <button class="logoutBtn" onclick="logout()">
+        Logout
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside id="sidebar" class="sidebar">
+
+      <div class="navTitle">Main</div>
+
+      <button class="navBtn active" data-section="dashboard">
+        📊 Dashboard
+      </button>
+
+      <button class="navBtn" data-section="home">
+        🏠 Home / Hero
+      </button>
+
+      <button class="navBtn" data-section="breaking">
+        📢 Breaking News
+      </button>
+
+      <button class="navBtn" data-section="about">
+        ℹ️ About Us
+      </button>
+
+      <div class="navTitle">Restaurant</div>
+
+      <button class="navBtn" data-section="menu">
+        🍽️ Menu Manager
+      </button>
+
+      <button class="navBtn" data-section="gallery">
+        🖼️ Gallery
+      </button>
+
+      <button class="navBtn" data-section="bookings">
+        📅 Table Bookings
+      </button>
+
+      <button class="navBtn" data-section="reviews">
+        ⭐ Reviews
+      </button>
+
+      <button class="navBtn" data-section="reports">
+        🚨 Reports
+      </button>
+
+      <div class="navTitle">Website</div>
+
+      <button class="navBtn" data-section="contact">
+        📞 Contact
+      </button>
+
+      <button class="navBtn" data-section="social">
+        🌐 Social Media
+      </button>
+
+      <button class="navBtn" data-section="hours">
+        🕐 Opening Hours
+      </button>
+
+      <div class="navTitle">Business</div>
+
+      <button class="navBtn" data-section="discounts">
+        🎟️ Discount Campaign
+      </button>
+
+      <button class="navBtn" data-section="codes">
+        🔢 Discount Codes
+      </button>
+
+      <button class="navBtn" data-section="staff">
+        👥 Staff Management
+      </button>
+
+      <button class="navBtn" data-section="performance">
+        📈 Staff Performance
+      </button>
+
+    </aside>
+
+
+    <main class="main">
+
+
+      <!-- DASHBOARD -->
+
+      <section id="section-dashboard" class="section active">
+
+        <div class="sectionHeader">
+          <h2>Dashboard</h2>
+          <p>Welcome to your Nababi Ristorante control center.</p>
+        </div>
+
+        <div class="grid">
+
+          <div class="card stat">
+            <div class="statLabel">Menu Items</div>
+            <div class="statValue" id="statMenu">0</div>
+          </div>
+
+          <div class="card stat">
+            <div class="statLabel">Gallery Photos</div>
+            <div class="statValue" id="statGallery">0</div>
+          </div>
+
+          <div class="card stat">
+            <div class="statLabel">Bookings</div>
+            <div class="statValue" id="statBookings">0</div>
+          </div>
+
+          <div class="card stat">
+            <div class="statLabel">Reviews</div>
+            <div class="statValue" id="statReviews">0</div>
+          </div>
+
+          <div class="card stat">
+            <div class="statLabel">Reports</div>
+            <div class="statValue" id="statReports">0</div>
+          </div>
+
+          <div class="card stat">
+            <div class="statLabel">Discount Codes</div>
+            <div class="statValue" id="statCodes">0</div>
+          </div>
+
+        </div>
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:12px">
+            Quick Actions
+          </h3>
+
+          <div class="actions">
+
+            <button class="goldBtn" onclick="openSection('home')">
+              Edit Home
+            </button>
+
+            <button class="darkBtn" onclick="openSection('menu')">
+              Manage Menu
+            </button>
+
+            <button class="darkBtn" onclick="openSection('gallery')">
+              Manage Gallery
+            </button>
+
+            <button class="darkBtn" onclick="openSection('bookings')">
+              View Bookings
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- HOME -->
+
+      <section id="section-home" class="section">
+
+        <div class="sectionHeader">
+          <h2>Home / Hero</h2>
+          <p>Manage the main restaurant presentation.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Hero Title</label>
+              <input id="heroTitle">
+            </div>
+
+            <div class="field">
+              <label>Hero Image URL</label>
+              <input id="heroImage">
+            </div>
+
+            <div class="field full">
+              <label>Hero Text</label>
+              <textarea id="heroText"></textarea>
+            </div>
+
+          </div>
+
+          <div class="actions">
+            <button class="goldBtn" onclick="saveHero()">
+              Save Hero
+            </button>
+          </div>
+
+          <div id="heroMsg" class="message"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:10px">
+            Restaurant Logo
+          </h3>
+
+          <div class="field">
+            <label>Logo Image URL</label>
+            <input id="logoUrl">
+          </div>
+
+          <div class="actions">
+            <button class="goldBtn" onclick="saveLogo()">
+              Save Logo
+            </button>
+          </div>
+
+          <img id="logoPreview" class="preview hidden">
+
+          <div id="logoMsg" class="message"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:10px">
+            Two Hero Videos
+          </h3>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Video 1 URL</label>
+              <input id="video1">
+            </div>
+
+            <div class="field">
+              <label>Video 2 URL</label>
+              <input id="video2">
+            </div>
+
+          </div>
+
+          <div class="actions">
+            <button class="goldBtn" onclick="saveVideos()">
+              Save Videos
+            </button>
+          </div>
+
+          <div id="videoMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- BREAKING -->
+
+      <section id="section-breaking" class="section">
+
+        <div class="sectionHeader">
+          <h2>Breaking News</h2>
+          <p>Control temporary announcements on the website.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="field">
+            <label>
+              <input id="breakingEnabled" type="checkbox" style="width:auto">
+              Enable Breaking News
+            </label>
+          </div>
+
+          <div class="field">
+            <label>Announcement Text</label>
+            <textarea id="breakingText"></textarea>
+          </div>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Start Date & Time</label>
+              <input id="breakingStart" type="datetime-local">
+            </div>
+
+            <div class="field">
+              <label>End Date & Time</label>
+              <input id="breakingEnd" type="datetime-local">
+            </div>
+
+          </div>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Image URL</label>
+              <input id="breakingImage">
+            </div>
+
+            <div class="field">
+              <label>Video URL</label>
+              <input id="breakingVideo">
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="saveBreaking()">
+            Save Breaking News
+          </button>
+
+          <div id="breakingMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ABOUT -->
+
+      <section id="section-about" class="section">
+
+        <div class="sectionHeader">
+          <h2>About Us</h2>
+          <p>Edit the restaurant story and presentation.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="field">
+            <label>About Title</label>
+            <input id="aboutTitle">
+          </div>
+
+          <div class="field">
+            <label>About Text</label>
+            <textarea id="aboutText" style="min-height:220px"></textarea>
+          </div>
+
+          <div class="field">
+            <label>About Image / Video URL</label>
+            <input id="aboutMedia">
+          </div>
+
+          <button class="goldBtn" onclick="saveAbout()">
+            Save About Us
+          </button>
+
+          <div id="aboutMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MENU -->
+
+      <section id="section-menu" class="section">
+
+        <div class="sectionHeader">
+          <h2>Menu Manager</h2>
+          <p>Create categories and manage every menu item.</p>
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Add New Category
+          </h3>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Category Name</label>
+              <input id="newCategoryName" placeholder="Example: Special Biryani">
+            </div>
+
+            <div class="field">
+              <label>Category Image URL</label>
+              <input id="newCategoryImage">
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="addCategory()">
+            + Create Category
+          </button>
+
+          <div id="categoryMsg" class="message"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Categories
+          </h3>
+
+          <div id="categoryList"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Add Menu Item
+          </h3>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Food Name</label>
+              <input id="menuName">
+            </div>
+
+            <div class="field">
+              <label>Price</label>
+              <input id="menuPrice" placeholder="€12.00">
+            </div>
+
+            <div class="field">
+              <label>Category</label>
+              <select id="menuCategory">
+                <option value="">Select Category</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Image URL</label>
+              <input id="menuImage">
+            </div>
+
+            <div class="field full">
+              <label>Description</label>
+              <textarea id="menuDescription"></textarea>
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="addMenuItem()">
+            + Add Menu Item
+          </button>
+
+          <div id="menuMsg" class="message"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Menu Items
+          </h3>
+
+          <div id="menuList"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- GALLERY -->
+
+      <section id="section-gallery" class="section">
+
+        <div class="sectionHeader">
+          <h2>Gallery</h2>
+          <p>Upload restaurant photos directly from your phone.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="field">
+            <label>Select Photo</label>
+            <input id="galleryFile" type="file" accept="image/*">
+          </div>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Title</label>
+              <input id="galleryTitle">
+            </div>
+
+            <div class="field">
+              <label>Category</label>
+              <input id="galleryCategory" value="Restaurant">
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="uploadGallery()">
+            Upload Photo
+          </button>
+
+          <div id="galleryMsg" class="message"></div>
+
+        </div>
+
+        <div class="card">
+
+          <div id="galleryList" class="galleryGrid"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- BOOKINGS -->
+
+      <section id="section-bookings" class="section">
+
+        <div class="sectionHeader">
+          <h2>Table Bookings</h2>
+          <p>Manage customer reservation requests.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="actions">
+            <button class="goldBtn" onclick="loadBookings()">
+              Refresh Bookings
+            </button>
+          </div>
+
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Guests</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="bookingTable"></tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- REVIEWS -->
+
+      <section id="section-reviews" class="section">
+
+        <div class="sectionHeader">
+          <h2>Reviews</h2>
+          <p>Approve, feature, hide or delete customer reviews.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="tableWrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Rating</th>
+                  <th>Review</th>
+                  <th>Status</th>
+                  <th>Featured</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody id="reviewTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- REPORTS -->
+
+      <section id="section-reports" class="section">
+
+        <div class="sectionHeader">
+          <h2>Customer Reports</h2>
+          <p>Manage complaints and customer reports.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="tableWrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody id="reportTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- CONTACT -->
+
+      <section id="section-contact" class="section">
+
+        <div class="sectionHeader">
+          <h2>Contact</h2>
+          <p>Manage public contact information.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="formGrid">
+
+            <div class="field full">
+              <label>Address</label>
+              <input id="contactAddress">
+            </div>
+
+            <div class="field">
+              <label>Phone 1</label>
+              <input id="contactPhone1">
+            </div>
+
+            <div class="field">
+              <label>Phone 2</label>
+              <input id="contactPhone2">
+            </div>
+
+            <div class="field">
+              <label>WhatsApp</label>
+              <input id="contactWhatsapp">
+            </div>
+
+            <div class="field">
+              <label>Google Maps URL</label>
+              <input id="contactMaps">
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="saveContact()">
+            Save Contact
+          </button>
+
+          <div id="contactMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SOCIAL -->
+
+      <section id="section-social" class="section">
+
+        <div class="sectionHeader">
+          <h2>Social Media</h2>
+          <p>Manage restaurant social links.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="field">
+            <label>Facebook</label>
+            <input id="facebook">
+          </div>
+
+          <div class="field">
+            <label>Instagram</label>
+            <input id="instagram">
+          </div>
+
+          <div class="field">
+            <label>TikTok</label>
+            <input id="tiktok">
+          </div>
+
+          <div class="field">
+            <label>YouTube</label>
+            <input id="youtube">
+          </div>
+
+          <button class="goldBtn" onclick="saveSocial()">
+            Save Social Media
+          </button>
+
+          <div id="socialMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- HOURS -->
+
+      <section id="section-hours" class="section">
+
+        <div class="sectionHeader">
+          <h2>Opening Hours</h2>
+          <p>Set opening and closing times for every day.</p>
+        </div>
+
+        <div class="card">
+
+          <div id="hoursFields"></div>
+
+          <button class="goldBtn" onclick="saveHours()">
+            Save Opening Hours
+          </button>
+
+          <div id="hoursMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- DISCOUNTS -->
+
+      <section id="section-discounts" class="section">
+
+        <div class="sectionHeader">
+          <h2>Discount Campaign</h2>
+          <p>Control the restaurant discount system.</p>
+        </div>
+
+        <div class="card">
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Campaign Name</label>
+              <input id="discountName">
+            </div>
+
+            <div class="field">
+              <label>Discount %</label>
+              <input id="discountPercent" type="number">
+            </div>
+
+            <div class="field">
+              <label>Prefix</label>
+              <input id="discountPrefix" value="NB">
+            </div>
+
+            <div class="field">
+              <label>
+                <input id="discountEnabled" type="checkbox" style="width:auto">
+                Campaign Enabled
+              </label>
+            </div>
+
+            <div class="field">
+              <label>Start</label>
+              <input id="discountStart" type="datetime-local">
+            </div>
+
+            <div class="field">
+              <label>End</label>
+              <input id="discountEnd" type="datetime-local">
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="saveDiscountCampaign()">
+            Save Campaign
+          </button>
+
+          <div id="discountMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- CODES -->
+
+      <section id="section-codes" class="section">
+
+        <div class="sectionHeader">
+          <h2>Discount Codes</h2>
+          <p>View generated codes and usage status.</p>
+        </div>
+
+        <div class="card">
+
+          <button class="goldBtn" onclick="loadDiscountCodes()">
+            Refresh Codes
+          </button>
+
+          <div class="tableWrap" style="margin-top:15px">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Discount</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Used</th>
+                </tr>
+              </thead>
+
+              <tbody id="codeTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- STAFF -->
+
+      <section id="section-staff" class="section">
+
+        <div class="sectionHeader">
+          <h2>Staff Management</h2>
+          <p>Create and manage individual staff accounts.</p>
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Create Staff Account
+          </h3>
+
+          <div class="formGrid">
+
+            <div class="field">
+              <label>Full Name</label>
+              <input id="staffName">
+            </div>
+
+            <div class="field">
+              <label>Email</label>
+              <input id="staffEmail" type="email">
+            </div>
+
+            <div class="field">
+              <label>Password</label>
+              <input id="staffPassword" type="password">
+            </div>
+
+            <div class="field">
+              <label>Role</label>
+
+              <select id="staffRole">
+
+                <option value="DISCOUNT_STAFF">
+                  DISCOUNT STAFF
+                </option>
+
+                <option value="BOOKING_STAFF">
+                  BOOKING STAFF
+                </option>
+
+                <option value="SUPER_ADMIN">
+                  SUPER ADMIN
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <button class="goldBtn" onclick="createStaff()">
+            + Create Staff
+          </button>
+
+          <div id="staffMsg" class="message"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Staff Accounts
+          </h3>
+
+          <div id="staffList"></div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3 style="color:var(--gold2);margin-bottom:15px">
+            Staff Profile Photo
+          </h3>
+
+          <p style="color:#999;font-size:13px;margin-bottom:15px">
+            Select a staff member and upload/change their profile photo.
+          </p>
+
+          <div class="field">
+            <label>Staff Email</label>
+            <select id="photoStaffEmail">
+              <option value="">Select Staff</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Photo</label>
+            <input id="staffPhotoFile" type="file" accept="image/*">
+          </div>
+
+          <div class="actions">
+
+            <button class="goldBtn" onclick="uploadStaffPhoto()">
+              Upload / Change Photo
+            </button>
+
+            <button class="dangerBtn" onclick="removeStaffPhoto()">
+              Remove Photo
+            </button>
+
+          </div>
+
+          <div id="staffPhotoMsg" class="message"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- PERFORMANCE -->
+
+      <section id="section-performance" class="section">
+
+        <div class="sectionHeader">
+          <h2>Staff Performance</h2>
+          <p>See individual staff activity and performance.</p>
+        </div>
+
+        <div class="card">
+
+          <button class="goldBtn" onclick="loadPerformance()">
+            Refresh Performance
+          </button>
+
+          <div class="tableWrap" style="margin-top:15px">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Staff</th>
+                  <th>Role</th>
+                  <th>Checked</th>
+                  <th>Used</th>
+                  <th>Invalid</th>
+                  <th>Bookings Viewed</th>
+                  <th>Confirmed</th>
+                  <th>Cancelled</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="performanceTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+    </main>
+
   </div>
 
-  <button class="nav-btn active" data-section="dashboard">🏠 Dashboard</button>
-
-  <div class="nav-group">Website</div>
-  <button class="nav-btn" data-section="home">🎨 Home / Hero</button>
-  <button class="nav-btn" data-section="breaking">📰 Breaking News</button>
-  <button class="nav-btn" data-section="logo">🪪 Logo</button>
-  <button class="nav-btn" data-section="about">ℹ️ About Us</button>
-
-  <div class="nav-group">Content</div>
-  <button class="nav-btn" data-section="menu">🍽️ Menu Manager</button>
-  <button class="nav-btn" data-section="gallery">🖼️ Gallery</button>
-
-  <div class="nav-group">Customers</div>
-  <button class="nav-btn" data-section="bookings">📅 Table Bookings</button>
-  <button class="nav-btn" data-section="reviews">⭐ Reviews</button>
-  <button class="nav-btn" data-section="reports">📝 Reports</button>
-
-  <div class="nav-group">Business</div>
-  <button class="nav-btn" data-section="contact">📞 Contact</button>
-  <button class="nav-btn" data-section="social">📱 Social Media</button>
-  <button class="nav-btn" data-section="hours">🕐 Opening Hours</button>
-  <button class="nav-btn" data-section="discounts">🎟️ Discounts</button>
-
-  <div class="nav-group" id="staffGroup">Management</div>
-  <button class="nav-btn" data-section="staff" id="staffNav">👥 Staff Management</button>
-
-  <button class="nav-btn" onclick="logout()" style="margin-top:20px;color:#ff9999">
-    🚪 Logout
-  </button>
-</aside>
-
-<main class="main">
-
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
-      <h2 id="pageTitle">Dashboard</h2>
-    </div>
-
-    <div class="userbox">
-      <img id="userAvatar" class="avatar" alt="">
-      <span id="userInfo">Admin</span>
-    </div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="section active">
-    <div class="grid3">
-      <div class="stat">
-        <small>Menu Items</small>
-        <strong id="statMenu">0</strong>
-      </div>
-      <div class="stat">
-        <small>Gallery Photos</small>
-        <strong id="statGallery">0</strong>
-      </div>
-      <div class="stat">
-        <small>Pending Bookings</small>
-        <strong id="statBookings">0</strong>
-      </div>
-      <div class="stat">
-        <small>Reviews</small>
-        <strong id="statReviews">0</strong>
-      </div>
-      <div class="stat">
-        <small>Reports</small>
-        <strong id="statReports">0</strong>
-      </div>
-      <div class="stat">
-        <small>Discount Codes</small>
-        <strong id="statCodes">0</strong>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:20px">
-      <h3>Welcome to Nababi Ristorante Admin</h3>
-      <p class="muted">
-        Manage your restaurant website, menu, gallery, bookings,
-        reviews, discounts and staff from one place.
-      </p>
-    </div>
-  </section>
-
-  <!-- HOME -->
-  <section id="home" class="section">
-    <div class="card">
-      <h3>Hero Section</h3>
-
-      <label>Hero Title</label>
-      <input id="heroTitle">
-
-      <label>Hero Text</label>
-      <textarea id="heroText"></textarea>
-
-      <label>Hero Image</label>
-      <div class="filebox">
-        <input id="heroFile" type="file" accept="image/*">
-      </div>
-
-      <img id="heroPreview" class="preview hidden">
-
-      <div class="actions">
-        <button class="btn" onclick="saveHero()">Save Hero</button>
-      </div>
-      <div id="heroMsg"></div>
-    </div>
-
-    <div class="card">
-      <h3>Hero Video 1</h3>
-      <div class="filebox">
-        <input id="video1File" type="file" accept="video/*">
-      </div>
-      <div class="actions">
-        <button class="btn" onclick="saveVideo('video1','video1File','video1Msg')">
-          Upload / Save Video 1
-        </button>
-      </div>
-      <div id="video1Msg"></div>
-    </div>
-
-    <div class="card">
-      <h3>Hero Video 2</h3>
-      <div class="filebox">
-        <input id="video2File" type="file" accept="video/*">
-      </div>
-      <div class="actions">
-        <button class="btn" onclick="saveVideo('video2','video2File','video2Msg')">
-          Upload / Save Video 2
-        </button>
-      </div>
-      <div id="video2Msg"></div>
-    </div>
-  </section>
-
-  <!-- BREAKING -->
-  <section id="breaking" class="section">
-    <div class="card">
-      <h3>Breaking News</h3>
-
-      <label>
-        <input id="newsEnabled" type="checkbox" style="width:auto">
-        Enable Breaking News
-      </label>
-
-      <label>News Text</label>
-      <textarea id="newsText"></textarea>
-
-      <div class="grid">
-        <div>
-          <label>Start Date & Time</label>
-          <input id="newsStart" type="datetime-local">
-        </div>
-        <div>
-          <label>End Date & Time</label>
-          <input id="newsEnd" type="datetime-local">
-        </div>
-      </div>
-
-      <label>Optional Image</label>
-      <div class="filebox">
-        <input id="newsFile" type="file" accept="image/*,video/*">
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick="saveBreaking()">Save Breaking News</button>
-      </div>
-      <div id="breakingMsg"></div>
-    </div>
-  </section>
-
-  <!-- LOGO -->
-  <section id="logo" class="section">
-    <div class="card">
-      <h3>Restaurant Logo</h3>
-
-      <img id="currentLogoPreview" class="preview">
-
-      <label>Upload New Logo</label>
-      <div class="filebox">
-        <input id="logoFile" type="file" accept="image/*">
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick="saveLogo()">Change Logo</button>
-      </div>
-      <div id="logoMsg"></div>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about" class="section">
-    <div class="card">
-      <h3>About Nababi Ristorante</h3>
-
-      <label>Title</label>
-      <input id="aboutTitle">
-
-      <label>About Text</label>
-      <textarea id="aboutText" style="min-height:260px"></textarea>
-
-      <label>About Image</label>
-      <div class="filebox">
-        <input id="aboutFile" type="file" accept="image/*">
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick="saveAbout()">Save About</button>
-      </div>
-      <div id="aboutMsg"></div>
-    </div>
-  </section>
-
-  <!-- MENU -->
-  <section id="menu" class="section">
-
-    <div class="card">
-      <h3>Categories</h3>
-
-      <div class="grid">
-        <div>
-          <label>New Category</label>
-          <input id="newCategory" placeholder="e.g. Chef Specials">
-        </div>
-        <div style="display:flex;align-items:end">
-          <button class="btn" onclick="addCategory()">Add Category</button>
-        </div>
-      </div>
-
-      <div id="categoryList" style="margin-top:20px"></div>
-    </div>
-
-    <div class="card">
-      <h3>Add / Edit Menu Item</h3>
-
-      <input id="menuId" type="hidden">
-
-      <div class="grid">
-        <div>
-          <label>Food Name</label>
-          <input id="menuName">
-        </div>
-
-        <div>
-          <label>Price</label>
-          <input id="menuPrice" placeholder="€12.00">
-        </div>
-      </div>
-
-      <label>Category</label>
-      <select id="menuCategory">
-        <option value="">Select Category</option>
-      </select>
-
-      <label>Description</label>
-      <textarea id="menuDescription"></textarea>
-
-      <label>Food Photo — Phone Gallery</label>
-      <div class="filebox">
-        <input id="menuFile" type="file" accept="image/*">
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick="saveMenu()">Save Food</button>
-        <button class="btn dark" onclick="clearMenuForm()">Clear</button>
-      </div>
-
-      <div id="menuMsg"></div>
-    </div>
-
-    <div class="card">
-      <h3>Menu Items</h3>
-      <div id="menuTable" class="table-wrap"></div>
-    </div>
-  </section>
-
-  <!-- GALLERY -->
-  <section id="gallery" class="section">
-    <div class="card">
-      <h3>Upload Gallery Image</h3>
-
-      <label>Photo / Video</label>
-      <div class="filebox">
-        <input id="galleryFile" type="file" accept="image/*,video/*">
-      </div>
-
-      <div class="grid">
-        <div>
-          <label>Title</label>
-          <input id="galleryTitle" placeholder="Restaurant">
-        </div>
-        <div>
-          <label>Category</label>
-          <input id="galleryCategory" value="Restaurant">
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick="uploadGallery()">Upload to Gallery</button>
-      </div>
-
-      <div id="galleryMsg"></div>
-    </div>
-
-    <div class="card">
-      <h3>Gallery Management</h3>
-      <div id="galleryGrid" class="grid3"></div>
-    </div>
-  </section>
-
-  <!-- BOOKINGS -->
-  <section id="bookings" class="section">
-    <div class="card">
-      <h3>Table Bookings</h3>
-      <div id="bookingTable" class="table-wrap"></div>
-    </div>
-  </section>
-
-  <!-- REVIEWS -->
-  <section id="reviews" class="section">
-    <div class="card">
-      <h3>Customer Reviews</h3>
-      <div id="reviewTable" class="table-wrap"></div>
-    </div>
-  </section>
-
-  <!-- REPORTS -->
-  <section id="reports" class="section">
-    <div class="card">
-      <h3>Customer Reports / Complaints</h3>
-      <div id="reportTable" class="table-wrap"></div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact" class="section">
-    <div class="card">
-      <h3>Contact Information</h3>
-
-      <label>Address</label>
-      <input id="contactAddress">
-
-      <div class="grid">
-        <div>
-          <label>Phone 1</label>
-          <input id="contactPhone1">
-        </div>
-        <div>
-          <label>Phone 2</label>
-          <input id="contactPhone2">
-        </div>
-      </div>
-
-      <label>WhatsApp</label>
-      <input id="contactWhatsapp">
-
-      <label>Google Maps URL</label>
-      <input id="contactMaps">
-
-      <div class="actions">
-        <button class="btn" onclick="saveContact()">Save Contact</button>
-      </div>
-      <div id="contactMsg"></div>
-    </div>
-  </section>
-
-  <!-- SOCIAL -->
-  <section id="social" class="section">
-    <div class="card">
-      <h3>Social Media</h3>
-
-      <label>Facebook</label>
-      <input id="socialFacebook">
-
-      <label>Instagram</label>
-      <input id="socialInstagram">
-
-      <label>TikTok</label>
-      <input id="socialTikTok">
-
-      <label>YouTube</label>
-      <input id="socialYoutube">
-
-      <div class="actions">
-        <button class="btn" onclick="saveSocial()">Save Social Media</button>
-      </div>
-      <div id="socialMsg"></div>
-    </div>
-  </section>
-
-  <!-- HOURS -->
-  <section id="hours" class="section">
-    <div class="card">
-      <h3>Opening Hours</h3>
-      <div id="hoursForm"></div>
-      <div class="actions">
-        <button class="btn" onclick="saveHours()">Save Opening Hours</button>
-      </div>
-      <div id="hoursMsg"></div>
-    </div>
-  </section>
-
-  <!-- DISCOUNTS -->
-  <section id="discounts" class="section">
-    <div class="card">
-      <h3>Discount Campaign</h3>
-
-      <label>
-        <input id="discountEnabled" type="checkbox" style="width:auto">
-        Enable Campaign
-      </label>
-
-      <div class="grid">
-        <div>
-          <label>Discount %</label>
-          <input id="discountPercent" type="number" min="1" max="100">
-        </div>
-        <div>
-          <label>Prefix</label>
-          <input id="discountPrefix" value="NB-">
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick="saveDiscountCampaign()">
-          Save Campaign
-        </button>
-      </div>
-
-      <div id="discountMsg"></div>
-    </div>
-
-    <div class="card">
-      <h3>Discount Statistics</h3>
-      <div class="grid3">
-        <div class="stat">
-          <small>Total Codes</small>
-          <strong id="discountTotal">0</strong>
-        </div>
-        <div class="stat">
-          <small>Codes Used</small>
-          <strong id="discountUsed">0</strong>
-        </div>
-        <div class="stat">
-          <small>Codes Available</small>
-          <strong id="discountAvailable">0</strong>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STAFF -->
-  <section id="staff" class="section">
-
-    <div class="card">
-      <h3>Create Staff Account</h3>
-
-      <div class="grid">
-        <div>
-          <label>Full Name</label>
-          <input id="staffName">
-        </div>
-
-        <div>
-          <label>Email</label>
-          <input id="staffEmail" type="email">
-        </div>
-
-        <div>
-          <label>Password</label>
-          <input id="staffPassword" type="password">
-        </div>
-
-        <div>
-          <label>Role</label>
-          <select id="staffRole">
-            <option value="SUPER_ADMIN">SUPER_ADMIN</option>
-            <option value="DISCOUNT_STAFF">DISCOUNT_STAFF</option>
-            <option value="BOOKING_STAFF">BOOKING_STAFF</option>
-          </select>
-        </div>
-      </div>
-
-      <label>
-        <input id="staffEnabled" type="checkbox" checked style="width:auto">
-        Account Enabled
-      </label>
-
-      <div class="actions">
-        <button class="btn" onclick="createStaff()">Create Staff Account</button>
-      </div>
-
-      <div id="staffMsg"></div>
-    </div>
-
-    <div class="card">
-      <h3>Staff Accounts</h3>
-      <div id="staffTable" class="table-wrap"></div>
-    </div>
-
-    <div class="card">
-      <h3>Staff Performance</h3>
-      <div id="performanceTable" class="table-wrap"></div>
-    </div>
-
-  </section>
-
-</main>
 </div>
 
-<script>
-const supabase = window.supabase.createClient(
-  window.SUPABASE_URL,
-  window.SUPABASE_ANON_KEY
-);
 
-const MEDIA_BUCKET = "site-media";
-const STAFF_BUCKET = "staff-photos";
-const CREATE_STAFF_FUNCTION = "create-staff";
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  window.SUPABASE_URL ||
+  window.supabaseUrl ||
+  "";
+
+const SUPABASE_ANON_KEY =
+  window.SUPABASE_ANON_KEY ||
+  window.SUPABASE_KEY ||
+  window.supabaseAnonKey ||
+  "";
+
+if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
+  console.error(
+    "Supabase configuration missing. Check config.js"
+  );
+}
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+/* =========================
+   STATE
+========================= */
 
 let currentUser = null;
 let currentStaff = null;
-let settingsCache = {};
+let categories = [];
+let menuItems = [];
+let galleryItems = [];
+let staffItems = [];
 
-const days = [
-  "Monday","Tuesday","Wednesday","Thursday",
-  "Friday","Saturday","Sunday"
-];
 
-/* ---------------- HELPERS ---------------- */
+/* =========================
+   HELPERS
+========================= */
 
 function $(id){
   return document.getElementById(id);
 }
 
 function msg(id,text,type="success"){
-  const el=$(id);
-  if(!el)return;
-  el.className=type==="error"?"error":"success-msg";
-  el.textContent=text;
+
+  const el = $(id);
+
+  if(!el) return;
+
+  el.textContent = text;
+  el.className = "message show " + type;
 }
 
-function escapeHtml(value){
+function clearMsg(id){
+
+  const el = $(id);
+
+  if(!el) return;
+
+  el.textContent = "";
+  el.className = "message";
+}
+
+function esc(value){
+
   return String(value ?? "")
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
@@ -915,1744 +1811,3840 @@ function escapeHtml(value){
     .replaceAll("'","&#039;");
 }
 
-function fileExt(file){
-  return file.name.split(".").pop().toLowerCase() || "bin";
-}
+function formatDate(value){
 
-async function uploadFile(file,folder="uploads"){
-  if(!file) return null;
+  if(!value) return "-";
 
-  const path =
-    folder + "/" +
-    Date.now() + "-" +
-    Math.random().toString(36).slice(2) +
-    "." + fileExt(file);
-
-  const {error} = await supabase
-    .storage
-    .from(MEDIA_BUCKET)
-    .upload(path,file,{upsert:false});
-
-  if(error) throw error;
-
-  const {data} = supabase
-    .storage
-    .from(MEDIA_BUCKET)
-    .getPublicUrl(path);
-
-  return {
-    url:data.publicUrl,
-    path
-  };
-}
-
-async function saveSetting(key,value){
-  const {error}=await supabase
-    .from("site_settings")
-    .upsert({
-      key,
-      value,
-      updated_at:new Date().toISOString()
-    });
-
-  if(error) throw error;
-}
-
-async function getSetting(key, fallback={}){
-  const {data,error}=await supabase
-    .from("site_settings")
-    .select("value")
-    .eq("key",key)
-    .maybeSingle();
-
-  if(error) throw error;
-
-  return data?.value ?? fallback;
-}
-
-/* ---------------- AUTH ---------------- */
-
-async function login(){
-  const email=$("loginEmail").value.trim();
-  const password=$("loginPassword").value;
-
-  if(!email || !password){
-    msg("loginMessage","Email and password are required.","error");
-    return;
-  }
-
-  msg("loginMessage","Logging in...");
-
-  const {data,error}=await supabase.auth.signInWithPassword({
-    email,password
-  });
-
-  if(error){
-    msg("loginMessage",error.message,"error");
-    return;
-  }
-
-  currentUser=data.user;
-
-  await loadCurrentStaff();
-
-  if(!currentStaff){
-    await supabase.auth.signOut();
-    msg("loginMessage","This account is not registered as Admin Staff.","error");
-    return;
-  }
-
-  if(currentStaff.enabled !== true){
-    await supabase.auth.signOut();
-    msg("loginMessage","This staff account is disabled.","error");
-    return;
-  }
-
-  /*
-    IMPORTANT:
-    Discount Staff goes directly to staff.html.
-    Main Admin remains completely separate.
-  */
-  if(currentStaff.role==="DISCOUNT_STAFF"){
-    window.location.href="staff.html";
-    return;
-  }
-
-  showApp();
-}
-
-async function loadCurrentStaff(){
-  if(!currentUser)return;
-
-  const {data,error}=await supabase
-    .from("admin_staff")
-    .select("*")
-    .ilike("email",currentUser.email)
-    .maybeSingle();
-
-  if(error) throw error;
-
-  currentStaff=data;
-}
-
-async function checkSession(){
-  const {data}=await supabase.auth.getSession();
-
-  if(!data.session)return;
-
-  currentUser=data.session.user;
-  await loadCurrentStaff();
-
-  if(!currentStaff || currentStaff.enabled!==true){
-    await supabase.auth.signOut();
-    return;
-  }
-
-  if(currentStaff.role==="DISCOUNT_STAFF"){
-    window.location.href="staff.html";
-    return;
-  }
-
-  showApp();
-}
-
-async function logout(){
-  await supabase.auth.signOut();
-  location.reload();
-}
-
-/* ---------------- APP ---------------- */
-
-function showApp(){
-  $("loginScreen").classList.add("hidden");
-  $("app").classList.remove("hidden");
-
-  $("userInfo").textContent =
-    `${currentStaff.full_name || currentStaff.email} • ${currentStaff.role}`;
-
-  $("sideRole").textContent=currentStaff.role;
-
-  if(currentStaff.avatar_url){
-    $("userAvatar").src=currentStaff.avatar_url;
-    $("sideLogo").src=currentStaff.avatar_url;
-  }else{
-    loadLogo();
-  }
-
-  applyRolePermissions();
-  loadEverything();
-}
-
-function applyRolePermissions(){
-
-  /*
-    SUPER_ADMIN = everything
-  */
-  if(currentStaff.role==="SUPER_ADMIN") return;
-
-  /*
-    BOOKING STAFF:
-    Only bookings.
-  */
-  if(currentStaff.role==="BOOKING_STAFF"){
-
-    document.querySelectorAll(".nav-btn[data-section]")
-      .forEach(btn=>{
-        const section=btn.dataset.section;
-
-        if(section!=="bookings"){
-          btn.style.display="none";
-        }
-      });
-
-    $("staffGroup").style.display="none";
-    $("staffNav").style.display="none";
-
-    openSection("bookings");
-    return;
+  try{
+    return new Date(value).toLocaleString();
+  }catch{
+    return value;
   }
 }
+
+function isSuperAdmin(){
+
+  return currentStaff &&
+    currentStaff.role === "SUPER_ADMIN";
+}
+
+function canUse(section){
+
+  if(!currentStaff) return false;
+
+  if(currentStaff.role === "SUPER_ADMIN"){
+    return true;
+  }
+
+  if(
+    currentStaff.role === "BOOKING_STAFF" &&
+    section === "bookings"
+  ){
+    return true;
+  }
+
+  return false;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
 
 function toggleSidebar(){
+
   $("sidebar").classList.toggle("open");
 }
 
-document.querySelectorAll(".nav-btn[data-section]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    openSection(btn.dataset.section);
+document.querySelectorAll(".navBtn")
+.forEach(btn => {
+
+  btn.addEventListener("click",() => {
+
+    openSection(
+      btn.dataset.section
+    );
+
+    $("sidebar").classList.remove("open");
+
   });
+
 });
 
-function openSection(id){
 
-  document.querySelectorAll(".section")
-    .forEach(s=>s.classList.remove("active"));
+function openSection(name){
 
-  const target=$(id);
-  if(target)target.classList.add("active");
+  if(!currentStaff) return;
 
-  document.querySelectorAll(".nav-btn")
-    .forEach(b=>b.classList.remove("active"));
+  if(!canUse(name)){
 
-  const btn=document.querySelector(
-    `.nav-btn[data-section="${id}"]`
-  );
-
-  if(btn)btn.classList.add("active");
-
-  const titles={
-    dashboard:"Dashboard",
-    home:"Home / Hero",
-    breaking:"Breaking News",
-    logo:"Restaurant Logo",
-    about:"About Us",
-    menu:"Menu Manager",
-    gallery:"Gallery",
-    bookings:"Table Bookings",
-    reviews:"Reviews",
-    reports:"Customer Reports",
-    contact:"Contact",
-    social:"Social Media",
-    hours:"Opening Hours",
-    discounts:"Discounts",
-    staff:"Staff Management"
-  };
-
-  $("pageTitle").textContent=titles[id]||"Admin";
-  $("sidebar").classList.remove("open");
-}
-
-/* ---------------- LOAD EVERYTHING ---------------- */
-
-async function loadEverything(){
-  try{
-    await Promise.allSettled([
-      loadLogo(),
-      loadHero(),
-      loadBreaking(),
-      loadAbout(),
-      loadCategories(),
-      loadMenu(),
-      loadGallery(),
-      loadBookings(),
-      loadReviews(),
-      loadReports(),
-      loadContact(),
-      loadSocial(),
-      loadHours(),
-      loadDiscounts(),
-      loadStaff()
-    ]);
-
-    updateDashboard();
-  }catch(e){
-    console.error(e);
-  }
-}
-
-/* ---------------- LOGO ---------------- */
-
-async function loadLogo(){
-  try{
-    const value=await getSetting("logo",{url:""});
-
-    if(value?.url){
-      $("loginLogo").src=value.url;
-      $("sideLogo").src=value.url;
-      $("currentLogoPreview").src=value.url;
-      $("currentLogoPreview").classList.remove("hidden");
+    if(
+      currentStaff.role === "BOOKING_STAFF" &&
+      name !== "bookings"
+    ){
+      return;
     }
-  }catch(e){
-    console.error(e);
+
   }
+
+  document
+    .querySelectorAll(".section")
+    .forEach(s =>
+      s.classList.remove("active")
+    );
+
+  document
+    .querySelectorAll(".navBtn")
+    .forEach(b =>
+      b.classList.remove("active")
+    );
+
+  const section =
+    $("section-" + name);
+
+  if(section){
+    section.classList.add("active");
+  }
+
+  const nav =
+    document.querySelector(
+      `.navBtn[data-section="${name}"]`
+    );
+
+  if(nav){
+    nav.classList.add("active");
+  }
+
+  if(name === "dashboard"){
+    loadDashboard();
+  }
+
+  if(name === "home"){
+    loadHome();
+  }
+
+  if(name === "breaking"){
+    loadBreaking();
+  }
+
+  if(name === "about"){
+    loadAbout();
+  }
+
+  if(name === "menu"){
+    loadMenu();
+  }
+
+  if(name === "gallery"){
+    loadGallery();
+  }
+
+  if(name === "bookings"){
+    loadBookings();
+  }
+
+  if(name === "reviews"){
+    loadReviews();
+  }
+
+  if(name === "reports"){
+    loadReports();
+  }
+
+  if(name === "contact"){
+    loadContact();
+  }
+
+  if(name === "social"){
+    loadSocial();
+  }
+
+  if(name === "hours"){
+    loadHours();
+  }
+
+  if(name === "discounts"){
+    loadDiscountCampaign();
+  }
+
+  if(name === "codes"){
+    loadDiscountCodes();
+  }
+
+  if(name === "staff"){
+    loadStaff();
+  }
+
+  if(name === "performance"){
+    loadPerformance();
+  }
+
 }
 
-async function saveLogo(){
 
-  const file=$("logoFile").files[0];
+/* =========================
+   LOGIN
+========================= */
 
-  if(!file){
-    msg("logoMsg","Please select a logo image.","error");
+$("loginBtn").addEventListener(
+  "click",
+  login
+);
+
+$("loginPassword").addEventListener(
+  "keydown",
+  e => {
+    if(e.key === "Enter") login();
+  }
+);
+
+
+async function login(){
+
+  const email =
+    $("loginEmail").value.trim();
+
+  const password =
+    $("loginPassword").value;
+
+  if(!email || !password){
+
+    msg(
+      "loginMessage",
+      "Email and password are required.",
+      "error"
+    );
+
     return;
   }
 
+  msg(
+    "loginMessage",
+    "Logging in..."
+  );
+
   try{
-    const uploaded=await uploadFile(file,"logo");
 
-    await saveSetting("logo",{
-      url:uploaded.url,
-      storage_path:uploaded.path
-    });
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth
+        .signInWithPassword({
+          email,
+          password
+        });
 
-    $("currentLogoPreview").src=uploaded.url;
-    $("loginLogo").src=uploaded.url;
-    $("sideLogo").src=uploaded.url;
-
-    msg("logoMsg","Logo updated successfully.");
-  }catch(e){
-    msg("logoMsg",e.message,"error");
-  }
-}
-
-/* ---------------- HERO ---------------- */
-
-async function loadHero(){
-  try{
-    const hero=await getSetting("hero",{
-      title:"",
-      text:"",
-      image_url:""
-    });
-
-    $("heroTitle").value=hero.title||"";
-    $("heroText").value=hero.text||"";
-
-    if(hero.image_url){
-      $("heroPreview").src=hero.image_url;
-      $("heroPreview").classList.remove("hidden");
+    if(error){
+      throw new Error(
+        error.message
+      );
     }
-  }catch(e){
-    console.error(e);
+
+    if(!data.user){
+
+      throw new Error(
+        "Login succeeded but user was not returned."
+      );
+
+    }
+
+    currentUser =
+      data.user;
+
+
+    const {
+      data:staff,
+      error:staffError
+    } =
+      await supabaseClient
+        .from("admin_staff")
+        .select("*")
+        .ilike(
+          "email",
+          currentUser.email
+        )
+        .maybeSingle();
+
+
+    if(staffError){
+
+      throw new Error(
+        "Staff account check failed: " +
+        staffError.message
+      );
+
+    }
+
+
+    if(!staff){
+
+      await supabaseClient.auth.signOut();
+
+      throw new Error(
+        "This email is not registered in Admin Staff."
+      );
+
+    }
+
+
+    if(staff.enabled !== true){
+
+      await supabaseClient.auth.signOut();
+
+      throw new Error(
+        "This staff account is disabled."
+      );
+
+    }
+
+
+    currentStaff =
+      staff;
+
+
+    if(
+      staff.role ===
+      "DISCOUNT_STAFF"
+    ){
+
+      window.location.href =
+        "staff.html";
+
+      return;
+
+    }
+
+
+    showApp();
+
+
+    if(
+      staff.role ===
+      "BOOKING_STAFF"
+    ){
+
+      openSection(
+        "bookings"
+      );
+
+    }else{
+
+      openSection(
+        "dashboard"
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "ADMIN LOGIN ERROR:",
+      error
+    );
+
+    msg(
+      "loginMessage",
+      error.message ||
+      "Login failed.",
+      "error"
+    );
+
   }
+
 }
+
+
+/* =========================
+   SESSION
+========================= */
+
+async function checkSession(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth
+        .getSession();
+
+    if(error){
+
+      console.error(error);
+      return;
+
+    }
+
+    if(!data.session){
+      return;
+    }
+
+    currentUser =
+      data.session.user;
+
+
+    const {
+      data:staff,
+      error:staffError
+    } =
+      await supabaseClient
+        .from("admin_staff")
+        .select("*")
+        .ilike(
+          "email",
+          currentUser.email
+        )
+        .maybeSingle();
+
+
+    if(staffError){
+
+      console.error(
+        "Staff session error:",
+        staffError
+      );
+
+      await supabaseClient.auth.signOut();
+
+      return;
+
+    }
+
+
+    if(
+      !staff ||
+      staff.enabled !== true
+    ){
+
+      await supabaseClient.auth.signOut();
+
+      return;
+
+    }
+
+
+    currentStaff =
+      staff;
+
+
+    if(
+      staff.role ===
+      "DISCOUNT_STAFF"
+    ){
+
+      window.location.href =
+        "staff.html";
+
+      return;
+
+    }
+
+
+    showApp();
+
+    if(
+      staff.role ===
+      "BOOKING_STAFF"
+    ){
+
+      openSection(
+        "bookings"
+      );
+
+    }else{
+
+      openSection(
+        "dashboard"
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "SESSION ERROR:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================
+   SHOW APP
+========================= */
+
+function showApp(){
+
+  $("loginScreen").style.display =
+    "none";
+
+  $("app").style.display =
+    "block";
+
+
+  $("topName").textContent =
+    currentStaff.full_name ||
+    currentUser.email;
+
+  $("topRole").textContent =
+    currentStaff.role;
+
+
+  if(currentStaff.avatar_url){
+
+    $("topAvatar").src =
+      currentStaff.avatar_url;
+
+  }else{
+
+    $("topAvatar").style.display =
+      "none";
+
+  }
+
+
+  applyRoleUI();
+
+}
+
+
+function applyRoleUI(){
+
+  if(!currentStaff) return;
+
+
+  if(
+    currentStaff.role ===
+    "BOOKING_STAFF"
+  ){
+
+    document
+      .querySelectorAll(
+        ".navBtn"
+      )
+      .forEach(btn => {
+
+        if(
+          btn.dataset.section !==
+          "bookings"
+        ){
+
+          btn.style.display =
+            "none";
+
+        }
+
+      });
+
+    return;
+
+  }
+
+
+  if(
+    currentStaff.role ===
+    "DISCOUNT_STAFF"
+  ){
+
+    window.location.href =
+      "staff.html";
+
+    return;
+
+  }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  currentUser = null;
+  currentStaff = null;
+
+  location.reload();
+
+}
+
+
+/* =========================
+   SITE SETTINGS
+========================= */
+
+async function getSetting(key){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("site_settings")
+      .select("value")
+      .eq("key",key)
+      .maybeSingle();
+
+  if(error){
+    throw error;
+  }
+
+  return data?.value || {};
+
+}
+
+
+async function saveSetting(key,value){
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("site_settings")
+      .upsert({
+        key,
+        value,
+        updated_at:
+          new Date().toISOString()
+      });
+
+  if(error){
+    throw error;
+  }
+
+}
+
+
+/* =========================
+   HOME
+========================= */
+
+async function loadHome(){
+
+  try{
+
+    const hero =
+      await getSetting("hero");
+
+    $("heroTitle").value =
+      hero.title || "";
+
+    $("heroText").value =
+      hero.text || "";
+
+    $("heroImage").value =
+      hero.image_url || "";
+
+
+    const logo =
+      await getSetting("logo");
+
+    $("logoUrl").value =
+      logo.url || "";
+
+    if(logo.url){
+
+      $("logoPreview").src =
+        logo.url;
+
+      $("logoPreview")
+        .classList.remove("hidden");
+
+    }
+
+
+    const videos =
+      await getSetting("videos");
+
+    $("video1").value =
+      videos.video1 || "";
+
+    $("video2").value =
+      videos.video2 || "";
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
 
 async function saveHero(){
 
   try{
-    let image_url="";
 
-    const file=$("heroFile").files[0];
+    await saveSetting(
+      "hero",
+      {
+        title:
+          $("heroTitle").value.trim(),
 
-    if(file){
-      const uploaded=await uploadFile(file,"hero");
-      image_url=uploaded.url;
-    }else{
-      const old=await getSetting("hero",{});
-      image_url=old.image_url||"";
-    }
+        text:
+          $("heroText").value.trim(),
 
-    await saveSetting("hero",{
-      title:$("heroTitle").value.trim(),
-      text:$("heroText").value.trim(),
-      image_url
-    });
+        image_url:
+          $("heroImage").value.trim()
+      }
+    );
 
-    if(image_url){
-      $("heroPreview").src=image_url;
-      $("heroPreview").classList.remove("hidden");
-    }
+    msg(
+      "heroMsg",
+      "Hero saved successfully."
+    );
 
-    msg("heroMsg","Hero saved successfully.");
-  }catch(e){
-    msg("heroMsg",e.message,"error");
+  }catch(error){
+
+    msg(
+      "heroMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- VIDEOS ---------------- */
 
-async function saveVideo(key,fileId,msgId){
-
-  const file=$(fileId).files[0];
-
-  if(!file){
-    msg(msgId,"Please select a video.","error");
-    return;
-  }
+async function saveLogo(){
 
   try{
-    const uploaded=await uploadFile(file,"videos");
 
-    const videos=await getSetting("videos",{
-      video1:"",
-      video2:""
-    });
+    const url =
+      $("logoUrl").value.trim();
 
-    videos[key]=uploaded.url;
+    await saveSetting(
+      "logo",
+      {url}
+    );
 
-    await saveSetting("videos",videos);
+    if(url){
 
-    msg(msgId,`${key} saved successfully.`);
-  }catch(e){
-    msg(msgId,e.message,"error");
+      $("logoPreview").src =
+        url;
+
+      $("logoPreview")
+        .classList.remove("hidden");
+
+    }
+
+    msg(
+      "logoMsg",
+      "Logo saved successfully."
+    );
+
+  }catch(error){
+
+    msg(
+      "logoMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- BREAKING NEWS ---------------- */
+
+async function saveVideos(){
+
+  try{
+
+    await saveSetting(
+      "videos",
+      {
+        video1:
+          $("video1").value.trim(),
+
+        video2:
+          $("video2").value.trim()
+      }
+    );
+
+    msg(
+      "videoMsg",
+      "Videos saved successfully."
+    );
+
+  }catch(error){
+
+    msg(
+      "videoMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   BREAKING
+========================= */
 
 async function loadBreaking(){
 
   try{
-    const data=await getSetting("breaking_news",{
-      enabled:false,
-      text:"",
-      image_url:"",
-      start_at:"",
-      end_at:""
-    });
 
-    $("newsEnabled").checked=!!data.enabled;
-    $("newsText").value=data.text||"";
-    $("newsStart").value=data.start_at||"";
-    $("newsEnd").value=data.end_at||"";
-  }catch(e){
-    console.error(e);
+    const data =
+      await getSetting(
+        "breaking_news"
+      );
+
+    $("breakingEnabled")
+      .checked =
+      data.enabled === true;
+
+    $("breakingText").value =
+      data.text || "";
+
+    $("breakingImage").value =
+      data.image_url || "";
+
+    $("breakingVideo").value =
+      data.video_url || "";
+
+    $("breakingStart").value =
+      toDateTimeLocal(
+        data.start_at
+      );
+
+    $("breakingEnd").value =
+      toDateTimeLocal(
+        data.end_at
+      );
+
+  }catch(error){
+
+    console.error(error);
+
   }
+
 }
+
+
+function toDateTimeLocal(value){
+
+  if(!value) return "";
+
+  try{
+
+    const d =
+      new Date(value);
+
+    const pad =
+      n =>
+        String(n).padStart(2,"0");
+
+    return (
+      d.getFullYear() +
+      "-" +
+      pad(d.getMonth()+1) +
+      "-" +
+      pad(d.getDate()) +
+      "T" +
+      pad(d.getHours()) +
+      ":" +
+      pad(d.getMinutes())
+    );
+
+  }catch{
+
+    return "";
+
+  }
+
+}
+
 
 async function saveBreaking(){
 
   try{
 
-    let image_url="";
+    await saveSetting(
+      "breaking_news",
+      {
+        enabled:
+          $("breakingEnabled").checked,
 
-    const old=await getSetting("breaking_news",{});
-    image_url=old.image_url||"";
+        text:
+          $("breakingText").value.trim(),
 
-    const file=$("newsFile").files[0];
+        image_url:
+          $("breakingImage").value.trim(),
 
-    if(file){
-      const uploaded=await uploadFile(file,"breaking-news");
-      image_url=uploaded.url;
-    }
+        video_url:
+          $("breakingVideo").value.trim(),
 
-    await saveSetting("breaking_news",{
-      enabled:$("newsEnabled").checked,
-      text:$("newsText").value.trim(),
-      image_url,
-      start_at:$("newsStart").value,
-      end_at:$("newsEnd").value
-    });
+        start_at:
+          $("breakingStart").value
+            ? new Date(
+                $("breakingStart").value
+              ).toISOString()
+            : null,
 
-    msg("breakingMsg","Breaking News saved successfully.");
-  }catch(e){
-    msg("breakingMsg",e.message,"error");
+        end_at:
+          $("breakingEnd").value
+            ? new Date(
+                $("breakingEnd").value
+              ).toISOString()
+            : null
+      }
+    );
+
+    msg(
+      "breakingMsg",
+      "Breaking News saved."
+    );
+
+  }catch(error){
+
+    msg(
+      "breakingMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- ABOUT ---------------- */
+
+/* =========================
+   ABOUT
+========================= */
 
 async function loadAbout(){
 
   try{
-    const data=await getSetting("about",{
-      title:"",
-      text:"",
-      image_url:""
-    });
 
-    $("aboutTitle").value=data.title||"";
-    $("aboutText").value=data.text||"";
-  }catch(e){
-    console.error(e);
+    const data =
+      await getSetting("about");
+
+    $("aboutTitle").value =
+      data.title || "";
+
+    $("aboutText").value =
+      data.text || "";
+
+    $("aboutMedia").value =
+      data.media_url ||
+      data.image_url ||
+      "";
+
+  }catch(error){
+
+    console.error(error);
+
   }
+
 }
+
 
 async function saveAbout(){
 
   try{
 
-    const old=await getSetting("about",{});
-    let image_url=old.image_url||"";
+    await saveSetting(
+      "about",
+      {
+        title:
+          $("aboutTitle").value.trim(),
 
-    const file=$("aboutFile").files[0];
+        text:
+          $("aboutText").value.trim(),
 
-    if(file){
-      const uploaded=await uploadFile(file,"about");
-      image_url=uploaded.url;
-    }
+        media_url:
+          $("aboutMedia").value.trim()
+      }
+    );
 
-    await saveSetting("about",{
-      title:$("aboutTitle").value.trim(),
-      text:$("aboutText").value.trim(),
-      image_url
-    });
+    msg(
+      "aboutMsg",
+      "About section saved."
+    );
 
-    msg("aboutMsg","About section saved.");
-  }catch(e){
-    msg("aboutMsg",e.message,"error");
+  }catch(error){
+
+    msg(
+      "aboutMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- CATEGORIES ---------------- */
+
+/* =========================
+   CATEGORIES
+========================= */
 
 async function loadCategories(){
 
-  const {data,error}=await supabase
-    .from("menu_categories")
-    .select("*")
-    .order("sort_order",{ascending:true})
-    .order("name",{ascending:true});
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("menu_categories")
+      .select("*")
+      .order(
+        "sort_order",
+        {ascending:true}
+      )
+      .order(
+        "name",
+        {ascending:true}
+      );
 
-  if(error)throw error;
+  if(error) throw error;
 
-  const select=$("menuCategory");
+  categories =
+    data || [];
 
-  select.innerHTML='<option value="">Select Category</option>';
+  renderCategories();
+  renderCategorySelect();
 
-  data.forEach(cat=>{
-    const option=document.createElement("option");
-    option.value=cat.name;
-    option.textContent=cat.name;
-    select.appendChild(option);
-  });
+}
 
-  $("categoryList").innerHTML=data.length
-    ? data.map(cat=>`
+
+function renderCategories(){
+
+  const box =
+    $("categoryList");
+
+  if(!categories.length){
+
+    box.innerHTML =
+      '<div class="empty">No categories yet.</div>';
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    categories.map(c => `
+
       <div style="
         display:flex;
         align-items:center;
         justify-content:space-between;
         gap:10px;
-        padding:12px;
-        border-bottom:1px solid #292929
+        padding:11px;
+        margin-bottom:8px;
+        background:#101010;
+        border:1px solid #292929;
+        border-radius:10px;
       ">
-        <strong>${escapeHtml(cat.name)}</strong>
-        <div class="actions">
-          <button class="btn small"
-            onclick="renameCategory(${cat.id},${JSON.stringify(cat.name)})">
-            Rename
-          </button>
-          <button class="btn danger small"
-            onclick="deleteCategory(${cat.id},${JSON.stringify(cat.name)})">
-            Delete
-          </button>
+
+        <div>
+          <strong>${esc(c.name)}</strong>
+          <div class="small">
+            ID: ${c.id}
+          </div>
         </div>
-      </div>
-    `).join("")
-    : `<div class="empty">No categories found.</div>`;
-}
 
-async function addCategory(){
-
-  const name=$("newCategory").value.trim();
-
-  if(!name){
-    alert("Enter a category name.");
-    return;
-  }
-
-  const {error}=await supabase
-    .from("menu_categories")
-    .insert({
-      name,
-      sort_order:0
-    });
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  $("newCategory").value="";
-  await loadCategories();
-}
-
-async function renameCategory(id,oldName){
-
-  const newName=prompt("New category name:",oldName);
-
-  if(!newName || newName.trim()===oldName)return;
-
-  const {error}=await supabase
-    .from("menu_categories")
-    .update({name:newName.trim()})
-    .eq("id",id);
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  await loadCategories();
-  await loadMenu();
-}
-
-async function deleteCategory(id,name){
-
-  if(!confirm(`Delete category "${name}"?`))return;
-
-  const {count}=await supabase
-    .from("Menu")
-    .select("*",{count:"exact",head:true})
-    .eq("category",name);
-
-  if(count>0){
-    alert("This category still contains menu items. Move/delete those items first.");
-    return;
-  }
-
-  const {error}=await supabase
-    .from("menu_categories")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  await loadCategories();
-}
-
-/* ---------------- MENU ---------------- */
-
-async function loadMenu(){
-
-  const {data,error}=await supabase
-    .from("Menu")
-    .select("*")
-    .order("created_at",{ascending:false});
-
-  if(error)throw error;
-
-  $("statMenu").textContent=data?.length||0;
-
-  if(!data?.length){
-    $("menuTable").innerHTML='<div class="empty">No menu items yet.</div>';
-    return;
-  }
-
-  $("menuTable").innerHTML=`
-    <table>
-      <thead>
-        <tr>
-          <th>Photo</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(item=>`
-          <tr>
-            <td>
-              ${
-                item.image_url
-                ? `<img class="thumb" src="${escapeHtml(item.image_url)}">`
-                : "—"
-              }
-            </td>
-            <td>${escapeHtml(item.name)}</td>
-            <td>${escapeHtml(item.price||"")}</td>
-            <td><span class="badge gold">${escapeHtml(item.category||"")}</span></td>
-            <td>${escapeHtml(item.description||"")}</td>
-            <td>
-              <div class="actions">
-                <button class="btn small"
-                  onclick='editMenu(${JSON.stringify(item).replaceAll("'","&#39;")})'>
-                  Edit
-                </button>
-                <button class="btn danger small"
-                  onclick="deleteMenu(${item.id})">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
-
-async function saveMenu(){
-
-  const id=$("menuId").value;
-  const name=$("menuName").value.trim();
-  const price=$("menuPrice").value.trim();
-  const category=$("menuCategory").value;
-  const description=$("menuDescription").value.trim();
-  const file=$("menuFile").files[0];
-
-  if(!name || !category){
-    msg("menuMsg","Food name and category are required.","error");
-    return;
-  }
-
-  try{
-
-    let image_url="";
-
-    if(id){
-      const {data}=await supabase
-        .from("Menu")
-        .select("image_url")
-        .eq("id",id)
-        .single();
-
-      image_url=data?.image_url||"";
-    }
-
-    if(file){
-      const uploaded=await uploadFile(file,"menu");
-      image_url=uploaded.url;
-    }
-
-    const payload={
-      name,
-      price,
-      category,
-      description,
-      image_url
-    };
-
-    let error;
-
-    if(id){
-      ({error}=await supabase
-        .from("Menu")
-        .update(payload)
-        .eq("id",id));
-    }else{
-      ({error}=await supabase
-        .from("Menu")
-        .insert(payload));
-    }
-
-    if(error)throw error;
-
-    clearMenuForm();
-    await loadMenu();
-
-    msg("menuMsg","Menu item saved successfully.");
-  }catch(e){
-    msg("menuMsg",e.message,"error");
-  }
-}
-
-function editMenu(item){
-
-  $("menuId").value=item.id;
-  $("menuName").value=item.name||"";
-  $("menuPrice").value=item.price||"";
-  $("menuCategory").value=item.category||"";
-  $("menuDescription").value=item.description||"";
-
-  openSection("menu");
-
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-async function deleteMenu(id){
-
-  if(!confirm("Delete this menu item?"))return;
-
-  const {error}=await supabase
-    .from("Menu")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  await loadMenu();
-}
-
-function clearMenuForm(){
-
-  $("menuId").value="";
-  $("menuName").value="";
-  $("menuPrice").value="";
-  $("menuCategory").value="";
-  $("menuDescription").value="";
-  $("menuFile").value="";
-}
-
-/* ---------------- GALLERY ---------------- */
-
-async function uploadGallery(){
-
-  const file=$("galleryFile").files[0];
-
-  if(!file){
-    msg("galleryMsg","Please select a photo or video.","error");
-    return;
-  }
-
-  try{
-
-    const uploaded=await uploadFile(file,"gallery");
-
-    const {error}=await supabase
-      .from("gallery")
-      .insert({
-        image_url:uploaded.url,
-        storage_path:uploaded.path,
-        title:$("galleryTitle").value.trim(),
-        category:$("galleryCategory").value.trim()||"Restaurant",
-        is_visible:true,
-        sort_order:0
-      });
-
-    if(error)throw error;
-
-    $("galleryFile").value="";
-    $("galleryTitle").value="";
-
-    await loadGallery();
-
-    msg("galleryMsg","Gallery uploaded successfully.");
-  }catch(e){
-    msg("galleryMsg",e.message,"error");
-  }
-}
-
-async function loadGallery(){
-
-  const {data,error}=await supabase
-    .from("gallery")
-    .select("*")
-    .order("sort_order",{ascending:true})
-    .order("created_at",{ascending:false});
-
-  if(error)throw error;
-
-  $("statGallery").textContent=data?.length||0;
-
-  if(!data?.length){
-    $("galleryGrid").innerHTML='<div class="empty">No gallery media yet.</div>';
-    return;
-  }
-
-  $("galleryGrid").innerHTML=data.map(item=>`
-
-    <div class="card" style="margin:0">
-
-      <img
-        src="${escapeHtml(item.image_url)}"
-        style="
-          width:100%;
-          height:170px;
-          object-fit:cover;
-          border-radius:10px
-        "
-      >
-
-      <h3 style="margin-top:12px">
-        ${escapeHtml(item.title||"Restaurant")}
-      </h3>
-
-      <p class="muted">
-        ${escapeHtml(item.category||"Restaurant")}
-      </p>
-
-      <span class="badge ${item.is_visible?"green":"red"}">
-        ${item.is_visible?"Visible":"Hidden"}
-      </span>
-
-      <div class="actions">
-
-        <button class="btn small"
-          onclick="toggleGallery(${item.id},${item.is_visible})">
-          ${item.is_visible?"Hide":"Show"}
-        </button>
-
-        <button class="btn danger small"
-          onclick="deleteGallery(${item.id},${JSON.stringify(item.storage_path||"")})">
+        <button
+          class="dangerBtn"
+          onclick="deleteCategory(${c.id})">
           Delete
         </button>
 
       </div>
 
-    </div>
+    `).join("");
 
-  `).join("");
 }
 
-async function toggleGallery(id,current){
 
-  const {error}=await supabase
-    .from("gallery")
-    .update({is_visible:!current})
-    .eq("id",id);
+function renderCategorySelect(){
 
-  if(error){
-    alert(error.message);
+  const select =
+    $("menuCategory");
+
+  select.innerHTML =
+    '<option value="">Select Category</option>' +
+
+    categories.map(c => `
+      <option value="${esc(c.name)}">
+        ${esc(c.name)}
+      </option>
+    `).join("");
+
+}
+
+
+async function addCategory(){
+
+  const name =
+    $("newCategoryName")
+      .value.trim();
+
+  const image =
+    $("newCategoryImage")
+      .value.trim();
+
+  if(!name){
+
+    msg(
+      "categoryMsg",
+      "Category name is required.",
+      "error"
+    );
+
     return;
+
   }
 
-  await loadGallery();
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("menu_categories")
+        .insert({
+          name,
+          image_url:image,
+          sort_order:
+            categories.length
+        });
+
+    if(error) throw error;
+
+    $("newCategoryName").value =
+      "";
+
+    $("newCategoryImage").value =
+      "";
+
+    await loadCategories();
+
+    msg(
+      "categoryMsg",
+      "Category created successfully."
+    );
+
+  }catch(error){
+
+    msg(
+      "categoryMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
 }
 
-async function deleteGallery(id,path){
 
-  if(!confirm("Delete this gallery item?"))return;
+async function deleteCategory(id){
 
-  const {error}=await supabase
-    .from("gallery")
-    .delete()
-    .eq("id",id);
+  if(
+    !confirm(
+      "Delete this category?"
+    )
+  ) return;
 
-  if(error){
-    alert(error.message);
+  try{
+
+    const category =
+      categories.find(
+        c => c.id === id
+      );
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("menu_categories")
+        .delete()
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadCategories();
+
+    msg(
+      "categoryMsg",
+      "Category deleted."
+    );
+
+  }catch(error){
+
+    msg(
+      "categoryMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   MENU
+========================= */
+
+async function loadMenu(){
+
+  try{
+
+    await loadCategories();
+
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("Menu")
+        .select("*")
+        .order(
+          "id",
+          {ascending:false}
+        );
+
+    if(error) throw error;
+
+    menuItems =
+      data || [];
+
+    renderMenu();
+
+  }catch(error){
+
+    console.error(error);
+
+    $("menuList").innerHTML =
+      `<div class="empty">
+        ${esc(error.message)}
+      </div>`;
+
+  }
+
+}
+
+
+function renderMenu(){
+
+  const box =
+    $("menuList");
+
+  if(!menuItems.length){
+
+    box.innerHTML =
+      '<div class="empty">No menu items yet.</div>';
+
     return;
+
   }
 
-  if(path){
-    await supabase.storage
-      .from(MEDIA_BUCKET)
-      .remove([path]);
-  }
 
-  await loadGallery();
+  box.innerHTML =
+    menuItems.map(item => `
+
+      <div class="menuItem">
+
+        <img
+          src="${esc(item.image_url || "")}"
+          onerror="this.style.opacity='.2'"
+        >
+
+        <div>
+
+          <div class="menuName">
+            ${esc(item.name)}
+          </div>
+
+          <div class="menuMeta">
+            Category:
+            ${esc(item.category || "-")}
+          </div>
+
+          <div class="menuMeta">
+            Price:
+            ${esc(item.price || "-")}
+          </div>
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="blueBtn"
+            onclick="editMenuItem(${item.id})">
+            Edit
+          </button>
+
+          <button
+            class="dangerBtn"
+            onclick="deleteMenuItem(${item.id})">
+            Delete
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
 }
 
-/* ---------------- BOOKINGS ---------------- */
+
+async function addMenuItem(){
+
+  const name =
+    $("menuName").value.trim();
+
+  const price =
+    $("menuPrice").value.trim();
+
+  const category =
+    $("menuCategory").value;
+
+  const image =
+    $("menuImage").value.trim();
+
+  const description =
+    $("menuDescription").value.trim();
+
+
+  if(!name){
+
+    msg(
+      "menuMsg",
+      "Food name is required.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if(!category){
+
+    msg(
+      "menuMsg",
+      "Please select a category.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("Menu")
+        .insert({
+          name,
+          price,
+          category,
+          image_url:image,
+          description
+        });
+
+    if(error) throw error;
+
+
+    $("menuName").value="";
+    $("menuPrice").value="";
+    $("menuCategory").value="";
+    $("menuImage").value="";
+    $("menuDescription").value="";
+
+
+    await loadMenu();
+
+    msg(
+      "menuMsg",
+      "Menu item added successfully."
+    );
+
+  }catch(error){
+
+    msg(
+      "menuMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function editMenuItem(id){
+
+  const item =
+    menuItems.find(
+      x => x.id === id
+    );
+
+  if(!item) return;
+
+
+  const name =
+    prompt(
+      "Food name:",
+      item.name || ""
+    );
+
+  if(name === null) return;
+
+
+  const price =
+    prompt(
+      "Price:",
+      item.price || ""
+    );
+
+  if(price === null) return;
+
+
+  const category =
+    prompt(
+      "Category:",
+      item.category || ""
+    );
+
+  if(category === null) return;
+
+
+  const image =
+    prompt(
+      "Image URL:",
+      item.image_url || ""
+    );
+
+  if(image === null) return;
+
+
+  const description =
+    prompt(
+      "Description:",
+      item.description || ""
+    );
+
+  if(description === null) return;
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("Menu")
+        .update({
+          name,
+          price,
+          category,
+          image_url:image,
+          description
+        })
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadMenu();
+
+    msg(
+      "menuMsg",
+      "Menu item updated."
+    );
+
+  }catch(error){
+
+    msg(
+      "menuMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function deleteMenuItem(id){
+
+  if(
+    !confirm(
+      "Delete this menu item?"
+    )
+  ) return;
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("Menu")
+        .delete()
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadMenu();
+
+  }catch(error){
+
+    msg(
+      "menuMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   GALLERY
+========================= */
+
+async function loadGallery(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("gallery")
+        .select("*")
+        .order(
+          "sort_order",
+          {ascending:true}
+        )
+        .order(
+          "created_at",
+          {ascending:false}
+        );
+
+    if(error) throw error;
+
+    galleryItems =
+      data || [];
+
+    renderGallery();
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
+
+function renderGallery(){
+
+  const box =
+    $("galleryList");
+
+  if(!galleryItems.length){
+
+    box.innerHTML =
+      '<div class="empty">No gallery photos yet.</div>';
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    galleryItems.map(item => `
+
+      <div class="galleryItem">
+
+        <img
+          src="${esc(item.image_url)}"
+          alt="${esc(item.title || "")}"
+        >
+
+        <div class="galleryBody">
+
+          <strong>
+            ${esc(item.title || "Gallery Photo")}
+          </strong>
+
+          <div class="small">
+            ${esc(item.category || "Restaurant")}
+          </div>
+
+          <div class="actions">
+
+            <button
+              class="${
+                item.is_visible
+                ? "greenBtn"
+                : "darkBtn"
+              }"
+              onclick="toggleGallery(${item.id},${!item.is_visible})">
+
+              ${
+                item.is_visible
+                ? "Visible"
+                : "Hidden"
+              }
+
+            </button>
+
+            <button
+              class="dangerBtn"
+              onclick="deleteGallery(${item.id})">
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+async function uploadGallery(){
+
+  const file =
+    $("galleryFile").files[0];
+
+  if(!file){
+
+    msg(
+      "galleryMsg",
+      "Please select a photo.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const ext =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const path =
+      "gallery/" +
+      Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .slice(2) +
+      "." +
+      ext;
+
+
+    const {
+      error:uploadError
+    } =
+      await supabaseClient
+        .storage
+        .from("site-media")
+        .upload(
+          path,
+          file,
+          {
+            upsert:false,
+            contentType:file.type
+          }
+        );
+
+    if(uploadError)
+      throw uploadError;
+
+
+    const {
+      data:urlData
+    } =
+      supabaseClient
+        .storage
+        .from("site-media")
+        .getPublicUrl(path);
+
+
+    const image_url =
+      urlData.publicUrl;
+
+
+    const {
+      error:dbError
+    } =
+      await supabaseClient
+        .from("gallery")
+        .insert({
+          image_url,
+          storage_path:path,
+          title:
+            $("galleryTitle")
+              .value.trim(),
+
+          category:
+            $("galleryCategory")
+              .value.trim() ||
+            "Restaurant",
+
+          sort_order:
+            galleryItems.length,
+
+          is_visible:true
+        });
+
+    if(dbError) throw dbError;
+
+
+    $("galleryFile").value="";
+    $("galleryTitle").value="";
+
+
+    await loadGallery();
+
+    msg(
+      "galleryMsg",
+      "Photo uploaded successfully."
+    );
+
+  }catch(error){
+
+    msg(
+      "galleryMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function toggleGallery(
+  id,
+  visible
+){
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("gallery")
+        .update({
+          is_visible:visible
+        })
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadGallery();
+
+  }catch(error){
+
+    msg(
+      "galleryMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+async function deleteGallery(id){
+
+  if(
+    !confirm(
+      "Delete this gallery photo?"
+    )
+  ) return;
+
+
+  try{
+
+    const item =
+      galleryItems.find(
+        x => x.id === id
+      );
+
+
+    if(item?.storage_path){
+
+      await supabaseClient
+        .storage
+        .from("site-media")
+        .remove([
+          item.storage_path
+        ]);
+
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("gallery")
+        .delete()
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadGallery();
+
+  }catch(error){
+
+    msg(
+      "galleryMsg",
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   BOOKINGS
+========================= */
 
 async function loadBookings(){
 
-  const {data,error}=await supabase
-    .from("table_bookings")
-    .select("*")
-    .order("created_at",{ascending:false});
+  try{
 
-  if(error)throw error;
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("table_bookings")
+        .select("*")
+        .order(
+          "created_at",
+          {ascending:false}
+        );
 
-  const pending=(data||[]).filter(x=>x.status==="Pending").length;
-  $("statBookings").textContent=pending;
+    if(error) throw error;
 
-  if(!data?.length){
-    $("bookingTable").innerHTML='<div class="empty">No bookings.</div>';
-    return;
+    renderBookings(
+      data || []
+    );
+
+    $("statBookings").textContent =
+      (data || []).length;
+
+  }catch(error){
+
+    console.error(error);
+
   }
 
-  $("bookingTable").innerHTML=`
-    <table>
-      <thead>
-        <tr>
-          <th>Reference</th>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Guests</th>
-          <th>Contact</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        ${data.map(b=>`
-          <tr>
-            <td>${escapeHtml(b.booking_reference||b.id)}</td>
-            <td>${escapeHtml(b.customer_name)}</td>
-            <td>${escapeHtml(b.booking_date)}</td>
-            <td>${escapeHtml(b.booking_time)}</td>
-            <td>${escapeHtml(b.guests)}</td>
-            <td>${escapeHtml(b.phone||b.email||"")}</td>
-            <td>
-              <span class="badge ${
-                b.status==="Confirmed"
-                ?"green"
-                :b.status==="Cancelled"
-                ?"red"
-                :"gold"
-              }">
-                ${escapeHtml(b.status)}
-              </span>
-            </td>
-            <td>
-              ${
-                currentStaff.role==="BOOKING_STAFF" ||
-                currentStaff.role==="SUPER_ADMIN"
-                ? `
-                <div class="actions">
-                  <button class="btn success small"
-                    onclick="bookingStatus(${b.id},'Confirmed')">
-                    Confirm
-                  </button>
-                  <button class="btn danger small"
-                    onclick="bookingStatus(${b.id},'Cancelled')">
-                    Cancel
-                  </button>
-                </div>
-                `
-                :""
-              }
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
 }
 
-async function bookingStatus(id,status){
 
-  const {data,error}=await supabase
-    .from("table_bookings")
-    .update({
-      status,
-      updated_at:new Date().toISOString()
-    })
-    .eq("id",id)
-    .select()
-    .single();
+function renderBookings(items){
 
-  if(error){
-    alert(error.message);
+  const tbody =
+    $("bookingTable");
+
+  if(!items.length){
+
+    tbody.innerHTML =
+      `<tr>
+        <td colspan="8" class="empty">
+          No bookings found.
+        </td>
+      </tr>`;
+
     return;
+
   }
 
-  if(currentStaff.role==="BOOKING_STAFF"){
-    await supabase
-      .from("booking_staff_activity")
-      .insert({
-        staff_email:currentStaff.email,
-        staff_name:currentStaff.full_name,
-        booking_id:id,
-        booking_reference:data?.booking_reference||"",
-        action:status==="Confirmed"?"CONFIRMED":"CANCELLED"
-      });
-  }
 
-  await loadBookings();
+  tbody.innerHTML =
+    items.map(b => `
+
+      <tr>
+
+        <td>
+          <strong>
+            ${esc(
+              b.booking_reference ||
+              b.id
+            )}
+          </strong>
+        </td>
+
+        <td>
+          ${esc(b.customer_name)}
+        </td>
+
+        <td>
+          ${esc(b.phone || b.email || "-")}
+        </td>
+
+        <td>
+          ${esc(b.booking_date || "-")}
+        </td>
+
+        <td>
+          ${esc(b.booking_time || "-")}
+        </td>
+
+        <td>
+          ${esc(b.guests || "-")}
+        </td>
+
+        <td>
+          <span class="badge ${
+            b.status === "Confirmed"
+            ? "green"
+            : b.status === "Cancelled"
+            ? "red"
+            : "gold"
+          }">
+            ${esc(b.status || "Pending")}
+          </span>
+        </td>
+
+        <td>
+
+          <div class="actions">
+
+            ${
+              b.status !== "Confirmed"
+              ? `
+                <button
+                  class="greenBtn"
+                  onclick="updateBookingStatus(${b.id},'Confirmed')">
+                  Confirm
+                </button>
+              `
+              : ""
+            }
+
+            ${
+              b.status !== "Cancelled"
+              ? `
+                <button
+                  class="dangerBtn"
+                  onclick="updateBookingStatus(${b.id},'Cancelled')">
+                  Cancel
+                </button>
+              `
+              : ""
+            }
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    `).join("");
+
 }
 
-/* ---------------- REVIEWS ---------------- */
+
+async function updateBookingStatus(
+  id,
+  status
+){
+
+  if(
+    !confirm(
+      "Change booking status to " +
+      status +
+      "?"
+    )
+  ) return;
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("table_bookings")
+        .update({
+          status,
+          updated_at:
+            new Date().toISOString()
+        })
+        .eq("id",id);
+
+    if(error) throw error;
+
+
+    if(
+      currentStaff?.role ===
+      "BOOKING_STAFF"
+    ){
+
+      await supabaseClient
+        .from(
+          "booking_staff_activity"
+        )
+        .insert({
+          staff_email:
+            currentUser.email,
+
+          staff_name:
+            currentStaff.full_name,
+
+          booking_id:id,
+
+          action:
+            status === "Confirmed"
+            ? "CONFIRMED"
+            : "CANCELLED"
+        });
+
+    }
+
+
+    await loadBookings();
+
+  }catch(error){
+
+    alert(
+      error.message
+    );
+
+  }
+
+}
+
+
+/* =========================
+   REVIEWS
+========================= */
 
 async function loadReviews(){
 
-  const {data,error}=await supabase
-    .from("reviews")
-    .select("*")
-    .order("created_at",{ascending:false});
+  try{
 
-  if(error)throw error;
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("reviews")
+        .select("*")
+        .order(
+          "created_at",
+          {ascending:false}
+        );
 
-  $("statReviews").textContent=data?.length||0;
+    if(error) throw error;
 
-  if(!data?.length){
-    $("reviewTable").innerHTML='<div class="empty">No reviews.</div>';
-    return;
-  }
+    $("statReviews").textContent =
+      (data || []).length;
 
-  $("reviewTable").innerHTML=`
-    <table>
-      <thead>
+    const tbody =
+      $("reviewTable");
+
+    if(!data?.length){
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="6" class="empty">
+            No reviews.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+
+    tbody.innerHTML =
+      data.map(r => `
+
         <tr>
-          <th>Name</th>
-          <th>Rating</th>
-          <th>Review</th>
-          <th>Status</th>
-          <th>Featured</th>
-          <th>Actions</th>
+
+          <td>
+            ${esc(r.customer_name)}
+          </td>
+
+          <td>
+            ${"★".repeat(
+              Math.max(
+                0,
+                Math.min(
+                  5,
+                  Number(r.rating || 0)
+                )
+              )
+            )}
+          </td>
+
+          <td>
+            ${esc(r.message)}
+          </td>
+
+          <td>
+            <span class="badge ${
+              r.status === "Approved"
+              ? "green"
+              : "gold"
+            }">
+              ${esc(r.status)}
+            </span>
+          </td>
+
+          <td>
+            ${
+              r.is_featured
+              ? "⭐ Yes"
+              : "No"
+            }
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="greenBtn"
+                onclick="updateReview(${r.id},{status:'Approved'})">
+                Approve
+              </button>
+
+              <button
+                class="blueBtn"
+                onclick="updateReview(${r.id},{is_featured:true})">
+                Feature
+              </button>
+
+              <button
+                class="darkBtn"
+                onclick="updateReview(${r.id},{status:'Hidden'})">
+                Hide
+              </button>
+
+              <button
+                class="dangerBtn"
+                onclick="deleteReview(${r.id})">
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+
         </tr>
-      </thead>
-      <tbody>
-        ${data.map(r=>`
-          <tr>
-            <td>${escapeHtml(r.customer_name)}</td>
-            <td>${"★".repeat(Number(r.rating||0))}</td>
-            <td>${escapeHtml(r.message)}</td>
-            <td>${escapeHtml(r.status)}</td>
-            <td>${r.is_featured?"Yes":"No"}</td>
-            <td>
-              <div class="actions">
-                <button class="btn small"
-                  onclick="reviewStatus(${r.id},'Approved')">
-                  Approve
-                </button>
-                <button class="btn small"
-                  onclick="reviewStatus(${r.id},'Hidden')">
-                  Hide
-                </button>
-                <button class="btn danger small"
-                  onclick="deleteReview(${r.id})">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
 
-async function reviewStatus(id,status){
+      `).join("");
 
-  const {error}=await supabase
-    .from("reviews")
-    .update({status})
-    .eq("id",id);
+  }catch(error){
 
-  if(error){
-    alert(error.message);
-    return;
+    console.error(error);
+
   }
 
-  await loadReviews();
 }
+
+
+async function updateReview(
+  id,
+  values
+){
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("reviews")
+        .update(values)
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadReviews();
+
+  }catch(error){
+
+    alert(
+      error.message
+    );
+
+  }
+
+}
+
 
 async function deleteReview(id){
 
-  if(!confirm("Delete this review?"))return;
-
-  const {error}=await supabase
-    .from("reviews")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-    alert(error.message);
+  if(!confirm("Delete review?"))
     return;
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("reviews")
+        .delete()
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadReviews();
+
+  }catch(error){
+
+    alert(
+      error.message
+    );
+
   }
 
-  await loadReviews();
 }
 
-/* ---------------- REPORTS ---------------- */
+
+/* =========================
+   REPORTS
+========================= */
 
 async function loadReports(){
 
-  const {data,error}=await supabase
-    .from("customer_reports")
-    .select("*")
-    .order("created_at",{ascending:false});
+  try{
 
-  if(error)throw error;
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("customer_reports")
+        .select("*")
+        .order(
+          "created_at",
+          {ascending:false}
+        );
 
-  $("statReports").textContent=data?.length||0;
+    if(error) throw error;
 
-  if(!data?.length){
-    $("reportTable").innerHTML='<div class="empty">No reports.</div>';
-    return;
-  }
+    $("statReports").textContent =
+      (data || []).length;
 
-  $("reportTable").innerHTML=`
-    <table>
-      <thead>
+
+    const tbody =
+      $("reportTable");
+
+
+    if(!data?.length){
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="6" class="empty">
+            No reports.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+
+    tbody.innerHTML =
+      data.map(r => `
+
         <tr>
-          <th>Name</th>
-          <th>Contact</th>
-          <th>Subject</th>
-          <th>Message</th>
-          <th>Status</th>
-          <th>Actions</th>
+
+          <td>
+            ${esc(r.customer_name || "-")}
+          </td>
+
+          <td>
+            ${esc(
+              r.phone ||
+              r.email ||
+              "-"
+            )}
+          </td>
+
+          <td>
+            ${esc(r.subject || "-")}
+          </td>
+
+          <td>
+            ${esc(r.message)}
+          </td>
+
+          <td>
+            <span class="badge ${
+              r.status === "Resolved"
+              ? "green"
+              : "gold"
+            }">
+              ${esc(r.status || "New")}
+            </span>
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="greenBtn"
+                onclick="updateReport(${r.id},'Resolved')">
+                Resolve
+              </button>
+
+              <button
+                class="dangerBtn"
+                onclick="deleteReport(${r.id})">
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+
         </tr>
-      </thead>
-      <tbody>
-        ${data.map(r=>`
-          <tr>
-            <td>${escapeHtml(r.customer_name||"")}</td>
-            <td>${escapeHtml(r.phone||r.email||"")}</td>
-            <td>${escapeHtml(r.subject||"")}</td>
-            <td>${escapeHtml(r.message)}</td>
-            <td>${escapeHtml(r.status||"New")}</td>
-            <td>
-              <div class="actions">
-                <button class="btn small"
-                  onclick="reportStatus(${r.id},'Resolved')">
-                  Resolved
-                </button>
-                <button class="btn danger small"
-                  onclick="deleteReport(${r.id})">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
 
-async function reportStatus(id,status){
+      `).join("");
 
-  const {error}=await supabase
-    .from("customer_reports")
-    .update({status})
-    .eq("id",id);
+  }catch(error){
 
-  if(error){
-    alert(error.message);
-    return;
+    console.error(error);
+
   }
 
-  await loadReports();
 }
+
+
+async function updateReport(
+  id,
+  status
+){
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("customer_reports")
+        .update({status})
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadReports();
+
+  }catch(error){
+
+    alert(
+      error.message
+    );
+
+  }
+
+}
+
 
 async function deleteReport(id){
 
-  if(!confirm("Delete this report?"))return;
-
-  const {error}=await supabase
-    .from("customer_reports")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-    alert(error.message);
+  if(!confirm("Delete report?"))
     return;
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("customer_reports")
+        .delete()
+        .eq("id",id);
+
+    if(error) throw error;
+
+    await loadReports();
+
+  }catch(error){
+
+    alert(
+      error.message
+    );
+
   }
 
-  await loadReports();
 }
 
-/* ---------------- CONTACT ---------------- */
+
+/* =========================
+   CONTACT
+========================= */
 
 async function loadContact(){
 
-  const data=await getSetting("contact",{});
+  try{
 
-  $("contactAddress").value=data.address||"Via Vespasiano 73/75/77 Roma";
-  $("contactPhone1").value=data.phone1||"+39 333 7687319";
-  $("contactPhone2").value=data.phone2||"+39 393 3805350";
-  $("contactWhatsapp").value=data.whatsapp||"+39 333 7687319";
-  $("contactMaps").value=data.google_maps||"";
+    const data =
+      await getSetting("contact");
+
+    $("contactAddress").value =
+      data.address || "";
+
+    $("contactPhone1").value =
+      data.phone1 ||
+      data.phone ||
+      "";
+
+    $("contactPhone2").value =
+      data.phone2 || "";
+
+    $("contactWhatsapp").value =
+      data.whatsapp || "";
+
+    $("contactMaps").value =
+      data.google_maps ||
+      data.maps ||
+      "";
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
 }
+
 
 async function saveContact(){
 
   try{
 
-    await saveSetting("contact",{
-      address:$("contactAddress").value.trim(),
-      phone1:$("contactPhone1").value.trim(),
-      phone2:$("contactPhone2").value.trim(),
-      whatsapp:$("contactWhatsapp").value.trim(),
-      google_maps:$("contactMaps").value.trim()
-    });
+    await saveSetting(
+      "contact",
+      {
+        address:
+          $("contactAddress")
+            .value.trim(),
 
-    msg("contactMsg","Contact information saved.");
-  }catch(e){
-    msg("contactMsg",e.message,"error");
+        phone1:
+          $("contactPhone1")
+            .value.trim(),
+
+        phone2:
+          $("contactPhone2")
+            .value.trim(),
+
+        whatsapp:
+          $("contactWhatsapp")
+            .value.trim(),
+
+        google_maps:
+          $("contactMaps")
+            .value.trim()
+      }
+    );
+
+    msg(
+      "contactMsg",
+      "Contact information saved."
+    );
+
+  }catch(error){
+
+    msg(
+      "contactMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- SOCIAL ---------------- */
+
+/* =========================
+   SOCIAL
+========================= */
 
 async function loadSocial(){
 
-  const data=await getSetting("social",{});
+  try{
 
-  $("socialFacebook").value=data.facebook||"";
-  $("socialInstagram").value=data.instagram||"";
-  $("socialTikTok").value=data.tiktok||"";
-  $("socialYoutube").value=data.youtube||"";
+    const data =
+      await getSetting("social");
+
+    $("facebook").value =
+      data.facebook || "";
+
+    $("instagram").value =
+      data.instagram || "";
+
+    $("tiktok").value =
+      data.tiktok || "";
+
+    $("youtube").value =
+      data.youtube || "";
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
 }
+
 
 async function saveSocial(){
 
   try{
 
-    await saveSetting("social",{
-      facebook:$("socialFacebook").value.trim(),
-      instagram:$("socialInstagram").value.trim(),
-      tiktok:$("socialTikTok").value.trim(),
-      youtube:$("socialYoutube").value.trim()
-    });
+    await saveSetting(
+      "social",
+      {
+        facebook:
+          $("facebook").value.trim(),
 
-    msg("socialMsg","Social media saved.");
-  }catch(e){
-    msg("socialMsg",e.message,"error");
+        instagram:
+          $("instagram").value.trim(),
+
+        tiktok:
+          $("tiktok").value.trim(),
+
+        youtube:
+          $("youtube").value.trim()
+      }
+    );
+
+    msg(
+      "socialMsg",
+      "Social media saved."
+    );
+
+  }catch(error){
+
+    msg(
+      "socialMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- HOURS ---------------- */
+
+/* =========================
+   HOURS
+========================= */
+
+const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+];
+
+
+function renderHoursFields(
+  values={}
+){
+
+  $("hoursFields").innerHTML =
+    days.map(day => {
+
+      const d =
+        values[day] || {};
+
+      return `
+
+        <div class="formGrid"
+          style="
+            padding:12px 0;
+            border-bottom:1px solid #292929;
+          ">
+
+          <div>
+            <strong>
+              ${day}
+            </strong>
+          </div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px;
+          ">
+
+            <input
+              id="open-${day}"
+              type="time"
+              value="${esc(d.open || "")}"
+            >
+
+            <input
+              id="close-${day}"
+              type="time"
+              value="${esc(d.close || "")}"
+            >
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
 
 async function loadHours(){
 
-  const data=await getSetting("hours",{});
+  try{
 
-  $("hoursForm").innerHTML=days.map(day=>`
-    <div class="grid" style="margin-bottom:10px">
-      <div>
-        <label>${day}</label>
-        <input
-          id="hour_${day}"
-          value="${escapeHtml(data[day]||"12:00 - 23:00")}"
-        >
-      </div>
-    </div>
-  `).join("");
+    const data =
+      await getSetting("hours");
+
+    renderHoursFields(
+      data
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    renderHoursFields();
+
+  }
+
 }
+
 
 async function saveHours(){
 
   try{
 
-    const data={};
+    const values = {};
 
-    days.forEach(day=>{
-      data[day]=$(`hour_${day}`).value.trim();
+    days.forEach(day => {
+
+      values[day] = {
+
+        open:
+          $(`open-${day}`)
+            ?.value || "",
+
+        close:
+          $(`close-${day}`)
+            ?.value || ""
+
+      };
+
     });
 
-    await saveSetting("hours",data);
 
-    msg("hoursMsg","Opening hours saved.");
-  }catch(e){
-    msg("hoursMsg",e.message,"error");
+    await saveSetting(
+      "hours",
+      values
+    );
+
+    msg(
+      "hoursMsg",
+      "Opening hours saved."
+    );
+
+  }catch(error){
+
+    msg(
+      "hoursMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- DISCOUNTS ---------------- */
 
-async function loadDiscounts(){
+/* =========================
+   DISCOUNT CAMPAIGN
+========================= */
+
+async function loadDiscountCampaign(){
 
   try{
 
-    const {data,error}=await supabase
-      .from("discount_campaign")
-      .select("*")
-      .order("id",{ascending:false})
-      .limit(1)
-      .maybeSingle();
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("discount_campaign")
+        .select("*")
+        .order(
+          "id",
+          {ascending:false}
+        )
+        .limit(1)
+        .maybeSingle();
 
-    if(error)throw error;
+    if(error) throw error;
 
-    if(data){
-      $("discountEnabled").checked=!!data.enabled;
-      $("discountPercent").value=data.discount_percent||"";
-      $("discountPrefix").value=data.prefix||"NB-";
-    }
+    if(!data) return;
 
-    const {count:total}=await supabase
-      .from("discount_codes")
-      .select("*",{count:"exact",head:true});
 
-    const {count:used}=await supabase
-      .from("discount_codes")
-      .select("*",{count:"exact",head:true})
-      .eq("used",true);
+    $("discountName").value =
+      data.name || "";
 
-    $("discountTotal").textContent=total||0;
-    $("discountUsed").textContent=used||0;
-    $("discountAvailable").textContent=(total||0)-(used||0);
-    $("statCodes").textContent=total||0;
+    $("discountPercent").value =
+      data.discount_percent || "";
 
-  }catch(e){
-    console.error(e);
+    $("discountPrefix").value =
+      data.prefix || "NB";
+
+    $("discountEnabled").checked =
+      data.enabled === true;
+
+    $("discountStart").value =
+      toDateTimeLocal(
+        data.start_at
+      );
+
+    $("discountEnd").value =
+      toDateTimeLocal(
+        data.end_at
+      );
+
+  }catch(error){
+
+    console.error(error);
+
   }
+
 }
+
 
 async function saveDiscountCampaign(){
 
   try{
 
-    const {data:existing}=await supabase
-      .from("discount_campaign")
-      .select("id")
-      .order("id",{ascending:false})
-      .limit(1)
-      .maybeSingle();
+    const {
+      data:existing,
+      error:findError
+    } =
+      await supabaseClient
+        .from("discount_campaign")
+        .select("id")
+        .order(
+          "id",
+          {ascending:false}
+        )
+        .limit(1)
+        .maybeSingle();
 
-    const payload={
-      enabled:$("discountEnabled").checked,
-      discount_percent:Number($("discountPercent").value||0),
-      prefix:$("discountPrefix").value.trim()||"NB-"
+    if(findError)
+      throw findError;
+
+
+    const values = {
+
+      name:
+        $("discountName")
+          .value.trim(),
+
+      discount_percent:
+        Number(
+          $("discountPercent").value
+        ) || 0,
+
+      prefix:
+        $("discountPrefix")
+          .value.trim() || "NB",
+
+      enabled:
+        $("discountEnabled")
+          .checked,
+
+      start_at:
+        $("discountStart").value
+        ? new Date(
+            $("discountStart").value
+          ).toISOString()
+        : null,
+
+      end_at:
+        $("discountEnd").value
+        ? new Date(
+            $("discountEnd").value
+          ).toISOString()
+        : null
+
     };
 
-    let error;
+
+    let result;
+
 
     if(existing?.id){
-      ({error}=await supabase
-        .from("discount_campaign")
-        .update(payload)
-        .eq("id",existing.id));
+
+      result =
+        await supabaseClient
+          .from("discount_campaign")
+          .update(values)
+          .eq("id",existing.id);
+
     }else{
-      ({error}=await supabase
-        .from("discount_campaign")
-        .insert(payload));
+
+      result =
+        await supabaseClient
+          .from("discount_campaign")
+          .insert(values);
+
     }
 
-    if(error)throw error;
 
-    msg("discountMsg","Discount campaign saved.");
-    await loadDiscounts();
+    if(result.error)
+      throw result.error;
 
-  }catch(e){
-    msg("discountMsg",e.message,"error");
+
+    msg(
+      "discountMsg",
+      "Discount campaign saved."
+    );
+
+  }catch(error){
+
+    msg(
+      "discountMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- STAFF ---------------- */
 
-async function loadStaff(){
+/* =========================
+   DISCOUNT CODES
+========================= */
 
-  if(currentStaff?.role!=="SUPER_ADMIN"){
-    return;
-  }
-
-  const {data,error}=await supabase
-    .from("admin_staff")
-    .select("*")
-    .order("created_at",{ascending:false});
-
-  if(error)throw error;
-
-  if(!data?.length){
-    $("staffTable").innerHTML='<div class="empty">No staff accounts.</div>';
-    return;
-  }
-
-  $("staffTable").innerHTML=`
-    <table>
-      <thead>
-        <tr>
-          <th>Staff</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Photo</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(s=>`
-          <tr>
-            <td>
-              <div class="staff-card">
-                ${
-                  s.avatar_url
-                  ? `<img class="staff-photo" src="${escapeHtml(s.avatar_url)}">`
-                  : `<div class="staff-photo"></div>`
-                }
-                <div>
-                  <strong>${escapeHtml(s.full_name||"Staff")}</strong>
-                </div>
-              </div>
-            </td>
-
-            <td>${escapeHtml(s.email)}</td>
-
-            <td>
-              <span class="badge gold">${escapeHtml(s.role)}</span>
-            </td>
-
-            <td>
-              <span class="badge ${s.enabled?"green":"red"}">
-                ${s.enabled?"Enabled":"Disabled"}
-              </span>
-            </td>
-
-            <td>
-              <input
-                type="file"
-                accept="image/*"
-                style="max-width:180px"
-                onchange="uploadStaffPhoto(${s.id},this.files[0])"
-              >
-            </td>
-
-            <td>
-              <div class="actions">
-                <button class="btn small"
-                  onclick="toggleStaff(${s.id},${s.enabled})">
-                  ${s.enabled?"Disable":"Enable"}
-                </button>
-
-                ${
-                  s.avatar_url
-                  ? `<button class="btn danger small"
-                      onclick="removeStaffPhoto(${s.id},${JSON.stringify(s.avatar_url)})">
-                      Remove Photo
-                    </button>`
-                  :""
-                }
-              </div>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-
-  await loadStaffPerformance();
-}
-
-async function createStaff(){
-
-  const full_name=$("staffName").value.trim();
-  const email=$("staffEmail").value.trim();
-  const password=$("staffPassword").value;
-  const role=$("staffRole").value;
-  const enabled=$("staffEnabled").checked;
-
-  if(!full_name || !email || !password){
-    msg("staffMsg","Name, email and password are required.","error");
-    return;
-  }
-
-  if(password.length<8){
-    msg("staffMsg","Password must be at least 8 characters.","error");
-    return;
-  }
+async function loadDiscountCodes(){
 
   try{
 
-    const {data:{session}}=await supabase.auth.getSession();
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("discount_codes")
+        .select("*")
+        .order(
+          "created_at",
+          {ascending:false}
+        );
 
-    if(!session){
-      throw new Error("Admin session expired. Please login again.");
+    if(error) throw error;
+
+
+    $("statCodes").textContent =
+      (data || []).length;
+
+
+    const tbody =
+      $("codeTable");
+
+
+    if(!data?.length){
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="5" class="empty">
+            No discount codes yet.
+          </td>
+        </tr>`;
+
+      return;
+
     }
 
-    const response=await fetch(
-      `${window.SUPABASE_URL}/functions/v1/${CREATE_STAFF_FUNCTION}`,
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${session.access_token}`,
-          "apikey":window.SUPABASE_ANON_KEY
-        },
-        body:JSON.stringify({
-          full_name,
-          email,
-          password,
-          role,
-          enabled
-        })
-      }
+
+    tbody.innerHTML =
+      data.map(c => `
+
+        <tr>
+
+          <td>
+            <strong>
+              ${esc(c.code)}
+            </strong>
+          </td>
+
+          <td>
+            ${esc(
+              c.discount_percent ??
+              c.discount ??
+              "-"
+            )}%
+          </td>
+
+          <td>
+
+            <span class="badge ${
+              c.used
+              ? "red"
+              : "green"
+            }">
+
+              ${
+                c.used
+                ? "Used"
+                : "Available"
+              }
+
+            </span>
+
+          </td>
+
+          <td>
+            ${formatDate(c.created_at)}
+          </td>
+
+          <td>
+            ${c.used_at
+              ? formatDate(c.used_at)
+              : "-"
+            }
+          </td>
+
+        </tr>
+
+      `).join("");
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* =========================
+   STAFF
+========================= */
+
+async function loadStaff(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("admin_staff")
+        .select("*")
+        .order(
+          "full_name",
+          {ascending:true}
+        );
+
+    if(error) throw error;
+
+    staffItems =
+      data || [];
+
+    renderStaff();
+    renderPhotoStaffSelect();
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
+
+
+function renderStaff(){
+
+  const box =
+    $("staffList");
+
+  if(!staffItems.length){
+
+    box.innerHTML =
+      '<div class="empty">No staff accounts.</div>';
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    staffItems.map(s => `
+
+      <div class="staffCard">
+
+        <img
+          class="staffAvatar"
+          src="${esc(
+            s.avatar_url ||
+            ""
+          )}"
+          onerror="this.style.opacity='.2'"
+        >
+
+        <div>
+
+          <strong>
+            ${esc(
+              s.full_name ||
+              "Staff"
+            )}
+          </strong>
+
+          <div class="small">
+            ${esc(s.email)}
+          </div>
+
+          <div style="margin-top:6px">
+
+            <span class="badge ${
+              s.role === "SUPER_ADMIN"
+              ? "gold"
+              : s.role === "BOOKING_STAFF"
+              ? "blue"
+              : "green"
+            }">
+              ${esc(s.role)}
+            </span>
+
+            <span class="badge ${
+              s.enabled
+              ? "green"
+              : "red"
+            }">
+              ${
+                s.enabled
+                ? "Enabled"
+                : "Disabled"
+              }
+            </span>
+
+          </div>
+
+          <div class="actions">
+
+            ${
+              s.email !==
+              currentUser?.email
+              ? `
+                <button
+                  class="${
+                    s.enabled
+                    ? "dangerBtn"
+                    : "greenBtn"
+                  }"
+                  onclick="toggleStaff('${encodeURIComponent(s.email)}',${!s.enabled})">
+
+                  ${
+                    s.enabled
+                    ? "Disable"
+                    : "Enable"
+                  }
+
+                </button>
+              `
+              : `
+                <span class="small">
+                  Current account
+                </span>
+              `
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+function renderPhotoStaffSelect(){
+
+  $("photoStaffEmail").innerHTML =
+    '<option value="">Select Staff</option>' +
+
+    staffItems.map(s => `
+      <option value="${esc(s.email)}">
+        ${esc(
+          s.full_name ||
+          s.email
+        )}
+      </option>
+    `).join("");
+
+}
+
+
+async function createStaff(){
+
+  const full_name =
+    $("staffName")
+      .value.trim();
+
+  const email =
+    $("staffEmail")
+      .value.trim()
+      .toLowerCase();
+
+  const password =
+    $("staffPassword").value;
+
+  const role =
+    $("staffRole").value;
+
+
+  if(
+    !full_name ||
+    !email ||
+    !password ||
+    !role
+  ){
+
+    msg(
+      "staffMsg",
+      "Please complete all fields.",
+      "error"
     );
 
-    const result=await response.json();
+    return;
+
+  }
+
+
+  if(password.length < 8){
+
+    msg(
+      "staffMsg",
+      "Password must contain at least 8 characters.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const session =
+      await supabaseClient
+        .auth
+        .getSession();
+
+    const token =
+      session.data.session?.access_token;
+
+
+    if(!token){
+
+      throw new Error(
+        "Admin session expired. Please login again."
+      );
+
+    }
+
+
+    const functionUrl =
+      SUPABASE_URL +
+      "/functions/v1/create-staff";
+
+
+    const response =
+      await fetch(
+        functionUrl,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              "Bearer " + token,
+
+            "apikey":
+              SUPABASE_ANON_KEY
+          },
+
+          body:
+            JSON.stringify({
+              email,
+              password,
+              full_name,
+              role,
+              enabled:true
+            })
+        }
+      );
+
+
+    const result =
+      await response.json();
+
 
     if(!response.ok){
-      throw new Error(result.error||result.message||"Unable to create staff.");
+
+      throw new Error(
+        result.error ||
+        result.message ||
+        "Could not create staff account."
+      );
+
     }
+
 
     $("staffName").value="";
     $("staffEmail").value="";
     $("staffPassword").value="";
 
-    msg("staffMsg","Staff account created successfully.");
 
     await loadStaff();
 
-  }catch(e){
-    msg("staffMsg",e.message,"error");
-  }
-}
+    msg(
+      "staffMsg",
+      "Staff account created successfully."
+    );
 
-async function toggleStaff(id,current){
+  }catch(error){
 
-  if(!confirm(`${current?"Disable":"Enable"} this staff account?`))return;
+    console.error(error);
 
-  const {error}=await supabase
-    .from("admin_staff")
-    .update({
-      enabled:!current,
-      updated_at:new Date().toISOString()
-    })
-    .eq("id",id);
+    msg(
+      "staffMsg",
+      error.message,
+      "error"
+    );
 
-  if(error){
-    alert(error.message);
-    return;
   }
 
-  await loadStaff();
 }
 
-async function uploadStaffPhoto(id,file){
 
-  if(!file)return;
+async function toggleStaff(
+  encodedEmail,
+  enabled
+){
+
+  const email =
+    decodeURIComponent(
+      encodedEmail
+    );
+
+
+  if(
+    !confirm(
+      enabled
+      ? "Enable this staff account?"
+      : "Disable this staff account?"
+    )
+  ) return;
+
 
   try{
 
-    const path=
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("admin_staff")
+        .update({
+          enabled,
+          updated_at:
+            new Date().toISOString()
+        })
+        .ilike(
+          "email",
+          email
+        );
+
+    if(error) throw error;
+
+    await loadStaff();
+
+  }catch(error){
+
+    alert(
+      error.message
+    );
+
+  }
+
+}
+
+
+/* =========================
+   STAFF PHOTO
+========================= */
+
+async function uploadStaffPhoto(){
+
+  const email =
+    $("photoStaffEmail").value;
+
+  const file =
+    $("staffPhotoFile")
+      .files[0];
+
+
+  if(!email){
+
+    msg(
+      "staffPhotoMsg",
+      "Please select a staff member.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if(!file){
+
+    msg(
+      "staffPhotoMsg",
+      "Please select a photo.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const safeEmail =
+      email.replace(
+        /[^a-zA-Z0-9]/g,
+        "_"
+      );
+
+
+    const ext =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+
+    const path =
       "staff/" +
-      Date.now() +
+      safeEmail +
       "-" +
-      Math.random().toString(36).slice(2) +
+      Date.now() +
       "." +
-      fileExt(file);
+      ext;
 
-    const {error}=await supabase
-      .storage
-      .from(STAFF_BUCKET)
-      .upload(path,file,{upsert:false});
 
-    if(error)throw error;
+    const {
+      error:uploadError
+    } =
+      await supabaseClient
+        .storage
+        .from("staff-photos")
+        .upload(
+          path,
+          file,
+          {
+            upsert:true,
+            contentType:file.type
+          }
+        );
 
-    const {data}=supabase
-      .storage
-      .from(STAFF_BUCKET)
-      .getPublicUrl(path);
 
-    const {error:updateError}=await supabase
-      .from("admin_staff")
-      .update({
-        avatar_url:data.publicUrl,
-        updated_at:new Date().toISOString()
-      })
-      .eq("id",id);
+    if(uploadError)
+      throw uploadError;
 
-    if(updateError)throw updateError;
+
+    const {
+      data:urlData
+    } =
+      supabaseClient
+        .storage
+        .from("staff-photos")
+        .getPublicUrl(path);
+
+
+    const avatar_url =
+      urlData.publicUrl;
+
+
+    const staff =
+      staffItems.find(
+        s =>
+          s.email.toLowerCase() ===
+          email.toLowerCase()
+      );
+
+
+    if(staff?.avatar_url){
+
+      const oldPath =
+        extractStoragePath(
+          staff.avatar_url,
+          "staff-photos"
+        );
+
+      if(oldPath){
+
+        await supabaseClient
+          .storage
+          .from("staff-photos")
+          .remove([
+            oldPath
+          ]);
+
+      }
+
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("admin_staff")
+        .update({
+          avatar_url,
+          updated_at:
+            new Date().toISOString()
+        })
+        .ilike(
+          "email",
+          email
+        );
+
+
+    if(error) throw error;
+
+
+    $("staffPhotoFile").value="";
 
     await loadStaff();
 
-  }catch(e){
-    alert(e.message);
+    msg(
+      "staffPhotoMsg",
+      "Staff photo updated successfully."
+    );
+
+  }catch(error){
+
+    msg(
+      "staffPhotoMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-async function removeStaffPhoto(id,url){
 
-  if(!confirm("Remove this staff photo?"))return;
+function extractStoragePath(
+  publicUrl,
+  bucket
+){
 
-  const {error}=await supabase
-    .from("admin_staff")
-    .update({
-      avatar_url:null,
-      updated_at:new Date().toISOString()
-    })
-    .eq("id",id);
+  if(!publicUrl) return "";
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+  const marker =
+    "/storage/v1/object/public/" +
+    bucket +
+    "/";
 
-  await loadStaff();
+  const index =
+    publicUrl.indexOf(marker);
+
+  if(index === -1)
+    return "";
+
+  return decodeURIComponent(
+    publicUrl.slice(
+      index + marker.length
+    )
+  );
+
 }
 
-async function loadStaffPerformance(){
 
-  const {data,error}=await supabase
-    .rpc("get_staff_performance");
+async function removeStaffPhoto(){
 
-  if(error){
-    $("performanceTable").innerHTML=
-      `<div class="empty">${escapeHtml(error.message)}</div>`;
+  const email =
+    $("photoStaffEmail").value;
+
+
+  if(!email){
+
+    msg(
+      "staffPhotoMsg",
+      "Select a staff member first.",
+      "error"
+    );
+
     return;
+
   }
 
-  if(!data?.length){
-    $("performanceTable").innerHTML=
-      '<div class="empty">No performance data.</div>';
-    return;
-  }
 
-  $("performanceTable").innerHTML=`
-    <table>
-      <thead>
-        <tr>
-          <th>Staff</th>
-          <th>Role</th>
-          <th>Discount Checked</th>
-          <th>Discount Used</th>
-          <th>Invalid</th>
-          <th>Bookings Viewed</th>
-          <th>Confirmed</th>
-          <th>Cancelled</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.map(s=>`
-          <tr>
-            <td>
-              <strong>${escapeHtml(s.staff_name||"")}</strong><br>
-              <small class="muted">${escapeHtml(s.staff_email)}</small>
-            </td>
-            <td>${escapeHtml(s.role)}</td>
-            <td>${s.discount_checked||0}</td>
-            <td>${s.discount_used||0}</td>
-            <td>${s.discount_invalid||0}</td>
-            <td>${s.bookings_viewed||0}</td>
-            <td>${s.bookings_confirmed||0}</td>
-            <td>${s.bookings_cancelled||0}</td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-}
+  if(
+    !confirm(
+      "Remove this staff member's photo?"
+    )
+  ) return;
 
-/* ---------------- DASHBOARD ---------------- */
-
-async function updateDashboard(){
 
   try{
 
-    const {count:menu}=await supabase
-      .from("Menu")
-      .select("*",{count:"exact",head:true});
+    const staff =
+      staffItems.find(
+        s =>
+          s.email.toLowerCase() ===
+          email.toLowerCase()
+      );
 
-    const {count:gallery}=await supabase
-      .from("gallery")
-      .select("*",{count:"exact",head:true});
 
-    const {count:bookings}=await supabase
-      .from("table_bookings")
-      .select("*",{count:"exact",head:true})
-      .eq("status","Pending");
+    if(staff?.avatar_url){
 
-    const {count:reviews}=await supabase
-      .from("reviews")
-      .select("*",{count:"exact",head:true});
+      const path =
+        extractStoragePath(
+          staff.avatar_url,
+          "staff-photos"
+        );
 
-    const {count:reports}=await supabase
-      .from("customer_reports")
-      .select("*",{count:"exact",head:true});
+      if(path){
 
-    const {count:codes}=await supabase
-      .from("discount_codes")
-      .select("*",{count:"exact",head:true});
+        await supabaseClient
+          .storage
+          .from("staff-photos")
+          .remove([
+            path
+          ]);
 
-    $("statMenu").textContent=menu||0;
-    $("statGallery").textContent=gallery||0;
-    $("statBookings").textContent=bookings||0;
-    $("statReviews").textContent=reviews||0;
-    $("statReports").textContent=reports||0;
-    $("statCodes").textContent=codes||0;
+      }
 
-  }catch(e){
-    console.error(e);
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("admin_staff")
+        .update({
+          avatar_url:null,
+          updated_at:
+            new Date().toISOString()
+        })
+        .ilike(
+          "email",
+          email
+        );
+
+
+    if(error) throw error;
+
+    await loadStaff();
+
+    msg(
+      "staffPhotoMsg",
+      "Staff photo removed."
+    );
+
+  }catch(error){
+
+    msg(
+      "staffPhotoMsg",
+      error.message,
+      "error"
+    );
+
   }
+
 }
 
-/* ---------------- START ---------------- */
 
-checkSession();
+/* =========================
+   PERFORMANCE
+========================= */
+
+async function loadPerformance(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .rpc(
+          "get_staff_performance"
+        );
+
+    if(error) throw error;
+
+
+    const tbody =
+      $("performanceTable");
+
+
+    if(!data?.length){
+
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="8" class="empty">
+            No performance data.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+
+    tbody.innerHTML =
+      data.map(s => `
+
+        <tr>
+
+          <td>
+
+            <div style="
+              display:flex;
+              align-items:center;
+              gap:8px;
+            ">
+
+              <img
+                src="${esc(
+                  s.avatar_url ||
+                  ""
+                )}"
+                style="
+                  width:35px;
+                  height:35px;
+                  border-radius:50%;
+                  object-fit:cover;
+                  border:1px solid var(--gold);
+                "
+              >
+
+              <div>
+                <strong>
+                  ${esc(
+                    s.staff_name ||
+                    "-"
+                  )}
+                </strong>
+
+                <div class="small">
+                  ${esc(s.staff_email)}
+                </div>
+              </div>
+
+            </div>
+
+          </td>
+
+          <td>
+            ${esc(s.role)}
+          </td>
+
+          <td>
+            ${s.discount_checked ?? 0}
+          </td>
+
+          <td>
+            ${s.discount_used ?? 0}
+          </td>
+
+          <td>
+            ${s.discount_invalid ?? 0}
+          </td>
+
+          <td>
+            ${s.bookings_viewed ?? 0}
+          </td>
+
+          <td>
+            ${s.bookings_confirmed ?? 0}
+          </td>
+
+          <td>
+            ${s.bookings_cancelled ?? 0}
+          </td>
+
+        </tr>
+
+      `).join("");
+
+  }catch(error){
+
+    console.error(error);
+
+    $("performanceTable").innerHTML =
+      `<tr>
+        <td colspan="8" class="empty">
+          ${esc(error.message)}
+        </td>
+      </tr>`;
+
+  }
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function loadDashboard(){
+
+  try{
+
+    const [
+      menu,
+      gallery,
+      bookings,
+      reviews,
+      reports,
+      codes
+    ] =
+      await Promise.all([
+
+        supabaseClient
+          .from("Menu")
+          .select("id",{count:"exact",head:true}),
+
+        supabaseClient
+          .from("gallery")
+          .select("id",{count:"exact",head:true}),
+
+        supabaseClient
+          .from("table_bookings")
+          .select("id",{count:"exact",head:true}),
+
+        supabaseClient
+          .from("reviews")
+          .select("id",{count:"exact",head:true}),
+
+        supabaseClient
+          .from("customer_reports")
+          .select("id",{count:"exact",head:true}),
+
+        supabaseClient
+          .from("discount_codes")
+          .select("id",{count:"exact",head:true})
+
+      ]);
+
+
+    $("statMenu").textContent =
+      menu.count || 0;
+
+    $("statGallery").textContent =
+      gallery.count || 0;
+
+    $("statBookings").textContent =
+      bookings.count || 0;
+
+    $("statReviews").textContent =
+      reviews.count || 0;
+
+    $("statReports").textContent =
+      reports.count || 0;
+
+    $("statCodes").textContent =
+      codes.count || 0;
+
+  }catch(error){
+
+    console.error(
+      "Dashboard error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================
+   INIT
+========================= */
+
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    checkSession();
+
+  }
+);
+
 </script>
 
 </body>
 </html>
+```
