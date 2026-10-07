@@ -2,773 +2,1778 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Nababi Ristorante — Staff</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nababi Ristorante — Staff Panel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
 
 <style>
-*{box-sizing:border-box}
+:root{
+  --bg:#070707;
+  --card:#111;
+  --card2:#171717;
+  --gold:#d4af37;
+  --gold2:#f3d875;
+  --text:#fff;
+  --muted:#999;
+  --green:#25b864;
+  --red:#df4d4d;
+  --border:#292929;
+}
+
+*{
+  box-sizing:border-box;
+}
 
 body{
- margin:0;
- font-family:Arial,Helvetica,sans-serif;
- background:
- radial-gradient(circle at top,#2a210c 0,#090909 38%);
- color:#f7f3e8;
- min-height:100vh;
+  margin:0;
+  background:
+    radial-gradient(circle at top,#201b0c 0,#090909 38%,#050505 100%);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
 }
 
-:root{
- --gold:#d4af37;
- --gold2:#f5dc78;
- --green:#39d27a;
- --red:#ff625b;
- --card:#121212;
- --line:#292929;
+button,input,select{
+  font:inherit;
 }
 
-button,input{
- font:inherit;
+button{
+  cursor:pointer;
 }
 
-button{cursor:pointer}
+.hidden{
+  display:none!important;
+}
 
-.hidden{display:none!important}
+
+/* LOGIN */
 
 .login{
- min-height:100vh;
- display:flex;
- align-items:center;
- justify-content:center;
- padding:20px;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 
 .login-card{
- width:100%;
- max-width:430px;
- background:#111;
- border:1px solid #4a3914;
- border-radius:25px;
- padding:30px;
- text-align:center;
- box-shadow:0 25px 90px #000;
+  width:100%;
+  max-width:420px;
+  padding:32px 24px;
+  border:1px solid #333;
+  border-radius:24px;
+  background:linear-gradient(145deg,#171717,#0d0d0d);
+  box-shadow:0 25px 80px rgba(0,0,0,.7);
 }
 
-.logo{
- width:90px;
- height:90px;
- object-fit:cover;
- border-radius:50%;
- border:2px solid var(--gold);
+.brand{
+  text-align:center;
+  margin-bottom:28px;
 }
 
-h1,h2,h3{
- color:var(--gold2);
+.brand-title{
+  color:var(--gold2);
+  font-size:28px;
+  font-weight:bold;
 }
 
-input{
- width:100%;
- padding:15px;
- border-radius:13px;
- border:1px solid #333;
- background:#080808;
- color:white;
- outline:none;
+.brand-sub{
+  color:#888;
+  margin-top:6px;
 }
 
-input:focus{
- border-color:var(--gold);
+.field{
+  margin-bottom:16px;
 }
 
 label{
- display:block;
- text-align:left;
- margin:15px 0 7px;
- color:#d6c789;
- font-size:14px;
+  display:block;
+  color:#ccc;
+  font-size:14px;
+  margin-bottom:7px;
 }
 
-.btn{
- border:0;
- border-radius:13px;
- padding:13px 18px;
- font-weight:bold;
+input,select{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #333;
+  background:#080808;
+  color:#fff;
+  outline:none;
 }
 
-.gold{
- background:linear-gradient(135deg,var(--gold),var(--gold2));
- color:#111;
+input:focus,
+select:focus{
+  border-color:var(--gold);
 }
 
-.dark{
- background:#1b1b1b;
- border:1px solid #333;
- color:white;
+.gold-btn{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:13px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#111;
+  font-weight:bold;
 }
 
-.green{
- background:#173c27;
- color:#91ffbd;
- border:1px solid #347b50;
+.message{
+  padding:12px;
+  border-radius:12px;
+  margin-top:14px;
+  display:none;
 }
 
-.red{
- background:#461818;
- color:#ffaba7;
- border:1px solid #823d3a;
+.message.show{
+  display:block;
 }
+
+.message.error{
+  background:#4a1717;
+  color:#ffb5b5;
+}
+
+.message.success{
+  background:#123b24;
+  color:#9ff0ba;
+}
+
+
+/* APP */
 
 .app{
- max-width:1000px;
- margin:auto;
- padding:20px;
+  min-height:100vh;
 }
 
-.top{
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:15px;
- margin-bottom:20px;
+.header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:14px 18px;
+  background:rgba(8,8,8,.95);
+  backdrop-filter:blur(15px);
+  border-bottom:1px solid #252525;
 }
 
-.profile{
- display:flex;
- align-items:center;
- gap:13px;
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
 .avatar{
- width:60px;
- height:60px;
- border-radius:50%;
- object-fit:cover;
- border:2px solid var(--gold);
- background:#171717;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid var(--gold);
+  background:#222;
 }
 
-.role{
- color:#999;
- font-size:13px;
+.header-name{
+  font-weight:bold;
 }
 
-.code-card{
- background:
- linear-gradient(145deg,#17120a,#0e0e0e);
- border:2px solid #5b4614;
- border-radius:28px;
- padding:30px 20px;
- text-align:center;
- box-shadow:0 20px 70px #000;
- margin-bottom:20px;
+.header-role{
+  color:var(--gold2);
+  font-size:12px;
+  margin-top:3px;
 }
 
-.code-icon{
- width:100px;
- height:100px;
- border-radius:50%;
- margin:0 auto 15px;
- display:flex;
- align-items:center;
- justify-content:center;
- font-size:48px;
- background:#20190a;
- border:2px solid var(--gold);
+.logout{
+  padding:10px 13px;
+  border-radius:10px;
+  border:1px solid #444;
+  background:#181818;
+  color:#fff;
 }
 
-.code-card h1{
- font-size:31px;
- margin:8px 0;
+
+/* CONTENT */
+
+.content{
+  width:100%;
+  max-width:1100px;
+  margin:auto;
+  padding:22px 16px 50px;
 }
 
-.code-card p{
- color:#999;
+.welcome{
+  margin-bottom:20px;
 }
 
-.code-input{
- font-size:28px;
- text-align:center;
- letter-spacing:3px;
- border:2px solid #4b3a12;
- margin:15px 0;
- text-transform:uppercase;
+.welcome h1{
+  margin:0;
+  font-size:26px;
 }
+
+.welcome p{
+  margin:7px 0 0;
+  color:#888;
+}
+
+
+/* BIG DISCOUNT */
+
+.discount-main{
+  padding:28px 20px;
+  border-radius:25px;
+  background:
+    linear-gradient(145deg,#201b0b,#0e0e0e);
+  border:1px solid #4b3b13;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  margin-bottom:20px;
+}
+
+.discount-icon{
+  width:82px;
+  height:82px;
+  border-radius:22px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:42px;
+  margin-bottom:16px;
+  box-shadow:0 10px 30px rgba(212,175,55,.18);
+}
+
+.discount-main h2{
+  margin:0 0 7px;
+  color:var(--gold2);
+}
+
+.discount-main p{
+  color:#999;
+  margin:0 0 20px;
+}
+
+.code-box{
+  display:flex;
+  gap:10px;
+}
+
+.code-box input{
+  flex:1;
+  font-size:20px;
+  font-weight:bold;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.check-btn{
+  min-width:110px;
+  border:0;
+  border-radius:12px;
+  background:var(--gold);
+  color:#111;
+  font-weight:bold;
+}
+
+@media(max-width:560px){
+  .code-box{
+    flex-direction:column;
+  }
+
+  .check-btn{
+    width:100%;
+    padding:14px;
+  }
+}
+
+
+/* RESULT */
 
 .result{
- border-radius:20px;
- padding:20px;
- margin-top:20px;
- text-align:center;
+  margin-top:18px;
+  padding:18px;
+  border-radius:17px;
+  border:1px solid #333;
+  background:#0b0b0b;
+  display:none;
+}
+
+.result.show{
+  display:block;
 }
 
 .result.valid{
- background:#102619;
- border:1px solid #2e7547;
+  border-color:#237c49;
+  background:#0d2418;
 }
 
 .result.invalid{
- background:#301414;
- border:1px solid #7d3430;
+  border-color:#762c2c;
+  background:#260f0f;
 }
 
-.result.used{
- background:#30250d;
- border:1px solid #80601c;
+.result-title{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:8px;
 }
 
-.result-icon{
- font-size:42px;
+.result.valid .result-title{
+  color:#73e39c;
 }
 
-.discount{
- font-size:40px;
- color:var(--gold2);
- font-weight:bold;
+.result.invalid .result-title{
+  color:#ff8f8f;
 }
+
+.result-info{
+  color:#bbb;
+  line-height:1.7;
+}
+
+.use-btn{
+  margin-top:15px;
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:#c93b3b;
+  color:#fff;
+  font-weight:bold;
+}
+
+.use-btn:hover{
+  background:#e34b4b;
+}
+
+
+/* STATS */
 
 .stats{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:14px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:13px;
+  margin-bottom:20px;
 }
 
 .stat{
- background:var(--card);
- border:1px solid var(--line);
- border-radius:18px;
- padding:20px;
- text-align:center;
+  background:linear-gradient(145deg,#151515,#0e0e0e);
+  border:1px solid #292929;
+  border-radius:18px;
+  padding:18px;
 }
 
-.stat small{
- color:#888;
+.stat-number{
+  color:var(--gold2);
+  font-size:28px;
+  font-weight:bold;
 }
 
-.stat strong{
- display:block;
- color:var(--gold2);
- font-size:30px;
- margin-top:7px;
+.stat-label{
+  color:#888;
+  font-size:13px;
+  margin-top:5px;
+}
+
+@media(max-width:650px){
+  .stats{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* PANELS */
+
+.panel{
+  background:linear-gradient(145deg,#141414,#0d0d0d);
+  border:1px solid #292929;
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:18px;
+}
+
+.panel h3{
+  margin-top:0;
+  color:var(--gold2);
 }
 
 .activity{
- background:var(--card);
- border:1px solid var(--line);
- border-radius:18px;
- padding:20px;
- margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid #242424;
 }
 
-.activity-row{
- padding:12px 0;
- border-bottom:1px solid #252525;
- display:flex;
- justify-content:space-between;
- gap:10px;
+.activity:last-child{
+  border-bottom:0;
 }
 
-@media(max-width:600px){
- .stats{grid-template-columns:1fr}
- .code-card h1{font-size:26px}
- .code-input{font-size:22px}
+.activity-code{
+  font-weight:bold;
+}
+
+.activity-time{
+  color:#777;
+  font-size:12px;
+}
+
+.activity-action{
+  color:#bbb;
+  font-size:13px;
+}
+
+.empty{
+  color:#777;
+  padding:15px 0;
+}
+
+
+/* BOOKING */
+
+.booking-row{
+  padding:15px 0;
+  border-bottom:1px solid #292929;
+}
+
+.booking-row:last-child{
+  border-bottom:0;
+}
+
+.booking-title{
+  font-weight:bold;
+}
+
+.booking-meta{
+  color:#999;
+  font-size:13px;
+  margin-top:5px;
+}
+
+.status{
+  display:inline-block;
+  margin-top:8px;
+  padding:5px 9px;
+  border-radius:20px;
+  background:#252525;
+  font-size:11px;
+}
+
+.status.confirmed{
+  background:#164b2b;
+  color:#9ff0bb;
+}
+
+.status.pending{
+  background:#4d3d13;
+  color:#f2d77b;
+}
+
+.status.cancelled{
+  background:#501919;
+  color:#ffaaaa;
+}
+
+
+/* FOOTER */
+
+.footer{
+  text-align:center;
+  color:#666;
+  padding:20px;
+  font-size:12px;
 }
 </style>
 </head>
 
 <body>
 
+
+<!-- LOGIN -->
+
 <div id="loginScreen" class="login">
- <div class="login-card">
 
-  <img id="loginLogo" class="logo" src="" alt="Nababi">
+  <div class="login-card">
 
-  <h1>Nababi Ristorante</h1>
-  <p style="color:#999">Staff Panel</p>
+    <div class="brand">
+      <div class="brand-title">NABABI RISTORANTE</div>
+      <div class="brand-sub">Staff Panel</div>
+    </div>
 
-  <label>Email</label>
-  <input id="email" type="email" placeholder="Staff email">
+    <div class="field">
+      <label>Email</label>
+      <input
+        id="loginEmail"
+        type="email"
+        placeholder="Staff email">
+    </div>
 
-  <label>Password</label>
-  <input id="password" type="password" placeholder="Password">
+    <div class="field">
+      <label>Password</label>
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="Password">
+    </div>
 
-  <button class="btn gold" style="width:100%;margin-top:18px"
-   onclick="login()">
-   🔐 Staff Login
-  </button>
+    <button class="gold-btn" onclick="login()">
+      🔐 Staff Login
+    </button>
 
-  <p id="error" style="color:#ff7770"></p>
+    <div id="loginMessage" class="message"></div>
 
- </div>
+  </div>
+
 </div>
 
 
+<!-- APP -->
+
 <div id="app" class="app hidden">
 
- <div class="top">
+  <header class="header">
 
-  <div class="profile">
-   <img id="avatar" class="avatar" src="" alt="">
-   <div>
-    <h3 id="staffName" style="margin:0">Staff</h3>
-    <div id="staffEmail" class="role"></div>
-    <div id="staffRole" class="role"></div>
-   </div>
+    <div class="header-left">
+
+      <img
+        id="staffAvatar"
+        class="avatar"
+        src=""
+        alt="Staff">
+
+      <div>
+        <div id="staffName" class="header-name">
+          Staff
+        </div>
+
+        <div id="staffRole" class="header-role">
+          Staff
+        </div>
+      </div>
+
+    </div>
+
+    <button class="logout" onclick="logout()">
+      🚪 Logout
+    </button>
+
+  </header>
+
+
+  <main class="content">
+
+    <div class="welcome">
+
+      <h1 id="welcomeText">
+        Welcome
+      </h1>
+
+      <p>
+        Nababi Ristorante Staff Management
+      </p>
+
+    </div>
+
+
+    <!-- DISCOUNT STAFF -->
+
+    <section id="discountPanel" class="discount-main">
+
+      <div class="discount-icon">
+        🎟️
+      </div>
+
+      <h2>Discount Code</h2>
+
+      <p>
+        Customer-এর Discount Code এখানে লিখে Check করুন।
+      </p>
+
+      <div class="code-box">
+
+        <input
+          id="discountInput"
+          type="text"
+          placeholder="NB-000001"
+          autocomplete="off">
+
+        <button
+          class="check-btn"
+          onclick="checkDiscount()">
+          CHECK
+        </button>
+
+      </div>
+
+
+      <div id="discountResult" class="result">
+
+        <div
+          id="resultTitle"
+          class="result-title">
+        </div>
+
+        <div
+          id="resultInfo"
+          class="result-info">
+        </div>
+
+        <button
+          id="useButton"
+          class="use-btn hidden"
+          onclick="markCodeUsed()">
+          ✅ MARK AS USED
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section id="discountStats">
+
+      <div class="stats">
+
+        <div class="stat">
+          <div
+            id="todayChecked"
+            class="stat-number">
+            0
+          </div>
+
+          <div class="stat-label">
+            Today Checked
+          </div>
+        </div>
+
+
+        <div class="stat">
+          <div
+            id="todayUsed"
+            class="stat-number">
+            0
+          </div>
+
+          <div class="stat-label">
+            Today Used
+          </div>
+        </div>
+
+
+        <div class="stat">
+          <div
+            id="todayInvalid"
+            class="stat-number">
+            0
+          </div>
+
+          <div class="stat-label">
+            Today Invalid
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- RECENT ACTIVITY -->
+
+    <section id="activityPanel" class="panel">
+
+      <h3>🕐 Recent Activity</h3>
+
+      <div id="activityList">
+        <div class="empty">
+          Loading...
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- BOOKING STAFF -->
+
+    <section id="bookingPanel" class="panel hidden">
+
+      <h3>📅 Table Bookings</h3>
+
+      <button
+        class="gold-btn"
+        onclick="loadBookings()"
+        style="margin-bottom:15px">
+        🔄 Refresh Bookings
+      </button>
+
+      <div id="bookingList">
+        <div class="empty">
+          Loading bookings...
+        </div>
+      </div>
+
+    </section>
+
+
+  </main>
+
+
+  <div class="footer">
+    Nababi Ristorante · Staff Panel
   </div>
-
-  <button class="btn dark" onclick="logout()">🚪 Logout</button>
-
- </div>
-
-
- <!-- BIG DISCOUNT CODE OPTION -->
-
- <div class="code-card">
-
-  <div class="code-icon">🎟️</div>
-
-  <h1>DISCOUNT CODE</h1>
-
-  <p>
-   Customer যে Discount Code দিয়েছে সেটি এখানে লিখুন।
-  </p>
-
-  <input
-   id="codeInput"
-   class="code-input"
-   placeholder="NB-000001"
-   autocomplete="off"
-   maxlength="30"
-  >
-
-  <div class="row">
-   <button class="btn gold"
-    style="width:100%;font-size:18px"
-    onclick="checkCode()">
-    🔍 CHECK CODE
-   </button>
-  </div>
-
-  <div id="result"></div>
-
- </div>
-
-
- <!-- STATS -->
-
- <div class="stats">
-
-  <div class="stat">
-   <small>Today Checked</small>
-   <strong id="todayChecked">0</strong>
-  </div>
-
-  <div class="stat">
-   <small>Codes Used</small>
-   <strong id="totalUsed">0</strong>
-  </div>
-
-  <div class="stat">
-   <small>Invalid</small>
-   <strong id="invalid">0</strong>
-  </div>
-
- </div>
-
-
- <!-- RECENT ACTIVITY -->
-
- <div class="activity">
-
-  <h2>Recent Activity</h2>
-
-  <div id="activityList">
-   <p style="color:#777">Loading...</p>
-  </div>
-
- </div>
 
 </div>
 
 
 <script>
-const sb=window.supabase.createClient(
- window.SUPABASE_URL,
- window.SUPABASE_ANON_KEY
-);
 
-let user=null;
-let staff=null;
-let lastCode=null;
+const SUPABASE_URL =
+  "https://rzvaaxjtkvriekokeolo.supabase.co";
 
-const $=id=>document.getElementById(id);
+const SUPABASE_KEY =
+  "sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
 
-function escapeHtml(value){
- return String(value??"")
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
-}
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-function normalizeCode(v){
- return String(v||"").trim().toUpperCase();
-}
+
+let currentUser = null;
+let currentStaff = null;
+let currentCheckedCode = null;
+let currentCodeData = null;
+
+
+// ---------------- LOGIN ----------------
 
 async function login(){
 
- const email=$("email").value.trim();
- const password=$("password").value;
+  const email =
+    document.getElementById("loginEmail")
+      .value.trim();
 
- $("error").textContent="";
+  const password =
+    document.getElementById("loginPassword")
+      .value;
 
- const {data,error}=await sb.auth.signInWithPassword({
-  email,
-  password
- });
+  const message =
+    document.getElementById("loginMessage");
 
- if(error){
-  $("error").textContent=error.message;
-  return;
- }
+  message.className="message";
 
- user=data.user;
+  if(!email || !password){
 
- await loadStaff();
-}
+    message.textContent =
+      "Email and password are required.";
 
-async function loadStaff(){
+    message.className =
+      "message show error";
 
- const {data,error}=await sb
-  .from("admin_staff")
-  .select("*")
-  .ilike("email",user.email)
-  .maybeSingle();
-
- if(error||!data){
-  await sb.auth.signOut();
-  $("error").textContent="Staff account পাওয়া যায়নি।";
-  return;
- }
-
- if(data.enabled!==true){
-  await sb.auth.signOut();
-  $("error").textContent="এই account disabled.";
-  return;
- }
-
- staff=data;
-
- if(staff.role!=="DISCOUNT_STAFF"){
-  if(staff.role==="SUPER_ADMIN"){
-   location.href="admin.html";
-  }else{
-   $("error").textContent="এই panel আপনার role-এর জন্য নয়।";
-   await sb.auth.signOut();
+    return;
   }
-  return;
- }
 
- $("loginScreen").classList.add("hidden");
- $("app").classList.remove("hidden");
 
- $("staffName").textContent=staff.full_name||"Staff";
- $("staffEmail").textContent=staff.email;
- $("staffRole").textContent="DISCOUNT STAFF";
+  const {data,error} =
+    await supabaseClient.auth
+      .signInWithPassword({
+        email,
+        password
+      });
 
- if(staff.avatar_url){
-  $("avatar").src=staff.avatar_url;
-  $("loginLogo").src=staff.avatar_url;
- }else{
-  $("avatar").src="data:image/svg+xml;charset=UTF-8,"+
-   encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-     <rect width="100" height="100" fill="#171717"/>
-     <text x="50" y="60" text-anchor="middle" font-size="45">👤</text>
-    </svg>
-   `);
- }
 
- await loadStats();
- await loadActivity();
+  if(error){
+
+    message.textContent =
+      error.message;
+
+    message.className =
+      "message show error";
+
+    return;
+  }
+
+
+  currentUser=data.user;
+
+  await loadStaffProfile();
+
 }
 
-async function checkCode(){
 
- const code=normalizeCode($("codeInput").value);
+// ---------------- STAFF PROFILE ----------------
 
- if(!code){
-  showResult("invalid","❌","Code লিখুন","Please enter a discount code.");
-  return;
- }
+async function loadStaffProfile(){
 
- lastCode=code;
+  const {data,error} =
+    await supabaseClient
+      .from("admin_staff")
+      .select("*")
+      .ilike("email",currentUser.email)
+      .maybeSingle();
 
- const {data,error}=await sb.rpc(
-  "use_discount_code",
-  {p_code:code}
- );
 
- /*
-  The function may return different shapes depending
-  on the SQL version. We handle the common ones below.
- */
+  if(error || !data){
 
- if(error){
+    await logout();
 
-  await logActivity(code,"INVALID");
+    alert(
+      "Staff account was not found."
+    );
 
-  showResult(
-   "invalid",
-   "❌",
-   "INVALID CODE",
-   error.message||"এই code valid নয়।"
-  );
+    return;
+  }
 
-  await loadStats();
-  await loadActivity();
 
-  return;
- }
+  if(data.enabled !== true){
 
- let row=Array.isArray(data)?data[0]:data;
+    await logout();
 
- if(!row){
+    alert(
+      "This staff account is disabled."
+    );
 
-  await logActivity(code,"INVALID");
+    return;
+  }
 
-  showResult(
-   "invalid",
-   "❌",
-   "INVALID CODE",
-   "এই Discount Code পাওয়া যায়নি।"
-  );
 
-  await loadStats();
-  await loadActivity();
+  currentStaff=data;
 
-  return;
- }
 
- const status=String(
-  row.status||row.result||row.message||""
- ).toLowerCase();
+  document.getElementById("loginScreen")
+    .classList.add("hidden");
 
- if(status.includes("used")||status.includes("already")){
+  document.getElementById("app")
+    .classList.remove("hidden");
 
-  await logActivity(code,"CHECKED");
 
-  showResult(
-   "used",
-   "⚠️",
-   "ALREADY USED",
-   "এই Discount Code আগে ব্যবহার করা হয়েছে।"
-  );
+  document.getElementById("staffName")
+    .textContent =
+      data.full_name ||
+      currentUser.email;
 
-  await loadStats();
-  await loadActivity();
 
-  return;
- }
+  document.getElementById("welcomeText")
+    .textContent =
+      "Welcome, "+
+      (data.full_name || "Staff");
 
- const discount=
-  row.discount_percent ??
-  row.discount ??
-  row.percent ??
-  "";
 
- await logActivity(code,"CHECKED");
+  document.getElementById("staffRole")
+    .textContent =
+      formatRole(data.role);
 
- showResult(
-  "valid",
-  "✅",
-  "VALID CODE",
-  discount
-   ? `<div class="discount">${escapeHtml(discount)}%</div>
-      <p>Customer discount পাবে।</p>`
-   : "<p>Customer-এর জন্য code valid.</p>",
-  true
- );
 
- await loadStats();
- await loadActivity();
+  const avatar =
+    document.getElementById("staffAvatar");
+
+
+  if(data.avatar_url){
+
+    avatar.src=data.avatar_url;
+
+  }else{
+
+    avatar.src=
+      "data:image/svg+xml;charset=UTF-8,"+
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="100" height="100">
+          <rect width="100" height="100"
+                fill="#222"/>
+          <text x="50" y="62"
+                text-anchor="middle"
+                font-size="48"
+                fill="#d4af37">
+            👤
+          </text>
+        </svg>
+      `);
+
+  }
+
+
+  if(data.role==="DISCOUNT_STAFF"){
+
+    document.getElementById("discountPanel")
+      .classList.remove("hidden");
+
+    document.getElementById("discountStats")
+      .classList.remove("hidden");
+
+    document.getElementById("activityPanel")
+      .classList.remove("hidden");
+
+    document.getElementById("bookingPanel")
+      .classList.add("hidden");
+
+    await loadStats();
+    await loadActivity();
+
+  }
+
+
+  if(data.role==="BOOKING_STAFF"){
+
+    document.getElementById("discountPanel")
+      .classList.add("hidden");
+
+    document.getElementById("discountStats")
+      .classList.add("hidden");
+
+    document.getElementById("activityPanel")
+      .classList.add("hidden");
+
+    document.getElementById("bookingPanel")
+      .classList.remove("hidden");
+
+    await loadBookings();
+
+  }
+
+
+  if(data.role==="SUPER_ADMIN"){
+
+    document.getElementById("discountPanel")
+      .classList.remove("hidden");
+
+    document.getElementById("discountStats")
+      .classList.remove("hidden");
+
+    document.getElementById("activityPanel")
+      .classList.remove("hidden");
+
+    document.getElementById("bookingPanel")
+      .classList.remove("hidden");
+
+    await loadStats();
+    await loadActivity();
+    await loadBookings();
+
+  }
+
 }
 
-function showResult(type,icon,title,text,canUse=false){
 
- $("result").className="result "+type;
+// ---------------- DISCOUNT CHECK ----------------
 
- $("result").innerHTML=`
-  <div class="result-icon">${icon}</div>
-  <h2>${title}</h2>
-  <div>${text}</div>
+async function checkDiscount(){
 
-  ${canUse
-   ? `<button
-       class="btn green"
-       style="margin-top:15px;width:100%;font-size:17px"
-       onclick="markUsed()">
-       ✓ MARK AS USED
-      </button>`
-   : ""}
- `;
+  const input =
+    document.getElementById("discountInput");
+
+  const code =
+    input.value.trim().toUpperCase();
+
+
+  if(!code){
+
+    showResult(
+      false,
+      "⚠️ Enter Discount Code",
+      "Please enter the customer's discount code.",
+      false
+    );
+
+    return;
+  }
+
+
+  currentCheckedCode=null;
+  currentCodeData=null;
+
+
+  try{
+
+    /*
+      IMPORTANT:
+      We only READ the code here.
+      We do NOT mark it as USED.
+    */
+
+    const {data,error} =
+      await supabaseClient
+        .from("discount_codes")
+        .select("*")
+        .eq("code",code)
+        .maybeSingle();
+
+
+    // LOG CHECK
+
+    await logActivity(
+      code,
+      data ? "CHECKED" : "INVALID"
+    );
+
+
+    if(error){
+
+      showResult(
+        false,
+        "❌ Code Check Failed",
+        error.message,
+        false
+      );
+
+      await loadStats();
+      await loadActivity();
+
+      return;
+    }
+
+
+    if(!data){
+
+      showResult(
+        false,
+        "❌ Invalid Code",
+        "This discount code does not exist.",
+        false
+      );
+
+      await loadStats();
+      await loadActivity();
+
+      return;
+    }
+
+
+    if(String(data.status).toUpperCase()==="USED"){
+
+      showResult(
+        false,
+        "⚠️ Already Used",
+        "This discount code has already been used.",
+        false
+      );
+
+      await loadStats();
+      await loadActivity();
+
+      return;
+    }
+
+
+    if(data.expires_at){
+
+      const expiry =
+        new Date(data.expires_at);
+
+      if(expiry < new Date()){
+
+        showResult(
+          false,
+          "⌛ Expired Code",
+          "This discount code has expired.",
+          false
+        );
+
+        await loadStats();
+        await loadActivity();
+
+        return;
+      }
+
+    }
+
+
+    currentCheckedCode=code;
+    currentCodeData=data;
+
+
+    let discountText="Discount available.";
+
+    if(data.discount_percent){
+
+      discountText =
+        "Discount: "+
+        data.discount_percent+
+        "%";
+
+    }else if(data.discount_amount){
+
+      discountText =
+        "Discount: €"+
+        data.discount_amount;
+
+    }
+
+
+    showResult(
+      true,
+      "✅ VALID DISCOUNT CODE",
+      `
+        Code: <strong>${escapeHtml(code)}</strong><br>
+        ${discountText}<br>
+        Status: <strong>${escapeHtml(data.status||"ACTIVE")}</strong>
+      `,
+      true
+    );
+
+
+    await loadStats();
+    await loadActivity();
+
+
+  }catch(e){
+
+    showResult(
+      false,
+      "❌ Error",
+      e.message,
+      false
+    );
+
+  }
+
 }
 
-async function markUsed(){
 
- if(!lastCode)return;
+// ---------------- MARK USED ----------------
 
- /*
-  Calling the same SQL function again may consume the code.
-  To prevent accidental double use, ask for confirmation.
- */
- if(!confirm("এই Discount Code এখন Used হিসেবে mark করবেন?"))
-  return;
+async function markCodeUsed(){
 
- const code=lastCode;
+  if(!currentCheckedCode){
 
- const {data,error}=await sb.rpc(
-  "use_discount_code",
-  {p_code:code}
- );
+    alert(
+      "Please check a valid code first."
+    );
 
- if(error){
-  showResult(
-   "invalid",
-   "❌",
-   "FAILED",
-   error.message
-  );
-  return;
- }
+    return;
+  }
 
- await logActivity(code,"USED");
 
- showResult(
-  "used",
-  "✓",
-  "CODE USED",
-  "এই Discount Code successfully used হয়েছে।"
- );
+  if(!confirm(
+    "Are you sure you want to mark "+
+    currentCheckedCode+
+    " as USED?"
+  )){
 
- $("codeInput").value="";
- lastCode=null;
+    return;
+  }
 
- await loadStats();
- await loadActivity();
+
+  try{
+
+    /*
+      We update the code ONLY now.
+      Checking alone never uses the code.
+    */
+
+    const {data,error} =
+      await supabaseClient
+        .from("discount_codes")
+        .update({
+          status:"USED",
+          used_at:new Date().toISOString()
+        })
+        .eq("code",currentCheckedCode)
+        .neq("status","USED")
+        .select()
+        .maybeSingle();
+
+
+    if(error){
+
+      throw error;
+    }
+
+
+    if(!data){
+
+      showResult(
+        false,
+        "⚠️ Code Already Used",
+        "This code could not be marked as used.",
+        false
+      );
+
+      return;
+    }
+
+
+    await logActivity(
+      currentCheckedCode,
+      "USED"
+    );
+
+
+    showResult(
+      true,
+      "✅ CODE MARKED AS USED",
+      `
+        Code:
+        <strong>${escapeHtml(currentCheckedCode)}</strong><br>
+        The customer discount has been recorded successfully.
+      `,
+      false
+    );
+
+
+    currentCheckedCode=null;
+    currentCodeData=null;
+
+
+    document.getElementById("discountInput")
+      .value="";
+
+
+    await loadStats();
+    await loadActivity();
+
+
+  }catch(e){
+
+    showResult(
+      false,
+      "❌ Could Not Mark Used",
+      e.message,
+      false
+    );
+
+  }
+
 }
 
-async function logActivity(code,action){
 
- if(!staff)return;
+// ---------------- RESULT UI ----------------
 
- await sb.from("discount_staff_activity").insert({
-  staff_email:staff.email,
-  staff_name:staff.full_name||"",
-  discount_code:code,
+function showResult(
+  valid,
+  title,
+  info,
+  showUse
+){
+
+  const result =
+    document.getElementById("discountResult");
+
+  const titleEl =
+    document.getElementById("resultTitle");
+
+  const infoEl =
+    document.getElementById("resultInfo");
+
+  const useButton =
+    document.getElementById("useButton");
+
+
+  result.className=
+    "result show "+
+    (valid ? "valid":"invalid");
+
+
+  titleEl.textContent=title;
+
+  infoEl.innerHTML=info;
+
+
+  if(showUse){
+
+    useButton.classList.remove("hidden");
+
+  }else{
+
+    useButton.classList.add("hidden");
+
+  }
+
+}
+
+
+// ---------------- ACTIVITY ----------------
+
+async function logActivity(
+  code,
   action
- });
+){
+
+  if(!currentStaff) return;
+
+
+  const {error} =
+    await supabaseClient
+      .from("discount_staff_activity")
+      .insert({
+
+        staff_email:
+          currentStaff.email,
+
+        staff_name:
+          currentStaff.full_name,
+
+        discount_code:
+          code,
+
+        action
+
+      });
+
+
+  if(error){
+
+    console.error(
+      "Activity log error:",
+      error
+    );
+
+  }
+
 }
 
-async function loadStats(){
-
- if(!staff)return;
-
- const today=new Date();
- today.setHours(0,0,0,0);
-
- const {data}=await sb
-  .from("discount_staff_activity")
-  .select("action,created_at")
-  .eq("staff_email",staff.email);
-
- const rows=data||[];
-
- const todayRows=rows.filter(x=>
-  new Date(x.created_at)>=today
- );
-
- $("todayChecked").textContent=
-  todayRows.filter(x=>x.action==="CHECKED").length;
-
- $("totalUsed").textContent=
-  rows.filter(x=>x.action==="USED").length;
-
- $("invalid").textContent=
-  rows.filter(x=>x.action==="INVALID").length;
-}
 
 async function loadActivity(){
 
- if(!staff)return;
+  if(!currentStaff) return;
 
- const {data,error}=await sb
-  .from("discount_staff_activity")
-  .select("*")
-  .eq("staff_email",staff.email)
-  .order("created_at",{ascending:false})
-  .limit(20);
 
- if(error){
-  $("activityList").innerHTML=
-   `<p style="color:#ff7770">${escapeHtml(error.message)}</p>`;
-  return;
- }
+  const {data,error} =
+    await supabaseClient
+      .from("discount_staff_activity")
+      .select("*")
+      .eq("staff_email",currentStaff.email)
+      .order("created_at",{ascending:false})
+      .limit(10);
 
- if(!data?.length){
-  $("activityList").innerHTML=
-   '<p style="color:#777">No activity yet.</p>';
-  return;
- }
 
- $("activityList").innerHTML=data.map(a=>`
+  const box =
+    document.getElementById("activityList");
 
-  <div class="activity-row">
 
-   <div>
-    <b>${escapeHtml(a.discount_code)}</b><br>
+  if(error){
 
-    <small style="color:#777">
-     ${new Date(a.created_at).toLocaleString()}
-    </small>
-   </div>
+    box.innerHTML=
+      `<div class="empty">
+        Unable to load activity.
+      </div>`;
 
-   <div>
-    ${
-     a.action==="USED"
-      ? '<span style="color:#6dff9e">USED</span>'
-      : a.action==="INVALID"
-       ? '<span style="color:#ff7770">INVALID</span>'
-       : '<span style="color:#e7cf6e">CHECKED</span>'
-    }
-   </div>
+    return;
+  }
 
-  </div>
 
- `).join("");
+  if(!data || data.length===0){
+
+    box.innerHTML=
+      `<div class="empty">
+        No activity yet.
+      </div>`;
+
+    return;
+  }
+
+
+  box.innerHTML="";
+
+
+  data.forEach(item=>{
+
+    const row=
+      document.createElement("div");
+
+    row.className="activity";
+
+
+    const actionLabel =
+      item.action==="USED"
+      ? "✅ Used"
+      : item.action==="INVALID"
+      ? "❌ Invalid"
+      : "🔎 Checked";
+
+
+    row.innerHTML=`
+
+      <div>
+
+        <div class="activity-code">
+          ${escapeHtml(item.discount_code)}
+        </div>
+
+        <div class="activity-action">
+          ${actionLabel}
+        </div>
+
+      </div>
+
+      <div class="activity-time">
+        ${formatDate(item.created_at)}
+      </div>
+
+    `;
+
+
+    box.appendChild(row);
+
+  });
+
 }
+
+
+// ---------------- STATS ----------------
+
+async function loadStats(){
+
+  if(!currentStaff) return;
+
+
+  const start =
+    new Date();
+
+  start.setHours(0,0,0,0);
+
+
+  const {data,error} =
+    await supabaseClient
+      .from("discount_staff_activity")
+      .select("action")
+      .eq("staff_email",currentStaff.email)
+      .gte("created_at",start.toISOString());
+
+
+  if(error){
+
+    console.error(error);
+    return;
+  }
+
+
+  let checked=0;
+  let used=0;
+  let invalid=0;
+
+
+  (data||[]).forEach(item=>{
+
+    if(item.action==="CHECKED")
+      checked++;
+
+    if(item.action==="USED")
+      used++;
+
+    if(item.action==="INVALID")
+      invalid++;
+
+  });
+
+
+  document.getElementById("todayChecked")
+    .textContent=checked;
+
+  document.getElementById("todayUsed")
+    .textContent=used;
+
+  document.getElementById("todayInvalid")
+    .textContent=invalid;
+
+}
+
+
+// ---------------- BOOKINGS ----------------
+
+async function loadBookings(){
+
+  const {data,error} =
+    await supabaseClient
+      .from("table_bookings")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(50);
+
+
+  const box =
+    document.getElementById("bookingList");
+
+
+  if(error){
+
+    box.innerHTML=
+      `<div class="empty">
+        ${escapeHtml(error.message)}
+      </div>`;
+
+    return;
+  }
+
+
+  if(!data || data.length===0){
+
+    box.innerHTML=
+      `<div class="empty">
+        No bookings found.
+      </div>`;
+
+    return;
+  }
+
+
+  box.innerHTML="";
+
+
+  data.forEach(booking=>{
+
+    const row=
+      document.createElement("div");
+
+    row.className="booking-row";
+
+
+    let statusClass="";
+
+    if(booking.status==="Confirmed")
+      statusClass="confirmed";
+
+    if(booking.status==="Pending")
+      statusClass="pending";
+
+    if(booking.status==="Cancelled")
+      statusClass="cancelled";
+
+
+    row.innerHTML=`
+
+      <div class="booking-title">
+
+        ${escapeHtml(
+          booking.customer_name||"Customer"
+        )}
+
+      </div>
+
+
+      <div class="booking-meta">
+
+        Reference:
+        ${escapeHtml(
+          booking.booking_reference||"—"
+        )}
+
+        <br>
+
+        📅
+        ${escapeHtml(
+          booking.booking_date||""
+        )}
+
+        &nbsp;
+
+        🕐
+        ${escapeHtml(
+          booking.booking_time||""
+        )}
+
+        <br>
+
+        👥
+        ${booking.guests||2} guests
+
+      </div>
+
+
+      <span class="status ${statusClass}">
+
+        ${escapeHtml(
+          booking.status||"Pending"
+        )}
+
+      </span>
+
+    `;
+
+
+    box.appendChild(row);
+
+
+    // Log viewed only for booking staff
+
+    if(
+      currentStaff &&
+      currentStaff.role==="BOOKING_STAFF"
+    ){
+
+      logBookingActivity(
+        booking,
+        "VIEWED"
+      );
+
+    }
+
+  });
+
+}
+
+
+async function logBookingActivity(
+  booking,
+  action
+){
+
+  if(!currentStaff) return;
+
+
+  const {error} =
+    await supabaseClient
+      .from("booking_staff_activity")
+      .insert({
+
+        staff_email:
+          currentStaff.email,
+
+        staff_name:
+          currentStaff.full_name,
+
+        booking_id:
+          booking.id,
+
+        booking_reference:
+          booking.booking_reference,
+
+        action
+
+      });
+
+
+  if(error){
+
+    console.error(
+      "Booking activity error:",
+      error
+    );
+
+  }
+
+}
+
+
+// ---------------- LOGOUT ----------------
 
 async function logout(){
- await sb.auth.signOut();
- location.reload();
+
+  await supabaseClient.auth.signOut();
+
+  location.reload();
+
 }
 
-$("codeInput").addEventListener("keydown",e=>{
- if(e.key==="Enter")checkCode();
-});
 
-(async function init(){
+// ---------------- HELPERS ----------------
 
- const {data}=await sb.auth.getSession();
+function formatRole(role){
 
- if(data?.session?.user){
-  user=data.session.user;
-  await loadStaff();
- }
+  if(role==="SUPER_ADMIN")
+    return "Super Admin";
+
+  if(role==="DISCOUNT_STAFF")
+    return "Discount Staff";
+
+  if(role==="BOOKING_STAFF")
+    return "Booking Staff";
+
+  return role||"Staff";
+
+}
+
+
+function formatDate(value){
+
+  if(!value) return "";
+
+  try{
+
+    return new Date(value)
+      .toLocaleString(
+        "en-GB",
+        {
+          day:"2-digit",
+          month:"short",
+          hour:"2-digit",
+          minute:"2-digit"
+        }
+      );
+
+  }catch(e){
+
+    return value;
+
+  }
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+// ---------------- AUTO LOGIN ----------------
+
+(async function(){
+
+  try{
+
+    const {
+      data:{session}
+    } =
+      await supabaseClient.auth
+        .getSession();
+
+
+    if(session){
+
+      currentUser=session.user;
+
+      await loadStaffProfile();
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+  }
 
 })();
+
+
+// ENTER KEY FOR CODE
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    const input =
+      document.getElementById("discountInput");
+
+    if(input){
+
+      input.addEventListener(
+        "keydown",
+        function(event){
+
+          if(event.key==="Enter"){
+
+            checkDiscount();
+
+          }
+
+        }
+      );
+
+    }
+
+  }
+);
+
 </script>
 
 </body>
