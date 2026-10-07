@@ -6332,8 +6332,7 @@ async function loadStaff(){
 /* =========================================================
    STAFF PERFORMANCE — MAIN ADMIN
 ========================================================= */
-
-async function loadStaffPerformance(){
+async function loadStaff(){
 
   if(
     currentStaff?.role !==
@@ -6347,147 +6346,324 @@ async function loadStaffPerformance(){
     error
   } =
   await supabaseClient
-    .rpc(
-      "get_staff_performance"
+    .from("admin_staff")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
     );
 
-  if(error){
-
-    $("performanceList").innerHTML =
-      `
-      <div class="card danger">
-        ${escapeHtml(
-          error.message
-        )}
-      </div>
-      `;
-
-    return;
-
-  }
+  if(error)
+    throw error;
 
 
-  $("performanceList").innerHTML =
+  $("staffList").innerHTML =
     `
-    <div class="tablewrap">
+    <div class="card">
 
-    <table class="table">
+      <div class="toolbar">
 
-    <thead>
+        <h3>👥 Staff Accounts</h3>
 
-    <tr>
-      <th>Staff</th>
-      <th>Role</th>
-      <th>Checked</th>
-      <th>Used</th>
-      <th>Invalid</th>
-      <th>Bookings Viewed</th>
-      <th>Confirmed</th>
-      <th>Cancelled</th>
-      <th>Total Work</th>
-    </tr>
+        <button
+          class="btn"
+          onclick="loadStaff()"
+        >
+          🔄 Refresh
+        </button>
 
-    </thead>
+      </div>
 
-    <tbody>
+      <div class="tablewrap">
 
-    ${(data||[])
-      .map(item=>{
+        <table class="table">
 
-        const total =
-          Number(
-            item.discount_checked ||
-            0
-          ) +
-          Number(
-            item.discount_used ||
-            0
-          ) +
-          Number(
-            item.discount_invalid ||
-            0
-          ) +
-          Number(
-            item.bookings_viewed ||
-            0
-          ) +
-          Number(
-            item.bookings_confirmed ||
-            0
-          ) +
-          Number(
-            item.bookings_cancelled ||
-            0
-          );
+          <thead>
 
-        return `
+            <tr>
+              <th>Photo</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
 
-        <tr>
+          </thead>
 
-          <td>
+          <tbody>
 
-            <b>
-              ${escapeHtml(
-                item.staff_name ||
-                ""
-              )}
-            </b>
+          ${(data||[])
+            .map(item=>{
 
-            <br>
+              const safeId =
+                Number(item.id);
 
-            <span class="muted">
-              ${escapeHtml(
-                item.staff_email ||
-                ""
-              )}
-            </span>
+              const isMe =
+                item.email ===
+                currentUser?.email;
 
-          </td>
+              return `
 
-          <td>
-            ${escapeHtml(
-              item.role
-            )}
-          </td>
+              <tr>
 
-          <td>
-            ${item.discount_checked||0}
-          </td>
+                <td>
 
-          <td>
-            ${item.discount_used||0}
-          </td>
+                  ${
+                    item.avatar_url
+                    ?
+                    `<img
+                      class="avatar"
+                      src="${escapeHtml(
+                        item.avatar_url
+                      )}"
+                    >`
+                    :
+                    "👤"
+                  }
 
-          <td>
-            ${item.discount_invalid||0}
-          </td>
+                </td>
 
-          <td>
-            ${item.bookings_viewed||0}
-          </td>
 
-          <td>
-            ${item.bookings_confirmed||0}
-          </td>
+                <td>
+                  ${escapeHtml(
+                    item.full_name ||
+                    "—"
+                  )}
+                </td>
 
-          <td>
-            ${item.bookings_cancelled||0}
-          </td>
 
-          <td>
-            <b>${total}</b>
-          </td>
+                <td>
+                  ${escapeHtml(
+                    item.email
+                  )}
+                </td>
 
-        </tr>
 
-        `;
+                <td>
 
-      })
-      .join("")}
+                  <select
+                    class="staff-role-select"
+                    onchange="
+                      changeStaffRole(
+                        ${safeId},
+                        this.value
+                      )
+                    "
+                    ${
+                      isMe
+                      ?
+                      "disabled"
+                      :
+                      ""
+                    }
+                  >
 
-    </tbody>
+                    <option
+                      value="SUPER_ADMIN"
+                      ${
+                        item.role ===
+                        "SUPER_ADMIN"
+                        ?
+                        "selected"
+                        :
+                        ""
+                      }
+                    >
+                      SUPER ADMIN
+                    </option>
 
-    </table>
+                    <option
+                      value="BOOKING_STAFF"
+                      ${
+                        item.role ===
+                        "BOOKING_STAFF"
+                        ?
+                        "selected"
+                        :
+                        ""
+                      }
+                    >
+                      BOOKING STAFF
+                    </option>
+
+                    <option
+                      value="REVIEW_STAFF"
+                      ${
+                        item.role ===
+                        "REVIEW_STAFF"
+                        ?
+                        "selected"
+                        :
+                        ""
+                      }
+                    >
+                      REVIEW STAFF
+                    </option>
+
+                    <option
+                      value="DISCOUNT_STAFF"
+                      ${
+                        item.role ===
+                        "DISCOUNT_STAFF"
+                        ?
+                        "selected"
+                        :
+                        ""
+                      }
+                    >
+                      DISCOUNT STAFF
+                    </option>
+
+                    <option
+                      value="CONTENT_STAFF"
+                      ${
+                        item.role ===
+                        "CONTENT_STAFF"
+                        ?
+                        "selected"
+                        :
+                        ""
+                      }
+                    >
+                      CONTENT STAFF
+                    </option>
+
+                  </select>
+
+                </td>
+
+
+                <td>
+
+                  <span
+                    class="pill ${
+                      item.enabled
+                      ?
+                      "ok"
+                      :
+                      "bad"
+                    }"
+                  >
+
+                    ${
+                      item.enabled
+                      ?
+                      "Enabled"
+                      :
+                      "Disabled"
+                    }
+
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <div
+                    style="
+                      display:flex;
+                      flex-wrap:wrap;
+                      gap:6px;
+                    "
+                  >
+
+                    <button
+                      class="btn"
+                      onclick="
+                        editStaff(
+                          ${safeId},
+                          ${JSON.stringify(
+                            item.full_name || ""
+                          )},
+                          ${JSON.stringify(
+                            item.email || ""
+                          )}
+                        )
+                      "
+                    >
+                      ✏️ Edit
+                    </button>
+
+
+                    ${
+                      item.enabled
+                      ?
+
+                      `
+                      <button
+                        class="btn red"
+                        onclick="
+                          disableStaff(
+                            ${safeId}
+                          )
+                        "
+                        ${
+                          isMe
+                          ?
+                          "disabled"
+                          :
+                          ""
+                        }
+                      >
+                        🔴 Disable
+                      </button>
+                      `
+
+                      :
+
+                      `
+                      <button
+                        class="btn green"
+                        onclick="
+                          enableStaff(
+                            ${safeId}
+                          )
+                        "
+                      >
+                        🟢 Enable
+                      </button>
+                      `
+                    }
+
+
+                    <button
+                      class="btn red"
+                      onclick="
+                        deleteStaff(
+                          ${safeId}
+                        )
+                      "
+                      ${
+                        isMe
+                        ?
+                        "disabled"
+                        :
+                        ""
+                      }
+                    >
+                      🗑️ Delete
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+              `;
+
+            })
+            .join("")}
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
     `;
@@ -6495,6 +6671,344 @@ async function loadStaffPerformance(){
 }
 
 
+/* =========================================================
+   STAFF MANAGEMENT ACTIONS
+========================================================= */
+
+async function manageStaffAction(
+  action,
+  staffId,
+  extraData = {}
+){
+
+  if(
+    currentStaff?.role !==
+    "SUPER_ADMIN"
+  ){
+
+    alert(
+      "Only SUPER_ADMIN can manage staff."
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      data:sessionData,
+      error:sessionError
+    } =
+    await supabaseClient.auth
+      .getSession();
+
+
+    if(sessionError)
+      throw sessionError;
+
+
+    const session =
+      sessionData?.session;
+
+
+    if(!session){
+
+      alert(
+        "Session expired. Please login again."
+      );
+
+      return;
+
+    }
+
+
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/functions/v1/manage-staff",
+        {
+          method:"POST",
+
+          headers:{
+            "Authorization":
+              "Bearer " +
+              session.access_token,
+
+            "apikey":
+              SUPABASE_KEY,
+
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              action:action,
+              staff_id:Number(
+                staffId
+              ),
+              ...extraData
+            })
+        }
+      );
+
+
+    const result =
+      await response.json()
+        .catch(
+          ()=>({})
+        );
+
+
+    if(!response.ok){
+
+      throw new Error(
+        result.error ||
+        "Staff operation failed."
+      );
+
+    }
+
+
+    toast(
+      result.message ||
+      "Staff updated successfully."
+    );
+
+
+    await loadStaff();
+
+  }catch(error){
+
+    console.error(
+      "Manage staff:",
+      error
+    );
+
+    showError(error);
+
+  }
+
+}
+
+
+/* =========================================================
+   EDIT STAFF
+========================================================= */
+
+async function editStaff(
+  staffId,
+  currentName,
+  currentEmail
+){
+
+  const name =
+    prompt(
+      "Enter Staff Name:",
+      currentName || ""
+    );
+
+
+  if(name === null)
+    return;
+
+
+  const email =
+    prompt(
+      "Enter Staff Email:",
+      currentEmail || ""
+    );
+
+
+  if(email === null)
+    return;
+
+
+  const cleanName =
+    name.trim();
+
+
+  const cleanEmail =
+    email.trim()
+      .toLowerCase();
+
+
+  if(!cleanName){
+
+    alert(
+      "Staff name is required."
+    );
+
+    return;
+
+  }
+
+
+  if(!cleanEmail){
+
+    alert(
+      "Staff email is required."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !cleanEmail.includes("@")
+  ){
+
+    alert(
+      "Please enter a valid email."
+    );
+
+    return;
+
+  }
+
+
+  await manageStaffAction(
+    "edit",
+    staffId,
+    {
+      full_name:
+        cleanName,
+
+      email:
+        cleanEmail
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ENABLE STAFF
+========================================================= */
+
+async function enableStaff(
+  staffId
+){
+
+  const confirmed =
+    confirm(
+      "Enable this staff account?"
+    );
+
+
+  if(!confirmed)
+    return;
+
+
+  await manageStaffAction(
+    "enable",
+    staffId
+  );
+
+}
+
+
+/* =========================================================
+   DISABLE STAFF
+========================================================= */
+
+async function disableStaff(
+  staffId
+){
+
+  const confirmed =
+    confirm(
+      "Disable this staff account?"
+    );
+
+
+  if(!confirmed)
+    return;
+
+
+  await manageStaffAction(
+    "disable",
+    staffId
+  );
+
+}
+
+
+/* =========================================================
+   CHANGE STAFF ROLE
+========================================================= */
+
+async function changeStaffRole(
+  staffId,
+  newRole
+){
+
+  const confirmed =
+    confirm(
+      "Change this staff member's role to " +
+      newRole +
+      "?"
+    );
+
+
+  if(!confirmed){
+
+    await loadStaff();
+
+    return;
+
+  }
+
+
+  await manageStaffAction(
+    "role",
+    staffId,
+    {
+      role:newRole
+    }
+  );
+
+}
+
+
+/* =========================================================
+   DELETE STAFF
+========================================================= */
+
+async function deleteStaff(
+  staffId
+){
+
+  const confirmed =
+    confirm(
+      "⚠️ Delete this staff account permanently?\n\n" +
+      "This will remove the staff record and their login account."
+    );
+
+
+  if(!confirmed)
+    return;
+
+
+  const secondConfirm =
+    confirm(
+      "Are you absolutely sure you want to DELETE this staff?"
+    );
+
+
+  if(!secondConfirm)
+    return;
+
+
+  await manageStaffAction(
+    "delete",
+    staffId
+  );
+
+}
 /* =========================================================
    DASHBOARD
 ========================================================= */
