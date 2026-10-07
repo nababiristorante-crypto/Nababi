@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Nababi Ristorante — Staff Center</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <style>
+    :root{
+      --bg:#080808;
+      --bg2:#101010;
+      --card:#151515;
+      --card2:#1b1b1b;
+      --gold:#d6ad55;
+      --gold2:#f0cf7a;
+      --gold-dark:#8e6c2e;
+      --white:#ffffff;
+      --muted:#aaa;
+      --green:#39c878;
+      --red:#e85c5c;
+      --border:rgba(214,173,85,.25);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:
+        radial-gradient(circle at top right,rgba(214,173,85,.12),transparent 35%),
+        radial-gradient(circle at bottom left,rgba(214,173,85,.06),transparent 30%),
+        var(--bg);
+      color:var(--white);
+      min-height:100vh;
+    }
+
+    button,
+    input{
+      font:inherit;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(8,8,8,.94);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+
+    .topbar-inner{
+      max-width:1400px;
+      margin:auto;
+      padding:16px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .brand-logo{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      object-fit:cover;
+      border:1px solid var(--gold);
+      background:#111;
+    }
+
+    .brand-title{
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+
+    .brand-sub{
+      color:var(--gold);
+      font-size:11px;
+      margin-top:3px;
+      text-transform:uppercase;
+      letter-spacing:1.5px;
+    }
+
+    .user-area{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .avatar{
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      object-fit:cover;
+      border:1px solid var(--gold);
+      background:#181818;
+    }
+
+    .user-name{
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .user-role{
+      font-size:11px;
+      color:var(--gold);
+      margin-top:3px;
+    }
+
+    .logout-btn{
+      border:1px solid rgba(232,92,92,.4);
+      background:rgba(232,92,92,.08);
+      color:#ff8b8b;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .container{
+      max-width:1400px;
+      margin:auto;
+      padding:25px 20px 60px;
+    }
+
+    .welcome{
+      margin-bottom:25px;
+    }
+
+    .welcome h1{
+      margin:0;
+      font-size:clamp(26px,5vw,42px);
+      letter-spacing:-1px;
+    }
+
+    .welcome p{
+      color:var(--muted);
+      margin:8px 0 0;
+    }
+
+    /* MAIN CODE CENTER */
+
+    .code-center{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(145deg,rgba(214,173,85,.13),rgba(255,255,255,.015) 45%),
+        var(--card);
+      border:1px solid rgba(214,173,85,.45);
+      border-radius:25px;
+      padding:30px;
+      box-shadow:var(--shadow);
+      margin-bottom:25px;
+    }
+
+    .code-center::before{
+      content:"";
+      position:absolute;
+      width:280px;
+      height:280px;
+      right:-130px;
+      top:-150px;
+      border-radius:50%;
+      background:rgba(214,173,85,.10);
+      filter:blur(5px);
+    }
+
+    .code-title{
+      position:relative;
+      text-align:center;
+      margin-bottom:25px;
+    }
+
+    .code-icon{
+      font-size:45px;
+      margin-bottom:8px;
+    }
+
+    .code-title h2{
+      margin:0;
+      color:var(--gold2);
+      font-size:clamp(25px,5vw,38px);
+    }
+
+    .code-title p{
+      margin:8px 0 0;
+      color:var(--muted);
+    }
+
+    .input-label{
+      display:block;
+      text-align:center;
+      color:var(--gold2);
+      font-size:14px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:1.5px;
+      margin-bottom:10px;
+    }
+
+    .code-input-wrap{
+      max-width:850px;
+      margin:0 auto;
+    }
+
+    #codeInput{
+      width:100%;
+      height:86px;
+      padding:0 25px;
+      border-radius:18px;
+      border:2px solid var(--gold-dark);
+      background:#080808;
+      color:#fff;
+      outline:none;
+      text-align:center;
+      font-size:clamp(25px,6vw,42px);
+      font-weight:800;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      transition:.2s;
+    }
+
+    #codeInput:focus{
+      border-color:var(--gold2);
+      box-shadow:0 0 0 4px rgba(214,173,85,.12);
+    }
+
+    .code-actions{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+
+    .primary-btn{
+      min-height:54px;
+      padding:0 30px;
+      border:0;
+      border-radius:13px;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      color:#080808;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 8px 25px rgba(214,173,85,.18);
+    }
+
+    .secondary-btn{
+      min-height:54px;
+      padding:0 25px;
+      border-radius:13px;
+      border:1px solid var(--border);
+      background:#111;
+      color:#fff;
+      cursor:pointer;
+    }
+
+    .primary-btn:disabled,
+    .secondary-btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    /* RESULT */
+
+    .result{
+      max-width:850px;
+      margin:22px auto 0;
+      display:none;
+    }
+
+    .result.show{
+      display:block;
+    }
+
+    .result-card{
+      border-radius:18px;
+      padding:22px;
+      border:1px solid var(--border);
+      background:#0c0c0c;
+    }
+
+    .result-card.valid{
+      border-color:rgba(57,200,120,.45);
+      background:rgba(57,200,120,.06);
+    }
+
+    .result-card.invalid{
+      border-color:rgba(232,92,92,.45);
+      background:rgba(232,92,92,.06);
+    }
+
+    .result-status{
+      font-size:23px;
+      font-weight:900;
+      margin-bottom:10px;
+    }
+
+    .valid .result-status{
+      color:var(--green);
+    }
+
+    .invalid .result-status{
+      color:var(--red);
+    }
+
+    .result-info{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:15px;
+    }
+
+    .info-box{
+      background:#151515;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:12px;
+      padding:13px;
+    }
+
+    .info-label{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+    }
+
+    .info-value{
+      font-size:18px;
+      font-weight:800;
+      margin-top:4px;
+    }
+
+    .mark-used{
+      margin-top:18px;
+      width:100%;
+      min-height:55px;
+      border:0;
+      border-radius:12px;
+      background:var(--green);
+      color:#07150d;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    /* STATS */
+
+    .section-title{
+      margin:30px 0 14px;
+      color:var(--gold2);
+      font-size:21px;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:15px;
+    }
+
+    .stat-card{
+      background:linear-gradient(145deg,#171717,#101010);
+      border:1px solid var(--border);
+      border-radius:17px;
+      padding:20px;
+      min-height:130px;
+    }
+
+    .stat-icon{
+      font-size:24px;
+    }
+
+    .stat-number{
+      font-size:31px;
+      font-weight:900;
+      color:var(--gold2);
+      margin-top:8px;
+    }
+
+    .stat-label{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    /* PERIOD */
+
+    .period-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:15px;
+    }
+
+    .period-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:17px;
+      padding:20px;
+    }
+
+    .period-card h3{
+      margin:0 0 16px;
+      color:var(--gold2);
+    }
+
+    .period-row{
+      display:flex;
+      justify-content:space-between;
+      padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      color:#ddd;
+    }
+
+    .period-row:last-child{
+      border-bottom:0;
+    }
+
+    .period-row strong{
+      color:#fff;
+    }
+
+    /* ACTIVITY */
+
+    .activity{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:17px;
+      overflow:hidden;
+    }
+
+    .activity-head,
+    .activity-row{
+      display:grid;
+      grid-template-columns:1.3fr 1fr 1fr;
+      gap:12px;
+      padding:15px 18px;
+    }
+
+    .activity-head{
+      color:var(--gold2);
+      font-size:12px;
+      text-transform:uppercase;
+      border-bottom:1px solid var(--border);
+    }
+
+    .activity-row{
+      color:#ddd;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      font-size:13px;
+    }
+
+    .activity-row:last-child{
+      border-bottom:0;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:5px 9px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .badge-used{
+      color:#06150d;
+      background:var(--green);
+    }
+
+    .badge-checked{
+      color:#111;
+      background:var(--gold2);
+    }
+
+    .badge-invalid{
+      color:#fff;
+      background:var(--red);
+    }
+
+    .empty{
+      text-align:center;
+      padding:30px;
+      color:var(--muted);
+    }
+
+    .notice{
+      max-width:850px;
+      margin:15px auto 0;
+      padding:14px 17px;
+      border-radius:12px;
+      background:#111;
+      border:1px solid rgba(214,173,85,.18);
+      color:#bbb;
+      font-size:13px;
+      text-align:center;
+    }
+
+    .hidden{
+      display:none!important;
+    }
+
+    @media(max-width:850px){
+      .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .period-grid{
+        grid-template-columns:1fr;
+      }
+
+      .topbar-inner{
+        padding:12px 14px;
+      }
+
+      .user-area .user-details{
+        display:none;
+      }
+    }
+
+    @media(max-width:600px){
+      .container{
+        padding:18px 12px 40px;
+      }
+
+      .code-center{
+        padding:20px 14px;
+        border-radius:20px;
+      }
+
+      #codeInput{
+        height:75px;
+        font-size:24px;
+        letter-spacing:2px;
+      }
+
+      .stats-grid{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      }
+
+      .stat-card{
+        padding:15px;
+        min-height:110px;
+      }
+
+      .stat-number{
+        font-size:26px;
+      }
+
+      .result-info{
+        grid-template-columns:1fr;
+      }
+
+      .activity{
+        overflow-x:auto;
+      }
+
+      .activity-head,
+      .activity-row{
+        min-width:550px;
+      }
+
+      .brand-title{
+        font-size:15px;
+      }
+
+      .brand-sub{
+        font-size:9px;
+      }
+
+      .brand-logo{
+        width:42px;
+        height:42px;
+      }
+
+      .avatar{
+        width:38px;
+        height:38px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+
+    <div class="brand">
+      <img id="brandLogo" class="brand-logo" alt="Nababi">
+      <div>
+        <div class="brand-title">Nababi Ristorante</div>
+        <div class="brand-sub">Staff Center</div>
+      </div>
+    </div>
+
+    <div class="user-area">
+
+      <img id="staffAvatar"
+           class="avatar"
+           alt="Staff">
+
+      <div class="user-details">
+        <div id="staffName" class="user-name">Staff</div>
+        <div id="staffRole" class="user-role">Loading...</div>
+      </div>
+
+      <button class="logout-btn" id="logoutBtn">
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+</header>
+
+
+<main class="container">
+
+  <section class="welcome">
+    <h1>Welcome, <span id="welcomeName">Staff</span></h1>
+    <p>Your personal Discount Code Management Center.</p>
+  </section>
+
+
+  <!-- BIG CODE CENTER -->
+
+  <section class="code-center">
+
+    <div class="code-title">
+
+      <div class="code-icon">🎁</div>
+
+      <h2>DISCOUNT CODE CENTER</h2>
+
+      <p>
+        Enter the customer's discount code below
+      </p>
+
+    </div>
+
+
+    <div class="code-input-wrap">
+
+      <label class="input-label">
+        Enter Discount Code
+      </label>
+
+      <input
+        id="codeInput"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        placeholder="NB-000001"
+        maxlength="50"
+      >
+
+      <div class="code-actions">
+
+        <button
+          id="checkCodeBtn"
+          class="primary-btn">
+          CHECK CODE
+        </button>
+
+        <button
+          id="clearCodeBtn"
+          class="secondary-btn">
+          CLEAR
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div id="result" class="result"></div>
+
+
+    <div class="notice">
+      The code stays in the box after checking.
+      You can replace it with the next customer's code.
+    </div>
+
+  </section>
+
+
+  <!-- TODAY -->
+
+  <h2 class="section-title">
+    📊 Today's Performance
+  </h2>
+
+  <section class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon">🔎</div>
+      <div id="todayChecked" class="stat-number">0</div>
+      <div class="stat-label">Codes Checked</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div id="todayValid" class="stat-number">0</div>
+      <div class="stat-label">Valid Codes</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎟️</div>
+      <div id="todayUsed" class="stat-number">0</div>
+      <div class="stat-label">Codes Used</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">❌</div>
+      <div id="todayInvalid" class="stat-number">0</div>
+      <div class="stat-label">Invalid Codes</div>
+    </div>
+
+  </section>
+
+
+  <!-- TOTAL -->
+
+  <h2 class="section-title">
+    📈 My Total Performance
+  </h2>
+
+  <section class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon">🔎</div>
+      <div id="totalChecked" class="stat-number">0</div>
+      <div class="stat-label">Total Checked</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div id="totalValid" class="stat-number">0</div>
+      <div class="stat-label">Total Valid</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎟️</div>
+      <div id="totalUsed" class="stat-number">0</div>
+      <div class="stat-label">Total Used</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">❌</div>
+      <div id="totalInvalid" class="stat-number">0</div>
+      <div class="stat-label">Total Invalid</div>
+    </div>
+
+  </section>
+
+
+  <!-- PERIOD -->
+
+  <h2 class="section-title">
+    🗓️ Activity Summary
+  </h2>
+
+  <section class="period-grid">
+
+    <div class="period-card">
+
+      <h3>Today</h3>
+
+      <div class="period-row">
+        <span>Checked</span>
+        <strong id="periodTodayChecked">0</strong>
+      </div>
+
+      <div class="period-row">
+        <span>Used</span>
+        <strong id="periodTodayUsed">0</strong>
+      </div>
+
+      <div class="period-row">
+        <span>Invalid</span>
+        <strong id="periodTodayInvalid">0</strong>
+      </div>
+
+    </div>
+
+
+    <div class="period-card">
+
+      <h3>This Month</h3>
+
+      <div class="period-row">
+        <span>Checked</span>
+        <strong id="monthChecked">0</strong>
+      </div>
+
+      <div class="period-row">
+        <span>Used</span>
+        <strong id="monthUsed">0</strong>
+      </div>
+
+      <div class="period-row">
+        <span>Invalid</span>
+        <strong id="monthInvalid">0</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- RECENT ACTIVITY -->
+
+  <h2 class="section-title">
+    🧾 My Recent Activity
+  </h2>
+
+  <section class="activity">
+
+    <div class="activity-head">
+      <div>Code</div>
+      <div>Action</div>
+      <div>Date / Time</div>
+    </div>
+
+    <div id="activityList">
+      <div class="empty">
+        Loading activity...
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+const SUPABASE_URL = window.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+
+if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
+  document.body.innerHTML = `
+    <div style="
+      padding:40px;
+      color:white;
+      background:#080808;
+      min-height:100vh;
+      font-family:Arial;
+    ">
+      <h2 style="color:#d6ad55">
+        Supabase configuration missing
+      </h2>
+      <p>Please check config.js</p>
+    </div>
+  `;
+  throw new Error("Supabase configuration missing");
+}
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+let currentUser = null;
+let currentStaff = null;
+
+
+/* ------------------------------
+   HELPERS
+------------------------------ */
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+function setText(id,value){
+
+  const el = document.getElementById(id);
+
+  if(el){
+    el.textContent = value ?? "";
+  }
+
+}
+
+
+function isToday(date){
+
+  const d = new Date(date);
+  const now = new Date();
+
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+
+}
+
+
+function isThisMonth(date){
+
+  const d = new Date(date);
+  const now = new Date();
+
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth()
+  );
+
+}
+
+
+function formatDate(date){
+
+  try{
+
+    return new Date(date).toLocaleString(
+      "en-GB",
+      {
+        day:"2-digit",
+        month:"2-digit",
+        year:"numeric",
+        hour:"2-digit",
+        minute:"2-digit"
+      }
+    );
+
+  }catch(e){
+
+    return date;
+
+  }
+
+}
+
+
+/* ------------------------------
+   LOGO
+------------------------------ */
+
+async function loadLogo(){
+
+  const img =
+    document.getElementById("brandLogo");
+
+  const fallback =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="200"
+           height="200">
+        <rect width="200"
+              height="200"
+              fill="#111"/>
+        <circle cx="100"
+                cy="100"
+                r="82"
+                fill="none"
+                stroke="#d6ad55"
+                stroke-width="4"/>
+        <text x="100"
+              y="108"
+              text-anchor="middle"
+              fill="#d6ad55"
+              font-size="34"
+              font-family="serif"
+              font-weight="bold">
+          NABABI
+        </text>
+      </svg>
+    `);
+
+  img.src = fallback;
+
+  try{
+
+    const {data,error} =
+      await supabaseClient
+      .from("site_settings")
+      .select("value")
+      .eq("key","logo")
+      .maybeSingle();
+
+    if(error) return;
+
+    const url =
+      data?.value?.url ||
+      data?.value?.image_url ||
+      "";
+
+    if(url){
+      img.src = url;
+    }
+
+  }catch(e){}
+
+}
+
+
+/* ------------------------------
+   AUTH
+------------------------------ */
+
+async function loadStaff(){
+
+  const {
+    data:{user},
+    error
+  } = await supabaseClient.auth.getUser();
+
+  if(error || !user){
+
+    window.location.href = "admin.html";
+    return false;
+
+  }
+
+  currentUser = user;
+
+  const email =
+    String(user.email || "")
+    .trim()
+    .toLowerCase();
+
+  const {
+    data:staff,
+    error:staffError
+  } = await supabaseClient
+    .from("admin_staff")
+    .select("*")
+    .ilike("email",email)
+    .maybeSingle();
+
+  if(staffError || !staff){
+
+    alert("Staff profile was not found.");
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "admin.html";
+
+    return false;
+
+  }
+
+  if(staff.enabled !== true){
+
+    alert("Your staff account is disabled.");
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href = "admin.html";
+
+    return false;
+
+  }
+
+  currentStaff = staff;
+
+  setText(
+    "staffName",
+    staff.full_name || email
+  );
+
+  setText(
+    "welcomeName",
+    staff.full_name || "Staff"
+  );
+
+  setText(
+    "staffRole",
+    staff.role || "STAFF"
+  );
+
+  const avatar =
+    document.getElementById("staffAvatar");
+
+  if(staff.avatar_url){
+
+    avatar.src = staff.avatar_url;
+
+  }else{
+
+    avatar.src =
+      "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="100"
+             height="100">
+          <circle cx="50"
+                  cy="50"
+                  r="50"
+                  fill="#151515"/>
+          <text x="50"
+                y="61"
+                text-anchor="middle"
+                fill="#d6ad55"
+                font-size="38"
+                font-family="Arial"
+                font-weight="bold">
+            ${(staff.full_name || "S").charAt(0).toUpperCase()}
+          </text>
+        </svg>
+      `);
+
+  }
+
+  return true;
+
+}
+
+
+/* ------------------------------
+   CODE CHECK
+------------------------------ */
+
+async function checkCode(){
+
+  const input =
+    document.getElementById("codeInput");
+
+  const button =
+    document.getElementById("checkCodeBtn");
+
+  const result =
+    document.getElementById("result");
+
+  const code =
+    String(input.value || "")
+    .trim()
+    .toUpperCase();
+
+  if(!code){
+
+    result.className = "result show";
+
+    result.innerHTML = `
+      <div class="result-card invalid">
+        <div class="result-status">
+          ❌ ENTER A CODE
+        </div>
+        <div>
+          Please enter the customer's discount code.
+        </div>
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  button.disabled = true;
+  button.textContent = "CHECKING...";
+
+
+  try{
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("discount_codes")
+      .select("*")
+      .eq("code",code)
+      .maybeSingle();
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    if(!data){
+
+      await logActivity(
+        code,
+        "CHECKED"
+      );
+
+      await logActivity(
+        code,
+        "INVALID"
+      );
+
+      showInvalid(
+        code,
+        "This discount code does not exist."
+      );
+
+      await loadStats();
+
+      return;
+
+    }
+
+
+    /*
+      Support common used/status fields.
+    */
+
+    const used =
+      data.used === true ||
+      data.is_used === true ||
+      String(data.status || "")
+      .toLowerCase() === "used";
+
+
+    if(used){
+
+      await logActivity(
+        code,
+        "CHECKED"
+      );
+
+      showInvalid(
+        code,
+        "This code has already been used."
+      );
+
+      await loadStats();
+
+      return;
+
+    }
+
+
+    await logActivity(
+      code,
+      "CHECKED"
+    );
+
+
+    showValid(
+      code,
+      data
+    );
+
+
+    await loadStats();
+
+  }catch(error){
+
+    console.error(error);
+
+    result.className = "result show";
+
+    result.innerHTML = `
+      <div class="result-card invalid">
+        <div class="result-status">
+          ❌ CHECK FAILED
+        </div>
+
+        <div>
+          ${escapeHtml(
+            error.message ||
+            "Unable to check this code."
+          )}
+        </div>
+      </div>
+    `;
+
+  }finally{
+
+    button.disabled = false;
+    button.textContent = "CHECK CODE";
+
+  }
+
+}
+
+
+/* ------------------------------
+   VALID RESULT
+------------------------------ */
+
+function showValid(code,data){
+
+  const result =
+    document.getElementById("result");
+
+  const discount =
+    data.discount_percent ??
+    data.discount ??
+    data.percentage ??
+    data.amount ??
+    "—";
+
+  result.className = "result show";
+
+  result.innerHTML = `
+
+    <div class="result-card valid">
+
+      <div class="result-status">
+        ✅ VALID CODE
+      </div>
+
+      <div>
+        This code is available and can be used.
+      </div>
+
+      <div class="result-info">
+
+        <div class="info-box">
+
+          <div class="info-label">
+            Code
+          </div>
+
+          <div class="info-value">
+            ${escapeHtml(code)}
+          </div>
+
+        </div>
+
+
+        <div class="info-box">
+
+          <div class="info-label">
+            Discount
+          </div>
+
+          <div class="info-value">
+            ${escapeHtml(discount)}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="mark-used"
+        onclick="markCodeUsed('${encodeURIComponent(code)}')">
+
+        ✓ MARK AS USED
+
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ------------------------------
+   INVALID RESULT
+------------------------------ */
+
+function showInvalid(code,message){
+
+  const result =
+    document.getElementById("result");
+
+  result.className = "result show";
+
+  result.innerHTML = `
+
+    <div class="result-card invalid">
+
+      <div class="result-status">
+        ❌ CODE NOT AVAILABLE
+      </div>
+
+      <div>
+        ${escapeHtml(message)}
+      </div>
+
+      <div class="result-info">
+
+        <div class="info-box">
+
+          <div class="info-label">
+            Code
+          </div>
+
+          <div class="info-value">
+            ${escapeHtml(code)}
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ------------------------------
+   MARK USED
+------------------------------ */
+
+async function markCodeUsed(encodedCode){
+
+  const code =
+    decodeURIComponent(encodedCode);
+
+  if(!code) return;
+
+
+  if(
+    !confirm(
+      `Mark ${code} as USED?`
+    )
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    /*
+      Existing secure Supabase function.
+    */
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .rpc(
+        "use_discount_code",
+        {
+          p_code:code
+        }
+      );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    await logActivity(
+      code,
+      "USED"
+    );
+
+
+    const result =
+      document.getElementById("result");
+
+    result.className =
+      "result show";
+
+    result.innerHTML = `
+
+      <div class="result-card valid">
+
+        <div class="result-status">
+          ✅ CODE MARKED AS USED
+        </div>
+
+        <div>
+          ${escapeHtml(code)}
+          has been successfully marked as used.
+        </div>
+
+      </div>
+
+    `;
+
+
+    await loadStats();
+
+
+    /*
+      IMPORTANT:
+      Code input stays exactly as requested.
+    */
+
+    document
+      .getElementById("codeInput")
+      .focus();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      error.message ||
+      "Unable to mark this code as used."
+    );
+
+  }
+
+}
+
+
+/* ------------------------------
+   LOG ACTIVITY
+------------------------------ */
+
+async function logActivity(
+  code,
+  action
+){
+
+  if(!currentStaff) return;
+
+  try{
+
+    await supabaseClient
+      .from("discount_staff_activity")
+      .insert({
+
+        staff_email:
+          currentStaff.email,
+
+        staff_name:
+          currentStaff.full_name || "",
+
+        discount_code:
+          code,
+
+        action:
+          action
+
+      });
+
+  }catch(error){
+
+    console.warn(
+      "Activity log error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ------------------------------
+   LOAD ACTIVITY
+------------------------------ */
+
+async function loadActivity(){
+
+  if(!currentStaff) return;
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("discount_staff_activity")
+    .select("*")
+    .ilike(
+      "staff_email",
+      currentStaff.email
+    )
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    )
+    .limit(30);
+
+
+  const list =
+    document.getElementById(
+      "activityList"
+    );
+
+
+  if(error){
+
+    list.innerHTML = `
+      <div class="empty">
+        Unable to load activity.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  if(!data || !data.length){
+
+    list.innerHTML = `
+      <div class="empty">
+        No activity yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    data.map(item => {
+
+      let badge =
+        "badge-checked";
+
+      let label =
+        "CHECKED";
+
+
+      if(item.action === "USED"){
+
+        badge =
+          "badge-used";
+
+        label =
+          "USED";
+
+      }
+
+
+      if(item.action === "INVALID"){
+
+        badge =
+          "badge-invalid";
+
+        label =
+          "INVALID";
+
+      }
+
+
+      return `
+
+        <div class="activity-row">
+
+          <div>
+            ${escapeHtml(
+              item.discount_code
+            )}
+          </div>
+
+          <div>
+            <span class="badge ${badge}">
+              ${label}
+            </span>
+          </div>
+
+          <div>
+            ${escapeHtml(
+              formatDate(
+                item.created_at
+              )
+            )}
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* ------------------------------
+   LOAD STATS
+------------------------------ */
+
+async function loadStats(){
+
+  if(!currentStaff) return;
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("discount_staff_activity")
+    .select(
+      "action,created_at"
+    )
+    .ilike(
+      "staff_email",
+      currentStaff.email
+    );
+
+
+  if(error){
+
+    console.error(error);
+    return;
+
+  }
+
+
+  const rows = data || [];
+
+
+  let totalChecked = 0;
+  let totalUsed = 0;
+  let totalInvalid = 0;
+
+  let todayChecked = 0;
+  let todayUsed = 0;
+  let todayInvalid = 0;
+
+  let monthChecked = 0;
+  let monthUsed = 0;
+  let monthInvalid = 0;
+
+
+  rows.forEach(row => {
+
+    if(row.action === "CHECKED"){
+
+      totalChecked++;
+
+    }
+
+    if(row.action === "USED"){
+
+      totalUsed++;
+
+    }
+
+    if(row.action === "INVALID"){
+
+      totalInvalid++;
+
+    }
+
+
+    if(isToday(row.created_at)){
+
+      if(row.action === "CHECKED")
+        todayChecked++;
+
+      if(row.action === "USED")
+        todayUsed++;
+
+      if(row.action === "INVALID")
+        todayInvalid++;
+
+    }
+
+
+    if(isThisMonth(row.created_at)){
+
+      if(row.action === "CHECKED")
+        monthChecked++;
+
+      if(row.action === "USED")
+        monthUsed++;
+
+      if(row.action === "INVALID")
+        monthInvalid++;
+
+    }
+
+  });
+
+
+  /*
+    A valid check is a CHECKED activity
+    that was not subsequently INVALID.
+    For dashboard simplicity, show:
+    Checked - Invalid.
+  */
+
+  const totalValid =
+    Math.max(
+      0,
+      totalChecked - totalInvalid
+    );
+
+
+  const todayValid =
+    Math.max(
+      0,
+      todayChecked - todayInvalid
+    );
+
+
+  setText(
+    "totalChecked",
+    totalChecked
+  );
+
+  setText(
+    "totalValid",
+    totalValid
+  );
+
+  setText(
+    "totalUsed",
+    totalUsed
+  );
+
+  setText(
+    "totalInvalid",
+    totalInvalid
+  );
+
+
+  setText(
+    "todayChecked",
+    todayChecked
+  );
+
+  setText(
+    "todayValid",
+    todayValid
+  );
+
+  setText(
+    "todayUsed",
+    todayUsed
+  );
+
+  setText(
+    "todayInvalid",
+    todayInvalid
+  );
+
+
+  setText(
+    "periodTodayChecked",
+    todayChecked
+  );
+
+  setText(
+    "periodTodayUsed",
+    todayUsed
+  );
+
+  setText(
+    "periodTodayInvalid",
+    todayInvalid
+  );
+
+
+  setText(
+    "monthChecked",
+    monthChecked
+  );
+
+  setText(
+    "monthUsed",
+    monthUsed
+  );
+
+  setText(
+    "monthInvalid",
+    monthInvalid
+  );
+
+}
+
+
+/* ------------------------------
+   CLEAR
+------------------------------ */
+
+document
+  .getElementById("clearCodeBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      document
+        .getElementById("codeInput")
+        .value = "";
+
+      document
+        .getElementById("result")
+        .className = "result";
+
+      document
+        .getElementById("codeInput")
+        .focus();
+
+    }
+  );
+
+
+/* ------------------------------
+   CHECK
+------------------------------ */
+
+document
+  .getElementById("checkCodeBtn")
+  .addEventListener(
+    "click",
+    checkCode
+  );
+
+
+document
+  .getElementById("codeInput")
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(event.key === "Enter"){
+
+        checkCode();
+
+      }
+
+    }
+  );
+
+
+/* ------------------------------
+   LOGOUT
+------------------------------ */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener(
+    "click",
+    async () => {
+
+      await supabaseClient
+        .auth
+        .signOut();
+
+      window.location.href =
+        "admin.html";
+
+    }
+  );
+
+
+/* ------------------------------
+   START
+------------------------------ */
+
+(async function(){
+
+  await loadLogo();
+
+  const ok =
+    await loadStaff();
+
+  if(!ok) return;
+
+  await loadStats();
+
+  await loadActivity();
+
+  document
+    .getElementById("codeInput")
+    .focus();
+
+})();
+
+</script>
+
+</body>
+</html>
