@@ -3768,4 +3768,736 @@ async function generateCoupons(){
       " coupon code(s) created."
     );
 
-    await loa
+    await loadCoupons();
+
+  }catch(error){
+
+    showError(error);
+
+  }
+
+}
+
+
+async function loadCoupons(){
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("discount_codes")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    )
+    .limit(300);
+
+  if(error)
+    throw error;
+
+  $("couponList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>Discount</th>
+      <th>Created</th>
+      <th>Used</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+          <b>
+            ${escapeHtml(item.code)}
+          </b>
+        </td>
+
+        <td>
+
+          <span class="pill ${
+            String(item.status).toLowerCase()==="used"
+            ?"ok"
+            :""
+          }">
+
+            ${escapeHtml(
+              item.status || "Active"
+            )}
+
+          </span>
+
+        </td>
+
+        <td>
+          ${
+            item.discount_percent !== undefined
+            ?
+            escapeHtml(
+              item.discount_percent
+            )+"%"
+            :
+            "—"
+          }
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.created_at
+            ?
+            item.created_at.slice(0,16)
+            :
+            ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.used_at
+            ?
+            item.used_at.slice(0,16)
+            :
+            "—"
+          )}
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
+}
+
+
+/* =========================================================
+   STAFF PERMISSIONS + SECRET COUPON
+========================================================= */
+const ROLE_PERMISSIONS_DEFAULT={
+ SUPER_ADMIN:{all:true},
+ BOOKING_STAFF:{view:["dashboard","staff","bookings"]},
+ REVIEW_STAFF:{view:["dashboard","staff","reviews","reports"]},
+ DISCOUNT_STAFF:{view:["dashboard","staff","discount","coupons","secretCoupon"]},
+ CONTENT_STAFF:{view:["dashboard","staff","hero","videos","about","breaking","gallery","contact","social","hours"]}
+};
+const PERMISSION_SECTIONS=["dashboard","hero","videos","about","breaking","gallery","contact","social","hours","menu","categories","bookings","reviews","reports","discount","coupons","secretCoupon","staff","performance"];
+const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","CONTENT_STAFF"];
+
+async function getStaffPermissions(){
+  const saved=await getSetting("staff_permissions");
+  return saved && Object.keys(saved).length ? saved : ROLE_PERMISSIONS_DEFAULT;
+}
+function permissionChecked(role,section,action,permissions){
+  if(role==="SUPER_ADMIN") return true;
+  return Boolean(permissions?.[role]?.[action]?.includes(section));
+}
+async function renderPermissionMatrix(){
+  const permissions=await getStaffPermissions();
+  const matrix=$("permissionMatrix"); if(!matrix) return;
+  matrix.innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Role</th><th>Section</th><th>View</th><th>Add</th><th>Edit</th><th>Delete</th></tr></thead><tbody>`+
+  PERMISSION_ROLES.flatMap(role=>PERMISSION_SECTIONS.map(section=>`<tr><td>${escapeHtml(role)}</td><td>${escapeHtml(section)}</td>${["view","add","edit","delete"].map(action=>`<td><input type="checkbox" data-perm-role="${role}" data-perm-section="${section}" data-perm-action="${action}" ${permissionChecked(role,section,action,permissions)?"checked":""}></td>`).join("")}</tr>`)).join("")+`</tbody></table></div>`;
+}
+async function saveStaffPermissions(){
+  const permissions={};
+  PERMISSION_ROLES.forEach(role=>{permissions[role]={view:[],add:[],edit:[],delete:[]};});
+  document.querySelectorAll("[data-perm-role]").forEach(cb=>{if(cb.checked) permissions[cb.dataset.permRole][cb.dataset.permAction].push(cb.dataset.permSection);});
+  permissions.SUPER_ADMIN={all:true};
+  await saveSetting("staff_permissions",permissions);
+  toast("Staff permissions saved.");
+  await applyCurrentRolePermissions();
+}
+async function applyCurrentRolePermissions(){
+  if(!currentStaff) return;
+  const role=currentStaff.role||"SUPER_ADMIN";
+  const permissions=await getStaffPermissions();
+  document.querySelectorAll(".nav").forEach(nav=>{
+    const section=nav.dataset.section;
+    const allowed=role==="SUPER_ADMIN" || Boolean(permissions?.[role]?.view?.includes(section));
+    nav.style.display=allowed?"block":"none";
+  });
+  const active=document.querySelector(".nav.active");
+  if(active && active.style.display==="none") active.classList.remove("active");
+  if(role!=="SUPER_ADMIN"){
+    const staffNav=document.querySelector('.nav[data-section="staff"]');
+    if(staffNav && staffNav.style.display!=="none") staffNav.click();
+  }else if(!active || active.style.display==="none"){
+    const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
+    if(first) first.click();
+  }
+}
+function focusStaffCoupon(){
+  const nav=document.querySelector('.nav[data-section="staff"]');
+  if(nav) nav.click();
+  setTimeout(()=>$("staffCouponCode")?.focus(),100);
+}
+
+async function verifyStaffCoupon(){
+  const input=$("staffCouponCode"); const box=$("staffCouponResult"); const code=input.value.trim().toUpperCase();
+  if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
+  box.innerHTML='<div class="muted">Checking coupon…</div>';
+  try{
+    const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
+    if(error) throw error;
+    if(!data){box.innerHTML='<div class="card bad">🔴 Invalid Coupon Code</div>';return;}
+    const status=String(data.status||"active").toLowerCase();
+    if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
+    const now=new Date();
+    if(data.start_at && new Date(data.start_at)>now){box.innerHTML='<div class="card bad">🔴 Coupon is not active yet.</div>';return;}
+    if(data.expires_at && new Date(data.expires_at)<now){box.innerHTML='<div class="card bad">🔴 Coupon Expired</div>';return;}
+    const {error:updateError}=await supabaseClient.from("discount_codes").update({status:"used",used_at:now.toISOString()}).eq("id",data.id);
+    if(updateError) throw updateError;
+    box.innerHTML='<div class="card ok" style="font-size:18px">🟢 Coupon Valid — Successfully Used</div>';
+    await loadDashboard(); await loadCoupons();
+  }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||"Coupon verification failed")+'</div>';}
+}
+function clearStaffCoupon(){$("staffCouponCode").value="";$("staffCouponResult").innerHTML="";$("staffCouponCode").focus();}
+
+async function checkSecretCoupon(){
+  const code=$("secretCouponCode").value.trim().toUpperCase();
+  const box=$("secretCouponResult");
+  if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
+  try{
+    const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
+    if(error) throw error;
+    if(!data){box.innerHTML='<div class="card bad">🔴 Invalid coupon code.</div>';return;}
+    const status=String(data.status||"active").toLowerCase();
+    const now=Date.now();
+    if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
+    if(data.expires_at && new Date(data.expires_at).getTime()<now){box.innerHTML='<div class="card bad">🔴 Coupon expired.</div>';return;}
+    box.innerHTML='<div class="card ok">🟢 Coupon valid — '+escapeHtml(data.code)+'.</div>';
+    const {error:updateError}=await supabaseClient.from("discount_codes").update({status:"used",used_at:new Date().toISOString()}).eq("id",data.id);
+    if(updateError) throw updateError;
+    box.innerHTML='<div class="card ok">🟢 Coupon successfully used.</div>';
+    await loadDashboard();
+    await loadCoupons();
+  }catch(error){showError(error);}
+}
+function clearSecretCoupon(){$("secretCouponCode").value="";$("secretCouponResult").innerHTML="";}
+
+/* =========================================================
+   STAFF
+========================================================= */
+
+async function createStaffAccount(){
+
+  try{
+
+    const {
+      data:sessionData
+    } =
+    await supabaseClient.auth
+      .getSession();
+
+    const session =
+      sessionData.session;
+
+    if(!session){
+
+      throw new Error(
+        "Admin session expired."
+      );
+
+    }
+
+
+    const body = {
+
+      email:
+        $("staffEmail")
+          .value
+          .trim()
+          .toLowerCase(),
+
+      password:
+        $("staffPassword").value,
+
+      full_name:
+        $("staffName")
+          .value
+          .trim(),
+
+      role:
+        $("staffRole").value,
+
+      enabled:
+        $("staffEnabled").value ===
+        "true"
+
+    };
+
+
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/functions/v1/create-staff",
+        {
+          method:"POST",
+
+          headers:{
+            "Authorization":
+              "Bearer "+
+              session.access_token,
+
+            "apikey":
+              SUPABASE_KEY,
+
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        result.error ||
+        result.message ||
+        "Could not create staff account."
+      );
+
+    }
+
+
+    $("staffMessage").textContent =
+      "Staff account created successfully.";
+
+    $("staffName").value="";
+    $("staffEmail").value="";
+    $("staffPassword").value="";
+
+    await loadStaff();
+
+    toast(
+      "Staff account created."
+    );
+
+  }catch(error){
+
+    $("staffMessage").textContent =
+      error.message;
+
+    showError(error);
+
+  }
+
+}
+
+
+async function loadStaff(){
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("admin_staff")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    );
+
+  if(error)
+    throw error;
+
+
+  $("staffList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+
+    <tr>
+      <th>Photo</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Status</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+
+          ${
+            item.avatar_url
+            ?
+            `<img
+              class="avatar"
+              src="${escapeHtml(
+                item.avatar_url
+              )}"
+            >`
+            :
+            "👤"
+          }
+
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.full_name
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.email
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.role
+          )}
+        </td>
+
+        <td>
+
+          <span class="pill ${
+            item.enabled
+            ?
+            "ok"
+            :
+            "bad"
+          }">
+
+            ${
+              item.enabled
+              ?
+              "Enabled"
+              :
+              "Disabled"
+            }
+
+          </span>
+
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
+}
+
+
+/* =========================================================
+   STAFF PERFORMANCE
+========================================================= */
+
+async function loadStaffPerformance(){
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .rpc(
+      "get_staff_performance"
+    );
+
+  if(error){
+
+    $("performanceList").innerHTML =
+      `<div class="card danger">
+        ${escapeHtml(error.message)}
+      </div>`;
+
+    return;
+
+  }
+
+
+  $("performanceList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+
+    <tr>
+      <th>Staff</th>
+      <th>Role</th>
+      <th>Checked</th>
+      <th>Used</th>
+      <th>Invalid</th>
+      <th>Bookings Viewed</th>
+      <th>Confirmed</th>
+      <th>Cancelled</th>
+      <th>Total Work</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>{
+
+      const total =
+        Number(
+          item.discount_checked || 0
+        ) +
+        Number(
+          item.discount_used || 0
+        ) +
+        Number(
+          item.discount_invalid || 0
+        ) +
+        Number(
+          item.bookings_viewed || 0
+        ) +
+        Number(
+          item.bookings_confirmed || 0
+        ) +
+        Number(
+          item.bookings_cancelled || 0
+        );
+
+      return `
+
+      <tr>
+
+        <td>
+
+          <b>
+            ${escapeHtml(
+              item.staff_name ||
+              ""
+            )}
+          </b>
+
+          <br>
+
+          <span class="muted">
+            ${escapeHtml(
+              item.staff_email ||
+              ""
+            )}
+          </span>
+
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.role
+          )}
+        </td>
+
+        <td>
+          ${item.discount_checked || 0}
+        </td>
+
+        <td>
+          ${item.discount_used || 0}
+        </td>
+
+        <td>
+          ${item.discount_invalid || 0}
+        </td>
+
+        <td>
+          ${item.bookings_viewed || 0}
+        </td>
+
+        <td>
+          ${item.bookings_confirmed || 0}
+        </td>
+
+        <td>
+          ${item.bookings_cancelled || 0}
+        </td>
+
+        <td>
+          <b>${total}</b>
+        </td>
+
+      </tr>
+
+      `;
+
+    }).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+async function countRows(table){
+
+  const {
+    count,
+    error
+  } =
+  await supabaseClient
+    .from(table)
+    .select(
+      "*",
+      {
+        count:"exact",
+        head:true
+      }
+    );
+
+  if(error)
+    throw error;
+
+  return count || 0;
+
+}
+
+
+async function loadDashboard(){
+
+  try{
+
+    $("statVisits").textContent =
+      await countRows(
+        "website_visits"
+      );
+
+    $("statCoupons").textContent =
+      await countRows(
+        "discount_codes"
+      );
+
+    $("statUsedCoupons").textContent =
+      await countRows(
+        "discount_codes"
+      );
+
+    const {
+      count:usedCount,
+      error:usedError
+    } =
+    await supabaseClient
+      .from("discount_codes")
+      .select(
+        "*",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "status",
+        "Used"
+      );
+
+    if(usedError)
+      throw usedError;
+
+    $("statUsedCoupons").textContent =
+      usedCount || 0;
+
+
+    $("statBookings").textContent =
+      await countRows(
+        "table_bookings"
+      );
+
+    $("statReviews").textContent =
+      await countRows(
+        "reviews"
+      );
+
+    $("statReports").textContent =
+      await countRows(
+        "customer_reports"
+      );
+
+    $("statStaff").textContent =
+      await countRows(
+        "admin_staff"
+      );
+
+  }catch(error){
+
+    console.error(
+      "Dashboard:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTO LOGIN
+========================================================= */
+
+supabaseClient.auth
+  .getSession()
+  .then(async({data})=>{
+
+    if(data.session){
+
+      currentUser =
+        data.session.user;
+
+      await initializeAdmin();
+
+    }
+
+  });
+
+</script>
+
+</body>
+</html>
