@@ -498,11 +498,7 @@ textarea{
 </button>
 
 <button class="nav" data-section="staff" onclick="focusStaffCoupon()">
-🔐 Secret Coupon Box
-</button>
-
-<button class="nav" data-section="staff">
-👥 Staff Management
+🔐 Staff Admin
 </button>
 
 <button class="nav" data-section="performance">
@@ -1196,7 +1192,7 @@ Clear
 
 <input
  id="newCategoryName"
- placeholder="Category Name"
+ placeholder="New Category Name"
 >
 
 <input
@@ -1204,16 +1200,6 @@ Clear
  type="number"
  placeholder="Sort Order"
 >
-
-<input
- id="newCategoryImageFile"
- type="file"
- accept="image/*"
->
-
-<div id="categoryImageProgress"></div>
-
-<div id="categoryImagePreview"></div>
 
 <button
  class="btn"
@@ -1464,7 +1450,7 @@ Customers collect the code and show it to restaurant staff.
 
 <div class="toolbar">
 
-<h2>👥 Staff Management</h2>
+<h2>🔐 Staff Admin</h2>
 
 <button
  class="btn"
@@ -1475,16 +1461,88 @@ Refresh
 
 </div>
 
-<div class="card" style="margin-top:16px;border:2px solid rgba(212,175,55,.35)">
-<h3>🔐 Staff Coupon Verification</h3>
-<p class="muted">Staff login করার পর এখানে Coupon Code দিয়ে Verify / Use করুন।</p>
+
+<div class="card">
+
+<h3>🔐 Staff Discount Code Check</h3>
+
+<p class="muted">
+Staff login করার পর এখানে Discount Code দিয়ে শুধু Check করুন।
+Code সঠিক হলে Valid এবং ভুল হলে Invalid দেখাবে।
+Coupon Used হবে না এবং status পরিবর্তন হবে না।
+</p>
+
 <div class="row">
-<input id="staffCouponCode" placeholder="Coupon Number / Code" style="flex:1;min-width:220px;text-transform:uppercase">
-<button class="btn green" onclick="verifyStaffCoupon()">🟢 পাঠান</button>
-<button class="btn red" onclick="clearStaffCoupon()">🔴 বাতিল</button>
+
+<input
+ id="staffCouponCode"
+ placeholder="Enter Discount Code"
+ style="flex:1;min-width:220px"
+>
+
+<button
+ class="btn green"
+ onclick="verifyStaffCoupon()"
+>
+🟢 Check Code
+</button>
+
+<button
+ class="btn red"
+ onclick="clearStaffCoupon()"
+>
+🔴 Clear
+</button>
+
 </div>
-<div id="staffCouponResult" style="margin-top:12px"></div>
+
+<div
+ id="staffCouponResult"
+ style="margin-top:12px"
+></div>
+
 </div>
+
+
+<div class="card" style="margin-top:16px">
+
+<div class="toolbar">
+
+<div>
+<h3>⭐ Reviews</h3>
+<p class="muted">Customer reviews দেখুন এবং প্রয়োজন হলে manage করুন।</p>
+</div>
+
+<button class="btn small" onclick="loadStaffReviews()">
+Refresh
+</button>
+
+</div>
+
+<div id="staffReviewList"></div>
+
+</div>
+
+
+<div class="card" style="margin-top:16px">
+
+<div class="toolbar">
+
+<div>
+<h3>📝 Customer Reports</h3>
+<p class="muted">Customer reports দেখুন এবং প্রয়োজন হলে resolve করুন।</p>
+</div>
+
+<button class="btn small" onclick="loadStaffReports()">
+Refresh
+</button>
+
+</div>
+
+<div id="staffReportList"></div>
+
+</div>
+
 
 <div class="card" style="margin-top:16px">
 
@@ -1510,9 +1568,11 @@ Refresh
 >
 
 <select id="staffRole">
+<option value="SUPER_ADMIN">SUPER ADMIN</option>
 <option value="BOOKING_STAFF">BOOKING STAFF</option>
 <option value="REVIEW_STAFF">REVIEW STAFF</option>
 <option value="DISCOUNT_STAFF">DISCOUNT STAFF</option>
+<option value="MENU_STAFF">MENU STAFF</option>
 <option value="CONTENT_STAFF">CONTENT STAFF</option>
 </select>
 
@@ -1765,6 +1825,8 @@ async function loadSection(id){
     if(id==="staff"){
       await loadStaff();
       await renderPermissionMatrix();
+      await loadStaffReviews();
+      await loadStaffReports();
     }
 
     if(id==="performance")
@@ -2780,54 +2842,160 @@ async function saveHours(){
 
 async function loadCategories(){
 
-  const {data,error}=await supabaseClient.from("menu_categories").select("*").order("sort_order");
-  if(error) throw error;
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("menu_categories")
+    .select("*")
+    .order("sort_order");
 
-  $("menuCategory").innerHTML='<option value="">Select Category</option>'+(data||[]).map(item=>`<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
+  if(error)
+    throw error;
 
-  $("categoryList").innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Photo</th><th>Category</th><th>Order</th><th>Action</th></tr></thead><tbody>${(data||[]).map(item=>`<tr><td>${item.image_url?`<img src="${escapeHtml(item.image_url)}" style="width:72px;height:54px;object-fit:cover;border-radius:10px">`:'—'}</td><td>${escapeHtml(item.name)}</td><td>${item.sort_order??0}</td><td><button class="btn small" onclick="editCategory(${item.id},${JSON.stringify(item.name)},${JSON.stringify(item.image_url||'')})">Edit</button> <button class="btn red small" onclick="deleteCategory(${item.id})">Delete</button></td></tr>`).join("")}</tbody></table></div>`;
+  $("menuCategory").innerHTML =
+    `<option value="">
+      Select Category
+    </option>` +
+    (data || []).map(item=>
+      `<option value="${escapeHtml(item.name)}">
+        ${escapeHtml(item.name)}
+      </option>`
+    ).join("");
+
+  $("categoryList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+    <tr>
+      <th>Category</th>
+      <th>Order</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+          ${escapeHtml(item.name)}
+        </td>
+
+        <td>
+          ${item.sort_order ?? 0}
+        </td>
+
+        <td>
+
+          <button
+            class="btn red small"
+            onclick="deleteCategory(${item.id})"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
 }
+
 
 async function createCategory(){
-  const name=$("newCategoryName").value.trim();
-  if(!name){alert("Enter a category name.");return;}
-  try{
-    let image_url="";
-    const file=$("newCategoryImageFile").files[0];
-    if(file) image_url=await uploadSiteMedia(file,"categories","categoryImageProgress");
-    const {error}=await supabaseClient.from("menu_categories").insert({name,sort_order:Number($("newCategoryOrder").value||0),image_url});
-    if(error) throw error;
-    $("newCategoryName").value="";$("newCategoryOrder").value="";$("newCategoryImageFile").value="";$("categoryImagePreview").innerHTML="";
-    await loadCategories(); toast("Category created with image.");
-  }catch(error){showError(error);}
+
+  const name =
+    $("newCategoryName")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert(
+      "Enter a category name."
+    );
+
+    return;
+
+  }
+
+  const {
+    error
+  } =
+  await supabaseClient
+    .from("menu_categories")
+    .insert({
+      name,
+      sort_order:
+        Number(
+          $("newCategoryOrder").value || 0
+        )
+    });
+
+  if(error){
+
+    showError(error);
+
+    return;
+
+  }
+
+  $("newCategoryName").value="";
+  $("newCategoryOrder").value="";
+
+  await loadCategories();
+
+  toast(
+    "New category created."
+  );
+
 }
 
-async function editCategory(id,oldName,oldImage){
-  const name=prompt("Category name:",oldName);
-  if(name===null) return;
-  const newName=name.trim(); if(!newName) return;
-  let image_url=oldImage||"";
-  const replace=confirm("Change category image? Press OK to choose a new image, Cancel to keep the current image.");
-  if(replace){
-    const input=document.createElement("input");input.type="file";input.accept="image/*";
-    input.onchange=async()=>{try{if(input.files[0]) image_url=await uploadSiteMedia(input.files[0],"categories","categoryImageProgress");await updateCategoryRecord(id,oldName,newName,image_url);}catch(e){showError(e);}};input.click();
-  }else await updateCategoryRecord(id,oldName,newName,image_url);
-}
-
-async function updateCategoryRecord(id,oldName,newName,image_url){
-  const {error}=await supabaseClient.from("menu_categories").update({name:newName,image_url}).eq("id",id);
-  if(error){showError(error);return;}
-  if(oldName!==newName){const {error:e}=await supabaseClient.from("Menu").update({category:newName}).eq("category",oldName);if(e){showError(e);return;}}
-  await loadCategories();await loadMenu();toast("Category updated.");
-}
 
 async function deleteCategory(id){
-  if(!confirm("Delete this category? Menu items using it must be reassigned first.")) return;
-  const {data:cat,error:ce}=await supabaseClient.from("menu_categories").select("name").eq("id",id).maybeSingle();
-  if(ce) {showError(ce);return;}
-  if(cat?.name){const {count,error:me}=await supabaseClient.from("Menu").select("id",{count:"exact",head:true}).eq("category",cat.name);if(me){showError(me);return;}if((count||0)>0){alert("This category is still used by menu items. Reassign them first.");return;}}
-  const {error}=await supabaseClient.from("menu_categories").delete().eq("id",id);if(error){showError(error);return;}
-  await loadCategories();toast("Category deleted.");
+
+  if(!confirm(
+    "Delete this category?"
+  ))
+    return;
+
+  const {
+    error
+  } =
+  await supabaseClient
+    .from("menu_categories")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+
+    showError(error);
+
+    return;
+
+  }
+
+  await loadCategories();
+
+  toast(
+    "Category deleted."
+  );
+
 }
 
 
@@ -3896,13 +4064,14 @@ async function loadCoupons(){
 ========================================================= */
 const ROLE_PERMISSIONS_DEFAULT={
  SUPER_ADMIN:{all:true},
- BOOKING_STAFF:{view:["dashboard","staff","bookings"]},
- REVIEW_STAFF:{view:["dashboard","staff","reviews","reports"]},
- DISCOUNT_STAFF:{view:["dashboard","staff","discount","coupons","secretCoupon"]},
- CONTENT_STAFF:{view:["dashboard","staff","hero","videos","about","breaking","gallery","contact","social","hours"]}
+ BOOKING_STAFF:{view:["dashboard","bookings"]},
+ REVIEW_STAFF:{view:["dashboard","reviews","reports"]},
+ DISCOUNT_STAFF:{view:["dashboard","discount","coupons","secretCoupon"]},
+ MENU_STAFF:{view:["dashboard","menu","categories"]},
+ CONTENT_STAFF:{view:["dashboard","hero","videos","about","breaking","gallery","contact","social","hours"]}
 };
 const PERMISSION_SECTIONS=["dashboard","hero","videos","about","breaking","gallery","contact","social","hours","menu","categories","bookings","reviews","reports","discount","coupons","secretCoupon","staff","performance"];
-const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","CONTENT_STAFF"];
+const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","MENU_STAFF","CONTENT_STAFF"];
 
 async function getStaffPermissions(){
   const saved=await getSetting("staff_permissions");
@@ -3936,46 +4105,13 @@ async function applyCurrentRolePermissions(){
     const allowed=role==="SUPER_ADMIN" || Boolean(permissions?.[role]?.view?.includes(section));
     nav.style.display=allowed?"block":"none";
   });
-  const active=document.querySelector(".nav.active");
-  if(active && active.style.display==="none") active.classList.remove("active");
-  if(role!=="SUPER_ADMIN"){
-    const staffNav=document.querySelector('.nav[data-section="staff"]');
-    if(staffNav && staffNav.style.display!=="none") staffNav.click();
-  }else if(!active || active.style.display==="none"){
-    const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
-    if(first) first.click();
-  }
+  const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
+  if(first && !document.querySelector(".nav.active")?.style.display!="none") first.click();
 }
-function focusStaffCoupon(){
-  const nav=document.querySelector('.nav[data-section="staff"]');
-  if(nav) nav.click();
-  setTimeout(()=>$("staffCouponCode")?.focus(),100);
-}
-
-async function verifyStaffCoupon(){
-  const input=$("staffCouponCode"); const box=$("staffCouponResult"); const code=input.value.trim().toUpperCase();
-  if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
-  box.innerHTML='<div class="muted">Checking coupon…</div>';
-  try{
-    const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
-    if(error) throw error;
-    if(!data){box.innerHTML='<div class="card bad">🔴 Invalid Coupon Code</div>';return;}
-    const status=String(data.status||"active").toLowerCase();
-    if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
-    const now=new Date();
-    if(data.start_at && new Date(data.start_at)>now){box.innerHTML='<div class="card bad">🔴 Coupon is not active yet.</div>';return;}
-    if(data.expires_at && new Date(data.expires_at)<now){box.innerHTML='<div class="card bad">🔴 Coupon Expired</div>';return;}
-    const {error:updateError}=await supabaseClient.from("discount_codes").update({status:"used",used_at:now.toISOString()}).eq("id",data.id);
-    if(updateError) throw updateError;
-    box.innerHTML='<div class="card ok" style="font-size:18px">🟢 Coupon Valid — Successfully Used</div>';
-    await loadDashboard(); await loadCoupons();
-  }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||"Coupon verification failed")+'</div>';}
-}
-function clearStaffCoupon(){$("staffCouponCode").value="";$("staffCouponResult").innerHTML="";$("staffCouponCode").focus();}
-
 async function checkSecretCoupon(){
-  const code=$("secretCouponCode").value.trim().toUpperCase();
+  const code=$("secretCouponCode")?.value.trim().toUpperCase();
   const box=$("secretCouponResult");
+  if(!box) return;
   if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
   try{
     const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
@@ -3984,16 +4120,327 @@ async function checkSecretCoupon(){
     const status=String(data.status||"active").toLowerCase();
     const now=Date.now();
     if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
+    if(data.start_at && new Date(data.start_at).getTime()>now){box.innerHTML='<div class="card bad">🔴 Coupon is not active yet.</div>';return;}
     if(data.expires_at && new Date(data.expires_at).getTime()<now){box.innerHTML='<div class="card bad">🔴 Coupon expired.</div>';return;}
     box.innerHTML='<div class="card ok">🟢 Coupon valid — '+escapeHtml(data.code)+'.</div>';
-    const {error:updateError}=await supabaseClient.from("discount_codes").update({status:"used",used_at:new Date().toISOString()}).eq("id",data.id);
-    if(updateError) throw updateError;
-    box.innerHTML='<div class="card ok">🟢 Coupon successfully used.</div>';
-    await loadDashboard();
-    await loadCoupons();
   }catch(error){showError(error);}
 }
-function clearSecretCoupon(){$("secretCouponCode").value="";$("secretCouponResult").innerHTML="";}
+function clearSecretCoupon(){
+  const input=$("secretCouponCode");
+  const box=$("secretCouponResult");
+  if(input) input.value="";
+  if(box) box.innerHTML="";
+}
+
+function focusStaffCoupon(){
+  setTimeout(()=>{
+    const input=$("staffCouponCode");
+    if(input){
+      input.focus();
+      input.scrollIntoView({behavior:"smooth",block:"center"});
+    }
+  },120);
+}
+
+async function verifyStaffCoupon(){
+
+  const input = $("staffCouponCode");
+  const box = $("staffCouponResult");
+
+  const code =
+    input.value
+      .trim()
+      .toUpperCase();
+
+  if(!code){
+
+    box.innerHTML =
+      '<div class="card bad">🔴 Discount Code দিন।</div>';
+
+    return;
+
+  }
+
+  box.innerHTML =
+    '<div class="muted">Checking discount code…</div>';
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("discount_codes")
+      .select("*")
+      .ilike("code",code)
+      .maybeSingle();
+
+    if(error)
+      throw error;
+
+    if(!data){
+
+      box.innerHTML =
+        '<div class="card bad">🔴 Invalid Discount Code — ভুল Code</div>';
+
+      return;
+
+    }
+
+    const status =
+      String(
+        data.status || "active"
+      ).toLowerCase();
+
+    if(
+      status !== "active" &&
+      status !== "unused"
+    ){
+
+      box.innerHTML =
+        `<div class="card bad">
+          🔴 Discount Code Invalid —
+          ${escapeHtml(data.status || "inactive")}
+        </div>`;
+
+      return;
+
+    }
+
+    const now =
+      new Date();
+
+    if(
+      data.start_at &&
+      new Date(data.start_at) > now
+    ){
+
+      box.innerHTML =
+        '<div class="card bad">🔴 Discount Code এখনো Active হয়নি।</div>';
+
+      return;
+
+    }
+
+    if(
+      data.expires_at &&
+      new Date(data.expires_at) < now
+    ){
+
+      box.innerHTML =
+        '<div class="card bad">🔴 Discount Code Expired।</div>';
+
+      return;
+
+    }
+
+    box.innerHTML =
+      `<div class="card ok" style="font-size:18px">
+        🟢 Discount Code Valid
+        <br>
+        <span style="font-size:14px">
+          Code: ${escapeHtml(data.code)}
+        </span>
+      </div>`;
+
+  }catch(error){
+
+    box.innerHTML =
+      `<div class="card bad">
+        🔴 ${escapeHtml(
+          error.message ||
+          "Discount code verification failed"
+        )}
+      </div>`;
+
+  }
+
+}
+
+async function loadStaffReviews(){
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("reviews")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    );
+
+  if(error)
+    throw error;
+
+  $("staffReviewList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+    <tr>
+      <th>Customer</th>
+      <th>Rating</th>
+      <th>Message</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+          ${escapeHtml(
+            item.customer_name
+          )}
+        </td>
+
+        <td>
+          ⭐ ${item.rating}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.message
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.status
+          )}
+        </td>
+
+        <td>
+
+          <button
+            class="btn green small"
+            onclick="approveReview(${item.id})"
+          >
+            Approve
+          </button>
+
+          <button
+            class="btn red small"
+            onclick="deleteReview(${item.id})"
+          >
+            Delete
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
+}
+
+async function loadStaffReports(){
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+    .from("customer_reports")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    );
+
+  if(error)
+    throw error;
+
+  $("staffReportList").innerHTML =
+    `
+    <div class="tablewrap">
+
+    <table class="table">
+
+    <thead>
+    <tr>
+      <th>Customer</th>
+      <th>Subject</th>
+      <th>Message</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+          ${escapeHtml(
+            item.customer_name
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.subject
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.message
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.status
+          )}
+        </td>
+
+        <td>
+
+          <button
+            class="btn green small"
+            onclick="resolveReport(${item.id})"
+          >
+            Resolved
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
+}
+
 
 /* =========================================================
    STAFF
