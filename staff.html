@@ -1,629 +1,837 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nababi Ristorante — Staff Panel</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root{
-  --bg:#070707;
-  --card:#111;
-  --card2:#171717;
-  --gold:#d4af37;
-  --gold2:#f3d875;
-  --text:#fff;
-  --muted:#999;
-  --green:#25b864;
-  --red:#df4d4d;
-  --border:#292929;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  background:
-    radial-gradient(circle at top,#201b0c 0,#090909 38%,#050505 100%);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-  min-height:100vh;
-}
-
-button,input,select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-.hidden{
-  display:none!important;
-}
-
-
-/* LOGIN */
-
-.login{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-
-.login-card{
-  width:100%;
-  max-width:420px;
-  padding:32px 24px;
-  border:1px solid #333;
-  border-radius:24px;
-  background:linear-gradient(145deg,#171717,#0d0d0d);
-  box-shadow:0 25px 80px rgba(0,0,0,.7);
-}
-
-.brand{
-  text-align:center;
-  margin-bottom:28px;
-}
-
-.brand-title{
-  color:var(--gold2);
-  font-size:28px;
-  font-weight:bold;
-}
-
-.brand-sub{
-  color:#888;
-  margin-top:6px;
-}
-
-.field{
-  margin-bottom:16px;
-}
-
-label{
-  display:block;
-  color:#ccc;
-  font-size:14px;
-  margin-bottom:7px;
-}
-
-input,select{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid #333;
-  background:#080808;
-  color:#fff;
-  outline:none;
-}
-
-input:focus,
-select:focus{
-  border-color:var(--gold);
-}
-
-.gold-btn{
-  width:100%;
-  padding:14px;
-  border:0;
-  border-radius:13px;
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  color:#111;
-  font-weight:bold;
-}
-
-.message{
-  padding:12px;
-  border-radius:12px;
-  margin-top:14px;
-  display:none;
-}
-
-.message.show{
-  display:block;
-}
-
-.message.error{
-  background:#4a1717;
-  color:#ffb5b5;
-}
-
-.message.success{
-  background:#123b24;
-  color:#9ff0ba;
-}
-
-
-/* APP */
-
-.app{
-  min-height:100vh;
-}
-
-.header{
-  position:sticky;
-  top:0;
-  z-index:20;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  padding:14px 18px;
-  background:rgba(8,8,8,.95);
-  backdrop-filter:blur(15px);
-  border-bottom:1px solid #252525;
-}
-
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.avatar{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  object-fit:cover;
-  border:2px solid var(--gold);
-  background:#222;
-}
-
-.header-name{
-  font-weight:bold;
-}
-
-.header-role{
-  color:var(--gold2);
-  font-size:12px;
-  margin-top:3px;
-}
-
-.logout{
-  padding:10px 13px;
-  border-radius:10px;
-  border:1px solid #444;
-  background:#181818;
-  color:#fff;
-}
-
-
-/* CONTENT */
-
-.content{
-  width:100%;
-  max-width:1100px;
-  margin:auto;
-  padding:22px 16px 50px;
-}
-
-.welcome{
-  margin-bottom:20px;
-}
-
-.welcome h1{
-  margin:0;
-  font-size:26px;
-}
-
-.welcome p{
-  margin:7px 0 0;
-  color:#888;
-}
-
-
-/* BIG DISCOUNT */
-
-.discount-main{
-  padding:28px 20px;
-  border-radius:25px;
-  background:
-    linear-gradient(145deg,#201b0b,#0e0e0e);
-  border:1px solid #4b3b13;
-  box-shadow:0 20px 60px rgba(0,0,0,.45);
-  margin-bottom:20px;
-}
-
-.discount-icon{
-  width:82px;
-  height:82px;
-  border-radius:22px;
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:42px;
-  margin-bottom:16px;
-  box-shadow:0 10px 30px rgba(212,175,55,.18);
-}
-
-.discount-main h2{
-  margin:0 0 7px;
-  color:var(--gold2);
-}
-
-.discount-main p{
-  color:#999;
-  margin:0 0 20px;
-}
-
-.code-box{
-  display:flex;
-  gap:10px;
-}
-
-.code-box input{
-  flex:1;
-  font-size:20px;
-  font-weight:bold;
-  letter-spacing:2px;
-  text-transform:uppercase;
-}
-
-.check-btn{
-  min-width:110px;
-  border:0;
-  border-radius:12px;
-  background:var(--gold);
-  color:#111;
-  font-weight:bold;
-}
-
-@media(max-width:560px){
-  .code-box{
-    flex-direction:column;
-  }
-
-  .check-btn{
-    width:100%;
-    padding:14px;
-  }
-}
-
-
-/* RESULT */
-
-.result{
-  margin-top:18px;
-  padding:18px;
-  border-radius:17px;
-  border:1px solid #333;
-  background:#0b0b0b;
-  display:none;
-}
-
-.result.show{
-  display:block;
-}
-
-.result.valid{
-  border-color:#237c49;
-  background:#0d2418;
-}
-
-.result.invalid{
-  border-color:#762c2c;
-  background:#260f0f;
-}
-
-.result-title{
-  font-size:20px;
-  font-weight:bold;
-  margin-bottom:8px;
-}
-
-.result.valid .result-title{
-  color:#73e39c;
-}
-
-.result.invalid .result-title{
-  color:#ff8f8f;
-}
-
-.result-info{
-  color:#bbb;
-  line-height:1.7;
-}
-
-.use-btn{
-  margin-top:15px;
-  width:100%;
-  padding:14px;
-  border:0;
-  border-radius:12px;
-  background:#c93b3b;
-  color:#fff;
-  font-weight:bold;
-}
-
-.use-btn:hover{
-  background:#e34b4b;
-}
-
-
-/* STATS */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:13px;
-  margin-bottom:20px;
-}
-
-.stat{
-  background:linear-gradient(145deg,#151515,#0e0e0e);
-  border:1px solid #292929;
-  border-radius:18px;
-  padding:18px;
-}
-
-.stat-number{
-  color:var(--gold2);
-  font-size:28px;
-  font-weight:bold;
-}
-
-.stat-label{
-  color:#888;
-  font-size:13px;
-  margin-top:5px;
-}
-
-@media(max-width:650px){
-  .stats{
-    grid-template-columns:1fr;
-  }
-}
-
-
-/* PANELS */
-
-.panel{
-  background:linear-gradient(145deg,#141414,#0d0d0d);
-  border:1px solid #292929;
-  border-radius:20px;
-  padding:20px;
-  margin-bottom:18px;
-}
-
-.panel h3{
-  margin-top:0;
-  color:var(--gold2);
-}
-
-.activity{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:13px 0;
-  border-bottom:1px solid #242424;
-}
-
-.activity:last-child{
-  border-bottom:0;
-}
-
-.activity-code{
-  font-weight:bold;
-}
-
-.activity-time{
-  color:#777;
-  font-size:12px;
-}
-
-.activity-action{
-  color:#bbb;
-  font-size:13px;
-}
-
-.empty{
-  color:#777;
-  padding:15px 0;
-}
-
-
-/* BOOKING */
-
-.booking-row{
-  padding:15px 0;
-  border-bottom:1px solid #292929;
-}
-
-.booking-row:last-child{
-  border-bottom:0;
-}
-
-.booking-title{
-  font-weight:bold;
-}
-
-.booking-meta{
-  color:#999;
-  font-size:13px;
-  margin-top:5px;
-}
-
-.status{
-  display:inline-block;
-  margin-top:8px;
-  padding:5px 9px;
-  border-radius:20px;
-  background:#252525;
-  font-size:11px;
-}
-
-.status.confirmed{
-  background:#164b2b;
-  color:#9ff0bb;
-}
-
-.status.pending{
-  background:#4d3d13;
-  color:#f2d77b;
-}
-
-.status.cancelled{
-  background:#501919;
-  color:#ffaaaa;
-}
-
-
-/* FOOTER */
-
-.footer{
-  text-align:center;
-  color:#666;
-  padding:20px;
-  font-size:12px;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Nababi Ristorante — Staff Panel</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --gold:#d4af37;
+      --gold2:#f4d675;
+      --black:#080808;
+      --panel:#111;
+      --panel2:#171717;
+      --line:#292929;
+      --text:#fff;
+      --muted:#aaa;
+      --green:#29c76f;
+      --red:#ef5350;
+      --orange:#ffab40;
+      --blue:#4da3ff;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top right,#2b2107 0,transparent 30%),
+        radial-gradient(circle at bottom left,#17100a 0,transparent 28%),
+        var(--black);
+      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
+      min-height:100vh;
+    }
+
+    button,input,select,textarea{
+      font:inherit;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    .hidden{
+      display:none!important;
+    }
+
+    /* LOGIN */
+
+    #loginScreen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .login-card{
+      width:100%;
+      max-width:430px;
+      background:rgba(18,18,18,.96);
+      border:1px solid rgba(212,175,55,.35);
+      border-radius:24px;
+      padding:34px 25px;
+      box-shadow:0 25px 80px rgba(0,0,0,.65);
+    }
+
+    .brand{
+      text-align:center;
+      margin-bottom:28px;
+    }
+
+    .brand-icon{
+      width:76px;
+      height:76px;
+      margin:auto;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--gold);
+      color:var(--gold2);
+      font-size:35px;
+      box-shadow:0 0 35px rgba(212,175,55,.15);
+    }
+
+    .brand h1{
+      margin:16px 0 5px;
+      font-family:Georgia,serif;
+      color:var(--gold2);
+      font-size:28px;
+    }
+
+    .brand p{
+      color:var(--muted);
+      margin:0;
+    }
+
+    label{
+      display:block;
+      color:#ddd;
+      margin:14px 0 7px;
+      font-size:14px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:#0d0d0d;
+      color:white;
+      padding:13px 14px;
+      border-radius:11px;
+      outline:none;
+    }
+
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--gold);
+    }
+
+    textarea{
+      min-height:100px;
+      resize:vertical;
+    }
+
+    .gold-btn{
+      width:100%;
+      margin-top:18px;
+      border:0;
+      border-radius:12px;
+      padding:14px;
+      background:linear-gradient(135deg,#b99122,#f1d36a,#b99122);
+      color:#090909;
+      font-weight:800;
+    }
+
+    .message{
+      margin-top:14px;
+      padding:11px 13px;
+      border-radius:10px;
+      font-size:14px;
+      display:none;
+    }
+
+    .message.show{display:block}
+    .message.error{
+      background:rgba(239,83,80,.12);
+      color:#ff8c89;
+      border:1px solid rgba(239,83,80,.3);
+    }
+
+    .message.success{
+      background:rgba(41,199,111,.12);
+      color:#70e8a0;
+      border:1px solid rgba(41,199,111,.3);
+    }
+
+    /* APP */
+
+    #app{
+      display:none;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(8,8,8,.94);
+      backdrop-filter:blur(15px);
+      border-bottom:1px solid var(--line);
+      padding:12px 15px;
+    }
+
+    .topbar-inner{
+      max-width:1250px;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .staff-brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    #staffAvatar{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid var(--gold);
+      background:#191919;
+    }
+
+    .staff-name{
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .staff-role{
+      font-size:12px;
+      color:var(--gold2);
+      margin-top:3px;
+    }
+
+    .logout-btn{
+      background:#191919;
+      color:white;
+      border:1px solid #333;
+      padding:10px 13px;
+      border-radius:10px;
+    }
+
+    .main{
+      max-width:1250px;
+      margin:auto;
+      padding:20px 15px 50px;
+    }
+
+    .welcome{
+      margin-bottom:20px;
+    }
+
+    .welcome h2{
+      margin:0 0 6px;
+      font-family:Georgia,serif;
+      color:var(--gold2);
+    }
+
+    .welcome p{
+      color:var(--muted);
+      margin:0;
+    }
+
+    /* STATS */
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:22px;
+    }
+
+    .stat{
+      background:linear-gradient(145deg,#151515,#0e0e0e);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:17px;
+    }
+
+    .stat-icon{
+      font-size:25px;
+      margin-bottom:10px;
+    }
+
+    .stat-value{
+      font-size:27px;
+      font-weight:900;
+      color:var(--gold2);
+    }
+
+    .stat-label{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+
+    /* ACTIONS */
+
+    .actions{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+      margin-bottom:22px;
+    }
+
+    .action-card{
+      min-height:180px;
+      border-radius:22px;
+      border:1px solid rgba(212,175,55,.25);
+      background:
+        radial-gradient(circle at top right,rgba(212,175,55,.16),transparent 35%),
+        linear-gradient(145deg,#181818,#0d0d0d);
+      padding:25px;
+      transition:.2s;
+    }
+
+    .action-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(212,175,55,.6);
+    }
+
+    .action-icon{
+      font-size:48px;
+      margin-bottom:13px;
+    }
+
+    .action-card h3{
+      margin:0 0 7px;
+      color:var(--gold2);
+      font-family:Georgia,serif;
+    }
+
+    .action-card p{
+      color:var(--muted);
+      margin:0 0 18px;
+      line-height:1.5;
+    }
+
+    .action-btn{
+      border:1px solid var(--gold);
+      background:rgba(212,175,55,.1);
+      color:var(--gold2);
+      padding:11px 15px;
+      border-radius:10px;
+      font-weight:700;
+    }
+
+    /* PANELS */
+
+    .panel{
+      background:#111;
+      border:1px solid var(--line);
+      border-radius:18px;
+      margin-bottom:18px;
+      overflow:hidden;
+    }
+
+    .panel-head{
+      padding:17px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+
+    .panel-head h3{
+      margin:0;
+      font-family:Georgia,serif;
+      color:var(--gold2);
+    }
+
+    .panel-body{
+      padding:18px;
+    }
+
+    /* DISCOUNT */
+
+    .code-box{
+      text-align:center;
+      padding:10px 0 22px;
+    }
+
+    .code-box .big-icon{
+      font-size:62px;
+    }
+
+    .code-box h2{
+      margin:7px 0;
+      font-family:Georgia,serif;
+      color:var(--gold2);
+    }
+
+    .code-box p{
+      color:var(--muted);
+    }
+
+    .check-row{
+      display:flex;
+      gap:10px;
+    }
+
+    .check-row input{
+      flex:1;
+    }
+
+    .check-row button{
+      min-width:120px;
+      border:0;
+      border-radius:11px;
+      background:linear-gradient(135deg,#b99122,#f1d36a);
+      color:#080808;
+      font-weight:900;
+    }
+
+    .discount-result{
+      margin-top:17px;
+      border-radius:15px;
+      padding:18px;
+      display:none;
+    }
+
+    .discount-result.show{
+      display:block;
+    }
+
+    .valid{
+      background:rgba(41,199,111,.1);
+      border:1px solid rgba(41,199,111,.35);
+    }
+
+    .invalid{
+      background:rgba(239,83,80,.1);
+      border:1px solid rgba(239,83,80,.35);
+    }
+
+    .used{
+      background:rgba(255,171,64,.1);
+      border:1px solid rgba(255,171,64,.35);
+    }
+
+    .result-title{
+      font-size:20px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .result-info{
+      color:#ddd;
+      line-height:1.7;
+    }
+
+    .use-btn{
+      margin-top:15px;
+      width:100%;
+      border:0;
+      border-radius:11px;
+      padding:13px;
+      background:var(--green);
+      color:#06140b;
+      font-weight:900;
+    }
+
+    .use-btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
+    /* BOOKING */
+
+    .booking-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .booking-card{
+      background:#0c0c0c;
+      border:1px solid #252525;
+      border-radius:15px;
+      padding:16px;
+    }
+
+    .booking-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .booking-ref{
+      color:var(--gold2);
+      font-weight:900;
+      font-size:17px;
+    }
+
+    .status{
+      border-radius:20px;
+      padding:5px 9px;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .status.pending{
+      background:rgba(255,171,64,.13);
+      color:#ffc56b;
+    }
+
+    .status.confirmed{
+      background:rgba(41,199,111,.13);
+      color:#68e69a;
+    }
+
+    .status.cancelled{
+      background:rgba(239,83,80,.13);
+      color:#ff8582;
+    }
+
+    .booking-info{
+      color:#ccc;
+      font-size:14px;
+      line-height:1.8;
+      margin-top:9px;
+    }
+
+    .booking-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .small-btn{
+      border:1px solid #333;
+      background:#171717;
+      color:white;
+      padding:9px 12px;
+      border-radius:9px;
+    }
+
+    .small-btn.confirm{
+      border-color:rgba(41,199,111,.5);
+      color:#71e9a1;
+    }
+
+    .small-btn.cancel{
+      border-color:rgba(239,83,80,.5);
+      color:#ff8985;
+    }
+
+    /* ACTIVITY */
+
+    .activity-list{
+      display:grid;
+      gap:8px;
+    }
+
+    .activity{
+      background:#0d0d0d;
+      border:1px solid #222;
+      padding:11px 13px;
+      border-radius:10px;
+      font-size:13px;
+    }
+
+    .activity strong{
+      color:var(--gold2);
+    }
+
+    .empty{
+      text-align:center;
+      color:#777;
+      padding:25px 10px;
+    }
+
+    /* MODAL */
+
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      background:rgba(0,0,0,.75);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .modal-card{
+      width:100%;
+      max-width:500px;
+      max-height:90vh;
+      overflow:auto;
+      background:#141414;
+      border:1px solid rgba(212,175,55,.35);
+      border-radius:20px;
+      padding:20px;
+    }
+
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:15px;
+    }
+
+    .modal-head h3{
+      margin:0;
+      color:var(--gold2);
+      font-family:Georgia,serif;
+    }
+
+    .close-btn{
+      background:#222;
+      color:#fff;
+      border:1px solid #333;
+      width:35px;
+      height:35px;
+      border-radius:50%;
+    }
+
+    .notice{
+      padding:12px;
+      border-radius:10px;
+      background:#181818;
+      color:#aaa;
+      font-size:13px;
+      line-height:1.5;
+      margin-bottom:14px;
+    }
+
+    /* MOBILE */
+
+    @media(max-width:800px){
+      .stats{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .actions{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media(max-width:520px){
+      .main{
+        padding:17px 11px 40px;
+      }
+
+      .stats{
+        gap:8px;
+      }
+
+      .stat{
+        padding:13px;
+      }
+
+      .stat-value{
+        font-size:23px;
+      }
+
+      .check-row{
+        flex-direction:column;
+      }
+
+      .check-row button{
+        width:100%;
+        padding:13px;
+      }
+
+      .action-card{
+        min-height:auto;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
+<!-- ================= LOGIN ================= -->
 
-<!-- LOGIN -->
-
-<div id="loginScreen" class="login">
+<section id="loginScreen">
 
   <div class="login-card">
 
     <div class="brand">
-      <div class="brand-title">NABABI RISTORANTE</div>
-      <div class="brand-sub">Staff Panel</div>
+      <div class="brand-icon">♛</div>
+      <h1>Nababi Ristorante</h1>
+      <p>Staff Portal</p>
     </div>
 
-    <div class="field">
-      <label>Email</label>
-      <input
-        id="loginEmail"
-        type="email"
-        placeholder="Staff email">
-    </div>
+    <label>Email</label>
+    <input
+      id="loginEmail"
+      type="email"
+      placeholder="Staff email"
+      autocomplete="username"
+    >
 
-    <div class="field">
-      <label>Password</label>
-      <input
-        id="loginPassword"
-        type="password"
-        placeholder="Password">
-    </div>
+    <label>Password</label>
+    <input
+      id="loginPassword"
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+    >
 
-    <button class="gold-btn" onclick="login()">
-      🔐 Staff Login
+    <button class="gold-btn" id="loginBtn">
+      LOGIN
     </button>
 
     <div id="loginMessage" class="message"></div>
 
   </div>
 
-</div>
+</section>
 
 
-<!-- APP -->
+<!-- ================= APP ================= -->
 
-<div id="app" class="app hidden">
+<section id="app">
 
-  <header class="header">
+  <header class="topbar">
 
-    <div class="header-left">
+    <div class="topbar-inner">
 
-      <img
-        id="staffAvatar"
-        class="avatar"
-        src=""
-        alt="Staff">
+      <div class="staff-brand">
 
-      <div>
-        <div id="staffName" class="header-name">
-          Staff
+        <img
+          id="staffAvatar"
+          src=""
+          alt="Staff"
+        >
+
+        <div>
+          <div class="staff-name" id="staffName">
+            Staff
+          </div>
+
+          <div class="staff-role" id="staffRole">
+            STAFF
+          </div>
         </div>
 
-        <div id="staffRole" class="header-role">
-          Staff
-        </div>
       </div>
 
-    </div>
+      <button class="logout-btn" id="logoutBtn">
+        Logout
+      </button>
 
-    <button class="logout" onclick="logout()">
-      🚪 Logout
-    </button>
+    </div>
 
   </header>
 
 
-  <main class="content">
+  <main class="main">
 
     <div class="welcome">
 
-      <h1 id="welcomeText">
+      <h2 id="welcomeTitle">
         Welcome
-      </h1>
+      </h2>
 
-      <p>
-        Nababi Ristorante Staff Management
+      <p id="welcomeText">
+        Manage your restaurant tasks from here.
       </p>
 
     </div>
 
 
-    <!-- DISCOUNT STAFF -->
+    <!-- ================= STATS ================= -->
 
-    <section id="discountPanel" class="discount-main">
+    <section class="stats">
 
-      <div class="discount-icon">
-        🎟️
+      <div class="stat">
+        <div class="stat-icon">🔎</div>
+        <div class="stat-value" id="statChecked">0</div>
+        <div class="stat-label">Codes Checked</div>
       </div>
 
-      <h2>Discount Code</h2>
+      <div class="stat">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="statUsed">0</div>
+        <div class="stat-label">Codes Used</div>
+      </div>
 
-      <p>
-        Customer-এর Discount Code এখানে লিখে Check করুন।
-      </p>
+      <div class="stat">
+        <div class="stat-icon">❌</div>
+        <div class="stat-value" id="statInvalid">0</div>
+        <div class="stat-label">Invalid Codes</div>
+      </div>
 
-      <div class="code-box">
+      <div class="stat">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="statBookings">0</div>
+        <div class="stat-label">Bookings</div>
+      </div>
 
-        <input
-          id="discountInput"
-          type="text"
-          placeholder="NB-000001"
-          autocomplete="off">
+    </section>
+
+
+    <!-- ================= MAIN ACTIONS ================= -->
+
+    <section class="actions">
+
+      <!-- DISCOUNT -->
+
+      <div
+        class="action-card"
+        id="discountAction"
+      >
+
+        <div class="action-icon">🎟️</div>
+
+        <h3>Discount Code</h3>
+
+        <p>
+          Customer gives you a discount code.
+          Check it here before applying the discount.
+        </p>
 
         <button
-          class="check-btn"
-          onclick="checkDiscount()">
-          CHECK
+          class="action-btn"
+          id="openDiscountBtn"
+        >
+          Check Discount Code
         </button>
 
       </div>
 
 
-      <div id="discountResult" class="result">
+      <!-- BOOKINGS -->
 
-        <div
-          id="resultTitle"
-          class="result-title">
-        </div>
+      <div
+        class="action-card"
+        id="bookingAction"
+      >
 
-        <div
-          id="resultInfo"
-          class="result-info">
-        </div>
+        <div class="action-icon">📅</div>
+
+        <h3>Table Bookings</h3>
+
+        <p>
+          View customer reservations and manage
+          Pending, Confirmed and Cancelled bookings.
+        </p>
 
         <button
-          id="useButton"
-          class="use-btn hidden"
-          onclick="markCodeUsed()">
-          ✅ MARK AS USED
+          class="action-btn"
+          id="openBookingBtn"
+        >
+          Open Bookings
         </button>
 
       </div>
@@ -631,47 +839,104 @@ select:focus{
     </section>
 
 
-    <!-- STATS -->
+    <!-- ================= DISCOUNT PANEL ================= -->
 
-    <section id="discountStats">
+    <section
+      class="panel hidden"
+      id="discountPanel"
+    >
 
-      <div class="stats">
+      <div class="panel-head">
 
-        <div class="stat">
-          <div
-            id="todayChecked"
-            class="stat-number">
-            0
-          </div>
+        <h3>🎟️ Discount Code Manager</h3>
 
-          <div class="stat-label">
-            Today Checked
-          </div>
+        <button
+          class="small-btn"
+          onclick="closePanel('discountPanel')"
+        >
+          Close
+        </button>
+
+      </div>
+
+      <div class="panel-body">
+
+        <div class="code-box">
+
+          <div class="big-icon">🎟️</div>
+
+          <h2>Check Customer Code</h2>
+
+          <p>
+            Enter the exact discount code given by the customer.
+          </p>
+
         </div>
 
+        <div class="check-row">
 
-        <div class="stat">
-          <div
-            id="todayUsed"
-            class="stat-number">
-            0
-          </div>
+          <input
+            id="discountCodeInput"
+            type="text"
+            placeholder="Example: NB-000001"
+            autocomplete="off"
+          >
 
-          <div class="stat-label">
-            Today Used
-          </div>
+          <button id="checkDiscountBtn">
+            CHECK
+          </button>
+
         </div>
 
+        <div
+          id="discountResult"
+          class="discount-result"
+        ></div>
 
-        <div class="stat">
-          <div
-            id="todayInvalid"
-            class="stat-number">
-            0
-          </div>
+      </div>
 
-          <div class="stat-label">
-            Today Invalid
+    </section>
+
+
+    <!-- ================= BOOKINGS PANEL ================= -->
+
+    <section
+      class="panel hidden"
+      id="bookingPanel"
+    >
+
+      <div class="panel-head">
+
+        <h3>📅 Table Bookings</h3>
+
+        <div style="display:flex;gap:7px">
+
+          <button
+            class="small-btn"
+            id="refreshBookingsBtn"
+          >
+            Refresh
+          </button>
+
+          <button
+            class="small-btn"
+            onclick="closePanel('bookingPanel')"
+          >
+            Close
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="panel-body">
+
+        <div
+          id="bookingList"
+          class="booking-list"
+        >
+          <div class="empty">
+            Loading bookings...
           </div>
         </div>
 
@@ -680,48 +945,67 @@ select:focus{
     </section>
 
 
-    <!-- RECENT ACTIVITY -->
+    <!-- ================= RECENT ACTIVITY ================= -->
 
-    <section id="activityPanel" class="panel">
+    <section class="panel">
 
-      <h3>🕐 Recent Activity</h3>
+      <div class="panel-head">
 
-      <div id="activityList">
-        <div class="empty">
-          Loading...
+        <h3>🕘 My Recent Activity</h3>
+
+        <button
+          class="small-btn"
+          id="refreshActivityBtn"
+        >
+          Refresh
+        </button>
+
+      </div>
+
+      <div class="panel-body">
+
+        <div
+          id="activityList"
+          class="activity-list"
+        >
+          <div class="empty">
+            Loading activity...
+          </div>
         </div>
+
       </div>
 
     </section>
-
-
-    <!-- BOOKING STAFF -->
-
-    <section id="bookingPanel" class="panel hidden">
-
-      <h3>📅 Table Bookings</h3>
-
-      <button
-        class="gold-btn"
-        onclick="loadBookings()"
-        style="margin-bottom:15px">
-        🔄 Refresh Bookings
-      </button>
-
-      <div id="bookingList">
-        <div class="empty">
-          Loading bookings...
-        </div>
-      </div>
-
-    </section>
-
 
   </main>
 
+</section>
 
-  <div class="footer">
-    Nababi Ristorante · Staff Panel
+
+<!-- ================= BOOKING DETAIL MODAL ================= -->
+
+<div
+  class="modal"
+  id="bookingModal"
+>
+
+  <div class="modal-card">
+
+    <div class="modal-head">
+
+      <h3>Booking Details</h3>
+
+      <button
+        class="close-btn"
+        onclick="closeModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div id="bookingDetail"></div>
+
   </div>
 
 </div>
@@ -729,1050 +1013,1847 @@ select:focus{
 
 <script>
 
-const SUPABASE_URL =
-  "https://rzvaaxjtkvriekokeolo.supabase.co";
+  /* =========================================================
+     SUPABASE
+  ========================================================= */
 
-const SUPABASE_KEY =
-  "sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
+  const SUPABASE_URL =
+    window.SUPABASE_URL ||
+    "https://rzvaaxjtkvriekokeolo.supabase.co";
 
-const supabaseClient =
-  supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+  const SUPABASE_KEY =
+    window.SUPABASE_KEY ||
+    "sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  /* =========================================================
+     STATE
+  ========================================================= */
+
+  let currentUser = null;
+  let currentStaff = null;
+  let currentDiscountCode = null;
+  let currentBooking = null;
+
+
+  /* =========================================================
+     ELEMENTS
+  ========================================================= */
+
+  const loginScreen =
+    document.getElementById("loginScreen");
+
+  const app =
+    document.getElementById("app");
+
+  const loginEmail =
+    document.getElementById("loginEmail");
+
+  const loginPassword =
+    document.getElementById("loginPassword");
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+
+  /* =========================================================
+     HELPERS
+  ========================================================= */
+
+  function escapeHtml(value){
+
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+
+  }
+
+
+  function showLoginMessage(
+    text,
+    type = "error"
+  ){
+
+    loginMessage.textContent = text;
+
+    loginMessage.className =
+      "message show " + type;
+
+  }
+
+
+  function hideLoginMessage(){
+
+    loginMessage.className = "message";
+
+  }
+
+
+  function formatDate(value){
+
+    if(!value) return "-";
+
+    try{
+
+      return new Date(value)
+        .toLocaleString("it-IT");
+
+    }catch{
+
+      return value;
+
+    }
+
+  }
+
+
+  function closePanel(id){
+
+    document
+      .getElementById(id)
+      ?.classList.add("hidden");
+
+  }
+
+
+  function closeModal(){
+
+    document
+      .getElementById("bookingModal")
+      .classList.remove("show");
+
+  }
+
+
+  window.closePanel = closePanel;
+  window.closeModal = closeModal;
+
+
+  /* =========================================================
+     ROLE CHECK
+  ========================================================= */
+
+  async function loadStaff(){
+
+    if(!currentUser?.email){
+
+      throw new Error("User session not found.");
+
+    }
+
+    const email =
+      currentUser.email.trim().toLowerCase();
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("admin_staff")
+      .select("*")
+      .ilike("email",email)
+      .maybeSingle();
+
+    if(error){
+
+      throw new Error(
+        "Could not load staff profile: " +
+        error.message
+      );
+
+    }
+
+    if(!data){
+
+      throw new Error(
+        "This account is not registered as staff."
+      );
+
+    }
+
+    if(data.enabled !== true){
+
+      throw new Error(
+        "This staff account is disabled."
+      );
+
+    }
+
+    currentStaff = data;
+
+    return data;
+
+  }
+
+
+  /* =========================================================
+     LOGIN
+  ========================================================= */
+
+  async function login(){
+
+    hideLoginMessage();
+
+    const email =
+      loginEmail.value.trim();
+
+    const password =
+      loginPassword.value;
+
+    if(!email){
+
+      showLoginMessage(
+        "Please enter your email."
+      );
+
+      return;
+
+    }
+
+    if(!password){
+
+      showLoginMessage(
+        "Please enter your password."
+      );
+
+      return;
+
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "LOGINNING...";
+
+    try{
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if(error){
+
+        throw new Error(
+          error.message
+        );
+
+      }
+
+      currentUser =
+        data.user;
+
+      const staff =
+        await loadStaff();
+
+      /*
+        Super Admin should use the main Admin Panel.
+      */
+
+      if(staff.role === "SUPER_ADMIN"){
+
+        window.location.href =
+          "admin.html";
+
+        return;
+
+      }
+
+      loginScreen.style.display = "none";
+      app.style.display = "block";
+
+      await initializeStaffPanel();
+
+    }catch(error){
+
+      console.error(error);
+
+      showLoginMessage(
+        error.message ||
+        "Login failed."
+      );
+
+      await supabaseClient.auth.signOut();
+
+    }finally{
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = "LOGIN";
+
+    }
+
+  }
+
+
+  loginBtn.addEventListener(
+    "click",
+    login
   );
 
 
-let currentUser = null;
-let currentStaff = null;
-let currentCheckedCode = null;
-let currentCodeData = null;
+  loginPassword.addEventListener(
+    "keydown",
+    event => {
+
+      if(event.key === "Enter"){
+        login();
+      }
+
+    }
+  );
 
 
-// ---------------- LOGIN ----------------
+  /* =========================================================
+     INITIALIZE
+  ========================================================= */
 
-async function login(){
+  async function initializeStaffPanel(){
 
-  const email =
-    document.getElementById("loginEmail")
-      .value.trim();
+    updateStaffHeader();
 
-  const password =
-    document.getElementById("loginPassword")
-      .value;
+    configureRoleUI();
 
-  const message =
-    document.getElementById("loginMessage");
+    await loadMyStats();
 
-  message.className="message";
+    await loadMyActivity();
 
-  if(!email || !password){
+    if(
+      currentStaff.role ===
+      "BOOKING_STAFF"
+    ){
 
-    message.textContent =
-      "Email and password are required.";
+      await loadBookings();
 
-    message.className =
-      "message show error";
+    }
 
-    return;
   }
 
 
-  const {data,error} =
-    await supabaseClient.auth
-      .signInWithPassword({
-        email,
-        password
-      });
+  /* =========================================================
+     HEADER
+  ========================================================= */
 
+  function updateStaffHeader(){
 
-  if(error){
+    const name =
+      currentStaff.full_name ||
+      currentUser.email ||
+      "Staff";
 
-    message.textContent =
-      error.message;
+    document.getElementById(
+      "staffName"
+    ).textContent = name;
 
-    message.className =
-      "message show error";
+    document.getElementById(
+      "staffRole"
+    ).textContent =
+      String(
+        currentStaff.role ||
+        "STAFF"
+      ).replaceAll("_"," ");
 
-    return;
-  }
+    document.getElementById(
+      "welcomeTitle"
+    ).textContent =
+      "Welcome, " + name;
 
-
-  currentUser=data.user;
-
-  await loadStaffProfile();
-
-}
-
-
-// ---------------- STAFF PROFILE ----------------
-
-async function loadStaffProfile(){
-
-  const {data,error} =
-    await supabaseClient
-      .from("admin_staff")
-      .select("*")
-      .ilike("email",currentUser.email)
-      .maybeSingle();
-
-
-  if(error || !data){
-
-    await logout();
-
-    alert(
-      "Staff account was not found."
-    );
-
-    return;
-  }
-
-
-  if(data.enabled !== true){
-
-    await logout();
-
-    alert(
-      "This staff account is disabled."
-    );
-
-    return;
-  }
-
-
-  currentStaff=data;
-
-
-  document.getElementById("loginScreen")
-    .classList.add("hidden");
-
-  document.getElementById("app")
-    .classList.remove("hidden");
-
-
-  document.getElementById("staffName")
-    .textContent =
-      data.full_name ||
-      currentUser.email;
-
-
-  document.getElementById("welcomeText")
-    .textContent =
-      "Welcome, "+
-      (data.full_name || "Staff");
-
-
-  document.getElementById("staffRole")
-    .textContent =
-      formatRole(data.role);
-
-
-  const avatar =
-    document.getElementById("staffAvatar");
-
-
-  if(data.avatar_url){
-
-    avatar.src=data.avatar_url;
-
-  }else{
-
-    avatar.src=
-      "data:image/svg+xml;charset=UTF-8,"+
+    const avatar =
+      currentStaff.avatar_url ||
+      "data:image/svg+xml;charset=UTF-8," +
       encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg"
              width="100" height="100">
           <rect width="100" height="100"
-                fill="#222"/>
-          <text x="50" y="62"
+                fill="#181818"/>
+          <text x="50" y="58"
                 text-anchor="middle"
-                font-size="48"
-                fill="#d4af37">
-            👤
-          </text>
+                font-size="45"
+                fill="#d4af37">♛</text>
         </svg>
       `);
 
-  }
-
-
-  if(data.role==="DISCOUNT_STAFF"){
-
-    document.getElementById("discountPanel")
-      .classList.remove("hidden");
-
-    document.getElementById("discountStats")
-      .classList.remove("hidden");
-
-    document.getElementById("activityPanel")
-      .classList.remove("hidden");
-
-    document.getElementById("bookingPanel")
-      .classList.add("hidden");
-
-    await loadStats();
-    await loadActivity();
+    document.getElementById(
+      "staffAvatar"
+    ).src = avatar;
 
   }
 
 
-  if(data.role==="BOOKING_STAFF"){
+  /* =========================================================
+     ROLE UI
+  ========================================================= */
 
-    document.getElementById("discountPanel")
-      .classList.add("hidden");
+  function configureRoleUI(){
 
-    document.getElementById("discountStats")
-      .classList.add("hidden");
+    const role =
+      currentStaff.role;
 
-    document.getElementById("activityPanel")
-      .classList.add("hidden");
+    const discountAction =
+      document.getElementById(
+        "discountAction"
+      );
 
-    document.getElementById("bookingPanel")
-      .classList.remove("hidden");
+    const bookingAction =
+      document.getElementById(
+        "bookingAction"
+      );
 
-    await loadBookings();
+    if(role === "DISCOUNT_STAFF"){
 
-  }
+      bookingAction.classList.add(
+        "hidden"
+      );
 
+    }
 
-  if(data.role==="SUPER_ADMIN"){
+    if(role === "BOOKING_STAFF"){
 
-    document.getElementById("discountPanel")
-      .classList.remove("hidden");
+      discountAction.classList.add(
+        "hidden"
+      );
 
-    document.getElementById("discountStats")
-      .classList.remove("hidden");
-
-    document.getElementById("activityPanel")
-      .classList.remove("hidden");
-
-    document.getElementById("bookingPanel")
-      .classList.remove("hidden");
-
-    await loadStats();
-    await loadActivity();
-    await loadBookings();
+    }
 
   }
 
-}
 
+  /* =========================================================
+     MY STATS
+  ========================================================= */
 
-// ---------------- DISCOUNT CHECK ----------------
+  async function loadMyStats(){
 
-async function checkDiscount(){
-
-  const input =
-    document.getElementById("discountInput");
-
-  const code =
-    input.value.trim().toUpperCase();
-
-
-  if(!code){
-
-    showResult(
-      false,
-      "⚠️ Enter Discount Code",
-      "Please enter the customer's discount code.",
-      false
-    );
-
-    return;
-  }
-
-
-  currentCheckedCode=null;
-  currentCodeData=null;
-
-
-  try{
+    const email =
+      currentUser.email.toLowerCase();
 
     /*
-      IMPORTANT:
-      We only READ the code here.
-      We do NOT mark it as USED.
+      Discount stats
     */
 
-    const {data,error} =
+    const {
+      data: discountRows
+    } =
       await supabaseClient
-        .from("discount_codes")
-        .select("*")
-        .eq("code",code)
-        .maybeSingle();
+        .from(
+          "discount_staff_activity"
+        )
+        .select("action,created_at")
+        .ilike(
+          "staff_email",
+          email
+        );
+
+    let checked = 0;
+    let used = 0;
+    let invalid = 0;
+
+    (discountRows || [])
+      .forEach(row => {
+
+        if(row.action === "CHECKED")
+          checked++;
+
+        if(row.action === "USED")
+          used++;
+
+        if(row.action === "INVALID")
+          invalid++;
+
+      });
 
 
-    // LOG CHECK
+    /*
+      Booking stats
+    */
 
-    await logActivity(
-      code,
-      data ? "CHECKED" : "INVALID"
+    const {
+      count:bookingCount
+    } =
+      await supabaseClient
+        .from(
+          "booking_staff_activity"
+        )
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        )
+        .ilike(
+          "staff_email",
+          email
+        );
+
+    document.getElementById(
+      "statChecked"
+    ).textContent = checked;
+
+    document.getElementById(
+      "statUsed"
+    ).textContent = used;
+
+    document.getElementById(
+      "statInvalid"
+    ).textContent = invalid;
+
+    document.getElementById(
+      "statBookings"
+    ).textContent =
+      bookingCount || 0;
+
+  }
+
+
+  /* =========================================================
+     DISCOUNT PANEL
+  ========================================================= */
+
+  document
+    .getElementById("openDiscountBtn")
+    .addEventListener(
+      "click",
+      () => {
+
+        document
+          .getElementById(
+            "discountPanel"
+          )
+          .classList.remove(
+            "hidden"
+          );
+
+        document
+          .getElementById(
+            "discountCodeInput"
+          )
+          .focus();
+
+      }
     );
 
+
+  document
+    .getElementById("checkDiscountBtn")
+    .addEventListener(
+      "click",
+      checkDiscount
+    );
+
+
+  document
+    .getElementById("discountCodeInput")
+    .addEventListener(
+      "keydown",
+      event => {
+
+        if(event.key === "Enter"){
+
+          checkDiscount();
+
+        }
+
+      }
+    );
+
+
+  async function checkDiscount(){
+
+    const input =
+      document
+        .getElementById(
+          "discountCodeInput"
+        );
+
+    const result =
+      document
+        .getElementById(
+          "discountResult"
+        );
+
+    const code =
+      input.value
+        .trim()
+        .toUpperCase();
+
+    result.className =
+      "discount-result";
+
+    result.innerHTML = "";
+
+    currentDiscountCode = null;
+
+    if(!code){
+
+      result.className =
+        "discount-result show invalid";
+
+      result.innerHTML =
+        `<div class="result-title">
+          ❌ Enter a discount code
+        </div>`;
+
+      return;
+
+    }
+
+    result.className =
+      "discount-result show";
+
+    result.innerHTML =
+      `<div class="result-title">
+        Checking...
+      </div>`;
+
+    try{
+
+      /*
+        IMPORTANT:
+        CHECK DOES NOT USE/CONSUME THE CODE.
+        We only read the discount_codes table.
+      */
+
+      const {
+        data:row,
+        error
+      } =
+        await supabaseClient
+          .from("discount_codes")
+          .select("*")
+          .ilike(
+            "code",
+            code
+          )
+          .maybeSingle();
+
+      if(error){
+
+        throw error;
+
+      }
+
+      if(!row){
+
+        await recordDiscountActivity(
+          code,
+          "INVALID"
+        );
+
+        result.className =
+          "discount-result show invalid";
+
+        result.innerHTML =
+          `<div class="result-title">
+            ❌ Invalid Code
+          </div>
+          <div class="result-info">
+            This discount code does not exist.
+          </div>`;
+
+        await loadMyStats();
+        await loadMyActivity();
+
+        return;
+
+      }
+
+      /*
+        Flexible field detection because the
+        exact campaign schema may vary.
+      */
+
+      const status =
+        String(
+          row.status ||
+          ""
+        ).toLowerCase();
+
+      const isUsed =
+        row.used === true ||
+        status === "used" ||
+        !!row.used_at;
+
+      const expiresAt =
+        row.expires_at ||
+        row.expiry_date ||
+        row.expires_on ||
+        null;
+
+      const now =
+        new Date();
+
+      const expired =
+        expiresAt &&
+        new Date(expiresAt) < now;
+
+      if(isUsed){
+
+        await recordDiscountActivity(
+          code,
+          "CHECKED"
+        );
+
+        result.className =
+          "discount-result show used";
+
+        result.innerHTML =
+          `<div class="result-title">
+            ⚠️ Already Used
+          </div>
+          <div class="result-info">
+            Code:
+            <strong>
+              ${escapeHtml(code)}
+            </strong>
+            <br>
+            This code has already been used.
+          </div>`;
+
+        await loadMyStats();
+        await loadMyActivity();
+
+        return;
+
+      }
+
+      if(expired){
+
+        await recordDiscountActivity(
+          code,
+          "INVALID"
+        );
+
+        result.className =
+          "discount-result show invalid";
+
+        result.innerHTML =
+          `<div class="result-title">
+            ⏰ Expired Code
+          </div>
+          <div class="result-info">
+            This discount code is expired.
+          </div>`;
+
+        await loadMyStats();
+        await loadMyActivity();
+
+        return;
+
+      }
+
+
+      currentDiscountCode = row;
+
+      const discount =
+        row.discount_value ??
+        row.discount ??
+        row.amount ??
+        row.value ??
+        "-";
+
+      const type =
+        row.discount_type ??
+        row.type ??
+        "Discount";
+
+      result.className =
+        "discount-result show valid";
+
+      result.innerHTML =
+        `<div class="result-title">
+          ✅ Valid Discount Code
+        </div>
+
+        <div class="result-info">
+
+          Code:
+          <strong>
+            ${escapeHtml(code)}
+          </strong>
+
+          <br>
+
+          Discount:
+          <strong>
+            ${escapeHtml(discount)}
+            ${String(type).toLowerCase().includes("percent")
+              ? "%"
+              : ""}
+          </strong>
+
+          ${
+            expiresAt
+            ? `<br>Expires:
+               ${escapeHtml(
+                 formatDate(expiresAt)
+               )}`
+            : ""
+          }
+
+        </div>
+
+        <button
+          class="use-btn"
+          id="markUsedBtn"
+        >
+          ✓ MARK AS USED
+        </button>`;
+
+      await recordDiscountActivity(
+        code,
+        "CHECKED"
+      );
+
+      document
+        .getElementById(
+          "markUsedBtn"
+        )
+        .addEventListener(
+          "click",
+          markDiscountUsed
+        );
+
+      await loadMyStats();
+      await loadMyActivity();
+
+    }catch(error){
+
+      console.error(error);
+
+      result.className =
+        "discount-result show invalid";
+
+      result.innerHTML =
+        `<div class="result-title">
+          ❌ Error
+        </div>
+        <div class="result-info">
+          ${escapeHtml(
+            error.message ||
+            "Could not check the code."
+          )}
+        </div>`;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     DISCOUNT ACTIVITY
+  ========================================================= */
+
+  async function recordDiscountActivity(
+    code,
+    action
+  ){
+
+    if(!currentUser?.email)
+      return;
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from(
+          "discount_staff_activity"
+        )
+        .insert({
+          staff_email:
+            currentUser.email,
+
+          staff_name:
+            currentStaff.full_name ||
+            "",
+
+          discount_code:
+            code,
+
+          action
+        });
 
     if(error){
 
-      showResult(
-        false,
-        "❌ Code Check Failed",
-        error.message,
-        false
+      console.warn(
+        "Activity record error:",
+        error
       );
 
-      await loadStats();
-      await loadActivity();
-
-      return;
     }
 
+  }
 
-    if(!data){
 
-      showResult(
-        false,
-        "❌ Invalid Code",
-        "This discount code does not exist.",
-        false
+  /* =========================================================
+     MARK DISCOUNT USED
+  ========================================================= */
+
+  async function markDiscountUsed(){
+
+    if(!currentDiscountCode)
+      return;
+
+    const btn =
+      document.getElementById(
+        "markUsedBtn"
       );
 
-      await loadStats();
-      await loadActivity();
+    if(btn){
 
-      return;
+      btn.disabled = true;
+      btn.textContent =
+        "PROCESSING...";
+
     }
 
+    try{
 
-    if(String(data.status).toUpperCase()==="USED"){
-
-      showResult(
-        false,
-        "⚠️ Already Used",
-        "This discount code has already been used.",
-        false
-      );
-
-      await loadStats();
-      await loadActivity();
-
-      return;
-    }
+      const code =
+        String(
+          currentDiscountCode.code
+        )
+        .trim()
+        .toUpperCase();
 
 
-    if(data.expires_at){
+      /*
+        First re-check the code directly.
+        This prevents accidentally using an
+        already-used code.
+      */
 
-      const expiry =
-        new Date(data.expires_at);
+      const {
+        data:latest,
+        error:readError
+      } =
+        await supabaseClient
+          .from("discount_codes")
+          .select("*")
+          .ilike(
+            "code",
+            code
+          )
+          .maybeSingle();
 
-      if(expiry < new Date()){
+      if(readError)
+        throw readError;
 
-        showResult(
-          false,
-          "⌛ Expired Code",
-          "This discount code has expired.",
-          false
+      if(!latest)
+        throw new Error(
+          "Discount code no longer exists."
         );
 
-        await loadStats();
-        await loadActivity();
 
-        return;
+      const status =
+        String(
+          latest.status || ""
+        ).toLowerCase();
+
+      if(
+        latest.used === true ||
+        status === "used" ||
+        latest.used_at
+      ){
+
+        throw new Error(
+          "This code has already been used."
+        );
+
+      }
+
+
+      /*
+        Try the database function first.
+        This is the secure intended method.
+      */
+
+      const {
+        data:functionResult,
+        error:functionError
+      } =
+        await supabaseClient
+          .rpc(
+            "use_discount_code",
+            {
+              p_code:code
+            }
+          );
+
+
+      if(functionError){
+
+        throw functionError;
+
+      }
+
+
+      /*
+        Record staff action.
+      */
+
+      await recordDiscountActivity(
+        code,
+        "USED"
+      );
+
+
+      const result =
+        document.getElementById(
+          "discountResult"
+        );
+
+      result.className =
+        "discount-result show valid";
+
+      result.innerHTML =
+        `<div class="result-title">
+          ✅ Code Successfully Used
+        </div>
+
+        <div class="result-info">
+          Code:
+          <strong>
+            ${escapeHtml(code)}
+          </strong>
+          <br>
+          The discount has been marked as used.
+        </div>`;
+
+      currentDiscountCode = null;
+
+      await loadMyStats();
+      await loadMyActivity();
+
+    }catch(error){
+
+      console.error(error);
+
+      const result =
+        document.getElementById(
+          "discountResult"
+        );
+
+      result.className =
+        "discount-result show invalid";
+
+      result.innerHTML =
+        `<div class="result-title">
+          ❌ Could Not Use Code
+        </div>
+
+        <div class="result-info">
+          ${escapeHtml(
+            error.message ||
+            "The code could not be marked as used."
+          )}
+        </div>`;
+
+      if(btn){
+
+        btn.disabled = false;
+        btn.textContent =
+          "✓ MARK AS USED";
+
       }
 
     }
 
-
-    currentCheckedCode=code;
-    currentCodeData=data;
+  }
 
 
-    let discountText="Discount available.";
+  /* =========================================================
+     BOOKINGS
+  ========================================================= */
 
-    if(data.discount_percent){
+  document
+    .getElementById(
+      "openBookingBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
 
-      discountText =
-        "Discount: "+
-        data.discount_percent+
-        "%";
+        document
+          .getElementById(
+            "bookingPanel"
+          )
+          .classList.remove(
+            "hidden"
+          );
 
-    }else if(data.discount_amount){
+        await loadBookings();
 
-      discountText =
-        "Discount: €"+
-        data.discount_amount;
+      }
+    );
+
+
+  document
+    .getElementById(
+      "refreshBookingsBtn"
+    )
+    .addEventListener(
+      "click",
+      loadBookings
+    );
+
+
+  async function loadBookings(){
+
+    const list =
+      document.getElementById(
+        "bookingList"
+      );
+
+    list.innerHTML =
+      `<div class="empty">
+        Loading bookings...
+      </div>`;
+
+    try{
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("table_bookings")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending:false
+            }
+          );
+
+      if(error)
+        throw error;
+
+      if(!data?.length){
+
+        list.innerHTML =
+          `<div class="empty">
+            No bookings found.
+          </div>`;
+
+        return;
+
+      }
+
+      /*
+        Record VIEWED activity once
+        for currently loaded bookings.
+      */
+
+      for(const booking of data){
+
+        await recordBookingActivity(
+          booking,
+          "VIEWED"
+        );
+
+      }
+
+      list.innerHTML =
+        data
+          .map(renderBooking)
+          .join("");
+
+    }catch(error){
+
+      console.error(error);
+
+      list.innerHTML =
+        `<div class="empty">
+          Could not load bookings.<br><br>
+          ${escapeHtml(
+            error.message
+          )}
+        </div>`;
 
     }
 
-
-    showResult(
-      true,
-      "✅ VALID DISCOUNT CODE",
-      `
-        Code: <strong>${escapeHtml(code)}</strong><br>
-        ${discountText}<br>
-        Status: <strong>${escapeHtml(data.status||"ACTIVE")}</strong>
-      `,
-      true
-    );
-
-
-    await loadStats();
-    await loadActivity();
-
-
-  }catch(e){
-
-    showResult(
-      false,
-      "❌ Error",
-      e.message,
-      false
-    );
-
-  }
-
-}
-
-
-// ---------------- MARK USED ----------------
-
-async function markCodeUsed(){
-
-  if(!currentCheckedCode){
-
-    alert(
-      "Please check a valid code first."
-    );
-
-    return;
   }
 
 
-  if(!confirm(
-    "Are you sure you want to mark "+
-    currentCheckedCode+
-    " as USED?"
-  )){
+  function renderBooking(booking){
 
-    return;
+    const status =
+      String(
+        booking.status ||
+        "Pending"
+      );
+
+    const statusClass =
+      status.toLowerCase();
+
+    const reference =
+      booking.booking_reference ||
+      booking.reference ||
+      ("#" + booking.id);
+
+    return `
+      <div
+        class="booking-card"
+        data-booking-id="${booking.id}"
+      >
+
+        <div class="booking-top">
+
+          <div class="booking-ref">
+            ${escapeHtml(reference)}
+          </div>
+
+          <span
+            class="status ${escapeHtml(statusClass)}"
+          >
+            ${escapeHtml(status)}
+          </span>
+
+        </div>
+
+        <div class="booking-info">
+
+          👤
+          <strong>
+            ${escapeHtml(
+              booking.customer_name
+            )}
+          </strong>
+
+          <br>
+
+          📅
+          ${escapeHtml(
+            booking.booking_date ||
+            "-"
+          )}
+
+          &nbsp;
+
+          🕐
+          ${escapeHtml(
+            String(
+              booking.booking_time ||
+              "-"
+            ).slice(0,5)
+          )}
+
+          <br>
+
+          👥
+          ${escapeHtml(
+            booking.guests ||
+            "2"
+          )}
+          guests
+
+          ${
+            booking.phone
+            ? `<br>📞 ${escapeHtml(
+                booking.phone
+              )}`
+            : ""
+          }
+
+          ${
+            booking.email
+            ? `<br>✉️ ${escapeHtml(
+                booking.email
+              )}`
+            : ""
+          }
+
+          ${
+            booking.special_request
+            ? `<br>📝 ${escapeHtml(
+                booking.special_request
+              )}`
+            : ""
+          }
+
+        </div>
+
+        <div class="booking-actions">
+
+          <button
+            class="small-btn"
+            onclick='viewBooking(${JSON.stringify(
+              booking
+            )})'
+          >
+            View
+          </button>
+
+          ${
+            status.toLowerCase() ===
+            "pending"
+            ? `
+              <button
+                class="small-btn confirm"
+                onclick="changeBookingStatus(
+                  ${booking.id},
+                  'Confirmed'
+                )"
+              >
+                ✓ Confirm
+              </button>
+
+              <button
+                class="small-btn cancel"
+                onclick="changeBookingStatus(
+                  ${booking.id},
+                  'Cancelled'
+                )"
+              >
+                ✕ Cancel
+              </button>
+            `
+            : ""
+          }
+
+        </div>
+
+      </div>
+    `;
+
   }
 
 
-  try{
+  /* =========================================================
+     VIEW BOOKING
+  ========================================================= */
+
+  function viewBooking(booking){
+
+    currentBooking = booking;
+
+    const reference =
+      booking.booking_reference ||
+      booking.reference ||
+      ("#" + booking.id);
+
+    document.getElementById(
+      "bookingDetail"
+    ).innerHTML = `
+
+      <div class="notice">
+        Booking reference:
+        <strong>
+          ${escapeHtml(reference)}
+        </strong>
+      </div>
+
+      <label>Customer</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.customer_name
+        )}
+      </div>
+
+      <label>Date</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.booking_date || "-"
+        )}
+      </div>
+
+      <label>Time</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.booking_time || "-"
+        )}
+      </div>
+
+      <label>Guests</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.guests || "-"
+        )}
+      </div>
+
+      <label>Phone</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.phone || "-"
+        )}
+      </div>
+
+      <label>Email</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.email || "-"
+        )}
+      </div>
+
+      <label>Special Request</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.special_request || "-"
+        )}
+      </div>
+
+      <label>Status</label>
+      <div class="notice">
+        ${escapeHtml(
+          booking.status || "Pending"
+        )}
+      </div>
+
+    `;
+
+    document
+      .getElementById(
+        "bookingModal"
+      )
+      .classList.add(
+        "show"
+      );
+
+  }
+
+
+  window.viewBooking =
+    viewBooking;
+
+
+  /* =========================================================
+     CHANGE BOOKING STATUS
+  ========================================================= */
+
+  async function changeBookingStatus(
+    bookingId,
+    newStatus
+  ){
+
+    if(
+      !confirm(
+        "Change booking status to " +
+        newStatus +
+        "?"
+      )
+    ){
+
+      return;
+
+    }
+
+    try{
+
+      const {
+        data:booking,
+        error:readError
+      } =
+        await supabaseClient
+          .from("table_bookings")
+          .select("*")
+          .eq("id",bookingId)
+          .single();
+
+      if(readError)
+        throw readError;
+
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("table_bookings")
+          .update({
+            status:newStatus,
+            updated_at:
+              new Date().toISOString()
+          })
+          .eq(
+            "id",
+            bookingId
+          );
+
+      if(error)
+        throw error;
+
+
+      let action =
+        "UPDATED";
+
+      if(newStatus === "Confirmed")
+        action = "CONFIRMED";
+
+      if(newStatus === "Cancelled")
+        action = "CANCELLED";
+
+
+      await recordBookingActivity(
+        booking,
+        action
+      );
+
+
+      await loadBookings();
+
+      await loadMyStats();
+
+      await loadMyActivity();
+
+    }catch(error){
+
+      alert(
+        error.message ||
+        "Could not update booking."
+      );
+
+    }
+
+  }
+
+
+  window.changeBookingStatus =
+    changeBookingStatus;
+
+
+  /* =========================================================
+     BOOKING ACTIVITY
+  ========================================================= */
+
+  async function recordBookingActivity(
+    booking,
+    action
+  ){
+
+    if(!currentUser?.email)
+      return;
+
+    const reference =
+      booking.booking_reference ||
+      booking.reference ||
+      null;
 
     /*
-      We update the code ONLY now.
-      Checking alone never uses the code.
+      VIEWED can be repeated when the
+      page refreshes. This is intentional
+      for staff activity tracking.
     */
 
-    const {data,error} =
+    const {
+      error
+    } =
       await supabaseClient
-        .from("discount_codes")
-        .update({
-          status:"USED",
-          used_at:new Date().toISOString()
-        })
-        .eq("code",currentCheckedCode)
-        .neq("status","USED")
-        .select()
-        .maybeSingle();
+        .from(
+          "booking_staff_activity"
+        )
+        .insert({
 
+          staff_email:
+            currentUser.email,
+
+          staff_name:
+            currentStaff.full_name ||
+            "",
+
+          booking_id:
+            booking.id,
+
+          booking_reference:
+            reference,
+
+          action
+
+        });
 
     if(error){
 
-      throw error;
-    }
-
-
-    if(!data){
-
-      showResult(
-        false,
-        "⚠️ Code Already Used",
-        "This code could not be marked as used.",
-        false
+      console.warn(
+        "Booking activity error:",
+        error
       );
 
-      return;
     }
 
-
-    await logActivity(
-      currentCheckedCode,
-      "USED"
-    );
-
-
-    showResult(
-      true,
-      "✅ CODE MARKED AS USED",
-      `
-        Code:
-        <strong>${escapeHtml(currentCheckedCode)}</strong><br>
-        The customer discount has been recorded successfully.
-      `,
-      false
-    );
-
-
-    currentCheckedCode=null;
-    currentCodeData=null;
-
-
-    document.getElementById("discountInput")
-      .value="";
-
-
-    await loadStats();
-    await loadActivity();
-
-
-  }catch(e){
-
-    showResult(
-      false,
-      "❌ Could Not Mark Used",
-      e.message,
-      false
-    );
-
   }
 
-}
+
+  /* =========================================================
+     MY ACTIVITY
+  ========================================================= */
+
+  async function loadMyActivity(){
+
+    const list =
+      document.getElementById(
+        "activityList"
+      );
+
+    try{
+
+      const email =
+        currentUser.email
+          .toLowerCase();
 
 
-// ---------------- RESULT UI ----------------
-
-function showResult(
-  valid,
-  title,
-  info,
-  showUse
-){
-
-  const result =
-    document.getElementById("discountResult");
-
-  const titleEl =
-    document.getElementById("resultTitle");
-
-  const infoEl =
-    document.getElementById("resultInfo");
-
-  const useButton =
-    document.getElementById("useButton");
+      const discountResponse =
+        await supabaseClient
+          .from(
+            "discount_staff_activity"
+          )
+          .select("*")
+          .ilike(
+            "staff_email",
+            email
+          )
+          .order(
+            "created_at",
+            {
+              ascending:false
+            }
+          )
+          .limit(20);
 
 
-  result.className=
-    "result show "+
-    (valid ? "valid":"invalid");
+      const bookingResponse =
+        await supabaseClient
+          .from(
+            "booking_staff_activity"
+          )
+          .select("*")
+          .ilike(
+            "staff_email",
+            email
+          )
+          .order(
+            "created_at",
+            {
+              ascending:false
+            }
+          )
+          .limit(20);
 
 
-  titleEl.textContent=title;
-
-  infoEl.innerHTML=info;
+      const activities = [];
 
 
-  if(showUse){
+      (
+        discountResponse.data ||
+        []
+      ).forEach(row => {
 
-    useButton.classList.remove("hidden");
+        activities.push({
 
-  }else{
+          time:
+            row.created_at,
 
-    useButton.classList.add("hidden");
+          text:
+            `Discount code
+             ${row.discount_code}
+             — ${row.action}`
 
-  }
-
-}
-
-
-// ---------------- ACTIVITY ----------------
-
-async function logActivity(
-  code,
-  action
-){
-
-  if(!currentStaff) return;
-
-
-  const {error} =
-    await supabaseClient
-      .from("discount_staff_activity")
-      .insert({
-
-        staff_email:
-          currentStaff.email,
-
-        staff_name:
-          currentStaff.full_name,
-
-        discount_code:
-          code,
-
-        action
+        });
 
       });
 
 
-  if(error){
-
-    console.error(
-      "Activity log error:",
-      error
-    );
-
-  }
-
-}
-
-
-async function loadActivity(){
-
-  if(!currentStaff) return;
-
-
-  const {data,error} =
-    await supabaseClient
-      .from("discount_staff_activity")
-      .select("*")
-      .eq("staff_email",currentStaff.email)
-      .order("created_at",{ascending:false})
-      .limit(10);
-
-
-  const box =
-    document.getElementById("activityList");
-
-
-  if(error){
-
-    box.innerHTML=
-      `<div class="empty">
-        Unable to load activity.
-      </div>`;
-
-    return;
-  }
-
-
-  if(!data || data.length===0){
-
-    box.innerHTML=
-      `<div class="empty">
-        No activity yet.
-      </div>`;
-
-    return;
-  }
-
-
-  box.innerHTML="";
-
-
-  data.forEach(item=>{
-
-    const row=
-      document.createElement("div");
-
-    row.className="activity";
-
-
-    const actionLabel =
-      item.action==="USED"
-      ? "✅ Used"
-      : item.action==="INVALID"
-      ? "❌ Invalid"
-      : "🔎 Checked";
-
-
-    row.innerHTML=`
-
-      <div>
-
-        <div class="activity-code">
-          ${escapeHtml(item.discount_code)}
-        </div>
-
-        <div class="activity-action">
-          ${actionLabel}
-        </div>
-
-      </div>
-
-      <div class="activity-time">
-        ${formatDate(item.created_at)}
-      </div>
-
-    `;
-
-
-    box.appendChild(row);
-
-  });
-
-}
-
-
-// ---------------- STATS ----------------
-
-async function loadStats(){
-
-  if(!currentStaff) return;
-
-
-  const start =
-    new Date();
-
-  start.setHours(0,0,0,0);
-
-
-  const {data,error} =
-    await supabaseClient
-      .from("discount_staff_activity")
-      .select("action")
-      .eq("staff_email",currentStaff.email)
-      .gte("created_at",start.toISOString());
-
-
-  if(error){
-
-    console.error(error);
-    return;
-  }
-
-
-  let checked=0;
-  let used=0;
-  let invalid=0;
-
-
-  (data||[]).forEach(item=>{
-
-    if(item.action==="CHECKED")
-      checked++;
-
-    if(item.action==="USED")
-      used++;
-
-    if(item.action==="INVALID")
-      invalid++;
-
-  });
-
-
-  document.getElementById("todayChecked")
-    .textContent=checked;
-
-  document.getElementById("todayUsed")
-    .textContent=used;
-
-  document.getElementById("todayInvalid")
-    .textContent=invalid;
-
-}
-
-
-// ---------------- BOOKINGS ----------------
-
-async function loadBookings(){
-
-  const {data,error} =
-    await supabaseClient
-      .from("table_bookings")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(50);
-
-
-  const box =
-    document.getElementById("bookingList");
-
-
-  if(error){
-
-    box.innerHTML=
-      `<div class="empty">
-        ${escapeHtml(error.message)}
-      </div>`;
-
-    return;
-  }
-
-
-  if(!data || data.length===0){
-
-    box.innerHTML=
-      `<div class="empty">
-        No bookings found.
-      </div>`;
-
-    return;
-  }
-
-
-  box.innerHTML="";
-
-
-  data.forEach(booking=>{
-
-    const row=
-      document.createElement("div");
-
-    row.className="booking-row";
-
-
-    let statusClass="";
-
-    if(booking.status==="Confirmed")
-      statusClass="confirmed";
-
-    if(booking.status==="Pending")
-      statusClass="pending";
-
-    if(booking.status==="Cancelled")
-      statusClass="cancelled";
-
-
-    row.innerHTML=`
-
-      <div class="booking-title">
-
-        ${escapeHtml(
-          booking.customer_name||"Customer"
-        )}
-
-      </div>
-
-
-      <div class="booking-meta">
-
-        Reference:
-        ${escapeHtml(
-          booking.booking_reference||"—"
-        )}
-
-        <br>
-
-        📅
-        ${escapeHtml(
-          booking.booking_date||""
-        )}
-
-        &nbsp;
-
-        🕐
-        ${escapeHtml(
-          booking.booking_time||""
-        )}
-
-        <br>
-
-        👥
-        ${booking.guests||2} guests
-
-      </div>
-
-
-      <span class="status ${statusClass}">
-
-        ${escapeHtml(
-          booking.status||"Pending"
-        )}
-
-      </span>
-
-    `;
-
-
-    box.appendChild(row);
-
-
-    // Log viewed only for booking staff
-
-    if(
-      currentStaff &&
-      currentStaff.role==="BOOKING_STAFF"
-    ){
-
-      logBookingActivity(
-        booking,
-        "VIEWED"
-      );
-
-    }
-
-  });
-
-}
-
-
-async function logBookingActivity(
-  booking,
-  action
-){
-
-  if(!currentStaff) return;
-
-
-  const {error} =
-    await supabaseClient
-      .from("booking_staff_activity")
-      .insert({
-
-        staff_email:
-          currentStaff.email,
-
-        staff_name:
-          currentStaff.full_name,
-
-        booking_id:
-          booking.id,
-
-        booking_reference:
-          booking.booking_reference,
-
-        action
+      (
+        bookingResponse.data ||
+        []
+      ).forEach(row => {
+
+        activities.push({
+
+          time:
+            row.created_at,
+
+          text:
+            `Booking
+             ${row.booking_reference ||
+             "#" + row.booking_id}
+             — ${row.action}`
+
+        });
 
       });
 
 
-  if(error){
+      activities.sort(
+        (a,b) =>
+          new Date(b.time) -
+          new Date(a.time)
+      );
 
-    console.error(
-      "Booking activity error:",
-      error
+
+      const latest =
+        activities.slice(0,20);
+
+
+      if(!latest.length){
+
+        list.innerHTML =
+          `<div class="empty">
+            No activity yet.
+          </div>`;
+
+        return;
+
+      }
+
+
+      list.innerHTML =
+        latest
+          .map(item => `
+
+            <div class="activity">
+
+              <strong>
+                ${escapeHtml(
+                  item.text
+                )}
+              </strong>
+
+              <br>
+
+              <span style="color:#777">
+                ${escapeHtml(
+                  formatDate(
+                    item.time
+                  )
+                )}
+              </span>
+
+            </div>
+
+          `)
+          .join("");
+
+    }catch(error){
+
+      console.error(error);
+
+      list.innerHTML =
+        `<div class="empty">
+          Could not load activity.
+        </div>`;
+
+    }
+
+  }
+
+
+  document
+    .getElementById(
+      "refreshActivityBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
+
+        await loadMyStats();
+        await loadMyActivity();
+
+      }
     );
 
-  }
 
-}
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
 
+  document
+    .getElementById(
+      "logoutBtn"
+    )
+    .addEventListener(
+      "click",
+      async () => {
 
-// ---------------- LOGOUT ----------------
+        await supabaseClient
+          .auth
+          .signOut();
 
-async function logout(){
+        window.location.reload();
 
-  await supabaseClient.auth.signOut();
-
-  location.reload();
-
-}
-
-
-// ---------------- HELPERS ----------------
-
-function formatRole(role){
-
-  if(role==="SUPER_ADMIN")
-    return "Super Admin";
-
-  if(role==="DISCOUNT_STAFF")
-    return "Discount Staff";
-
-  if(role==="BOOKING_STAFF")
-    return "Booking Staff";
-
-  return role||"Staff";
-
-}
+      }
+    );
 
 
-function formatDate(value){
+  /* =========================================================
+     EXISTING SESSION
+  ========================================================= */
 
-  if(!value) return "";
+  async function checkExistingSession(){
 
-  try{
+    try{
 
-    return new Date(value)
-      .toLocaleString(
-        "en-GB",
-        {
-          day:"2-digit",
-          month:"short",
-          hour:"2-digit",
-          minute:"2-digit"
-        }
+      const {
+        data
+      } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+      const session =
+        data.session;
+
+      if(!session){
+
+        return;
+
+      }
+
+      currentUser =
+        session.user;
+
+      const staff =
+        await loadStaff();
+
+
+      if(
+        staff.role ===
+        "SUPER_ADMIN"
+      ){
+
+        window.location.href =
+          "admin.html";
+
+        return;
+
+      }
+
+
+      loginScreen.style.display =
+        "none";
+
+      app.style.display =
+        "block";
+
+      await initializeStaffPanel();
+
+    }catch(error){
+
+      console.warn(
+        "Session check:",
+        error.message
       );
 
-  }catch(e){
-
-    return value;
-
-  }
-
-}
-
-
-function escapeHtml(value){
-
-  return String(value??"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
-}
-
-
-// ---------------- AUTO LOGIN ----------------
-
-(async function(){
-
-  try{
-
-    const {
-      data:{session}
-    } =
-      await supabaseClient.auth
-        .getSession();
-
-
-    if(session){
-
-      currentUser=session.user;
-
-      await loadStaffProfile();
-
-    }
-
-  }catch(error){
-
-    console.error(error);
-
-  }
-
-})();
-
-
-// ENTER KEY FOR CODE
-
-document.addEventListener(
-  "DOMContentLoaded",
-  function(){
-
-    const input =
-      document.getElementById("discountInput");
-
-    if(input){
-
-      input.addEventListener(
-        "keydown",
-        function(event){
-
-          if(event.key==="Enter"){
-
-            checkDiscount();
-
-          }
-
-        }
-      );
+      await supabaseClient
+        .auth
+        .signOut();
 
     }
 
   }
-);
+
+
+  checkExistingSession();
 
 </script>
 
