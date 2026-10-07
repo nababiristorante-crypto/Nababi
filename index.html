@@ -1,1100 +1,1147 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Nababi Ristorante | Authentic Indian Cuisine in Roma</title>
-  <meta
-    name="description"
-    content="Nababi Ristorante – authentic Indian cuisine in the heart of Roma."
-  />
+  <meta name="description" content="Nababi Ristorante — authentic Indian cuisine in the heart of Roma. Discover our menu, special offers, gallery and reserve your table.">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
 
   <style>
-    :root {
-      --gold: #d4af37;
-      --gold-light: #f1d77a;
-      --gold-dark: #9c7a16;
-      --black: #070707;
-      --black-2: #101010;
-      --black-3: #171717;
-      --white: #ffffff;
-      --muted: #bdbdbd;
-      --border: rgba(212,175,55,.25);
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-      --radius: 18px;
+    :root{
+      --gold:#d4af37;
+      --gold2:#f3d675;
+      --black:#070707;
+      --black2:#101010;
+      --card:#151515;
+      --white:#fff;
+      --muted:#bdbdbd;
+      --line:rgba(212,175,55,.22);
+      --danger:#ef5350;
+      --success:#4caf50;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
     }
 
-    html {
-      scroll-behavior: smooth;
+    html{
+      scroll-behavior:smooth;
     }
 
-    body {
-      font-family: Georgia, "Times New Roman", serif;
-      background: var(--black);
-      color: var(--white);
-      line-height: 1.6;
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--black);
+      color:var(--white);
+      line-height:1.6;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
     }
 
     button,
     input,
     textarea,
-    select {
-      font: inherit;
+    select{
+      font:inherit;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
-    }
-
-    .container {
-      width: min(1180px, 92%);
-      margin: auto;
-    }
-
-    .gold {
-      color: var(--gold);
+    button{
+      cursor:pointer;
     }
 
     /* =========================
-       TOP BAR
+       HEADER
     ========================== */
 
-    .topbar {
-      background: #000;
-      border-bottom: 1px solid var(--border);
-      padding: 9px 0;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
+    header{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:1000;
+      background:rgba(0,0,0,.82);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line);
     }
 
-    .topbar-inner {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      flex-wrap: wrap;
+    .nav{
+      max-width:1250px;
+      margin:auto;
+      min-height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 22px;
     }
 
-    .topbar a {
-      color: #ddd;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
     }
 
-    .topbar a:hover {
-      color: var(--gold);
+    .brand-logo{
+      width:54px;
+      height:54px;
+      object-fit:contain;
+      border-radius:50%;
+      border:1px solid rgba(212,175,55,.55);
+      background:#111;
+      padding:4px;
     }
 
-    /* =========================
-       NAVIGATION
-    ========================== */
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(5,5,5,.94);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
+    .brand-text{
+      min-width:0;
     }
 
-    .nav {
-      min-height: 76px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+    .brand-name{
+      font-family:Georgia,serif;
+      font-size:21px;
+      color:var(--gold2);
+      white-space:nowrap;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      min-width: 0;
+    .brand-sub{
+      font-size:11px;
+      color:#aaa;
+      letter-spacing:2px;
+      text-transform:uppercase;
     }
 
-    .brand img {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid var(--gold);
-      background: #111;
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap:20px;
     }
 
-    .brand-name {
-      font-size: 20px;
-      font-weight: bold;
-      letter-spacing: .5px;
-      white-space: nowrap;
+    .nav-links a{
+      color:#eee;
+      font-size:14px;
+      transition:.25s;
     }
 
-    .brand-sub {
-      font-family: Arial, sans-serif;
-      color: var(--gold);
-      font-size: 11px;
-      letter-spacing: 2px;
+    .nav-links a:hover{
+      color:var(--gold2);
     }
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
+    .nav-cta{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#090909 !important;
+      padding:10px 16px;
+      border-radius:999px;
+      font-weight:bold;
     }
 
-    .nav-links a:hover {
-      color: var(--gold);
+    .mobile-menu-btn{
+      display:none;
+      width:44px;
+      height:44px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#111;
+      color:var(--gold2);
+      font-size:23px;
     }
 
-    .admin-btn {
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 8px 13px;
-      border-radius: 999px;
+    .mobile-menu{
+      display:none;
+      padding:10px 20px 20px;
+      background:#080808;
+      border-top:1px solid var(--line);
     }
 
-    .admin-btn:hover {
-      background: var(--gold);
-      color: #000 !important;
-    }
-
-    .menu-toggle {
-      display: none;
-      border: 1px solid var(--gold);
-      background: transparent;
-      color: var(--gold);
-      border-radius: 8px;
-      padding: 8px 11px;
-      cursor: pointer;
+    .mobile-menu a{
+      display:block;
+      padding:12px 4px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      color:#eee;
     }
 
     /* =========================
        HERO
     ========================== */
 
-    .hero {
-      min-height: 78vh;
-      display: flex;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
+    .hero{
+      min-height:100vh;
+      position:relative;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      padding:130px 22px 80px;
       background:
-        linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.45), rgba(0,0,0,.78)),
-        url("");
-      background-size: cover;
-      background-position: center;
+        linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.58),rgba(0,0,0,.8)),
+        radial-gradient(circle at center,#241b08,#050505 70%);
     }
 
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0;
-      height: 120px;
-      background: linear-gradient(transparent, var(--black));
+    .hero-bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      z-index:0;
+      opacity:.58;
     }
 
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 760px;
-      padding: 100px 0;
+    .hero-overlay{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 70% 40%,rgba(212,175,55,.16),transparent 35%),
+        linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.45),rgba(0,0,0,.85));
+      z-index:1;
     }
 
-    .eyebrow {
-      color: var(--gold);
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 15px;
+    .hero-content{
+      position:relative;
+      z-index:2;
+      max-width:1250px;
+      width:100%;
+      margin:auto;
     }
 
-    .hero h1 {
-      font-size: clamp(42px, 7vw, 78px);
-      line-height: 1.05;
-      margin-bottom: 22px;
+    .hero-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid rgba(212,175,55,.5);
+      background:rgba(0,0,0,.38);
+      padding:8px 14px;
+      border-radius:999px;
+      color:var(--gold2);
+      font-size:12px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      margin-bottom:22px;
     }
 
-    .hero p {
-      color: #ddd;
-      font-size: 19px;
-      max-width: 650px;
-      margin-bottom: 32px;
+    .hero h1{
+      max-width:780px;
+      font-family:Georgia,serif;
+      font-size:clamp(45px,7vw,82px);
+      line-height:1.03;
+      color:#fff;
+      margin-bottom:24px;
+      text-shadow:0 10px 40px rgba(0,0,0,.7);
     }
 
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+    .hero h1 span{
+      color:var(--gold2);
     }
 
-    .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 46px;
-      padding: 11px 20px;
-      border-radius: 999px;
-      border: 1px solid var(--gold);
-      cursor: pointer;
-      transition: .2s;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
+    .hero p{
+      max-width:650px;
+      font-size:18px;
+      color:#ddd;
+      margin-bottom:32px;
     }
 
-    .btn-gold {
-      background: linear-gradient(135deg, var(--gold-light), var(--gold));
-      color: #080808;
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
     }
 
-    .btn-gold:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(212,175,55,.22);
+    .btn{
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      min-height:48px;
+      padding:12px 22px;
+      border:none;
+      border-radius:999px;
+      font-weight:bold;
+      transition:.25s;
     }
 
-    .btn-outline {
-      background: transparent;
-      color: var(--gold);
+    .btn:hover{
+      transform:translateY(-2px);
     }
 
-    .btn-outline:hover {
-      background: var(--gold);
-      color: #000;
+    .btn-gold{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#090909;
+      box-shadow:0 10px 30px rgba(212,175,55,.2);
+    }
+
+    .btn-outline{
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(212,175,55,.6);
+      color:var(--gold2);
+    }
+
+    .btn-dark{
+      background:#111;
+      border:1px solid rgba(255,255,255,.12);
+      color:#fff;
+    }
+
+    /* =========================
+       GENERAL
+    ========================== */
+
+    section{
+      padding:85px 22px;
+    }
+
+    .container{
+      max-width:1250px;
+      margin:auto;
+    }
+
+    .section-heading{
+      text-align:center;
+      margin-bottom:45px;
+    }
+
+    .section-kicker{
+      color:var(--gold2);
+      font-size:12px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      margin-bottom:9px;
+    }
+
+    .section-heading h2{
+      font-family:Georgia,serif;
+      font-size:clamp(32px,5vw,52px);
+      margin-bottom:12px;
+    }
+
+    .section-heading p{
+      color:#aaa;
+      max-width:700px;
+      margin:auto;
     }
 
     /* =========================
        BREAKING NEWS
     ========================== */
 
-    .news-bar {
-      display: none;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: #0c0c0c;
+    .news-section{
+      padding-top:35px;
+      padding-bottom:35px;
+      background:#0b0b0b;
     }
 
-    .news-inner {
-      min-height: 52px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
+    .news-card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      overflow:hidden;
+      background:linear-gradient(135deg,#17130a,#0d0d0d);
+      box-shadow:var(--shadow);
     }
 
-    .news-label {
-      color: #000;
-      background: var(--gold);
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-weight: bold;
-      white-space: nowrap;
+    .news-media{
+      width:100%;
+      max-height:430px;
+      object-fit:cover;
     }
 
-    /* =========================
-       QUICK ACCESS
-    ========================== */
-
-    .quick {
-      margin-top: -35px;
-      position: relative;
-      z-index: 5;
+    .news-content{
+      padding:25px;
     }
 
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
+    .news-label{
+      color:var(--gold2);
+      font-size:12px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      margin-bottom:8px;
     }
 
-    .quick-card {
-      background: rgba(18,18,18,.95);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      transition: .2s;
+    .news-content h3{
+      font-family:Georgia,serif;
+      font-size:30px;
+      margin-bottom:8px;
     }
 
-    .quick-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--gold);
-    }
-
-    .quick-icon {
-      font-size: 26px;
-      margin-bottom: 7px;
-    }
-
-    .quick-card h3 {
-      font-size: 17px;
-      margin-bottom: 4px;
-    }
-
-    .quick-card p {
-      color: var(--muted);
-      font-family: Arial, sans-serif;
-      font-size: 12px;
+    .news-content p{
+      color:#ccc;
     }
 
     /* =========================
-       DISCOUNT OFFER
+       SPECIAL OFFER
     ========================== */
 
-    .discount-section {
-      padding: 75px 0 35px;
-    }
-
-    .discount-card {
-      position: relative;
-      overflow: hidden;
-      border: 1px solid var(--gold);
-      border-radius: 25px;
-      padding: 38px;
+    .offer-section{
+      display:none;
       background:
-        radial-gradient(circle at 90% 10%, rgba(212,175,55,.2), transparent 30%),
-        linear-gradient(135deg, #17120a, #090909);
-      box-shadow: 0 20px 70px rgba(212,175,55,.08);
+        radial-gradient(circle at 10% 20%,rgba(212,175,55,.15),transparent 35%),
+        #0a0a0a;
     }
 
-    .discount-card::before {
-      content: "SPECIAL OFFER";
-      position: absolute;
-      top: 18px;
-      right: -45px;
-      transform: rotate(38deg);
-      background: var(--gold);
-      color: #000;
-      padding: 7px 55px;
-      font: bold 11px Arial, sans-serif;
-      letter-spacing: 2px;
+    .offer-section.active{
+      display:block;
     }
 
-    .discount-content {
-      max-width: 760px;
+    .offer-card{
+      max-width:1000px;
+      margin:auto;
+      border:1px solid rgba(212,175,55,.45);
+      border-radius:28px;
+      padding:45px;
+      text-align:center;
+      background:
+        linear-gradient(135deg,rgba(212,175,55,.09),rgba(0,0,0,.8)),
+        #111;
+      box-shadow:0 25px 80px rgba(212,175,55,.08);
     }
 
-    .discount-badge {
-      display: inline-block;
-      color: #000;
-      background: var(--gold);
-      padding: 7px 13px;
-      border-radius: 999px;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      font-size: 12px;
-      margin-bottom: 15px;
+    .offer-icon{
+      font-size:45px;
+      margin-bottom:12px;
     }
 
-    .discount-card h2 {
-      font-size: clamp(30px, 5vw, 48px);
-      margin-bottom: 10px;
+    .offer-card h2{
+      font-family:Georgia,serif;
+      color:var(--gold2);
+      font-size:42px;
+      margin-bottom:10px;
     }
 
-    .discount-card p {
-      color: #d2d2d2;
-      margin-bottom: 22px;
-      font-size: 17px;
+    .offer-card p{
+      color:#ccc;
+      max-width:650px;
+      margin:0 auto 25px;
     }
 
-    .discount-result {
-      display: none;
-      margin-top: 18px;
-      padding: 16px;
-      border: 1px dashed var(--gold);
-      border-radius: 13px;
-      background: rgba(0,0,0,.4);
-      font-family: Arial, sans-serif;
+    .discount-code-box{
+      display:none;
+      margin:25px auto 0;
+      max-width:500px;
+      padding:20px;
+      border-radius:18px;
+      background:#080808;
+      border:1px solid var(--line);
     }
 
-    .discount-code {
-      display: inline-block;
-      color: var(--gold-light);
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 3px;
-      margin-top: 5px;
+    .discount-code{
+      font-size:28px;
+      font-weight:bold;
+      letter-spacing:4px;
+      color:var(--gold2);
+      margin:8px 0 15px;
+      word-break:break-all;
     }
 
-    /* =========================
-       SECTIONS
-    ========================== */
-
-    section {
-      scroll-margin-top: 90px;
-    }
-
-    .section {
-      padding: 75px 0;
-    }
-
-    .section-head {
-      text-align: center;
-      margin-bottom: 38px;
-    }
-
-    .section-head .eyebrow {
-      margin-bottom: 7px;
-    }
-
-    .section-head h2 {
-      font-size: clamp(31px, 5vw, 48px);
-    }
-
-    .section-head p {
-      color: var(--muted);
-      max-width: 680px;
-      margin: 10px auto 0;
-      font-family: Arial, sans-serif;
+    .small-note{
+      font-size:12px;
+      color:#888;
+      margin-top:12px;
     }
 
     /* =========================
        ABOUT
     ========================== */
 
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 35px;
-      align-items: center;
+    .about-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:55px;
+      align-items:center;
     }
 
-    .about-media {
-      min-height: 380px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: #111 center/cover no-repeat;
-      overflow: hidden;
+    .about-media{
+      border-radius:25px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background:#111;
+      box-shadow:var(--shadow);
     }
 
-    .about-text h2 {
-      font-size: 40px;
-      margin-bottom: 16px;
+    .about-media img,
+    .about-media video{
+      width:100%;
+      max-height:600px;
+      object-fit:cover;
     }
 
-    .about-text p {
-      color: #ccc;
-      font-size: 16px;
-      margin-bottom: 18px;
+    .about-copy h2{
+      font-family:Georgia,serif;
+      font-size:48px;
+      color:var(--gold2);
+      margin-bottom:18px;
+    }
+
+    .about-copy p{
+      color:#ccc;
+      white-space:pre-line;
+      font-size:16px;
     }
 
     /* =========================
        VIDEOS
     ========================== */
 
-    .video-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
+    .videos-section{
+      background:#090909;
     }
 
-    .video-card {
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      background: #111;
+    .video-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:25px;
     }
 
-    .video-card video {
-      width: 100%;
-      height: 360px;
-      display: block;
-      object-fit: cover;
-      background: #050505;
+    .video-card{
+      border:1px solid var(--line);
+      border-radius:22px;
+      overflow:hidden;
+      background:#111;
     }
 
-    .video-title {
-      padding: 15px 18px;
-      color: var(--gold);
-      font-family: Arial, sans-serif;
-      font-weight: bold;
+    .video-card video{
+      width:100%;
+      aspect-ratio:16/9;
+      object-fit:cover;
+      background:#050505;
+    }
+
+    .video-caption{
+      padding:18px 20px;
+    }
+
+    .video-caption h3{
+      font-family:Georgia,serif;
+      color:var(--gold2);
+      margin-bottom:4px;
+    }
+
+    .video-caption p{
+      color:#999;
+      font-size:13px;
     }
 
     /* =========================
        MENU
     ========================== */
 
-    .menu-section {
-      background: linear-gradient(#090909, #101010);
+    .menu-section{
+      background:
+        radial-gradient(circle at 90% 10%,rgba(212,175,55,.07),transparent 35%),
+        #0a0a0a;
     }
 
-    .category-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 9px;
-      margin-bottom: 35px;
+    .category-tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:35px;
     }
 
-    .category-btn {
-      border: 1px solid var(--border);
-      color: #ddd;
-      background: #111;
-      padding: 10px 17px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-family: Arial, sans-serif;
-      transition: .2s;
+    .category-btn{
+      border:1px solid rgba(212,175,55,.3);
+      background:#111;
+      color:#ccc;
+      border-radius:999px;
+      padding:9px 16px;
+      transition:.25s;
     }
 
-    .category-btn:hover,
-    .category-btn.active {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #000;
+    .category-btn.active,
+    .category-btn:hover{
+      background:var(--gold);
+      color:#080808;
+      border-color:var(--gold);
     }
 
-    .menu-placeholder {
-      text-align: center;
-      color: #888;
-      border: 1px dashed #333;
-      border-radius: 18px;
-      padding: 45px 20px;
-      font-family: Arial, sans-serif;
+    .menu-category{
+      margin-bottom:45px;
     }
 
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+    .menu-category-title{
+      font-family:Georgia,serif;
+      color:var(--gold2);
+      font-size:32px;
+      border-bottom:1px solid var(--line);
+      padding-bottom:12px;
+      margin-bottom:20px;
     }
 
-    .menu-card {
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: #151515;
+    .menu-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
     }
 
-    .menu-img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      background: #0b0b0b;
+    .menu-card{
+      background:#131313;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:20px;
+      overflow:hidden;
+      transition:.25s;
     }
 
-    .menu-body {
-      padding: 18px;
+    .menu-card:hover{
+      transform:translateY(-4px);
+      border-color:var(--line);
+      box-shadow:var(--shadow);
     }
 
-    .menu-body h3 {
-      color: #fff;
-      font-size: 21px;
-      margin-bottom: 6px;
+    .menu-img{
+      width:100%;
+      aspect-ratio:4/3;
+      object-fit:cover;
+      background:#0c0c0c;
     }
 
-    .menu-description {
-      color: #aaa;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      min-height: 38px;
+    .menu-body{
+      padding:18px;
     }
 
-    .menu-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-top: 15px;
+    .menu-name-row{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:flex-start;
     }
 
-    .price {
-      color: var(--gold);
-      font-weight: bold;
-      font-size: 20px;
+    .menu-name{
+      font-family:Georgia,serif;
+      font-size:21px;
+      color:#fff;
+    }
+
+    .menu-price{
+      color:var(--gold2);
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    .menu-description{
+      color:#999;
+      font-size:14px;
+      margin-top:8px;
+    }
+
+    .empty{
+      padding:30px;
+      text-align:center;
+      color:#888;
+      border:1px dashed rgba(255,255,255,.1);
+      border-radius:18px;
     }
 
     /* =========================
        GALLERY
     ========================== */
 
-    .gallery-launch {
-      min-height: 260px;
-      border: 1px solid var(--gold);
-      border-radius: 24px;
-      background:
-        linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.85)),
-        url("");
-      background-position: center;
-      background-size: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      cursor: pointer;
-      overflow: hidden;
+    .gallery-section{
+      background:#080808;
     }
 
-    .gallery-launch-content h3 {
-      font-size: 38px;
-      margin-bottom: 8px;
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
     }
 
-    .gallery-launch-content p {
-      color: #ddd;
-      font-family: Arial, sans-serif;
-      margin-bottom: 17px;
+    .gallery-item{
+      position:relative;
+      border-radius:17px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.07);
+      background:#111;
+      aspect-ratio:1/1;
     }
 
-    .gallery-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.94);
-      z-index: 3000;
-      display: none;
-      overflow-y: auto;
-      padding: 70px 20px 40px;
+    .gallery-item img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      transition:.4s;
     }
 
-    .gallery-modal.open {
-      display: block;
+    .gallery-item:hover img{
+      transform:scale(1.07);
     }
 
-    .gallery-close {
-      position: fixed;
-      top: 15px;
-      right: 18px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid var(--gold);
-      background: #111;
-      color: var(--gold);
-      font-size: 25px;
-      cursor: pointer;
-      z-index: 3001;
-    }
-
-    .gallery-grid {
-      width: min(1100px, 95%);
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-    }
-
-    .gallery-grid img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-    }
-
-    .gallery-empty {
-      text-align: center;
-      color: #999;
-      font-family: Arial, sans-serif;
+    .gallery-title{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      padding:25px 12px 12px;
+      background:linear-gradient(transparent,rgba(0,0,0,.85));
+      color:#fff;
+      font-size:13px;
     }
 
     /* =========================
-       RESERVATION
+       BOOKING
     ========================== */
 
-    .reservation-box {
-      max-width: 850px;
-      margin: auto;
-      background: #111;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 30px;
+    .booking-section{
+      background:
+        radial-gradient(circle at 50% 0,rgba(212,175,55,.08),transparent 35%),
+        #0a0a0a;
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
+    .form-card{
+      max-width:900px;
+      margin:auto;
+      background:#121212;
+      border:1px solid var(--line);
+      border-radius:25px;
+      padding:35px;
+      box-shadow:var(--shadow);
     }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
     }
 
-    .field.full {
-      grid-column: 1 / -1;
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
     }
 
-    .field label {
-      color: var(--gold);
-      font-family: Arial, sans-serif;
-      font-size: 13px;
+    .field.full{
+      grid-column:1/-1;
+    }
+
+    .field label{
+      color:#bbb;
+      font-size:13px;
     }
 
     .field input,
     .field textarea,
-    .field select {
-      width: 100%;
-      border: 1px solid #333;
-      background: #080808;
-      color: #fff;
-      border-radius: 10px;
-      padding: 12px;
-      outline: none;
-    }
-
-    .field textarea {
-      min-height: 110px;
-      resize: vertical;
+    .field select{
+      width:100%;
+      background:#080808;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:12px;
+      padding:13px 14px;
+      outline:none;
     }
 
     .field input:focus,
     .field textarea:focus,
-    .field select:focus {
-      border-color: var(--gold);
+    .field select:focus{
+      border-color:var(--gold);
     }
 
-    .form-message {
-      display: none;
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      font-family: Arial, sans-serif;
+    textarea{
+      resize:vertical;
+      min-height:120px;
     }
 
-    .success {
-      display: block;
-      background: rgba(40,160,80,.12);
-      border: 1px solid #3e9c5d;
-      color: #9be7ae;
+    .form-actions{
+      margin-top:20px;
+      display:flex;
+      justify-content:center;
     }
 
-    .error {
-      display: block;
-      background: rgba(200,50,50,.12);
-      border: 1px solid #a84646;
-      color: #ffaaaa;
+    .form-message{
+      display:none;
+      padding:12px;
+      border-radius:10px;
+      margin-top:15px;
+      text-align:center;
+      font-size:14px;
+    }
+
+    .form-message.success{
+      display:block;
+      background:rgba(76,175,80,.12);
+      color:#7ee787;
+      border:1px solid rgba(76,175,80,.3);
+    }
+
+    .form-message.error{
+      display:block;
+      background:rgba(239,83,80,.12);
+      color:#ff9d99;
+      border:1px solid rgba(239,83,80,.3);
     }
 
     /* =========================
        REVIEWS
     ========================== */
 
-    .reviews-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+    .reviews-section{
+      background:#090909;
     }
 
-    .review-card {
-      background: #121212;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px;
+    .reviews-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
     }
 
-    .stars {
-      color: var(--gold);
-      margin-bottom: 8px;
+    .review-card{
+      background:#131313;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      padding:25px;
     }
 
-    .review-message {
-      color: #ccc;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      margin-bottom: 15px;
+    .stars{
+      color:var(--gold2);
+      letter-spacing:2px;
+      margin-bottom:12px;
     }
 
-    .review-name {
-      color: #fff;
-      font-weight: bold;
+    .review-message{
+      color:#ccc;
+      margin-bottom:15px;
     }
 
-    /* =========================
-       REPORT
-    ========================== */
-
-    .report-box {
-      max-width: 850px;
-      margin: auto;
+    .review-name{
+      color:#fff;
+      font-weight:bold;
     }
 
     /* =========================
        CONTACT
     ========================== */
 
-    .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
+    .contact-section{
+      background:#080808;
     }
 
-    .contact-card {
-      background: #111;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 25px;
+    .contact-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:25px;
     }
 
-    .contact-card h3 {
-      color: var(--gold);
-      margin-bottom: 14px;
-      font-size: 22px;
+    .contact-card{
+      background:#121212;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:30px;
     }
 
-    .contact-line {
-      margin: 10px 0;
-      color: #ddd;
-      font-family: Arial, sans-serif;
+    .contact-card h3{
+      color:var(--gold2);
+      font-family:Georgia,serif;
+      font-size:28px;
+      margin-bottom:20px;
     }
 
-    .contact-line a:hover {
-      color: var(--gold);
+    .contact-item{
+      display:flex;
+      gap:12px;
+      margin:15px 0;
+      color:#ccc;
     }
 
-    .hours-row {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid #222;
-      padding: 8px 0;
-      font-family: Arial, sans-serif;
+    .contact-icon{
+      color:var(--gold2);
+      width:25px;
     }
 
-    .map-frame {
-      width: 100%;
-      min-height: 310px;
-      border: 0;
-      border-radius: 16px;
-      margin-top: 20px;
+    .social-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:20px;
     }
 
-    .socials {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 15px;
+    .social-btn{
+      border:1px solid var(--line);
+      padding:10px 15px;
+      border-radius:999px;
+      color:var(--gold2);
+      background:#090909;
     }
 
-    .social {
-      border: 1px solid var(--border);
-      padding: 9px 13px;
-      border-radius: 999px;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
+    .map-wrap{
+      border-radius:20px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      min-height:380px;
+      background:#111;
     }
 
-    .social:hover {
-      background: var(--gold);
-      color: #000;
+    .map-wrap iframe{
+      width:100%;
+      height:100%;
+      min-height:380px;
+      border:0;
+    }
+
+    /* =========================
+       HOURS
+    ========================== */
+
+    .hours-list{
+      list-style:none;
+    }
+
+    .hours-list li{
+      display:flex;
+      justify-content:space-between;
+      gap:15px;
+      padding:12px 0;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      color:#ccc;
+    }
+
+    .hours-list strong{
+      color:#fff;
+    }
+
+    /* =========================
+       REPORT
+    ========================== */
+
+    .report-section{
+      background:#0a0a0a;
     }
 
     /* =========================
        FOOTER
     ========================== */
 
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 35px 0;
-      background: #000;
-      text-align: center;
-      color: #888;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
+    footer{
+      background:#050505;
+      border-top:1px solid var(--line);
+      padding:45px 22px 25px;
     }
 
-    .footer-brand {
-      color: var(--gold);
-      font-family: Georgia, serif;
-      font-size: 22px;
-      margin-bottom: 5px;
+    .footer-grid{
+      max-width:1250px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:1.3fr 1fr 1fr;
+      gap:35px;
+    }
+
+    footer h3{
+      font-family:Georgia,serif;
+      color:var(--gold2);
+      margin-bottom:12px;
+    }
+
+    footer p,
+    footer a{
+      color:#999;
+      font-size:14px;
+    }
+
+    footer a:hover{
+      color:var(--gold2);
+    }
+
+    .footer-bottom{
+      max-width:1250px;
+      margin:30px auto 0;
+      padding-top:20px;
+      border-top:1px solid rgba(255,255,255,.07);
+      text-align:center;
+      color:#666;
+      font-size:12px;
     }
 
     /* =========================
-       IMAGE VIEWER
+       TOAST
     ========================== */
 
-    .image-viewer {
-      position: fixed;
-      inset: 0;
-      z-index: 5000;
-      background: rgba(0,0,0,.96);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 25px;
+    #toast{
+      position:fixed;
+      left:50%;
+      bottom:25px;
+      transform:translateX(-50%) translateY(100px);
+      z-index:3000;
+      padding:13px 18px;
+      border-radius:999px;
+      background:#151515;
+      color:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      transition:.3s;
+      opacity:0;
+      pointer-events:none;
+      max-width:90%;
+      text-align:center;
     }
 
-    .image-viewer.open {
-      display: flex;
+    #toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
     }
 
-    .image-viewer img {
-      max-width: 95vw;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 12px;
-    }
+    /* =========================
+       ADMIN FLOAT BUTTON
+    ========================== */
 
-    .image-viewer-close {
-      position: absolute;
-      top: 15px;
-      right: 18px;
-      color: var(--gold);
-      background: #111;
-      border: 1px solid var(--gold);
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      cursor: pointer;
-      font-size: 24px;
+    .admin-float{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:1500;
+      width:50px;
+      height:50px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#111;
+      border:1px solid var(--line);
+      color:var(--gold2);
+      box-shadow:0 10px 30px rgba(0,0,0,.45);
+      font-size:20px;
     }
 
     /* =========================
        RESPONSIVE
     ========================== */
 
-    @media (max-width: 900px) {
-      .quick-grid {
-        grid-template-columns: repeat(2, 1fr);
+    @media(max-width:1000px){
+      .nav-links{
+        display:none;
       }
 
-      .menu-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .mobile-menu-btn{
+        display:block;
       }
 
-      .reviews-grid {
-        grid-template-columns: 1fr 1fr;
+      .mobile-menu.open{
+        display:block;
       }
 
       .about-grid,
-      .contact-grid,
-      .video-grid {
-        grid-template-columns: 1fr;
+      .contact-grid{
+        grid-template-columns:1fr;
       }
 
-      .gallery-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media (max-width: 700px) {
-      .topbar-inner {
-        justify-content: center;
-        text-align: center;
+      .menu-grid{
+        grid-template-columns:repeat(2,1fr);
       }
 
-      .nav {
-        min-height: 68px;
+      .gallery-grid{
+        grid-template-columns:repeat(3,1fr);
       }
 
-      .brand img {
-        width: 46px;
-        height: 46px;
+      .reviews-grid{
+        grid-template-columns:1fr 1fr;
       }
 
-      .brand-name {
-        font-size: 17px;
-      }
-
-      .brand-sub {
-        font-size: 9px;
-      }
-
-      .menu-toggle {
-        display: block;
-      }
-
-      .nav-links {
-        display: none;
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 68px;
-        background: #080808;
-        border-bottom: 1px solid var(--border);
-        padding: 15px;
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .nav-links.open {
-        display: flex;
-      }
-
-      .nav-links a {
-        padding: 10px;
-      }
-
-      .hero {
-        min-height: 76vh;
-      }
-
-      .hero-content {
-        padding: 70px 0;
-      }
-
-      .hero h1 {
-        font-size: 43px;
-      }
-
-      .hero p {
-        font-size: 16px;
-      }
-
-      .quick-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .discount-card {
-        padding: 27px 20px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .field.full {
-        grid-column: auto;
-      }
-
-      .menu-grid,
-      .reviews-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .gallery-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .gallery-grid img {
-        height: 230px;
-      }
-
-      .section {
-        padding: 55px 0;
+      .footer-grid{
+        grid-template-columns:1fr 1fr;
       }
     }
 
-    @media (max-width: 430px) {
-      .quick-grid {
-        grid-template-columns: 1fr;
+    @media(max-width:700px){
+      section{
+        padding:65px 16px;
       }
 
-      .hero-actions {
-        flex-direction: column;
+      .nav{
+        padding:9px 15px;
       }
 
-      .hero-actions .btn {
-        width: 100%;
+      .brand-logo{
+        width:46px;
+        height:46px;
+      }
+
+      .brand-name{
+        font-size:17px;
+      }
+
+      .brand-sub{
+        font-size:8px;
+      }
+
+      .hero{
+        padding:120px 16px 70px;
+        min-height:90vh;
+      }
+
+      .hero h1{
+        font-size:45px;
+      }
+
+      .hero p{
+        font-size:16px;
+      }
+
+      .hero-actions{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .btn{
+        width:100%;
+      }
+
+      .offer-card{
+        padding:28px 18px;
+      }
+
+      .offer-card h2{
+        font-size:32px;
+      }
+
+      .about-copy h2{
+        font-size:37px;
+      }
+
+      .video-grid{
+        grid-template-columns:1fr;
+      }
+
+      .menu-grid{
+        grid-template-columns:1fr;
+      }
+
+      .gallery-grid{
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+      }
+
+      .reviews-grid{
+        grid-template-columns:1fr;
+      }
+
+      .form-card{
+        padding:22px 16px;
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .field.full{
+        grid-column:auto;
+      }
+
+      .contact-grid{
+        grid-template-columns:1fr;
+      }
+
+      .footer-grid{
+        grid-template-columns:1fr;
+      }
+
+      .map-wrap,
+      .map-wrap iframe{
+        min-height:300px;
       }
     }
   </style>
@@ -1103,65 +1150,42 @@
 <body>
 
   <!-- =========================
-       TOP BAR
-  ========================== -->
-
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <div>
-        📍 <span id="topAddress">Via Vespasiano 73/75/77 Roma</span>
-      </div>
-
-      <div>
-        💬
-        <a id="topWhatsapp" href="tel:+393337687319">
-          WhatsApp +39 333 7687319
-        </a>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- =========================
-       NAVIGATION
+       HEADER
   ========================== -->
 
   <header>
-    <div class="container nav">
+    <div class="nav">
 
       <a href="#home" class="brand">
-        <img
-          id="logoImage"
-          src=""
-          alt="Nababi Ristorante Logo"
-        />
-
-        <div>
+        <img id="navLogo" class="brand-logo" src="" alt="Nababi Ristorante Logo">
+        <div class="brand-text">
           <div class="brand-name">Nababi Ristorante</div>
-          <div class="brand-sub">AUTHENTIC INDIAN CUISINE</div>
+          <div class="brand-sub">Indian Restaurant · Roma</div>
         </div>
       </a>
 
-      <button class="menu-toggle" id="menuToggle">
-        ☰
-      </button>
-
-      <nav class="nav-links" id="navLinks">
-        <a href="#home">Home</a>
+      <nav class="nav-links">
         <a href="#about">About</a>
         <a href="#menu">Menu</a>
         <a href="#gallery">Gallery</a>
-        <a href="#reservation">Reservation</a>
+        <a href="#booking">Reservation</a>
+        <a href="#reviews">Reviews</a>
         <a href="#contact">Contact</a>
-
-        <a
-          class="admin-btn"
-          href="admin.html"
-        >
-          Admin Login
-        </a>
+        <a href="admin.html" class="nav-cta">Admin Login</a>
       </nav>
 
+      <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#about">About</a>
+      <a href="#menu">Menu</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#booking">Reservation</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#report">Customer Report</a>
+      <a href="#contact">Contact</a>
+      <a href="admin.html">🔐 Admin Login</a>
     </div>
   </header>
 
@@ -1174,14 +1198,21 @@
 
     <section class="hero" id="home">
 
-      <div class="container hero-content">
+      <img id="heroImage"
+           class="hero-bg"
+           src=""
+           alt="Nababi Ristorante">
 
-        <div class="eyebrow">
-          Nababi Ristorante · Roma
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+
+        <div class="hero-badge">
+          ✦ Authentic Indian Cuisine · Roma
         </div>
 
         <h1 id="heroTitle">
-          Taste the Royal Flavours of India
+          Taste the <span>Royal Flavours</span> of India
         </h1>
 
         <p id="heroText">
@@ -1189,20 +1220,46 @@
         </p>
 
         <div class="hero-actions">
+          <a href="#booking" class="btn btn-gold">
+            📅 Reserve Your Table
+          </a>
 
-          <a
-            href="#menu"
-            class="btn btn-gold"
-          >
+          <a href="#menu" class="btn btn-outline">
             🍽️ Explore Our Menu
           </a>
+        </div>
 
-          <a
-            href="#reservation"
-            class="btn btn-outline"
-          >
-            📅 Book a Table
-          </a>
+      </div>
+    </section>
+
+
+    <!-- =========================
+         BREAKING NEWS
+    ========================== -->
+
+    <section class="news-section" id="breakingNewsSection" style="display:none;">
+
+      <div class="container">
+
+        <div class="news-card">
+
+          <img id="breakingNewsImage"
+               class="news-media"
+               src=""
+               alt="Nababi Ristorante News"
+               style="display:none;">
+
+          <video id="breakingNewsVideo"
+                 class="news-media"
+                 controls
+                 playsinline
+                 style="display:none;"></video>
+
+          <div class="news-content">
+            <div class="news-label">✦ Breaking News</div>
+            <h3>Special Announcement</h3>
+            <p id="breakingNewsText"></p>
+          </div>
 
         </div>
 
@@ -1212,131 +1269,49 @@
 
 
     <!-- =========================
-         BREAKING NEWS
+         SPECIAL OFFER
     ========================== -->
 
-    <div class="news-bar" id="newsBar">
-
-      <div class="container news-inner">
-
-        <span class="news-label">
-          NEWS
-        </span>
-
-        <span id="newsText"></span>
-
-      </div>
-
-    </div>
-
-
-    <!-- =========================
-         QUICK ACCESS
-    ========================== -->
-
-    <section class="quick">
-
-      <div class="container quick-grid">
-
-        <a
-          href="#menu"
-          class="quick-card"
-        >
-          <div class="quick-icon">🍛</div>
-          <h3>Our Menu</h3>
-          <p>Discover our dishes</p>
-        </a>
-
-        <a
-          href="#gallery"
-          class="quick-card"
-        >
-          <div class="quick-icon">📸</div>
-          <h3>Gallery</h3>
-          <p>View restaurant photos</p>
-        </a>
-
-        <a
-          href="#reservation"
-          class="quick-card"
-        >
-          <div class="quick-icon">📅</div>
-          <h3>Reservation</h3>
-          <p>Book your table</p>
-        </a>
-
-        <a
-          href="#contact"
-          class="quick-card"
-        >
-          <div class="quick-icon">📍</div>
-          <h3>Find Us</h3>
-          <p>Via Vespasiano, Roma</p>
-        </a>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         DISCOUNT OFFER
-    ========================== -->
-
-    <section
-      class="discount-section"
-      id="specialOffer"
-    >
+    <section class="offer-section" id="offerSection">
 
       <div class="container">
 
-        <div class="discount-card">
+        <div class="offer-card">
 
-          <div class="discount-content">
+          <div class="offer-icon">🎁</div>
 
-            <span class="discount-badge">
-              🎁 SPECIAL OFFER
-            </span>
+          <div class="section-kicker">Exclusive Restaurant Offer</div>
 
-            <h2 id="discountTitle">
-              Exclusive Offer
-            </h2>
+          <h2 id="offerTitle">
+            Special Offer
+          </h2>
 
-            <p id="discountText">
-              Enjoy a special offer from Nababi Ristorante.
-            </p>
+          <p id="offerText">
+            Enjoy an exclusive offer from Nababi Ristorante.
+          </p>
 
-            <div
-              id="discountActionArea"
-            >
+          <button class="btn btn-gold"
+                  id="getDiscountBtn">
+            🎟️ Get My Discount Code
+          </button>
 
-              <button
-                id="getDiscountBtn"
-                class="btn btn-gold"
-              >
-                🎟️ Get My Discount Code
-              </button>
+          <div class="discount-code-box" id="discountCodeBox">
 
+            <div style="color:#aaa;font-size:13px;">
+              Your Discount Code
             </div>
 
-            <div
-              id="discountResult"
-              class="discount-result"
-            >
-              <div>
-                Your discount code:
-              </div>
+            <div class="discount-code" id="discountCode">
+              —
+            </div>
 
-              <div
-                id="discountCode"
-                class="discount-code"
-              ></div>
+            <button class="btn btn-outline"
+                    id="copyDiscountBtn">
+              📋 Copy Code
+            </button>
 
-              <div
-                style="margin-top:7px;color:#aaa;font-size:12px;"
-              >
-                Show this code to our staff when you visit the restaurant.
-              </div>
+            <div class="small-note">
+              Show this code to our restaurant staff when ordering.
             </div>
 
           </div>
@@ -1352,39 +1327,39 @@
          ABOUT
     ========================== -->
 
-    <section
-      class="section"
-      id="about"
-    >
+    <section id="about">
 
-      <div class="container about-grid">
+      <div class="container">
 
-        <div
-          class="about-media"
-          id="aboutMedia"
-        ></div>
+        <div class="about-grid">
 
-        <div class="about-text">
-
-          <div class="eyebrow">
-            OUR STORY
+          <div class="about-media">
+            <img id="aboutImage"
+                 src=""
+                 alt="About Nababi Ristorante">
           </div>
 
-          <h2 id="aboutTitle">
-            About Nababi Ristorante
-          </h2>
+          <div class="about-copy">
 
-          <p id="aboutText">
-            Discover authentic Indian flavours, rich aromas and traditional
-            recipes in the heart of Roma.
-          </p>
+            <div class="section-kicker">
+              Our Story
+            </div>
 
-          <a
-            href="#reservation"
-            class="btn btn-gold"
-          >
-            Reserve Your Table
-          </a>
+            <h2 id="aboutTitle">
+              About Nababi Ristorante
+            </h2>
+
+            <p id="aboutText">
+              Discover authentic Indian flavours in the heart of Roma.
+            </p>
+
+            <div style="margin-top:25px;">
+              <a href="#booking" class="btn btn-gold">
+                Reserve a Table
+              </a>
+            </div>
+
+          </div>
 
         </div>
 
@@ -1394,52 +1369,44 @@
 
 
     <!-- =========================
-         VIDEOS
+         TWO VIDEO SECTIONS
     ========================== -->
 
-    <section class="section">
+    <section class="videos-section" id="videos">
 
       <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            EXPERIENCE NABABI
-          </div>
-
-          <h2>Our Restaurant</h2>
-
+        <div class="section-heading">
+          <div class="section-kicker">Experience Nababi</div>
+          <h2>Discover Our Restaurant</h2>
           <p>
-            Experience the atmosphere and flavours of Nababi Ristorante.
+            A glimpse of the atmosphere, flavours and experience at Nababi Ristorante.
           </p>
-
         </div>
 
         <div class="video-grid">
 
-          <div class="video-card">
-            <video
-              id="video1"
-              controls
-              playsinline
-              preload="metadata"
-            ></video>
+          <div class="video-card" id="videoCard1" style="display:none;">
+            <video id="video1"
+                   controls
+                   playsinline
+                   preload="metadata"></video>
 
-            <div class="video-title">
-              Nababi Experience
+            <div class="video-caption">
+              <h3>Our Restaurant</h3>
+              <p>Experience the atmosphere of Nababi Ristorante.</p>
             </div>
           </div>
 
-          <div class="video-card">
-            <video
-              id="video2"
-              controls
-              playsinline
-              preload="metadata"
-            ></video>
+          <div class="video-card" id="videoCard2" style="display:none;">
+            <video id="video2"
+                   controls
+                   playsinline
+                   preload="metadata"></video>
 
-            <div class="video-title">
-              Taste the Royal Flavours
+            <div class="video-caption">
+              <h3>Our Culinary Experience</h3>
+              <p>Discover the flavours behind our kitchen.</p>
             </div>
           </div>
 
@@ -1454,44 +1421,25 @@
          MENU
     ========================== -->
 
-    <section
-      class="section menu-section"
-      id="menu"
-    >
+    <section class="menu-section" id="menu">
 
       <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            OUR MENU
-          </div>
-
-          <h2>Discover Our Cuisine</h2>
-
+        <div class="section-heading">
+          <div class="section-kicker">From Our Kitchen</div>
+          <h2>Our Menu</h2>
           <p>
-            Choose a category to explore our dishes.
+            Explore our selection of authentic Indian dishes.
           </p>
-
         </div>
 
-        <div
-          id="categoryButtons"
-          class="category-buttons"
-        ></div>
+        <div class="category-tabs" id="categoryTabs"></div>
 
-        <div
-          id="menuPlaceholder"
-          class="menu-placeholder"
-        >
-          Select a category above to view the dishes.
+        <div id="menuContainer">
+          <div class="empty">
+            Loading our menu...
+          </div>
         </div>
-
-        <div
-          id="menuGrid"
-          class="menu-grid"
-          style="display:none;"
-        ></div>
 
       </div>
 
@@ -1502,53 +1450,22 @@
          GALLERY
     ========================== -->
 
-    <section
-      class="section"
-      id="gallery"
-    >
+    <section class="gallery-section" id="gallery">
 
       <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            GALLERY
-          </div>
-
-          <h2>Discover Nababi</h2>
-
+        <div class="section-heading">
+          <div class="section-kicker">Inside Nababi</div>
+          <h2>Gallery</h2>
           <p>
-            Explore our restaurant, dishes and special moments.
+            Explore the atmosphere and moments of Nababi Ristorante.
           </p>
-
         </div>
 
-        <div
-          class="gallery-launch"
-          id="galleryLaunch"
-        >
-
-          <div class="gallery-launch-content">
-
-            <div style="font-size:48px;margin-bottom:8px;">
-              📸
-            </div>
-
-            <h3>View Our Gallery</h3>
-
-            <p>
-              See all our latest restaurant photos.
-            </p>
-
-            <button
-              class="btn btn-gold"
-              type="button"
-            >
-              Open Gallery
-            </button>
-
+        <div class="gallery-grid" id="galleryContainer">
+          <div class="empty">
+            Loading gallery...
           </div>
-
         </div>
 
       </div>
@@ -1557,120 +1474,106 @@
 
 
     <!-- =========================
-         RESERVATION
+         BOOKING
     ========================== -->
 
-    <section
-      class="section"
-      id="reservation"
-    >
+    <section class="booking-section" id="booking">
 
       <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            RESERVATION
-          </div>
-
-          <h2>Book Your Table</h2>
-
+        <div class="section-heading">
+          <div class="section-kicker">Your Table Awaits</div>
+          <h2>Reserve Your Table</h2>
           <p>
-            Reserve your table at Nababi Ristorante.
+            Complete the form and our team will take care of your reservation.
           </p>
-
         </div>
 
-        <div class="reservation-box">
+        <div class="form-card">
 
           <form id="bookingForm">
 
             <div class="form-grid">
 
               <div class="field">
-                <label>Full Name *</label>
-                <input
-                  id="bookingName"
-                  required
-                  type="text"
-                  placeholder="Your name"
-                />
+                <label>Your Name *</label>
+                <input id="bookingName"
+                       type="text"
+                       required
+                       placeholder="Full name">
               </div>
 
               <div class="field">
                 <label>Phone</label>
-                <input
-                  id="bookingPhone"
-                  type="tel"
-                  placeholder="+39..."
-                />
+                <input id="bookingPhone"
+                       type="tel"
+                       placeholder="+39 ...">
               </div>
 
               <div class="field">
                 <label>Email</label>
-                <input
-                  id="bookingEmail"
-                  type="email"
-                  placeholder="Email"
-                />
+                <input id="bookingEmail"
+                       type="email"
+                       placeholder="Your email">
               </div>
 
               <div class="field">
                 <label>Guests *</label>
-                <select id="bookingGuests">
-                  <option value="1">1</option>
-                  <option value="2" selected>2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10+</option>
+                <select id="bookingGuests" required>
+                  <option value="1">1 Guest</option>
+                  <option value="2" selected>2 Guests</option>
+                  <option value="3">3 Guests</option>
+                  <option value="4">4 Guests</option>
+                  <option value="5">5 Guests</option>
+                  <option value="6">6 Guests</option>
+                  <option value="7">7 Guests</option>
+                  <option value="8">8 Guests</option>
+                  <option value="9">9 Guests</option>
+                  <option value="10">10 Guests</option>
+                  <option value="11">11 Guests</option>
+                  <option value="12">12 Guests</option>
+                  <option value="13">13 Guests</option>
+                  <option value="14">14 Guests</option>
+                  <option value="15">15 Guests</option>
+                  <option value="16">16 Guests</option>
+                  <option value="17">17 Guests</option>
+                  <option value="18">18 Guests</option>
+                  <option value="19">19 Guests</option>
+                  <option value="20">20 Guests</option>
                 </select>
               </div>
 
               <div class="field">
                 <label>Date *</label>
-                <input
-                  id="bookingDate"
-                  required
-                  type="date"
-                />
+                <input id="bookingDate"
+                       type="date"
+                       required>
               </div>
 
               <div class="field">
                 <label>Time *</label>
-                <input
-                  id="bookingTime"
-                  required
-                  type="time"
-                />
+                <input id="bookingTime"
+                       type="time"
+                       required>
               </div>
 
               <div class="field full">
                 <label>Special Request</label>
-                <textarea
-                  id="bookingRequest"
-                  placeholder="Any special request?"
-                ></textarea>
+                <textarea id="bookingRequest"
+                          placeholder="Birthday, special occasion, dietary request, etc."></textarea>
               </div>
 
             </div>
 
-            <button
-              class="btn btn-gold"
-              type="submit"
-              style="margin-top:20px;"
-            >
-              📅 Send Reservation
-            </button>
+            <div class="form-actions">
+              <button type="submit"
+                      class="btn btn-gold">
+                📅 Send Reservation Request
+              </button>
+            </div>
 
-            <div
-              id="bookingMessage"
-              class="form-message"
-            ></div>
+            <div id="bookingMessage"
+                 class="form-message"></div>
 
           </form>
 
@@ -1685,24 +1588,78 @@
          REVIEWS
     ========================== -->
 
-    <section class="section">
+    <section class="reviews-section" id="reviews">
 
       <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            GUEST REVIEWS
-          </div>
-
-          <h2>What Our Guests Say</h2>
-
+        <div class="section-heading">
+          <div class="section-kicker">Guest Experiences</div>
+          <h2>Customer Reviews</h2>
+          <p>
+            What our guests say about their Nababi experience.
+          </p>
         </div>
 
-        <div
-          id="reviewsGrid"
-          class="reviews-grid"
-        ></div>
+        <div class="reviews-grid" id="reviewsContainer">
+          <div class="empty">
+            Loading reviews...
+          </div>
+        </div>
+
+        <div style="margin-top:35px;">
+
+          <div class="form-card">
+
+            <h3 style="font-family:Georgia,serif;color:var(--gold2);margin-bottom:20px;text-align:center;">
+              Share Your Experience
+            </h3>
+
+            <form id="reviewForm">
+
+              <div class="form-grid">
+
+                <div class="field">
+                  <label>Your Name *</label>
+                  <input id="reviewName"
+                         type="text"
+                         required
+                         placeholder="Your name">
+                </div>
+
+                <div class="field">
+                  <label>Your Rating *</label>
+                  <select id="reviewRating" required>
+                    <option value="5">★★★★★ 5</option>
+                    <option value="4">★★★★☆ 4</option>
+                    <option value="3">★★★☆☆ 3</option>
+                    <option value="2">★★☆☆☆ 2</option>
+                    <option value="1">★☆☆☆☆ 1</option>
+                  </select>
+                </div>
+
+                <div class="field full">
+                  <label>Your Review *</label>
+                  <textarea id="reviewMessage"
+                            required
+                            placeholder="Tell us about your experience..."></textarea>
+                </div>
+
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-gold" type="submit">
+                  ⭐ Submit Review
+                </button>
+              </div>
+
+              <div id="reviewFormMessage"
+                   class="form-message"></div>
+
+            </form>
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -1713,84 +1670,69 @@
          CUSTOMER REPORT
     ========================== -->
 
-    <section class="section">
+    <section class="report-section" id="report">
 
-      <div class="container report-box">
+      <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            CONTACT US
-          </div>
-
+        <div class="section-heading">
+          <div class="section-kicker">Customer Care</div>
           <h2>Customer Report</h2>
-
           <p>
-            Have a question, suggestion or problem? Contact our team.
+            Have a question, suggestion or problem? Contact our team directly.
           </p>
-
         </div>
 
-        <div class="reservation-box">
+        <div class="form-card">
 
           <form id="reportForm">
 
             <div class="form-grid">
 
               <div class="field">
-                <label>Name</label>
-                <input
-                  id="reportName"
-                  type="text"
-                />
+                <label>Your Name</label>
+                <input id="reportName"
+                       type="text"
+                       placeholder="Your name">
               </div>
 
               <div class="field">
                 <label>Phone</label>
-                <input
-                  id="reportPhone"
-                  type="tel"
-                />
+                <input id="reportPhone"
+                       type="tel"
+                       placeholder="+39 ...">
               </div>
 
               <div class="field">
                 <label>Email</label>
-                <input
-                  id="reportEmail"
-                  type="email"
-                />
+                <input id="reportEmail"
+                       type="email"
+                       placeholder="Your email">
               </div>
 
               <div class="field">
                 <label>Subject</label>
-                <input
-                  id="reportSubject"
-                  type="text"
-                />
+                <input id="reportSubject"
+                       type="text"
+                       placeholder="Subject">
               </div>
 
               <div class="field full">
                 <label>Message *</label>
-                <textarea
-                  id="reportMessage"
-                  required
-                ></textarea>
+                <textarea id="reportMessage"
+                          required
+                          placeholder="Write your message..."></textarea>
               </div>
 
             </div>
 
-            <button
-              class="btn btn-gold"
-              type="submit"
-              style="margin-top:20px;"
-            >
-              Send Message
-            </button>
+            <div class="form-actions">
+              <button class="btn btn-gold" type="submit">
+                📝 Send Report
+              </button>
+            </div>
 
-            <div
-              id="reportMessageBox"
-              class="form-message"
-            ></div>
+            <div id="reportFormMessage"
+                 class="form-message"></div>
 
           </form>
 
@@ -1805,138 +1747,72 @@
          CONTACT
     ========================== -->
 
-    <section
-      class="section"
-      id="contact"
-    >
+    <section class="contact-section" id="contact">
 
       <div class="container">
 
-        <div class="section-head">
-
-          <div class="eyebrow">
-            CONTACT
-          </div>
-
-          <h2>Visit Nababi Ristorante</h2>
-
+        <div class="section-heading">
+          <div class="section-kicker">Come Visit Us</div>
+          <h2>Contact Nababi</h2>
+          <p>
+            We look forward to welcoming you.
+          </p>
         </div>
 
         <div class="contact-grid">
 
           <div class="contact-card">
 
-            <h3>Contact Information</h3>
+            <h3>Contact & Opening Hours</h3>
 
-            <div class="contact-line">
-              📍
-              <span id="contactAddress">
+            <div class="contact-item">
+              <div class="contact-icon">📍</div>
+              <div id="contactAddress">
                 Via Vespasiano 73/75/77 Roma
-              </span>
+              </div>
             </div>
 
-            <div class="contact-line">
-              📞
-              <a
-                id="phone1"
-                href="tel:+393337687319"
-              >
-                +39 333 7687319
-              </a>
+            <div class="contact-item">
+              <div class="contact-icon">📞</div>
+              <div>
+                <a id="phone1Link" href="tel:+393337687319">
+                  +39 333 7687319
+                </a>
+                <br>
+                <a id="phone2Link" href="tel:+393933805350">
+                  +39 393 3805350
+                </a>
+              </div>
             </div>
 
-            <div class="contact-line">
-              📞
-              <a
-                id="phone2"
-                href="tel:+393933805350"
-              >
-                +39 393 3805350
-              </a>
+            <div class="contact-item">
+              <div class="contact-icon">💬</div>
+              <div>
+                <a id="whatsappLink"
+                   href="https://wa.me/393337687319"
+                   target="_blank">
+                  WhatsApp +39 333 7687319
+                </a>
+              </div>
             </div>
 
-            <div class="contact-line">
-              💬
-              <a
-                id="whatsappLink"
-                href="tel:+393337687319"
-              >
-                WhatsApp +39 333 7687319
-              </a>
-            </div>
+            <h3 style="font-size:24px;margin-top:30px;">
+              Opening Hours
+            </h3>
 
-            <div class="socials">
+            <ul class="hours-list" id="hoursList"></ul>
 
-              <a
-                id="facebookLink"
-                class="social"
-                href="#"
-                target="_blank"
-                rel="noopener"
-              >
-                Facebook
-              </a>
-
-              <a
-                id="instagramLink"
-                class="social"
-                href="#"
-                target="_blank"
-                rel="noopener"
-                style="display:none;"
-              >
-                Instagram
-              </a>
-
-              <a
-                id="tiktokLink"
-                class="social"
-                href="#"
-                target="_blank"
-                rel="noopener"
-              >
-                TikTok
-              </a>
-
-            </div>
+            <div class="social-links" id="socialLinks"></div>
 
           </div>
 
-
-          <div class="contact-card">
-
-            <h3>Opening Hours</h3>
-
-            <div id="hoursList"></div>
-
-          </div>
-
-        </div>
-
-        <div class="contact-card" style="margin-top:22px;">
-
-          <h3>Find Us on the Map</h3>
-
-          <iframe
-            id="mapFrame"
-            class="map-frame"
-            src=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          ></iframe>
-
-          <div style="margin-top:15px;">
-
-            <a
-              id="mapLink"
-              href="#"
-              target="_blank"
-              rel="noopener"
-              class="btn btn-outline"
-            >
-              📍 Open Google Maps
-            </a>
-
+          <div class="map-wrap">
+            <iframe
+              id="mapFrame"
+              src=""
+              loading="lazy"
+              allowfullscreen>
+            </iframe>
           </div>
 
         </div>
@@ -1954,68 +1830,68 @@
 
   <footer>
 
-    <div class="footer-brand">
-      Nababi Ristorante
+    <div class="footer-grid">
+
+      <div>
+        <h3>Nababi Ristorante</h3>
+        <p>
+          Authentic Indian cuisine in the heart of Roma.
+          Experience royal flavours, warm hospitality and unforgettable moments.
+        </p>
+
+        <div style="margin-top:15px;">
+          <a href="#booking" class="btn btn-gold">
+            Reserve Your Table
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h3>Quick Links</h3>
+        <p><a href="#home">Home</a></p>
+        <p><a href="#about">About Us</a></p>
+        <p><a href="#menu">Our Menu</a></p>
+        <p><a href="#gallery">Gallery</a></p>
+        <p><a href="#booking">Reservation</a></p>
+        <p><a href="#reviews">Reviews</a></p>
+      </div>
+
+      <div>
+        <h3>Contact</h3>
+        <p id="footerAddress">
+          Via Vespasiano 73/75/77 Roma
+        </p>
+        <p>
+          <a href="tel:+393337687319">
+            +39 333 7687319
+          </a>
+        </p>
+        <p>
+          <a href="tel:+393933805350">
+            +39 393 3805350
+          </a>
+        </p>
+      </div>
+
     </div>
 
-    <div>
-      Authentic Indian Cuisine · Roma
-    </div>
-
-    <div style="margin-top:8px;">
-      © <span id="year"></span> Nababi Ristorante. All rights reserved.
+    <div class="footer-bottom">
+      © <span id="year"></span> Nababi Ristorante · Roma · All Rights Reserved
     </div>
 
   </footer>
 
 
-  <!-- =========================
-       GALLERY MODAL
-  ========================== -->
+  <!-- ADMIN BUTTON -->
 
-  <div
-    id="galleryModal"
-    class="gallery-modal"
-  >
-
-    <button
-      id="galleryClose"
-      class="gallery-close"
-    >
-      ×
-    </button>
-
-    <div
-      id="galleryGrid"
-      class="gallery-grid"
-    ></div>
-
-  </div>
+  <a href="admin.html"
+     class="admin-float"
+     title="Admin Login">
+    🔐
+  </a>
 
 
-  <!-- =========================
-       IMAGE VIEWER
-  ========================== -->
-
-  <div
-    id="imageViewer"
-    class="image-viewer"
-  >
-
-    <button
-      id="imageViewerClose"
-      class="image-viewer-close"
-    >
-      ×
-    </button>
-
-    <img
-      id="viewerImage"
-      src=""
-      alt=""
-    />
-
-  </div>
+  <div id="toast"></div>
 
 
   <!-- =========================
@@ -2024,1931 +1900,1517 @@
 
   <script>
 
-    /* --------------------------------
+    /* =========================
        SUPABASE
-    --------------------------------- */
-
-    let supabaseClient = null;
-
-    function getConfigValue(names) {
-
-      for (const name of names) {
-
-        if (
-          window[name] &&
-          typeof window[name] === "string"
-        ) {
-          return window[name];
-        }
-
-        if (
-          window.CONFIG &&
-          typeof window.CONFIG[name] === "string"
-        ) {
-          return window.CONFIG[name];
-        }
-      }
-
-      return "";
-    }
+    ========================== */
 
     const SUPABASE_URL =
-      getConfigValue([
-        "SUPABASE_URL",
-        "supabaseUrl",
-        "PROJECT_URL"
-      ]);
+      "https://rzvaaxjtkvriekokeolo.supabase.co";
 
     const SUPABASE_KEY =
-      getConfigValue([
-        "SUPABASE_ANON_KEY",
-        "SUPABASE_PUBLISHABLE_KEY",
-        "supabaseKey",
-        "SUPABASE_KEY",
-        "PUBLISHABLE_KEY"
-      ]);
+      "sb_publishable_oUsceufZXoIDmjCDbZFGPA_69eFwU97";
 
-    if (
-      SUPABASE_URL &&
-      SUPABASE_KEY &&
-      window.supabase
-    ) {
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
-      supabaseClient =
-        window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
 
+    /* =========================
+       DEFAULTS
+    ========================== */
+
+    const DEFAULT_HERO_IMAGE =
+      "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1800&q=85";
+
+    const DEFAULT_ABOUT_IMAGE =
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=85";
+
+
+    let siteSettings = {};
+    let allMenuItems = [];
+    let activeCategory = "ALL";
+
+
+    /* =========================
+       HELPERS
+    ========================== */
+
+    function $(id){
+      return document.getElementById(id);
     }
 
+    function showToast(message){
+      const toast = $("toast");
 
-    /* --------------------------------
-       FALLBACK SETTINGS
-    --------------------------------- */
+      toast.textContent = message;
+      toast.classList.add("show");
 
-    const FALLBACK = {
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
 
-      hero: {
-        title:
-          "Taste the Royal Flavours of India",
-        text:
-          "Authentic Indian cuisine in the heart of Roma.",
-        image_url: ""
-      },
+    function escapeHTML(value){
+      return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
 
-      about: {
-        title:
-          "About Nababi Ristorante",
-        text:
-          "Discover authentic Indian flavours, rich aromas and traditional recipes in the heart of Roma.",
-        image_url: ""
-      },
+    function normalizeSetting(value){
 
-      logo: {
-        url: ""
-      },
-
-      contact: {
-        address:
-          "Via Vespasiano 73/75/77 Roma",
-        phone1:
-          "+39 333 7687319",
-        phone2:
-          "+39 393 3805350",
-        whatsapp:
-          "+39 333 7687319",
-        maps_url:
-          "https://www.google.com/maps/search/?api=1&query=Via+Vespasiano+73%2F75%2F77+Roma"
-      },
-
-      social: {
-        facebook:
-          "https://www.facebook.com/share/19eKdKRhLL/?mibextid=wwXIfr",
-        instagram: "",
-        tiktok:
-          "https://www.tiktok.com/@nababiristorante?_r=1&_t=ZN-99vWPjx4TMB"
-      },
-
-      hours: {
-        Monday: "12:00 - 23:00",
-        Tuesday: "12:00 - 23:00",
-        Wednesday: "12:00 - 23:00",
-        Thursday: "12:00 - 23:00",
-        Friday: "12:00 - 23:30",
-        Saturday: "12:00 - 23:30",
-        Sunday: "12:00 - 23:00"
-      },
-
-      videos: {
-        video1: "",
-        video2: ""
-      },
-
-      breaking_news: {
-        enabled: false,
-        text: ""
+      if(value === null || value === undefined){
+        return {};
       }
 
-    };
-
-
-    /* --------------------------------
-       UTILITIES
-    --------------------------------- */
-
-    function clean(value) {
-
-      return String(
-        value == null ? "" : value
-      ).trim();
-
-    }
-
-
-    function safeUrl(url) {
-
-      const value = clean(url);
-
-      if (!value) return "";
-
-      if (
-        value.startsWith("http://") ||
-        value.startsWith("https://")
-      ) {
+      if(typeof value === "object"){
         return value;
       }
 
+      try{
+        return JSON.parse(value);
+      }catch{
+        return {value:String(value)};
+      }
+    }
+
+    function firstValue(obj, keys, fallback=""){
+
+      for(const key of keys){
+
+        if(
+          obj &&
+          obj[key] !== undefined &&
+          obj[key] !== null &&
+          String(obj[key]).trim() !== ""
+        ){
+          return obj[key];
+        }
+
+      }
+
+      return fallback;
+    }
+
+    function cleanURL(value){
+      if(!value) return "";
+
+      const text = String(value).trim();
+
+      if(
+        text.startsWith("http://") ||
+        text.startsWith("https://")
+      ){
+        return text;
+      }
+
       return "";
-
     }
 
 
-    function setText(id, value) {
+    /* =========================
+       MOBILE MENU
+    ========================== */
 
-      const el = document.getElementById(id);
+    $("mobileMenuBtn").addEventListener("click", () => {
 
-      if (el) {
-        el.textContent =
-          value == null ? "" : value;
-      }
+      $("mobileMenu").classList.toggle("open");
 
-    }
+    });
 
+    document.querySelectorAll("#mobileMenu a").forEach(link => {
 
-    function showMessage(
-      element,
-      message,
-      type
-    ) {
+      link.addEventListener("click", () => {
+        $("mobileMenu").classList.remove("open");
+      });
 
-      if (!element) return;
-
-      element.textContent = message;
-
-      element.className =
-        "form-message " +
-        (type === "error"
-          ? "error"
-          : "success");
-
-    }
+    });
 
 
-    function escapeHtml(value) {
+    /* =========================
+       LOAD SITE SETTINGS
+    ========================== */
 
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    async function loadSiteSettings(){
 
-    }
-
-
-    /* --------------------------------
-       SITE SETTINGS
-    --------------------------------- */
-
-    let settings = {
-      ...FALLBACK
-    };
-
-
-    async function loadSettings() {
-
-      if (!supabaseClient) {
-
-        applySettings();
-
-        return;
-
-      }
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
+      const {data,error} =
+        await supabaseClient
           .from("site_settings")
           .select("key,value");
 
-        if (error) {
-          console.warn(
-            "Settings load error:",
-            error
-          );
+      if(error){
 
-          applySettings();
+        console.error("Settings error:",error);
 
-          return;
-        }
-
-        if (Array.isArray(data)) {
-
-          for (const row of data) {
-
-            if (!row.key) continue;
-
-            settings[row.key] =
-              row.value || {};
-
-          }
-
-        }
-
-      } catch (error) {
-
-        console.warn(error);
+        return;
 
       }
 
-      applySettings();
+      siteSettings = {};
+
+      (data || []).forEach(row => {
+
+        siteSettings[row.key] =
+          normalizeSetting(row.value);
+
+      });
+
+      renderSiteSettings();
 
     }
 
 
-    function applySettings() {
+    /* =========================
+       RENDER SITE SETTINGS
+    ========================== */
+
+    function renderSiteSettings(){
+
+      /* HERO */
 
       const hero =
-        settings.hero || FALLBACK.hero;
+        siteSettings.hero || {};
 
-      const about =
-        settings.about || FALLBACK.about;
+      const heroTitle =
+        firstValue(
+          hero,
+          ["title","hero_title"],
+          "Taste the Royal Flavours of India"
+        );
+
+      const heroText =
+        firstValue(
+          hero,
+          ["text","description","hero_text"],
+          "Authentic Indian cuisine in the heart of Roma."
+        );
+
+      const heroImage =
+        cleanURL(
+          firstValue(
+            hero,
+            ["image_url","image"],
+            DEFAULT_HERO_IMAGE
+          )
+        ) || DEFAULT_HERO_IMAGE;
+
+      $("heroTitle").innerHTML =
+        escapeHTML(heroTitle)
+          .replace(
+            /Royal Flavours/gi,
+            "<span>Royal Flavours</span>"
+          );
+
+      $("heroText").textContent = heroText;
+
+      $("heroImage").src = heroImage;
+
+
+      /* LOGO */
 
       const logo =
-        settings.logo || FALLBACK.logo;
+        siteSettings.logo || {};
 
-      const contact =
-        settings.contact || FALLBACK.contact;
+      const logoURL =
+        cleanURL(
+          firstValue(
+            logo,
+            ["url","image_url","logo_url"],
+            ""
+          )
+        );
 
-      const social =
-        settings.social || FALLBACK.social;
+      if(logoURL){
 
-      const hours =
-        settings.hours || FALLBACK.hours;
+        $("navLogo").src = logoURL;
 
-      const videos =
-        settings.videos || FALLBACK.videos;
+      }else{
 
-      const breaking =
-        settings.breaking_news ||
-        FALLBACK.breaking_news;
-
-
-      /* Hero */
-
-      setText(
-        "heroTitle",
-        hero.title ||
-        FALLBACK.hero.title
-      );
-
-      setText(
-        "heroText",
-        hero.text ||
-        FALLBACK.hero.text
-      );
-
-
-      if (hero.image_url) {
-
-        document
-          .querySelector(".hero")
-          .style.backgroundImage =
-          `linear-gradient(90deg,rgba(0,0,0,.92),rgba(0,0,0,.45),rgba(0,0,0,.78)),url("${safeUrl(hero.image_url)}")`;
+        $("navLogo").src =
+          DEFAULT_ABOUT_IMAGE;
 
       }
 
 
-      /* Logo */
+      /* ABOUT */
 
-      const logoImage =
-        document.getElementById("logoImage");
+      const about =
+        siteSettings.about || {};
 
-      if (logo.url) {
-
-        logoImage.src =
-          safeUrl(logo.url);
-
-      } else {
-
-        logoImage.style.display =
-          "none";
-
-      }
-
-
-      /* About */
-
-      setText(
-        "aboutTitle",
-        about.title ||
-        FALLBACK.about.title
-      );
-
-      setText(
-        "aboutText",
-        about.text ||
-        FALLBACK.about.text
-      );
-
-
-      if (about.image_url) {
-
-        document
-          .getElementById("aboutMedia")
-          .style.backgroundImage =
-          `url("${safeUrl(about.image_url)}")`;
-
-      }
-
-
-      /* Videos */
-
-      setupVideo(
-        "video1",
-        videos.video1
-      );
-
-      setupVideo(
-        "video2",
-        videos.video2
-      );
-
-
-      /* Breaking News */
-
-      const newsBar =
-        document.getElementById("newsBar");
-
-      if (
-        breaking.enabled === true &&
-        clean(breaking.text)
-      ) {
-
-        newsBar.style.display =
-          "block";
-
-        setText(
-          "newsText",
-          breaking.text
+      $("aboutTitle").textContent =
+        firstValue(
+          about,
+          ["title"],
+          "About Nababi Ristorante"
         );
 
-      } else {
-
-        newsBar.style.display =
-          "none";
-
-      }
-
-
-      /* Contact */
-
-      const address =
-        contact.address ||
-        FALLBACK.contact.address;
-
-      setText(
-        "topAddress",
-        address
-      );
-
-      setText(
-        "contactAddress",
-        address
-      );
-
-
-      const phone1 =
-        contact.phone1 ||
-        FALLBACK.contact.phone1;
-
-      const phone2 =
-        contact.phone2 ||
-        FALLBACK.contact.phone2;
-
-      const whatsapp =
-        contact.whatsapp ||
-        FALLBACK.contact.whatsapp;
-
-
-      const phone1El =
-        document.getElementById("phone1");
-
-      phone1El.textContent =
-        phone1;
-
-      phone1El.href =
-        "tel:" +
-        phone1.replace(/[^\d+]/g, "");
-
-
-      const phone2El =
-        document.getElementById("phone2");
-
-      phone2El.textContent =
-        phone2;
-
-      phone2El.href =
-        "tel:" +
-        phone2.replace(/[^\d+]/g, "");
-
-
-      const whatsappEl =
-        document.getElementById(
-          "whatsappLink"
+      $("aboutText").textContent =
+        firstValue(
+          about,
+          ["text","description"],
+          "Discover authentic Indian flavours in the heart of Roma."
         );
 
-      whatsappEl.textContent =
-        "WhatsApp " + whatsapp;
+      const aboutImage =
+        cleanURL(
+          firstValue(
+            about,
+            ["image_url","image"],
+            DEFAULT_ABOUT_IMAGE
+          )
+        ) || DEFAULT_ABOUT_IMAGE;
 
-      whatsappEl.href =
-        "https://wa.me/" +
-        whatsapp.replace(/\D/g, "");
-
-
-      const topWhatsapp =
-        document.getElementById(
-          "topWhatsapp"
-        );
-
-      topWhatsapp.textContent =
-        "WhatsApp " + whatsapp;
-
-      topWhatsapp.href =
-        "https://wa.me/" +
-        whatsapp.replace(/\D/g, "");
+      $("aboutImage").src = aboutImage;
 
 
-      /* Social */
+      /* BREAKING NEWS */
 
-      const facebook =
-        document.getElementById(
-          "facebookLink"
-        );
-
-      if (social.facebook) {
-
-        facebook.href =
-          safeUrl(social.facebook);
-
-        facebook.style.display =
-          "inline-flex";
-
-      } else {
-
-        facebook.style.display =
-          "none";
-
-      }
+      renderBreakingNews();
 
 
-      const instagram =
-        document.getElementById(
-          "instagramLink"
-        );
+      /* VIDEOS */
 
-      if (social.instagram) {
-
-        instagram.href =
-          safeUrl(social.instagram);
-
-        instagram.style.display =
-          "inline-flex";
-
-      } else {
-
-        instagram.style.display =
-          "none";
-
-      }
+      renderVideos();
 
 
-      const tiktok =
-        document.getElementById(
-          "tiktokLink"
-        );
+      /* CONTACT */
 
-      if (social.tiktok) {
-
-        tiktok.href =
-          safeUrl(social.tiktok);
-
-      } else {
-
-        tiktok.style.display =
-          "none";
-
-      }
+      renderContact();
 
 
-      /* Maps */
+      /* SOCIAL */
 
-      const mapUrl =
-        contact.maps_url ||
-        FALLBACK.contact.maps_url;
-
-      const mapLink =
-        document.getElementById(
-          "mapLink"
-        );
-
-      mapLink.href =
-        safeUrl(mapUrl);
+      renderSocial();
 
 
-      const mapFrame =
-        document.getElementById(
-          "mapFrame"
-        );
+      /* HOURS */
 
-      if (mapUrl) {
-
-        const encoded =
-          encodeURIComponent(
-            address
-          );
-
-        mapFrame.src =
-          `https://www.google.com/maps?q=${encoded}&output=embed`;
-
-      }
+      renderHours();
 
 
-      /* Hours */
+      /* OFFER */
 
-      renderHours(hours);
-
-
-      /* Gallery background */
-
-      loadGalleryPreview();
+      loadDiscountCampaign();
 
     }
 
 
-    function setupVideo(
-      id,
-      url
-    ) {
+    /* =========================
+       BREAKING NEWS
+    ========================== */
+
+    function renderBreakingNews(){
+
+      const news =
+        siteSettings.breaking_news || {};
+
+      const enabled =
+        news.enabled === true ||
+        String(news.enabled).toLowerCase() === "true";
+
+      const text =
+        firstValue(
+          news,
+          ["text","message","description"],
+          ""
+        );
+
+      const image =
+        cleanURL(
+          firstValue(
+            news,
+            ["image_url","image"],
+            ""
+          )
+        );
 
       const video =
-        document.getElementById(id);
+        cleanURL(
+          firstValue(
+            news,
+            ["video_url","video"],
+            ""
+          )
+        );
 
-      if (!video) return;
+      if(!enabled || (!text && !image && !video)){
 
-      const safe =
-        safeUrl(url);
-
-      if (!safe) {
-
-        video.style.display =
-          "none";
+        $("breakingNewsSection").style.display = "none";
 
         return;
 
       }
 
-      video.style.display =
-        "block";
+      $("breakingNewsSection").style.display = "block";
 
-      video.src =
-        safe;
+      $("breakingNewsText").textContent = text;
+
+
+      if(image){
+
+        $("breakingNewsImage").src = image;
+        $("breakingNewsImage").style.display = "block";
+
+      }else{
+
+        $("breakingNewsImage").style.display = "none";
+
+      }
+
+
+      if(video){
+
+        $("breakingNewsVideo").src = video;
+        $("breakingNewsVideo").style.display = "block";
+
+      }else{
+
+        $("breakingNewsVideo").style.display = "none";
+
+      }
 
     }
 
 
-    /* --------------------------------
-       HOURS
-    --------------------------------- */
+    /* =========================
+       VIDEOS
+    ========================== */
 
-    function renderHours(hours) {
+    function renderVideos(){
 
-      const container =
-        document.getElementById(
-          "hoursList"
+      const videos =
+        siteSettings.videos || {};
+
+      const video1 =
+        cleanURL(
+          firstValue(
+            videos,
+            ["video1","video_1","video1_url"],
+            ""
+          )
         );
 
-      const days = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
+      const video2 =
+        cleanURL(
+          firstValue(
+            videos,
+            ["video2","video_2","video2_url"],
+            ""
+          )
+        );
+
+
+      if(video1){
+
+        $("video1").src = video1;
+        $("videoCard1").style.display = "block";
+
+      }else{
+
+        $("videoCard1").style.display = "none";
+
+      }
+
+
+      if(video2){
+
+        $("video2").src = video2;
+        $("videoCard2").style.display = "block";
+
+      }else{
+
+        $("videoCard2").style.display = "none";
+
+      }
+
+    }
+
+
+    /* =========================
+       CONTACT
+    ========================== */
+
+    function renderContact(){
+
+      const contact =
+        siteSettings.contact || {};
+
+      const address =
+        firstValue(
+          contact,
+          ["address"],
+          "Via Vespasiano 73/75/77 Roma"
+        );
+
+      const phone1 =
+        firstValue(
+          contact,
+          ["phone1","phone","phone_primary"],
+          "+39 333 7687319"
+        );
+
+      const phone2 =
+        firstValue(
+          contact,
+          ["phone2","phone_secondary"],
+          "+39 393 3805350"
+        );
+
+      const whatsapp =
+        firstValue(
+          contact,
+          ["whatsapp","whatsapp_phone"],
+          phone1
+        );
+
+      $("contactAddress").textContent = address;
+
+      $("footerAddress").textContent = address;
+
+
+      $("phone1Link").textContent = phone1;
+      $("phone1Link").href =
+        "tel:" + phone1.replace(/[^\d+]/g,"");
+
+
+      $("phone2Link").textContent = phone2;
+      $("phone2Link").href =
+        "tel:" + phone2.replace(/[^\d+]/g,"");
+
+
+      $("whatsappLink").textContent =
+        "WhatsApp " + whatsapp;
+
+      $("whatsappLink").href =
+        "https://wa.me/" +
+        whatsapp.replace(/\D/g,"");
+
+
+      /* MAP */
+
+      const mapURL =
+        cleanURL(
+          firstValue(
+            contact,
+            ["google_maps_url","maps_url","map_url"],
+            ""
+          )
+        );
+
+      if(mapURL){
+
+        $("mapFrame").src = mapURL;
+
+      }else{
+
+        $("mapFrame").src =
+          "https://www.google.com/maps?q=" +
+          encodeURIComponent(address) +
+          "&output=embed";
+
+      }
+
+    }
+
+
+    /* =========================
+       SOCIAL
+    ========================== */
+
+    function renderSocial(){
+
+      const social =
+        siteSettings.social || {};
+
+      const links = [
+
+        {
+          name:"Facebook",
+          url:firstValue(
+            social,
+            ["facebook"],
+            ""
+          )
+        },
+
+        {
+          name:"Instagram",
+          url:firstValue(
+            social,
+            ["instagram"],
+            ""
+          )
+        },
+
+        {
+          name:"TikTok",
+          url:firstValue(
+            social,
+            ["tiktok"],
+            ""
+          )
+        },
+
+        {
+          name:"YouTube",
+          url:firstValue(
+            social,
+            ["youtube"],
+            ""
+          )
+        }
+
       ];
 
-      container.innerHTML = "";
-
-      for (const day of days) {
-
-        const row =
-          document.createElement("div");
-
-        row.className =
-          "hours-row";
-
-        row.innerHTML = `
-          <span>${escapeHtml(day)}</span>
-          <strong>
-            ${escapeHtml(
-              hours[day] || "Closed"
-            )}
-          </strong>
-        `;
-
-        container.appendChild(row);
-
-      }
+      $("socialLinks").innerHTML =
+        links
+          .filter(item => cleanURL(item.url))
+          .map(item => `
+            <a
+              class="social-btn"
+              href="${escapeHTML(cleanURL(item.url))}"
+              target="_blank"
+              rel="noopener">
+              ${escapeHTML(item.name)}
+            </a>
+          `)
+          .join("");
 
     }
 
 
-    /* --------------------------------
-       MENU CATEGORIES
-    --------------------------------- */
+    /* =========================
+       OPENING HOURS
+    ========================== */
 
-    let menuItems = [];
-    let categories = [];
-    let selectedCategory = "";
+    function renderHours(){
 
+      const hours =
+        siteSettings.hours || {};
 
-    async function loadCategories() {
+      const days = [
 
-      if (!supabaseClient) {
+        ["Monday","Monday","Lunedì"],
 
-        categories = [];
+        ["Tuesday","Tuesday","Martedì"],
 
-        renderCategories();
+        ["Wednesday","Wednesday","Mercoledì"],
 
-        return;
+        ["Thursday","Thursday","Giovedì"],
 
-      }
+        ["Friday","Friday","Venerdì"],
 
-      try {
+        ["Saturday","Saturday","Sabato"],
 
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .from("menu_categories")
-          .select("*")
-          .order(
-            "sort_order",
-            { ascending: true }
-          )
-          .order(
-            "name",
-            { ascending: true }
-          );
+        ["Sunday","Sunday","Domenica"]
 
-        if (error) {
+      ];
 
-          console.warn(
-            "Category error:",
-            error
-          );
-
-          categories = [];
-
-        } else {
-
-          categories =
-            Array.isArray(data)
-              ? data
-              : [];
-
-        }
-
-      } catch (error) {
-
-        console.warn(error);
-
-        categories = [];
-
-      }
-
-      renderCategories();
-
-    }
+      const defaultHours = {
+        Monday:"12:00 - 15:00 / 18:00 - 23:00",
+        Tuesday:"12:00 - 15:00 / 18:00 - 23:00",
+        Wednesday:"12:00 - 15:00 / 18:00 - 23:00",
+        Thursday:"12:00 - 15:00 / 18:00 - 23:00",
+        Friday:"12:00 - 15:00 / 18:00 - 23:00",
+        Saturday:"12:00 - 15:00 / 18:00 - 23:00",
+        Sunday:"12:00 - 15:00 / 18:00 - 23:00"
+      };
 
 
-    function renderCategories() {
+      $("hoursList").innerHTML =
+        days.map(day => {
 
-      const container =
-        document.getElementById(
-          "categoryButtons"
-        );
-
-      container.innerHTML = "";
-
-      for (const category of categories) {
-
-        const name =
-          clean(category.name);
-
-        if (!name) continue;
-
-        const button =
-          document.createElement("button");
-
-        button.type =
-          "button";
-
-        button.className =
-          "category-btn";
-
-        button.textContent =
-          name;
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            selectedCategory =
-              name;
-
-            document
-              .querySelectorAll(
-                ".category-btn"
-              )
-              .forEach(
-                btn =>
-                  btn.classList.remove(
-                    "active"
-                  )
-              );
-
-            button.classList.add(
-              "active"
+          const value =
+            firstValue(
+              hours,
+              [day[0],day[1],day[2]],
+              defaultHours[day[0]]
             );
 
-            renderMenu();
-
-          }
-        );
-
-        container.appendChild(button);
-
-      }
-
-    }
-
-
-    /* --------------------------------
-       MENU ITEMS
-    --------------------------------- */
-
-    async function loadMenu() {
-
-      if (!supabaseClient) {
-
-        menuItems = [];
-
-        return;
-
-      }
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .from("Menu")
-          .select("*")
-          .order(
-            "id",
-            { ascending: true }
-          );
-
-        if (error) {
-
-          console.warn(
-            "Menu error:",
-            error
-          );
-
-          menuItems = [];
-
-        } else {
-
-          menuItems =
-            Array.isArray(data)
-              ? data
-              : [];
-
-        }
-
-      } catch (error) {
-
-        console.warn(error);
-
-        menuItems = [];
-
-      }
-
-    }
-
-
-    function renderMenu() {
-
-      const placeholder =
-        document.getElementById(
-          "menuPlaceholder"
-        );
-
-      const grid =
-        document.getElementById(
-          "menuGrid"
-        );
-
-
-      if (!selectedCategory) {
-
-        placeholder.style.display =
-          "block";
-
-        grid.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      const filtered =
-        menuItems.filter(
-          item =>
-            clean(item.category)
-              .toLowerCase() ===
-            selectedCategory
-              .toLowerCase()
-        );
-
-
-      if (!filtered.length) {
-
-        placeholder.textContent =
-          "No dishes available in this category.";
-
-        placeholder.style.display =
-          "block";
-
-        grid.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      placeholder.style.display =
-        "none";
-
-      grid.style.display =
-        "grid";
-
-      grid.innerHTML = "";
-
-
-      for (const item of filtered) {
-
-        const card =
-          document.createElement("article");
-
-        card.className =
-          "menu-card";
-
-
-        const image =
-          safeUrl(item.image_url);
-
-
-        card.innerHTML = `
-
-          ${
-            image
-              ? `
-                <img
-                  class="menu-img"
-                  src="${escapeHtml(image)}"
-                  alt="${escapeHtml(item.name)}"
-                  loading="lazy"
-                />
-              `
-              : `
-                <div
-                  class="menu-img"
-                  style="
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    color:#777;
-                    font-size:40px;
-                  "
-                >
-                  🍽️
-                </div>
-              `
-          }
-
-          <div class="menu-body">
-
-            <h3>
-              ${escapeHtml(
-                item.name
-              )}
-            </h3>
-
-            <div class="menu-description">
-              ${escapeHtml(
-                item.description || ""
-              )}
-            </div>
-
-            <div class="menu-bottom">
-
-              <span class="price">
-                ${escapeHtml(
-                  item.price || ""
-                )}
-              </span>
-
-              <span
-                style="
-                  color:#777;
-                  font-family:Arial,sans-serif;
-                  font-size:11px;
-                "
-              >
-                ${escapeHtml(
-                  item.category || ""
-                )}
-              </span>
-
-            </div>
-
-          </div>
-
-        `;
-
-        grid.appendChild(card);
-
-      }
-
-    }
-
-
-    /* --------------------------------
-       GALLERY
-    --------------------------------- */
-
-    let galleryItems = [];
-
-
-    async function loadGallery() {
-
-      if (!supabaseClient) {
-
-        galleryItems = [];
-
-        return;
-
-      }
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .from("gallery")
-          .select("*")
-          .eq(
-            "is_visible",
-            true
-          )
-          .order(
-            "sort_order",
-            { ascending: true }
-          )
-          .order(
-            "id",
-            { ascending: false }
-          );
-
-        if (error) {
-
-          console.warn(
-            "Gallery error:",
-            error
-          );
-
-          galleryItems = [];
-
-        } else {
-
-          galleryItems =
-            Array.isArray(data)
-              ? data
-              : [];
-
-        }
-
-      } catch (error) {
-
-        console.warn(error);
-
-        galleryItems = [];
-
-      }
-
-      renderGallery();
-
-    }
-
-
-    function renderGallery() {
-
-      const grid =
-        document.getElementById(
-          "galleryGrid"
-        );
-
-      grid.innerHTML = "";
-
-
-      if (!galleryItems.length) {
-
-        grid.innerHTML = `
-          <div
-            class="gallery-empty"
-            style="grid-column:1/-1;"
-          >
-            No gallery photos available yet.
-          </div>
-        `;
-
-        return;
-
-      }
-
-
-      for (const item of galleryItems) {
-
-        const image =
-          safeUrl(item.image_url);
-
-        if (!image) continue;
-
-
-        const img =
-          document.createElement("img");
-
-        img.src =
-          image;
-
-        img.alt =
-          item.title ||
-          "Nababi Ristorante";
-
-        img.loading =
-          "lazy";
-
-
-        img.addEventListener(
-          "click",
-          () => openImage(image)
-        );
-
-
-        grid.appendChild(img);
-
-      }
-
-    }
-
-
-    function loadGalleryPreview() {
-
-      if (!galleryItems.length)
-        return;
-
-      const first =
-        galleryItems.find(
-          item =>
-            safeUrl(item.image_url)
-        );
-
-      if (!first) return;
-
-      document
-        .getElementById(
-          "galleryLaunch"
-        )
-        .style.backgroundImage =
-        `linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.85)),url("${safeUrl(first.image_url)}")`;
-
-    }
-
-
-    function openGallery() {
-
-      document
-        .getElementById(
-          "galleryModal"
-        )
-        .classList.add("open");
-
-      document.body.style.overflow =
-        "hidden";
-
-    }
-
-
-    function closeGallery() {
-
-      document
-        .getElementById(
-          "galleryModal"
-        )
-        .classList.remove("open");
-
-      document.body.style.overflow =
-        "";
-
-    }
-
-
-    function openImage(url) {
-
-      const viewer =
-        document.getElementById(
-          "imageViewer"
-        );
-
-      document
-        .getElementById(
-          "viewerImage"
-        )
-        .src = url;
-
-      viewer.classList.add(
-        "open"
-      );
-
-    }
-
-
-    function closeImage() {
-
-      document
-        .getElementById(
-          "imageViewer"
-        )
-        .classList.remove(
-          "open"
-        );
-
-    }
-
-
-    /* --------------------------------
-       DISCOUNT OFFER
-    --------------------------------- */
-
-    let discountCampaign = null;
-
-
-    async function loadDiscountOffer() {
-
-      const section =
-        document.getElementById(
-          "specialOffer"
-        );
-
-
-      if (!supabaseClient) {
-
-        section.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .from("discount_campaign")
-          .select("*")
-          .eq(
-            "enabled",
-            true
-          )
-          .order(
-            "id",
-            { ascending: false }
-          )
-          .limit(1)
-          .maybeSingle();
-
-
-        if (error) {
-
-          console.warn(
-            "Discount campaign error:",
-            error
-          );
-
-          section.style.display =
-            "none";
-
-          return;
-
-        }
-
-
-        if (!data) {
-
-          section.style.display =
-            "none";
-
-          return;
-
-        }
-
-
-        discountCampaign =
-          data;
-
-        section.style.display =
-          "block";
-
-
-        const percent =
-          Number(
-            data.discount_percent
-          );
-
-
-        const title =
-          clean(
-            data.title
-          ) ||
-          "Exclusive Offer";
-
-
-        const description =
-          clean(
-            data.description
-          ) ||
-          "Enjoy a special offer from Nababi Ristorante.";
-
-
-        setText(
-          "discountTitle",
-          title
-        );
-
-
-        setText(
-          "discountText",
-          description
-        );
-
-
-        if (
-          Number.isFinite(percent) &&
-          percent > 0
-        ) {
-
-          const badge =
-            document.querySelector(
-              ".discount-badge"
-            );
-
-          badge.textContent =
-            `🎁 ${percent}% OFF`;
-
-        }
-
-      } catch (error) {
-
-        console.warn(error);
-
-        section.style.display =
-          "none";
-
-      }
-
-    }
-
-
-    async function createDiscountCode() {
-
-      const button =
-        document.getElementById(
-          "getDiscountBtn"
-        );
-
-      const result =
-        document.getElementById(
-          "discountResult"
-        );
-
-      const codeElement =
-        document.getElementById(
-          "discountCode"
-        );
-
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "Creating your code...";
-
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .rpc(
-            "create_discount_code"
-          );
-
-
-        if (error)
-          throw error;
-
-
-        let code = "";
-
-
-        if (typeof data === "string") {
-
-          code =
-            data;
-
-        } else if (
-          data &&
-          typeof data === "object"
-        ) {
-
-          code =
-            data.code ||
-            data.discount_code ||
-            data[0]?.code ||
-            data[0]?.discount_code ||
-            "";
-
-        }
-
-
-        if (!code) {
-
-          throw new Error(
-            "Discount code was not returned."
-          );
-
-        }
-
-
-        codeElement.textContent =
-          code;
-
-        result.style.display =
-          "block";
-
-        button.textContent =
-          "✓ Discount Code Created";
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        button.textContent =
-          "🎟️ Get My Discount Code";
-
-        alert(
-          "Unable to create the discount code right now. Please try again."
-        );
-
-      } finally {
-
-        button.disabled =
-          false;
-
-      }
-
-    }
-
-
-    /* --------------------------------
-       BOOKING
-    --------------------------------- */
-
-    async function submitBooking(
-      event
-    ) {
-
-      event.preventDefault();
-
-
-      const message =
-        document.getElementById(
-          "bookingMessage"
-        );
-
-
-      const name =
-        clean(
-          document.getElementById(
-            "bookingName"
-          ).value
-        );
-
-      const phone =
-        clean(
-          document.getElementById(
-            "bookingPhone"
-          ).value
-        );
-
-      const email =
-        clean(
-          document.getElementById(
-            "bookingEmail"
-          ).value
-        );
-
-      const date =
-        document.getElementById(
-          "bookingDate"
-        ).value;
-
-      const time =
-        document.getElementById(
-          "bookingTime"
-        ).value;
-
-      const guests =
-        Number(
-          document.getElementById(
-            "bookingGuests"
-          ).value
-        );
-
-      const request =
-        clean(
-          document.getElementById(
-            "bookingRequest"
-          ).value
-        );
-
-
-      if (!name || !date || !time) {
-
-        showMessage(
-          message,
-          "Please complete the required fields.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (!phone && !email) {
-
-        showMessage(
-          message,
-          "Please provide a phone number or email.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (!supabaseClient) {
-
-        showMessage(
-          message,
-          "Booking system is not connected.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .from("table_bookings")
-          .insert({
-
-            customer_name:
-              name,
-
-            phone:
-              phone || null,
-
-            email:
-              email || null,
-
-            booking_date:
-              date,
-
-            booking_time:
-              time,
-
-            guests:
-              guests,
-
-            special_request:
-              request || null,
-
-            status:
-              "Pending"
-
-          })
-          .select()
-          .single();
-
-
-        if (error)
-          throw error;
-
-
-        showMessage(
-          message,
-          "Your reservation request has been sent successfully. Our team will contact you shortly.",
-          "success"
-        );
-
-
-        document
-          .getElementById(
-            "bookingForm"
-          )
-          .reset();
-
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showMessage(
-          message,
-          "Unable to send the reservation. Please try again.",
-          "error"
-        );
-
-      }
-
-    }
-
-
-    /* --------------------------------
-       REVIEWS
-    --------------------------------- */
-
-    async function loadReviews() {
-
-      const grid =
-        document.getElementById(
-          "reviewsGrid"
-        );
-
-
-      if (!supabaseClient) {
-
-        grid.innerHTML = "";
-
-        return;
-
-      }
-
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient
-          .from("reviews")
-          .select(
-            "customer_name,rating,message,created_at"
-          )
-          .eq(
-            "status",
-            "Approved"
-          )
-          .order(
-            "created_at",
-            { ascending: false }
-          )
-          .limit(6);
-
-
-        if (error)
-          throw error;
-
-
-        grid.innerHTML = "";
-
-
-        if (!data || !data.length) {
-
-          grid.innerHTML = `
-            <div
-              class="review-card"
-              style="grid-column:1/-1;text-align:center;"
-            >
-              <div class="stars">★★★★★</div>
-              <div class="review-message">
-                Be the first to share your experience.
-              </div>
-            </div>
+          return `
+            <li>
+              <strong>${escapeHTML(day[0])}</strong>
+              <span>${escapeHTML(value)}</span>
+            </li>
           `;
 
+        }).join("");
+
+    }
+
+
+    /* =========================
+       DISCOUNT CAMPAIGN
+    ========================== */
+
+    async function loadDiscountCampaign(){
+
+      try{
+
+        const {data,error} =
+          await supabaseClient
+            .from("discount_campaign")
+            .select("*")
+            .limit(1)
+            .maybeSingle();
+
+        if(error){
+
+          console.error("Discount campaign:",error);
+
+          return;
+
+        }
+
+        if(!data || data.enabled !== true){
+
+          $("offerSection").classList.remove("active");
+
+          return;
+
+        }
+
+        $("offerSection").classList.add("active");
+
+
+        $("offerTitle").textContent =
+          data.title ||
+          "Special Offer";
+
+
+        $("offerText").textContent =
+          data.description ||
+          (
+            data.discount_percent
+              ? `Enjoy ${data.discount_percent}% off at Nababi Ristorante.`
+              : "Enjoy an exclusive offer from Nababi Ristorante."
+          );
+
+      }catch(error){
+
+        console.error(error);
+
+      }
+
+    }
+
+
+    /* =========================
+       CREATE DISCOUNT CODE
+    ========================== */
+
+    $("getDiscountBtn").addEventListener(
+      "click",
+      async () => {
+
+        const button =
+          $("getDiscountBtn");
+
+        button.disabled = true;
+        button.textContent =
+          "Creating your code...";
+
+        try{
+
+          const {data,error} =
+            await supabaseClient
+              .rpc("create_discount_code");
+
+          if(error){
+
+            console.error(error);
+
+            showToast(
+              "Unable to create discount code."
+            );
+
+            return;
+
+          }
+
+          let code = "";
+
+          if(typeof data === "string"){
+
+            code = data;
+
+          }else if(Array.isArray(data)){
+
+            const row = data[0];
+
+            if(typeof row === "string"){
+              code = row;
+            }else{
+              code =
+                row?.code ||
+                row?.discount_code ||
+                row?.create_discount_code ||
+                "";
+            }
+
+          }else if(data && typeof data === "object"){
+
+            code =
+              data.code ||
+              data.discount_code ||
+              data.create_discount_code ||
+              "";
+
+          }
+
+          if(!code){
+
+            showToast(
+              "Code created, but it could not be displayed."
+            );
+
+            return;
+
+          }
+
+          $("discountCode").textContent =
+            code;
+
+          $("discountCodeBox").style.display =
+            "block";
+
+          button.textContent =
+            "🎟️ Generate Another Code";
+
+          showToast(
+            "Your discount code is ready."
+          );
+
+        }catch(error){
+
+          console.error(error);
+
+          showToast(
+            "Something went wrong."
+          );
+
+        }finally{
+
+          button.disabled = false;
+
+          if(
+            button.textContent ===
+            "Creating your code..."
+          ){
+            button.textContent =
+              "🎟️ Get My Discount Code";
+          }
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       COPY CODE
+    ========================== */
+
+    $("copyDiscountBtn").addEventListener(
+      "click",
+      async () => {
+
+        const code =
+          $("discountCode").textContent.trim();
+
+        if(!code || code === "—"){
+          return;
+        }
+
+        try{
+
+          await navigator.clipboard.writeText(code);
+
+          showToast(
+            "Discount code copied."
+          );
+
+        }catch{
+
+          showToast(
+            "Please copy the code manually."
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       MENU
+    ========================== */
+
+    async function loadMenu(){
+
+      const container =
+        $("menuContainer");
+
+      container.innerHTML =
+        `<div class="empty">Loading our menu...</div>`;
+
+      const {data,error} =
+        await supabaseClient
+          .from("Menu")
+          .select("*")
+          .order("category",{ascending:true})
+          .order("name",{ascending:true});
+
+      if(error){
+
+        console.error(error);
+
+        container.innerHTML =
+          `<div class="empty">
+            Menu could not be loaded.
+          </div>`;
+
+        return;
+
+      }
+
+      allMenuItems = data || [];
+
+      renderCategoryTabs();
+
+      renderMenu();
+
+    }
+
+
+    function renderCategoryTabs(){
+
+      const categories = [
+        "ALL",
+        ...new Set(
+          allMenuItems
+            .map(item =>
+              String(item.category || "").trim()
+            )
+            .filter(Boolean)
+        )
+      ];
+
+      $("categoryTabs").innerHTML =
+        categories.map(category => `
+
+          <button
+            class="category-btn ${category === activeCategory ? "active" : ""}"
+            data-category="${escapeHTML(category)}">
+            ${escapeHTML(
+              category === "ALL"
+                ? "All"
+                : category
+            )}
+          </button>
+
+        `).join("");
+
+
+      document
+        .querySelectorAll(".category-btn")
+        .forEach(button => {
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              activeCategory =
+                button.dataset.category;
+
+              renderCategoryTabs();
+              renderMenu();
+
+            }
+          );
+
+        });
+
+    }
+
+
+    function renderMenu(){
+
+      let items = allMenuItems;
+
+      if(activeCategory !== "ALL"){
+
+        items =
+          items.filter(item =>
+            String(item.category || "")
+              .trim() === activeCategory
+          );
+
+      }
+
+      if(!items.length){
+
+        $("menuContainer").innerHTML =
+          `<div class="empty">
+            No menu items available.
+          </div>`;
+
+        return;
+
+      }
+
+
+      const grouped = {};
+
+      items.forEach(item => {
+
+        const category =
+          String(
+            item.category || "Our Menu"
+          ).trim();
+
+        if(!grouped[category]){
+          grouped[category] = [];
+        }
+
+        grouped[category].push(item);
+
+      });
+
+
+      $("menuContainer").innerHTML =
+        Object.entries(grouped)
+          .map(([category,items]) => `
+
+            <div class="menu-category">
+
+              <div class="menu-category-title">
+                ${escapeHTML(category)}
+              </div>
+
+              <div class="menu-grid">
+
+                ${items.map(item => {
+
+                  const image =
+                    cleanURL(item.image_url) ||
+                    "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=80";
+
+                  return `
+
+                    <article class="menu-card">
+
+                      <img
+                        class="menu-img"
+                        src="${escapeHTML(image)}"
+                        alt="${escapeHTML(item.name || "Dish")}"
+                        loading="lazy">
+
+                      <div class="menu-body">
+
+                        <div class="menu-name-row">
+
+                          <div class="menu-name">
+                            ${escapeHTML(item.name || "")}
+                          </div>
+
+                          ${
+                            item.price
+                              ? `
+                                <div class="menu-price">
+                                  ${escapeHTML(item.price)}
+                                </div>
+                              `
+                              : ""
+                          }
+
+                        </div>
+
+                        ${
+                          item.description
+                            ? `
+                              <div class="menu-description">
+                                ${escapeHTML(item.description)}
+                              </div>
+                            `
+                            : ""
+                        }
+
+                      </div>
+
+                    </article>
+
+                  `;
+
+                }).join("")}
+
+              </div>
+
+            </div>
+
+          `)
+          .join("");
+
+    }
+
+
+    /* =========================
+       GALLERY
+    ========================== */
+
+    async function loadGallery(){
+
+      const {data,error} =
+        await supabaseClient
+          .from("gallery")
+          .select("*")
+          .eq("is_visible",true)
+          .order("sort_order",{ascending:true})
+          .order("created_at",{ascending:false});
+
+      if(error){
+
+        console.error("Gallery:",error);
+
+        $("galleryContainer").innerHTML =
+          `<div class="empty">
+            Gallery could not be loaded.
+          </div>`;
+
+        return;
+
+      }
+
+      if(!data || !data.length){
+
+        $("galleryContainer").innerHTML =
+          `<div class="empty">
+            Our gallery will be updated soon.
+          </div>`;
+
+        return;
+
+      }
+
+
+      $("galleryContainer").innerHTML =
+        data.map(item => {
+
+          return `
+
+            <div class="gallery-item">
+
+              <img
+                src="${escapeHTML(item.image_url)}"
+                alt="${escapeHTML(item.title || "Nababi Ristorante")}"
+                loading="lazy">
+
+              ${
+                item.title
+                  ? `
+                    <div class="gallery-title">
+                      ${escapeHTML(item.title)}
+                    </div>
+                  `
+                  : ""
+              }
+
+            </div>
+
+          `;
+
+        }).join("");
+
+    }
+
+
+    /* =========================
+       BOOKING
+    ========================== */
+
+    $("bookingForm").addEventListener(
+      "submit",
+      async event => {
+
+        event.preventDefault();
+
+        const message =
+          $("bookingMessage");
+
+        message.className =
+          "form-message";
+
+        message.textContent = "";
+
+        const name =
+          $("bookingName").value.trim();
+
+        const phone =
+          $("bookingPhone").value.trim();
+
+        const email =
+          $("bookingEmail").value.trim();
+
+        const date =
+          $("bookingDate").value;
+
+        const time =
+          $("bookingTime").value;
+
+        const guests =
+          Number($("bookingGuests").value);
+
+        const specialRequest =
+          $("bookingRequest").value.trim();
+
+
+        if(!name || !date || !time){
+
+          message.className =
+            "form-message error";
+
+          message.textContent =
+            "Please complete the required fields.";
+
           return;
 
         }
 
 
-        for (const review of data) {
+        const {data,error} =
+          await supabaseClient
+            .from("table_bookings")
+            .insert({
 
-          const card =
-            document.createElement(
-              "div"
-            );
+              customer_name:name,
+              phone:phone || null,
+              email:email || null,
+              booking_date:date,
+              booking_time:time,
+              guests:guests,
+              special_request:
+                specialRequest || null,
+              status:"Pending"
 
-          card.className =
-            "review-card";
+            })
+            .select()
+            .single();
 
+
+        if(error){
+
+          console.error(error);
+
+          message.className =
+            "form-message error";
+
+          message.textContent =
+            "Your reservation could not be sent. Please try again.";
+
+          return;
+
+        }
+
+
+        message.className =
+          "form-message success";
+
+        message.textContent =
+          "Reservation request sent successfully. Our team will contact you.";
+
+        $("bookingForm").reset();
+
+        showToast(
+          "Reservation request received."
+        );
+
+      }
+    );
+
+
+    /* =========================
+       REVIEWS
+    ========================== */
+
+    async function loadReviews(){
+
+      const {data,error} =
+        await supabaseClient
+          .from("reviews")
+          .select("*")
+          .eq("status","Approved")
+          .order("is_featured",{ascending:false})
+          .order("created_at",{ascending:false})
+          .limit(12);
+
+      if(error){
+
+        console.error("Reviews:",error);
+
+        $("reviewsContainer").innerHTML =
+          `<div class="empty">
+            Reviews could not be loaded.
+          </div>`;
+
+        return;
+
+      }
+
+      if(!data || !data.length){
+
+        $("reviewsContainer").innerHTML =
+          `<div class="empty">
+            Be the first guest to share your experience.
+          </div>`;
+
+        return;
+
+      }
+
+
+      $("reviewsContainer").innerHTML =
+        data.map(review => {
 
           const rating =
             Math.max(
               1,
               Math.min(
                 5,
-                Number(
-                  review.rating || 5
-                )
+                Number(review.rating || 5)
               )
             );
 
+          return `
 
-          card.innerHTML = `
+            <article class="review-card">
 
-            <div class="stars">
-              ${"★".repeat(rating)}
-              ${"☆".repeat(5-rating)}
-            </div>
+              <div class="stars">
+                ${"★".repeat(rating)}
+                ${"☆".repeat(5-rating)}
+              </div>
 
-            <div class="review-message">
-              ${escapeHtml(
-                review.message
-              )}
-            </div>
+              <div class="review-message">
+                “${escapeHTML(review.message)}”
+              </div>
 
-            <div class="review-name">
-              ${escapeHtml(
-                review.customer_name
-              )}
-            </div>
+              <div class="review-name">
+                — ${escapeHTML(review.customer_name)}
+              </div>
+
+            </article>
 
           `;
 
+        }).join("");
 
-          grid.appendChild(card);
+    }
+
+
+    /* =========================
+       REVIEW FORM
+    ========================== */
+
+    $("reviewForm").addEventListener(
+      "submit",
+      async event => {
+
+        event.preventDefault();
+
+        const message =
+          $("reviewFormMessage");
+
+        message.className =
+          "form-message";
+
+        const customerName =
+          $("reviewName").value.trim();
+
+        const rating =
+          Number($("reviewRating").value);
+
+        const reviewMessage =
+          $("reviewMessage").value.trim();
+
+
+        if(!customerName || !reviewMessage){
+
+          message.className =
+            "form-message error";
+
+          message.textContent =
+            "Please enter your name and review.";
+
+          return;
 
         }
 
 
-      } catch (error) {
+        const {error} =
+          await supabaseClient
+            .from("reviews")
+            .insert({
 
-        console.warn(
-          "Reviews error:",
-          error
-        );
+              customer_name:customerName,
+              rating:rating,
+              message:reviewMessage
+
+            });
+
+
+        if(error){
+
+          console.error(error);
+
+          message.className =
+            "form-message error";
+
+          message.textContent =
+            "Your review could not be submitted.";
+
+          return;
+
+        }
+
+
+        message.className =
+          "form-message success";
+
+        message.textContent =
+          rating >= 4
+            ? "Thank you! Your review has been received."
+            : "Thank you! Your review has been received for review by our team.";
+
+        $("reviewForm").reset();
+
+        loadReviews();
 
       }
+    );
 
-    }
 
-
-    /* --------------------------------
+    /* =========================
        CUSTOMER REPORT
-    --------------------------------- */
+    ========================== */
 
-    async function submitReport(
-      event
-    ) {
+    $("reportForm").addEventListener(
+      "submit",
+      async event => {
 
-      event.preventDefault();
+        event.preventDefault();
 
+        const message =
+          $("reportFormMessage");
 
-      const box =
-        document.getElementById(
-          "reportMessageBox"
-        );
+        message.className =
+          "form-message";
 
+        const customerName =
+          $("reportName").value.trim();
 
-      const name =
-        clean(
-          document.getElementById(
-            "reportName"
-          ).value
-        );
+        const phone =
+          $("reportPhone").value.trim();
 
-      const phone =
-        clean(
-          document.getElementById(
-            "reportPhone"
-          ).value
-        );
+        const email =
+          $("reportEmail").value.trim();
 
-      const email =
-        clean(
-          document.getElementById(
-            "reportEmail"
-          ).value
-        );
+        const subject =
+          $("reportSubject").value.trim();
 
-      const subject =
-        clean(
-          document.getElementById(
-            "reportSubject"
-          ).value
-        );
-
-      const message =
-        clean(
-          document.getElementById(
-            "reportMessage"
-          ).value
-        );
+        const reportMessage =
+          $("reportMessage").value.trim();
 
 
-      if (!message) {
+        if(!reportMessage){
 
-        showMessage(
-          box,
-          "Please write your message.",
-          "error"
-        );
+          message.className =
+            "form-message error";
 
-        return;
+          message.textContent =
+            "Please write your message.";
 
-      }
+          return;
 
-
-      if (!supabaseClient) {
-
-        showMessage(
-          box,
-          "Contact system is not connected.",
-          "error"
-        );
-
-        return;
-
-      }
+        }
 
 
-      try {
+        const {error} =
+          await supabaseClient
+            .from("customer_reports")
+            .insert({
 
-        const {
-          error
-        } = await supabaseClient
-          .from("customer_reports")
-          .insert({
+              customer_name:
+                customerName || null,
 
-            customer_name:
-              name || null,
+              phone:
+                phone || null,
 
-            phone:
-              phone || null,
+              email:
+                email || null,
 
-            email:
-              email || null,
+              subject:
+                subject || null,
 
-            subject:
-              subject || null,
+              message:
+                reportMessage,
 
-            message:
-              message,
+              status:"New"
 
-            status:
-              "New"
-
-          });
+            });
 
 
-        if (error)
-          throw error;
+        if(error){
+
+          console.error(error);
+
+          message.className =
+            "form-message error";
+
+          message.textContent =
+            "Your report could not be sent.";
+
+          return;
+
+        }
 
 
-        showMessage(
-          box,
-          "Your message has been sent successfully.",
-          "success"
-        );
+        message.className =
+          "form-message success";
 
+        message.textContent =
+          "Thank you. Your report has been sent successfully.";
 
-        document
-          .getElementById(
-            "reportForm"
-          )
-          .reset();
-
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showMessage(
-          box,
-          "Unable to send your message. Please try again.",
-          "error"
-        );
+        $("reportForm").reset();
 
       }
-
-    }
-
-
-    /* --------------------------------
-       WEBSITE VISITOR TRACKING
-    --------------------------------- */
-
-    async function registerVisit() {
-
-      if (!supabaseClient)
-        return;
+    );
 
 
-      try {
+    /* =========================
+       VISITOR TRACKING
+    ========================== */
+
+    async function registerVisit(){
+
+      try{
 
         let visitorKey =
           localStorage.getItem(
             "nababi_visitor_key"
           );
 
-
-        if (!visitorKey) {
+        if(!visitorKey){
 
           visitorKey =
-            "visitor_" +
-            crypto.randomUUID();
+            "v_" +
+            Date.now() +
+            "_" +
+            Math.random()
+              .toString(36)
+              .slice(2);
 
           localStorage.setItem(
             "nababi_visitor_key",
@@ -3957,17 +3419,15 @@
 
         }
 
-
         await supabaseClient
           .rpc(
             "register_website_visit",
             {
-              p_visitor_key:
-                visitorKey
+              p_visitor_key:visitorKey
             }
           );
 
-      } catch (error) {
+      }catch(error){
 
         console.warn(
           "Visitor tracking:",
@@ -3979,239 +3439,56 @@
     }
 
 
-    /* --------------------------------
-       MOBILE MENU
-    --------------------------------- */
+    /* =========================
+       DATE MINIMUM
+    ========================== */
 
-    document
-      .getElementById(
-        "menuToggle"
-      )
-      .addEventListener(
-        "click",
-        () => {
+    function setMinimumBookingDate(){
 
-          document
-            .getElementById(
-              "navLinks"
-            )
-            .classList.toggle(
-              "open"
-            );
+      const today =
+        new Date();
 
-        }
-      );
+      const yyyy =
+        today.getFullYear();
 
+      const mm =
+        String(
+          today.getMonth()+1
+        ).padStart(2,"0");
 
-    document
-      .querySelectorAll(
-        "#navLinks a"
-      )
-      .forEach(
-        link => {
+      const dd =
+        String(
+          today.getDate()
+        ).padStart(2,"0");
 
-          link.addEventListener(
-            "click",
-            () => {
+      $("bookingDate").min =
+        `${yyyy}-${mm}-${dd}`;
 
-              document
-                .getElementById(
-                  "navLinks"
-                )
-                .classList.remove(
-                  "open"
-                );
-
-            }
-          );
-
-        }
-      );
+    }
 
 
-    /* --------------------------------
-       GALLERY EVENTS
-    --------------------------------- */
+    /* =========================
+       INIT
+    ========================== */
 
-    document
-      .getElementById(
-        "galleryLaunch"
-      )
-      .addEventListener(
-        "click",
-        openGallery
-      );
+    async function init(){
 
+      $("year").textContent =
+        new Date().getFullYear();
 
-    document
-      .getElementById(
-        "galleryClose"
-      )
-      .addEventListener(
-        "click",
-        closeGallery
-      );
+      setMinimumBookingDate();
 
-
-    document
-      .getElementById(
-        "imageViewerClose"
-      )
-      .addEventListener(
-        "click",
-        closeImage
-      );
-
-
-    document
-      .getElementById(
-        "imageViewer"
-      )
-      .addEventListener(
-        "click",
-        event => {
-
-          if (
-            event.target.id ===
-            "imageViewer"
-          ) {
-
-            closeImage();
-
-          }
-
-        }
-      );
-
-
-    document
-      .getElementById(
-        "galleryModal"
-      )
-      .addEventListener(
-        "click",
-        event => {
-
-          if (
-            event.target.id ===
-            "galleryModal"
-          ) {
-
-            closeGallery();
-
-          }
-
-        }
-      );
-
-
-    /* --------------------------------
-       FORMS
-    --------------------------------- */
-
-    document
-      .getElementById(
-        "bookingForm"
-      )
-      .addEventListener(
-        "submit",
-        submitBooking
-      );
-
-
-    document
-      .getElementById(
-        "reportForm"
-      )
-      .addEventListener(
-        "submit",
-        submitReport
-      );
-
-
-    document
-      .getElementById(
-        "getDiscountBtn"
-      )
-      .addEventListener(
-        "click",
-        createDiscountCode
-      );
-
-
-    /* --------------------------------
-       ESCAPE KEY
-    --------------------------------- */
-
-    document.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key ===
-          "Escape"
-        ) {
-
-          closeGallery();
-
-          closeImage();
-
-        }
-
-      }
-    );
-
-
-    /* --------------------------------
-       START
-    --------------------------------- */
-
-    async function init() {
-
-      setText(
-        "year",
-        new Date().getFullYear()
-      );
-
-
-      await loadSettings();
-
+      await loadSiteSettings();
 
       await Promise.all([
-
-        loadCategories(),
 
         loadMenu(),
 
         loadGallery(),
 
-        loadDiscountOffer(),
-
         loadReviews()
 
       ]);
-
-
-      /*
-        Menu intentionally starts empty.
-        Customer must select a category.
-      */
-
-      selectedCategory = "";
-
-      renderMenu();
-
-
-      /*
-        Gallery preview after data loads.
-      */
-
-      loadGalleryPreview();
-
-
-      /*
-        Website visitor counter.
-      */
 
       registerVisit();
 
