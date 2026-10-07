@@ -497,8 +497,8 @@ textarea{
 🔢 Coupon Codes
 </button>
 
-<button class="nav" data-section="staff" onclick="focusStaffCoupon()">
-🔐 Staff Admin
+<button class="nav" data-section="staff">
+👥 Staff Management
 </button>
 
 <button class="nav" data-section="performance">
@@ -614,7 +614,6 @@ Refresh
  type="file"
  accept="image/*"
 >
-<div id="heroImageProgress"></div>
 
 <div class="row">
 
@@ -662,7 +661,6 @@ Save Hero
  type="file"
  accept="image/*"
 >
-<div id="logoProgress"></div>
 
 <div class="row">
 
@@ -758,7 +756,6 @@ Delete Logo
  type="file"
  accept="image/*"
 >
-<div id="aboutImageProgress"></div>
 
 <div class="row">
 
@@ -945,7 +942,6 @@ Use schedule automatically
  type="file"
  accept="image/*"
 >
-<div id="galleryProgress"></div>
 
 <button
  class="btn"
@@ -1462,89 +1458,49 @@ Refresh
 </div>
 
 
-<div class="card">
+<div class="card" style="margin-top:16px">
 
 <h3>🔐 Staff Discount Code Check</h3>
 
-<p class="muted">
-Staff login করার পর এখানে Discount Code দিয়ে শুধু Check করুন।
-Code সঠিক হলে Valid এবং ভুল হলে Invalid দেখাবে।
-Coupon Used হবে না এবং status পরিবর্তন হবে না।
-</p>
-
 <div class="row">
 
-<input
- id="staffCouponCode"
- placeholder="Enter Discount Code"
- style="flex:1;min-width:220px"
->
+<input id="staffCouponCode" placeholder="Enter Discount Code" style="flex:1;min-width:220px">
 
-<button
- class="btn green"
- onclick="verifyStaffCoupon()"
->
-🟢 Check Code
-</button>
+<button class="btn green" onclick="verifyStaffCoupon()">🟢 Check Code</button>
 
-<button
- class="btn red"
- onclick="clearStaffCoupon()"
->
-🔴 Clear
-</button>
+<button class="btn red" onclick="clearStaffCoupon()">🔴 Clear</button>
 
 </div>
 
-<div
- id="staffCouponResult"
- style="margin-top:12px"
-></div>
+<div id="staffCouponResult" style="margin-top:12px"></div>
 
 </div>
-
 
 <div class="card" style="margin-top:16px">
 
 <div class="toolbar">
-
 <div>
 <h3>⭐ Reviews</h3>
 <p class="muted">Customer reviews দেখুন এবং প্রয়োজন হলে manage করুন।</p>
 </div>
-
-<button class="btn small" onclick="loadStaffReviews()">
-Refresh
-</button>
-
+<button class="btn small" onclick="loadStaffReviews()">Refresh</button>
 </div>
-
 <div id="staffReviewList"></div>
-
 </div>
-
 
 <div class="card" style="margin-top:16px">
 
 <div class="toolbar">
-
 <div>
 <h3>📝 Customer Reports</h3>
 <p class="muted">Customer reports দেখুন এবং প্রয়োজন হলে resolve করুন।</p>
 </div>
-
-<button class="btn small" onclick="loadStaffReports()">
-Refresh
-</button>
-
+<button class="btn small" onclick="loadStaffReports()">Refresh</button>
 </div>
-
 <div id="staffReportList"></div>
-
 </div>
 
-
-<div class="card" style="margin-top:16px">
+<div class="card">
 
 <h3>Create Staff Account</h3>
 
@@ -1568,12 +1524,19 @@ Refresh
 >
 
 <select id="staffRole">
-<option value="SUPER_ADMIN">SUPER ADMIN</option>
-<option value="BOOKING_STAFF">BOOKING STAFF</option>
-<option value="REVIEW_STAFF">REVIEW STAFF</option>
-<option value="DISCOUNT_STAFF">DISCOUNT STAFF</option>
-<option value="MENU_STAFF">MENU STAFF</option>
-<option value="CONTENT_STAFF">CONTENT STAFF</option>
+
+<option value="DISCOUNT_STAFF">
+DISCOUNT STAFF
+</option>
+
+<option value="BOOKING_STAFF">
+BOOKING STAFF
+</option>
+
+<option value="SUPER_ADMIN">
+SUPER ADMIN
+</option>
+
 </select>
 
 <select id="staffEnabled">
@@ -1602,13 +1565,6 @@ Disabled
  class="muted"
 ></p>
 
-</div>
-
-<div class="card" style="margin-top:16px">
-<h3>🔑 Staff Permissions</h3>
-<p class="muted">Set what each role can View, Add, Edit or Delete. SUPER_ADMIN always has full access.</p>
-<div id="permissionMatrix"></div>
-<button class="btn" onclick="saveStaffPermissions()">💾 Save Permissions</button>
 </div>
 
 <div
@@ -1962,21 +1918,17 @@ async function initializeAdmin(){
   $("roleBadge").textContent =
     data.role || "STAFF";
 
-  await applyCurrentRolePermissions();
   await loadDashboard();
 
 }
 
 
 async function logout(){
-  try{
-    await supabaseClient.auth.signOut({scope:"global"});
-  }catch(error){
-    console.error(error);
-  }
-  currentUser=null;
-  currentStaff=null;
-  window.location.replace("admin.html?loggedout=1");
+
+  await supabaseClient.auth.signOut();
+
+  location.reload();
+
 }
 
 
@@ -2042,7 +1994,7 @@ async function uploadSiteMedia(file,folder,progressTargetId){
   const {data:{session}} = await supabaseClient.auth.getSession();
   if(!session?.access_token) throw new Error("Admin session expired. Please login again.");
 
-  const url = SUPABASE_URL + "/storage/v1/object/menu-images/" + path;
+  const url = SUPABASE_URL + "/storage/v1/object/site-media/" + path;
 
   return await new Promise((resolve,reject)=>{
     const xhr = new XMLHttpRequest();
@@ -2062,7 +2014,7 @@ async function uploadSiteMedia(file,folder,progressTargetId){
     xhr.onload = ()=>{
       if(xhr.status>=200 && xhr.status<300){
         showUploadProgress(progressTargetId,100,"Upload successful ✓");
-        const publicUrl = SUPABASE_URL + "/storage/v1/object/public/menu-images/" + path;
+        const publicUrl = SUPABASE_URL + "/storage/v1/object/public/site-media/" + path;
         resolve(publicUrl);
       }else{
         let message="Upload failed.";
@@ -2166,8 +2118,7 @@ async function uploadHeroImage(){
     const url =
       await uploadSiteMedia(
         file,
-        "hero",
-        "heroImageProgress"
+        "hero"
       );
 
     $("heroImage").value =
@@ -2228,8 +2179,7 @@ async function uploadLogo(){
     const url =
       await uploadSiteMedia(
         file,
-        "logo",
-        "logoProgress"
+        "logo"
       );
 
     await saveSetting(
@@ -2320,8 +2270,7 @@ async function uploadAboutImage(){
     const url =
       await uploadSiteMedia(
         file,
-        "about",
-        "aboutImageProgress"
+        "about"
       );
 
     $("aboutImage").value =
@@ -2520,8 +2469,7 @@ async function addGalleryPhoto(){
     const url =
       await uploadSiteMedia(
         file,
-        "gallery",
-        "galleryProgress"
+        "gallery"
       );
 
     const {
@@ -4059,388 +4007,17 @@ async function loadCoupons(){
 }
 
 
-/* =========================================================
-   STAFF PERMISSIONS + SECRET COUPON
-========================================================= */
-const ROLE_PERMISSIONS_DEFAULT={
- SUPER_ADMIN:{all:true},
- BOOKING_STAFF:{view:["dashboard","bookings"]},
- REVIEW_STAFF:{view:["dashboard","reviews","reports"]},
- DISCOUNT_STAFF:{view:["dashboard","discount","coupons","secretCoupon"]},
- MENU_STAFF:{view:["dashboard","menu","categories"]},
- CONTENT_STAFF:{view:["dashboard","hero","videos","about","breaking","gallery","contact","social","hours"]}
-};
-const PERMISSION_SECTIONS=["dashboard","hero","videos","about","breaking","gallery","contact","social","hours","menu","categories","bookings","reviews","reports","discount","coupons","secretCoupon","staff","performance"];
-const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","MENU_STAFF","CONTENT_STAFF"];
-
-async function getStaffPermissions(){
-  const saved=await getSetting("staff_permissions");
-  return saved && Object.keys(saved).length ? saved : ROLE_PERMISSIONS_DEFAULT;
-}
-function permissionChecked(role,section,action,permissions){
-  if(role==="SUPER_ADMIN") return true;
-  return Boolean(permissions?.[role]?.[action]?.includes(section));
-}
-async function renderPermissionMatrix(){
-  const permissions=await getStaffPermissions();
-  const matrix=$("permissionMatrix"); if(!matrix) return;
-  matrix.innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Role</th><th>Section</th><th>View</th><th>Add</th><th>Edit</th><th>Delete</th></tr></thead><tbody>`+
-  PERMISSION_ROLES.flatMap(role=>PERMISSION_SECTIONS.map(section=>`<tr><td>${escapeHtml(role)}</td><td>${escapeHtml(section)}</td>${["view","add","edit","delete"].map(action=>`<td><input type="checkbox" data-perm-role="${role}" data-perm-section="${section}" data-perm-action="${action}" ${permissionChecked(role,section,action,permissions)?"checked":""}></td>`).join("")}</tr>`)).join("")+`</tbody></table></div>`;
-}
-async function saveStaffPermissions(){
-  const permissions={};
-  PERMISSION_ROLES.forEach(role=>{permissions[role]={view:[],add:[],edit:[],delete:[]};});
-  document.querySelectorAll("[data-perm-role]").forEach(cb=>{if(cb.checked) permissions[cb.dataset.permRole][cb.dataset.permAction].push(cb.dataset.permSection);});
-  permissions.SUPER_ADMIN={all:true};
-  await saveSetting("staff_permissions",permissions);
-  toast("Staff permissions saved.");
-  await applyCurrentRolePermissions();
-}
-async function applyCurrentRolePermissions(){
-  if(!currentStaff) return;
-  const role=currentStaff.role||"SUPER_ADMIN";
-  const permissions=await getStaffPermissions();
-  document.querySelectorAll(".nav").forEach(nav=>{
-    const section=nav.dataset.section;
-    const allowed=role==="SUPER_ADMIN" || Boolean(permissions?.[role]?.view?.includes(section));
-    nav.style.display=allowed?"block":"none";
-  });
-  const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
-  if(first && !document.querySelector(".nav.active")?.style.display!="none") first.click();
-}
-async function checkSecretCoupon(){
-  const code=$("secretCouponCode")?.value.trim().toUpperCase();
-  const box=$("secretCouponResult");
-  if(!box) return;
-  if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
-  try{
-    const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
-    if(error) throw error;
-    if(!data){box.innerHTML='<div class="card bad">🔴 Invalid coupon code.</div>';return;}
-    const status=String(data.status||"active").toLowerCase();
-    const now=Date.now();
-    if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
-    if(data.start_at && new Date(data.start_at).getTime()>now){box.innerHTML='<div class="card bad">🔴 Coupon is not active yet.</div>';return;}
-    if(data.expires_at && new Date(data.expires_at).getTime()<now){box.innerHTML='<div class="card bad">🔴 Coupon expired.</div>';return;}
-    box.innerHTML='<div class="card ok">🟢 Coupon valid — '+escapeHtml(data.code)+'.</div>';
-  }catch(error){showError(error);}
-}
-function clearSecretCoupon(){
-  const input=$("secretCouponCode");
-  const box=$("secretCouponResult");
-  if(input) input.value="";
-  if(box) box.innerHTML="";
-}
-
-function focusStaffCoupon(){
-  setTimeout(()=>{
-    const input=$("staffCouponCode");
-    if(input){
-      input.focus();
-      input.scrollIntoView({behavior:"smooth",block:"center"});
-    }
-  },120);
-}
-
-async function verifyStaffCoupon(){
-
-  const input = $("staffCouponCode");
-  const box = $("staffCouponResult");
-
-  const code =
-    input.value
-      .trim()
-      .toUpperCase();
-
-  if(!code){
-
-    box.innerHTML =
-      '<div class="card bad">🔴 Discount Code দিন।</div>';
-
-    return;
-
-  }
-
-  box.innerHTML =
-    '<div class="muted">Checking discount code…</div>';
-
-  try{
-
-    const {
-      data,
-      error
-    } =
-    await supabaseClient
-      .from("discount_codes")
-      .select("*")
-      .ilike("code",code)
-      .maybeSingle();
-
-    if(error)
-      throw error;
-
-    if(!data){
-
-      box.innerHTML =
-        '<div class="card bad">🔴 Invalid Discount Code — ভুল Code</div>';
-
-      return;
-
-    }
-
-    const status =
-      String(
-        data.status || "active"
-      ).toLowerCase();
-
-    if(
-      status !== "active" &&
-      status !== "unused"
-    ){
-
-      box.innerHTML =
-        `<div class="card bad">
-          🔴 Discount Code Invalid —
-          ${escapeHtml(data.status || "inactive")}
-        </div>`;
-
-      return;
-
-    }
-
-    const now =
-      new Date();
-
-    if(
-      data.start_at &&
-      new Date(data.start_at) > now
-    ){
-
-      box.innerHTML =
-        '<div class="card bad">🔴 Discount Code এখনো Active হয়নি।</div>';
-
-      return;
-
-    }
-
-    if(
-      data.expires_at &&
-      new Date(data.expires_at) < now
-    ){
-
-      box.innerHTML =
-        '<div class="card bad">🔴 Discount Code Expired।</div>';
-
-      return;
-
-    }
-
-    box.innerHTML =
-      `<div class="card ok" style="font-size:18px">
-        🟢 Discount Code Valid
-        <br>
-        <span style="font-size:14px">
-          Code: ${escapeHtml(data.code)}
-        </span>
-      </div>`;
-
-  }catch(error){
-
-    box.innerHTML =
-      `<div class="card bad">
-        🔴 ${escapeHtml(
-          error.message ||
-          "Discount code verification failed"
-        )}
-      </div>`;
-
-  }
-
-}
-
 async function loadStaffReviews(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("reviews")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-  if(error)
-    throw error;
-
-  $("staffReviewList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Rating</th>
-      <th>Message</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          ${escapeHtml(
-            item.customer_name
-          )}
-        </td>
-
-        <td>
-          ⭐ ${item.rating}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.message
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.status
-          )}
-        </td>
-
-        <td>
-
-          <button
-            class="btn green small"
-            onclick="approveReview(${item.id})"
-          >
-            Approve
-          </button>
-
-          <button
-            class="btn red small"
-            onclick="deleteReview(${item.id})"
-          >
-            Delete
-          </button>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
+  const {data,error}=await supabaseClient.from("reviews").select("*").order("created_at",{ascending:false});
+  if(error) throw error;
+  $("staffReviewList").innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Customer</th><th>Rating</th><th>Message</th><th>Status</th><th>Action</th></tr></thead><tbody>${(data||[]).map(item=>`<tr><td>${escapeHtml(item.customer_name||"")}</td><td>⭐ ${escapeHtml(item.rating||"")}</td><td>${escapeHtml(item.message||"")}</td><td>${escapeHtml(item.status||"")}</td><td><button class="btn green small" onclick="approveReview(${item.id})">Approve</button> <button class="btn red small" onclick="deleteReview(${item.id})">Delete</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 
 async function loadStaffReports(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("customer_reports")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-  if(error)
-    throw error;
-
-  $("staffReportList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Subject</th>
-      <th>Message</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          ${escapeHtml(
-            item.customer_name
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.subject
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.message
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.status
-          )}
-        </td>
-
-        <td>
-
-          <button
-            class="btn green small"
-            onclick="resolveReport(${item.id})"
-          >
-            Resolved
-          </button>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
+  const {data,error}=await supabaseClient.from("customer_reports").select("*").order("created_at",{ascending:false});
+  if(error) throw error;
+  $("staffReportList").innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Customer</th><th>Subject</th><th>Message</th><th>Status</th><th>Action</th></tr></thead><tbody>${(data||[]).map(item=>`<tr><td>${escapeHtml(item.customer_name||"")}</td><td>${escapeHtml(item.subject||"")}</td><td>${escapeHtml(item.message||"")}</td><td>${escapeHtml(item.status||"")}</td><td><button class="btn green small" onclick="resolveReport(${item.id})">Resolved</button></td></tr>`).join("")}</tbody></table></div>`;
 }
-
 
 /* =========================================================
    STAFF
