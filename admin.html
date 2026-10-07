@@ -1,89 +1,238 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Nababi Ristorante — Admin Panel</title>
+<meta name="theme-color" content="#050505">
+<title>Nababi Ristorante — Administration</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter,Arial,sans-serif;
-  background:#0b0b0b;
-  color:#f5f5f5;
+
+:root{
+  --bg:#050505;
+  --panel:#0d0d0d;
+  --panel2:#121212;
+  --border:#292929;
+  --gold:#d4af37;
+  --gold2:#f0cf63;
+  --text:#f4f4f4;
+  --muted:#999;
+  --green:#49c77b;
+  --red:#ef6666;
+  --blue:#5ca9ff;
+  --orange:#f0a34b;
 }
-button,input,select,textarea{font:inherit}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{min-height:100vh}
+
+button,input,select,textarea{
+  font:inherit;
+}
+
 button{cursor:pointer}
 
-.login{
+input,select,textarea{
+  width:100%;
+  background:#090909;
+  color:#fff;
+  border:1px solid #333;
+  border-radius:8px;
+  padding:12px;
+  outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--gold);
+}
+
+textarea{
+  resize:vertical;
+  min-height:110px;
+}
+
+label{
+  display:block;
+  margin:0 0 7px;
+  color:#bbb;
+  font-size:13px;
+}
+
+h1,h2,h3,h4,p{
+  margin-top:0;
+}
+
+a{
+  color:var(--gold);
+}
+
+.muted{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.empty{
+  padding:25px;
+  text-align:center;
+  color:#777;
+}
+
+.notice{
+  padding:12px 14px;
+  border-radius:8px;
+  background:#191919;
+  border:1px solid #333;
+  margin:10px 0;
+}
+
+.notice.success{
+  border-color:#276d43;
+  color:#7ee0a2;
+}
+
+.notice.error{
+  border-color:#713434;
+  color:#ff8b8b;
+}
+
+
+/* LOGIN */
+
+#loginScreen{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:20px;
   background:
-    radial-gradient(circle at top,#2b2108,#0b0b0b 50%);
+    radial-gradient(circle at top,#2b2108 0,#0a0a0a 35%,#050505 70%);
 }
+
 .login-box{
   width:100%;
   max-width:430px;
-  background:#151515;
-  border:1px solid #3b2d0c;
-  border-radius:22px;
-  padding:30px;
-  box-shadow:0 20px 70px #000;
+  background:rgba(13,13,13,.96);
+  border:1px solid #3c321b;
+  border-radius:18px;
+  padding:32px;
+  box-shadow:0 25px 80px rgba(0,0,0,.65);
 }
-.logo-title{
-  text-align:center;
-  color:#d6ad55;
+
+.logo-mark{
+  width:75px;
+  height:75px;
+  border-radius:50%;
+  margin:0 auto 18px;
+  border:1px solid var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold);
   font-size:28px;
-  font-weight:800;
-  margin-bottom:5px;
+  font-weight:bold;
 }
-.login-sub{
+
+.login-box h1{
   text-align:center;
-  color:#999;
+  color:var(--gold);
+  font-size:25px;
+  margin-bottom:7px;
+}
+
+.login-box p{
+  text-align:center;
+  color:#888;
+  font-size:13px;
   margin-bottom:25px;
 }
-input,select,textarea{
+
+.login-box .field{
+  margin-bottom:15px;
+}
+
+.login-box button{
   width:100%;
-  background:#0d0d0d;
-  color:#fff;
-  border:1px solid #383838;
-  border-radius:10px;
-  padding:12px 13px;
-  margin:6px 0 12px;
-  outline:none;
+  margin-top:5px;
 }
-input:focus,select:focus,textarea:focus{
-  border-color:#c9a34d;
-}
-textarea{min-height:110px;resize:vertical}
+
+
+/* BUTTONS */
 
 .btn{
-  border:0;
-  border-radius:10px;
-  padding:11px 16px;
-  background:#c7a34b;
-  color:#111;
-  font-weight:800;
-}
-.btn:hover{filter:brightness(1.1)}
-.btn-dark{
-  background:#252525;
-  color:#fff;
   border:1px solid #444;
+  background:#191919;
+  color:#fff;
+  padding:10px 15px;
+  border-radius:8px;
+  transition:.2s;
 }
-.btn-danger{background:#a52828;color:#fff}
-.btn-green{background:#257a48;color:#fff}
-.btn-blue{background:#285c9c;color:#fff}
-.btn-small{padding:7px 10px;font-size:13px}
 
-.app{display:none;min-height:100vh}
+.btn:hover{
+  transform:translateY(-1px);
+  border-color:#666;
+}
+
+.btn-gold{
+  background:linear-gradient(135deg,#b88a12,#e2bf4c);
+  color:#080808;
+  border-color:#d5ad32;
+  font-weight:bold;
+}
+
+.btn-green{
+  background:#123b24;
+  border-color:#276d43;
+  color:#83e5a8;
+}
+
+.btn-danger{
+  background:#3b1414;
+  border-color:#713434;
+  color:#ff8b8b;
+}
+
+.btn-blue{
+  background:#102b45;
+  border-color:#285b89;
+  color:#86c5ff;
+}
+
+.btn-dark{
+  background:#101010;
+}
+
+.btn-small{
+  padding:7px 10px;
+  font-size:12px;
+}
+
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+
+/* APP */
+
+#app{
+  display:none;
+  min-height:100vh;
+}
 
 .sidebar{
   position:fixed;
@@ -91,979 +240,2290 @@ textarea{min-height:110px;resize:vertical}
   top:0;
   bottom:0;
   width:250px;
-  background:#111;
-  border-right:1px solid #292929;
-  padding:20px 15px;
-  overflow:auto;
-  z-index:20;
+  background:#080808;
+  border-right:1px solid #252525;
+  overflow-y:auto;
+  z-index:1000;
 }
-.brand{
-  padding:10px 8px 20px;
-  border-bottom:1px solid #292929;
-  margin-bottom:15px;
+
+.sidebar-header{
+  padding:22px 18px;
+  border-bottom:1px solid #222;
 }
-.brand strong{
+
+.sidebar-header strong{
+  color:var(--gold);
   display:block;
-  color:#d8b45a;
-  font-size:21px;
-}
-.brand small{color:#777}
-
-.role-badge{
-  display:inline-block;
-  margin-top:8px;
-  padding:5px 9px;
-  border-radius:20px;
-  background:#30250c;
-  color:#e1bc62;
-  font-size:11px;
-  font-weight:bold;
+  font-size:17px;
 }
 
-.nav button{
+.sidebar-header small{
+  color:#777;
+  display:block;
+  margin-top:5px;
+}
+
+.sidebar nav{
+  padding:10px;
+}
+
+.nav-btn{
   width:100%;
   text-align:left;
+  border:0;
   background:transparent;
   color:#aaa;
-  border:0;
   padding:12px;
-  border-radius:9px;
-  margin:2px 0;
+  border-radius:8px;
+  margin-bottom:3px;
 }
-.nav button:hover,
-.nav button.active{
-  background:#25200f;
-  color:#e0bb5e;
+
+.nav-btn:hover,
+.nav-btn.active{
+  background:#19150a;
+  color:var(--gold);
 }
+
+.sidebar-footer{
+  padding:12px;
+  border-top:1px solid #222;
+}
+
+.user-card{
+  padding:12px;
+  background:#111;
+  border:1px solid #292929;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.user-card strong{
+  display:block;
+  font-size:13px;
+}
+
+.user-card small{
+  color:#888;
+  display:block;
+  margin-top:4px;
+}
+
 
 .main{
   margin-left:250px;
-  padding:25px;
-  max-width:1500px;
+  min-height:100vh;
 }
 
 .topbar{
+  position:sticky;
+  top:0;
+  z-index:500;
+  background:rgba(5,5,5,.94);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid #222;
+  padding:14px 20px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  gap:15px;
-  margin-bottom:25px;
-}
-.topbar h1{margin:0;font-size:27px}
-.user-info{text-align:right;color:#aaa;font-size:13px}
-
-.page{display:none}
-.page.active{display:block}
-
-.card{
-  background:#141414;
-  border:1px solid #292929;
-  border-radius:16px;
-  padding:20px;
-  margin-bottom:18px;
-}
-.card h2,.card h3{
-  margin-top:0;
-  color:#d9b55b;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-}
-.grid3{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:16px;
-}
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:15px;
-}
-.stat{
-  background:#151515;
-  border:1px solid #292929;
-  border-radius:15px;
-  padding:20px;
-}
-.stat .number{
-  font-size:30px;
-  color:#d6ae54;
-  font-weight:800;
-}
-.stat small{color:#888}
-
-.table-wrap{overflow:auto}
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:700px;
-}
-th,td{
-  padding:11px;
-  border-bottom:1px solid #292929;
-  text-align:left;
-  vertical-align:middle;
-}
-th{color:#d8b45b;font-size:13px}
-td{color:#ddd;font-size:14px}
-
-.preview{
-  max-width:180px;
-  max-height:120px;
-  border-radius:10px;
-  object-fit:cover;
-  border:1px solid #333;
-}
-
-.notice{
-  padding:12px 15px;
-  border-radius:10px;
-  background:#211c0c;
-  color:#d7b761;
-  border:1px solid #443613;
-  margin-bottom:15px;
-}
-.success{
-  background:#102619;
-  color:#73d59b;
-  border-color:#205a37;
-}
-.error{
-  background:#2a1111;
-  color:#ff8888;
-  border-color:#632525;
-}
-
-.media-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-}
-.media-item{
-  width:180px;
-  background:#0d0d0d;
-  border:1px solid #292929;
-  border-radius:12px;
-  padding:8px;
-}
-.media-item img,
-.media-item video{
-  width:100%;
-  height:120px;
-  object-fit:cover;
-  border-radius:8px;
-}
-
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-}
-
-.empty{
-  color:#777;
-  padding:20px;
-  text-align:center;
+  justify-content:space-between;
+  gap:10px;
 }
 
 .mobile-menu{
   display:none;
 }
 
-@media(max-width:850px){
+.content{
+  padding:25px;
+  max-width:1500px;
+  margin:auto;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.page-header h2{
+  color:var(--gold);
+  margin-bottom:5px;
+}
+
+
+/* CARDS */
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:15px;
+  margin-bottom:18px;
+}
+
+.card-header h3{
+  margin-bottom:5px;
+  color:#eee;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:15px;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+
+.grid-4{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;
+}
+
+
+/* DASHBOARD */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;
+}
+
+.stat{
+  background:linear-gradient(145deg,#111,#090909);
+  border:1px solid #292929;
+  border-radius:12px;
+  padding:18px;
+}
+
+.stat span{
+  display:block;
+  color:#888;
+  font-size:12px;
+  margin-bottom:8px;
+}
+
+.stat strong{
+  color:var(--gold);
+  font-size:27px;
+}
+
+
+/* TABLE */
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+
+th,td{
+  border-bottom:1px solid #242424;
+  padding:11px 9px;
+  text-align:left;
+  vertical-align:middle;
+  font-size:13px;
+}
+
+th{
+  color:var(--gold);
+  background:#101010;
+}
+
+.preview{
+  width:55px;
+  height:55px;
+  object-fit:cover;
+  border-radius:7px;
+  border:1px solid #333;
+}
+
+.media-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+
+.media-item{
+  background:#101010;
+  border:1px solid #292929;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.media-item>img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  display:block;
+}
+
+
+/* CATEGORY */
+
+.category-row{
+  padding:13px;
+  border-bottom:1px solid #292929;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.category-info{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.category-image{
+  width:55px;
+  height:55px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid #333;
+  background:#151515;
+}
+
+
+/* STAFF */
+
+.staff-profile{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.staff-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid #4b3d1b;
+  background:#191919;
+}
+
+.performance-card{
+  background:#0b0b0b;
+  border:1px solid #2a2a2a;
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:12px;
+}
+
+.performance-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.performance-number{
+  color:var(--gold);
+  font-size:21px;
+  font-weight:bold;
+}
+
+
+/* MOBILE */
+
+@media(max-width:1000px){
+
+  .stats{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .media-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .grid-4{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+}
+
+@media(max-width:760px){
+
   .sidebar{
     transform:translateX(-100%);
     transition:.25s;
   }
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding:15px}
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main{
+    margin-left:0;
+  }
+
   .mobile-menu{
     display:block;
-    background:#171717;
-    color:#d8b45b;
-    border:1px solid #333;
-    padding:9px 12px;
-    border-radius:8px;
   }
-  .grid,.grid3,.stats{
+
+  .content{
+    padding:15px;
+  }
+
+  .grid,
+  .grid-3,
+  .grid-4{
     grid-template-columns:1fr;
   }
-  .topbar{align-items:flex-start}
+
+  .stats{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .media-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .page-header{
+    flex-direction:column;
+  }
+
+  .topbar{
+    padding:12px 15px;
+  }
+
+}
+
+@media(max-width:480px){
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .media-grid{
+    grid-template-columns:1fr;
+  }
+
+  .login-box{
+    padding:23px;
+  }
+
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
 
-<section id="loginScreen" class="login">
+<!-- =========================================================
+     LOGIN
+========================================================= -->
+
+<div id="loginScreen">
+
   <div class="login-box">
-    <div class="logo-title">NABABI RISTORANTE</div>
-    <div class="login-sub">Premium Administration Panel</div>
+
+    <div class="logo-mark">N</div>
+
+    <h1>Nababi Ristorante</h1>
+
+    <p>Administration Panel</p>
+
+    <div class="field">
+
+      <label>Email</label>
+
+      <input
+        id="loginEmail"
+        type="email"
+        autocomplete="username"
+        placeholder="admin@example.com"
+      >
+
+    </div>
+
+    <div class="field">
+
+      <label>Password</label>
+
+      <input
+        id="loginPassword"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Password"
+        onkeydown="
+          if(event.key==='Enter') login();
+        "
+      >
+
+    </div>
+
+    <button
+      class="btn btn-gold"
+      onclick="login()"
+    >
+      Login
+    </button>
 
     <div id="loginMessage"></div>
 
-    <label>Email</label>
-    <input id="loginEmail" type="email" placeholder="Admin email">
-
-    <label>Password</label>
-    <input id="loginPassword" type="password" placeholder="Password">
-
-    <button class="btn" style="width:100%" onclick="login()">
-      Login
-    </button>
   </div>
-</section>
+
+</div>
 
 
-<!-- ================= APP ================= -->
 
-<div id="app" class="app">
+<!-- =========================================================
+     APP
+========================================================= -->
 
-  <aside id="sidebar" class="sidebar">
+<div id="app">
 
-    <div class="brand">
+
+  <!-- SIDEBAR -->
+
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+    <div class="sidebar-header">
+
       <strong>Nababi Ristorante</strong>
+
       <small>Administration</small>
-      <br>
-      <span id="roleBadge" class="role-badge">Loading...</span>
+
     </div>
 
-    <div class="nav">
 
-      <button data-page="dashboard" onclick="showPage('dashboard')">
+    <nav>
+
+      <button
+        class="nav-btn"
+        data-page="dashboard"
+        onclick="showPage('dashboard')"
+      >
         📊 Dashboard
       </button>
 
-      <button data-page="home" onclick="showPage('home')">
+      <button
+        class="nav-btn"
+        data-page="home"
+        onclick="showPage('home')"
+      >
         🏠 Home / Hero
       </button>
 
-      <button data-page="breaking" onclick="showPage('breaking')">
+      <button
+        class="nav-btn"
+        data-page="breaking"
+        onclick="showPage('breaking')"
+      >
         📢 Breaking News
       </button>
 
-      <button data-page="logo" onclick="showPage('logo')">
-        🪪 Logo
+      <button
+        class="nav-btn"
+        data-page="logo"
+        onclick="showPage('logo')"
+      >
+        🖼️ Logo
       </button>
 
-      <button data-page="about" onclick="showPage('about')">
+      <button
+        class="nav-btn"
+        data-page="about"
+        onclick="showPage('about')"
+      >
         ℹ️ About Us
       </button>
 
-      <button data-page="menu" onclick="showPage('menu')">
+      <button
+        class="nav-btn"
+        data-page="menu"
+        onclick="showPage('menu')"
+      >
         🍽️ Menu Manager
       </button>
 
-      <button data-page="gallery" onclick="showPage('gallery')">
+      <button
+        class="nav-btn"
+        data-page="gallery"
+        onclick="showPage('gallery')"
+      >
         🖼️ Gallery
       </button>
 
-      <button data-page="bookings" onclick="showPage('bookings')">
+      <button
+        class="nav-btn"
+        data-page="bookings"
+        onclick="showPage('bookings')"
+      >
         📅 Table Bookings
       </button>
 
-      <button data-page="reviews" onclick="showPage('reviews')">
+      <button
+        class="nav-btn"
+        data-page="reviews"
+        onclick="showPage('reviews')"
+      >
         ⭐ Reviews
       </button>
 
-      <button data-page="reports" onclick="showPage('reports')">
-        ⚠️ Reports
+      <button
+        class="nav-btn"
+        data-page="reports"
+        onclick="showPage('reports')"
+      >
+        📝 Reports
       </button>
 
-      <button data-page="contact" onclick="showPage('contact')">
+      <button
+        class="nav-btn"
+        data-page="contact"
+        onclick="showPage('contact')"
+      >
         📞 Contact
       </button>
 
-      <button data-page="social" onclick="showPage('social')">
-        🌐 Social Media
+      <button
+        class="nav-btn"
+        data-page="social"
+        onclick="showPage('social')"
+      >
+        📱 Social Media
       </button>
 
-      <button data-page="hours" onclick="showPage('hours')">
+      <button
+        class="nav-btn"
+        data-page="hours"
+        onclick="showPage('hours')"
+      >
         🕐 Opening Hours
       </button>
 
-      <button data-page="discounts" onclick="showPage('discounts')">
+      <button
+        class="nav-btn"
+        data-page="discounts"
+        onclick="showPage('discounts')"
+      >
         🎟️ Discounts
       </button>
 
-      <button data-page="staff" onclick="showPage('staff')">
+      <button
+        class="nav-btn"
+        data-page="staff"
+        onclick="showPage('staff')"
+      >
         👥 Staff Management
       </button>
 
-      <br>
+    </nav>
 
-      <button onclick="logout()">
-        🚪 Logout
+
+    <div class="sidebar-footer">
+
+      <div
+        class="user-card"
+        id="sidebarUser"
+      >
+        <strong>Not logged in</strong>
+        <small></small>
+      </div>
+
+      <button
+        class="btn btn-danger"
+        style="width:100%"
+        onclick="logout()"
+      >
+        Logout
       </button>
 
     </div>
+
   </aside>
 
+
+
+  <!-- MAIN -->
 
   <main class="main">
 
     <div class="topbar">
+
       <div>
-        <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
-        <h1 id="pageTitle">Dashboard</h1>
+
+        <button
+          class="btn mobile-menu"
+          onclick="toggleSidebar()"
+        >
+          ☰
+        </button>
+
       </div>
 
-      <div class="user-info">
-        <div id="userEmail"></div>
-        <div id="userRole"></div>
-      </div>
+      <strong
+        id="topTitle"
+        style="color:var(--gold)"
+      >
+        Dashboard
+      </strong>
+
     </div>
 
 
-    <!-- ================= DASHBOARD ================= -->
+    <div class="content">
 
-    <section id="page-dashboard" class="page">
 
-      <div class="stats">
+      <!-- =====================================================
+           DASHBOARD
+      ====================================================== -->
 
-        <div class="stat">
-          <div class="number" id="statMenu">0</div>
-          <small>Menu Items</small>
-        </div>
+      <section
+        class="page"
+        id="page-dashboard"
+      >
 
-        <div class="stat">
-          <div class="number" id="statGallery">0</div>
-          <small>Gallery Images</small>
-        </div>
-
-        <div class="stat">
-          <div class="number" id="statBookings">0</div>
-          <small>Bookings</small>
-        </div>
-
-        <div class="stat">
-          <div class="number" id="statReviews">0</div>
-          <small>Reviews</small>
-        </div>
-
-      </div>
-
-      <br>
-
-      <div class="stats">
-
-        <div class="stat">
-          <div class="number" id="statReports">0</div>
-          <small>Reports</small>
-        </div>
-
-        <div class="stat">
-          <div class="number" id="statDiscountCodes">0</div>
-          <small>Discount Codes</small>
-        </div>
-
-        <div class="stat">
-          <div class="number" id="statCodesUsed">0</div>
-          <small>Codes Used</small>
-        </div>
-
-        <div class="stat">
-          <div class="number" id="statStaff">0</div>
-          <small>Staff Accounts</small>
-        </div>
-
-      </div>
-
-      <br>
-
-      <div class="card">
-        <h2>Welcome to Nababi Ristorante</h2>
-        <p>
-          Manage your restaurant website, menu, gallery, bookings,
-          reviews, reports, discounts and staff from this panel.
-        </p>
-      </div>
-
-    </section>
-
-
-    <!-- ================= HOME ================= -->
-
-    <section id="page-home" class="page">
-
-      <div class="card">
-        <h2>Hero Section</h2>
-
-        <label>Hero Title</label>
-        <input id="heroTitle">
-
-        <label>Hero Text</label>
-        <textarea id="heroText"></textarea>
-
-        <label>Hero Image URL</label>
-        <input id="heroImage">
-
-        <button class="btn" onclick="saveHero()">
-          Save Hero
-        </button>
-
-        <button class="btn btn-danger" onclick="deleteHeroImage()">
-          Remove Hero Image
-        </button>
-      </div>
-
-      <div class="card">
-        <h2>Hero Videos</h2>
-
-        <label>Video 1 URL</label>
-        <input id="video1">
-
-        <label>Video 2 URL</label>
-        <input id="video2">
-
-        <button class="btn" onclick="saveVideos()">
-          Save Videos
-        </button>
-      </div>
-
-    </section>
-
-
-    <!-- ================= BREAKING ================= -->
-
-    <section id="page-breaking" class="page">
-
-      <div class="card">
-        <h2>Breaking News</h2>
-
-        <label>
-          <input id="breakingEnabled" type="checkbox" style="width:auto">
-          Enable Breaking News
-        </label>
-
-        <label>Text</label>
-        <textarea id="breakingText"></textarea>
-
-        <label>Media URL</label>
-        <input id="breakingMedia">
-
-        <label>Start Date & Time</label>
-        <input id="breakingStart" type="datetime-local">
-
-        <label>End Date & Time</label>
-        <input id="breakingEnd" type="datetime-local">
-
-        <button class="btn" onclick="saveBreaking()">
-          Save Breaking News
-        </button>
-
-        <button class="btn btn-danger" onclick="deleteBreakingMedia()">
-          Remove Media
-        </button>
-      </div>
-
-
-      <div class="card">
-        <h2>Discount Campaign</h2>
-
-        <label>
-          <input id="discountEnabled" type="checkbox" style="width:auto">
-          Enable Discount Campaign
-        </label>
-
-        <label>Campaign Title</label>
-        <input id="discountTitle">
-
-        <label>Discount Percent</label>
-        <input id="discountPercent" type="number">
-
-        <label>Campaign Text</label>
-        <textarea id="discountText"></textarea>
-
-        <button class="btn" onclick="saveDiscount()">
-          Save Discount Campaign
-        </button>
-      </div>
-
-    </section>
-
-
-    <!-- ================= LOGO ================= -->
-
-    <section id="page-logo" class="page">
-
-      <div class="card">
-        <h2>Restaurant Logo</h2>
-
-        <label>Logo Image URL</label>
-        <input id="logoUrl">
-
-        <button class="btn" onclick="saveLogo()">
-          Save Logo
-        </button>
-
-        <button class="btn btn-danger" onclick="deleteLogo()">
-          Remove Logo
-        </button>
-
-        <div id="logoPreview" style="margin-top:20px"></div>
-      </div>
-
-    </section>
-
-
-    <!-- ================= ABOUT ================= -->
-
-    <section id="page-about" class="page">
-
-      <div class="card">
-        <h2>About Nababi Ristorante</h2>
-
-        <label>Title</label>
-        <input id="aboutTitle">
-
-        <label>About Text</label>
-        <textarea id="aboutText" style="min-height:250px"></textarea>
-
-        <label>About Media URL</label>
-        <input id="aboutMedia">
-
-        <button class="btn" onclick="saveAbout()">
-          Save About
-        </button>
-
-        <button class="btn btn-danger" onclick="deleteAboutMedia()">
-          Remove Media
-        </button>
-      </div>
-
-    </section>
-
-
-    <!-- ================= MENU ================= -->
-
-    <section id="page-menu" class="page">
-
-      <div class="card">
-        <h2>Menu Categories</h2>
-
-        <div class="grid">
+        <div class="page-header">
 
           <div>
-            <label>Category Name</label>
-            <input id="categoryName" placeholder="e.g. Pasta">
 
-            <label>Sort Order</label>
-            <input id="categoryOrder" type="number" value="0">
+            <h2>Dashboard</h2>
 
-            <label>Category Image URL</label>
-            <input id="categoryImage">
+            <p class="muted">
+              Nababi Ristorante website overview.
+            </p>
 
-            <button class="btn" onclick="saveCategory()">
-              Add / Save Category
+          </div>
+
+        </div>
+
+
+        <div class="stats">
+
+          <div class="stat">
+            <span>Menu Items</span>
+            <strong id="statMenu">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Gallery Images</span>
+            <strong id="statGallery">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Bookings</span>
+            <strong id="statBookings">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Reviews</span>
+            <strong id="statReviews">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Reports</span>
+            <strong id="statReports">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Discount Codes</span>
+            <strong id="statDiscountCodes">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Codes Used</span>
+            <strong id="statCodesUsed">0</strong>
+          </div>
+
+          <div class="stat">
+            <span>Staff Accounts</span>
+            <strong id="statStaff">0</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           HOME / HERO
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-home"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Home / Hero</h2>
+
+            <p class="muted">
+              Manage the main restaurant hero section.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="grid">
+
+            <div>
+
+              <label>Hero Title</label>
+
+              <input
+                id="heroTitle"
+                type="text"
+              >
+
+            </div>
+
+
+            <div>
+
+              <label>Hero Image URL</label>
+
+              <input
+                id="heroImage"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+          </div>
+
+
+          <div style="margin-top:15px">
+
+            <label>Hero Text</label>
+
+            <textarea id="heroText"></textarea>
+
+          </div>
+
+
+          <div class="actions" style="margin-top:15px">
+
+            <button
+              class="btn btn-gold"
+              onclick="saveHero()"
+            >
+              Save Hero
             </button>
 
-            <button class="btn btn-dark" onclick="clearCategoryForm()">
+            <button
+              class="btn btn-danger"
+              onclick="deleteHeroImage()"
+            >
+              Remove Hero Image
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3>Two Separate Hero Videos</h3>
+
+          <p class="muted">
+            Video 1 and Video 2 are stored separately.
+          </p>
+
+          <div class="grid">
+
+            <div>
+
+              <label>Video 1 URL</label>
+
+              <input
+                id="video1"
+                type="url"
+                placeholder="Video URL"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Video 2 URL</label>
+
+              <input
+                id="video2"
+                type="url"
+                placeholder="Video URL"
+              >
+
+            </div>
+
+          </div>
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="saveVideos()"
+          >
+            Save Videos
+          </button>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           BREAKING NEWS
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-breaking"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Breaking News</h2>
+
+            <p class="muted">
+              Control temporary announcements.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="grid">
+
+            <div>
+
+              <label>Enable</label>
+
+              <select id="breakingEnabled">
+
+                <option value="false">Disabled</option>
+
+                <option value="true">Enabled</option>
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label>Text</label>
+
+              <input
+                id="breakingText"
+                type="text"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Image URL</label>
+
+              <input
+                id="breakingImage"
+                type="url"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Video URL</label>
+
+              <input
+                id="breakingVideo"
+                type="url"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Start Date / Time</label>
+
+              <input
+                id="breakingStart"
+                type="datetime-local"
+              >
+
+            </div>
+
+            <div>
+
+              <label>End Date / Time</label>
+
+              <input
+                id="breakingEnd"
+                type="datetime-local"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="actions" style="margin-top:15px">
+
+            <button
+              class="btn btn-gold"
+              onclick="saveBreaking()"
+            >
+              Save Breaking News
+            </button>
+
+            <button
+              class="btn btn-danger"
+              onclick="deleteBreakingMedia()"
+            >
+              Remove Media
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           LOGO
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-logo"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Restaurant Logo</h2>
+
+            <p class="muted">
+              Change the logo displayed on the website.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <label>Logo Image URL</label>
+
+          <input
+            id="logoUrl"
+            type="url"
+            placeholder="https://..."
+          >
+
+          <div
+            id="logoPreview"
+            style="margin-top:20px"
+          ></div>
+
+          <div class="actions" style="margin-top:15px">
+
+            <button
+              class="btn btn-gold"
+              onclick="saveLogo()"
+            >
+              Save Logo
+            </button>
+
+            <button
+              class="btn btn-danger"
+              onclick="deleteLogo()"
+            >
+              Remove Logo
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           ABOUT
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-about"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>About Us</h2>
+
+            <p class="muted">
+              Manage restaurant story and media.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <label>Title</label>
+
+          <input id="aboutTitle">
+
+          <div style="margin-top:15px">
+
+            <label>About Text</label>
+
+            <textarea
+              id="aboutText"
+              rows="9"
+            ></textarea>
+
+          </div>
+
+
+          <div class="grid" style="margin-top:15px">
+
+            <div>
+
+              <label>Image URL</label>
+
+              <input
+                id="aboutImage"
+                type="url"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Video URL</label>
+
+              <input
+                id="aboutVideo"
+                type="url"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="actions" style="margin-top:15px">
+
+            <button
+              class="btn btn-gold"
+              onclick="saveAbout()"
+            >
+              Save About
+            </button>
+
+            <button
+              class="btn btn-danger"
+              onclick="deleteAboutMedia()"
+            >
+              Remove Media
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           MENU MANAGER
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-menu"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Menu Manager</h2>
+
+            <p class="muted">
+              Create categories and manage food items.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h3>Menu Categories</h3>
+
+              <p class="muted">
+                Add, edit or delete categories.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="grid">
+
+            <div>
+
+              <label>Category Name</label>
+
+              <input
+                id="categoryName"
+                type="text"
+                placeholder="Biryani"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Display Order</label>
+
+              <input
+                id="categoryOrder"
+                type="number"
+                min="0"
+                value="0"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Category Image URL</label>
+
+              <input
+                id="categoryImage"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="actions" style="margin-top:15px">
+
+            <button
+              class="btn btn-gold"
+              onclick="saveCategory()"
+            >
+              Save Category
+            </button>
+
+            <button
+              class="btn btn-dark"
+              onclick="clearCategoryForm()"
+            >
               Clear
             </button>
+
           </div>
 
-          <div>
-            <h3>Existing Categories</h3>
-            <div id="categoriesList"></div>
-          </div>
+
+          <div
+            id="categoriesList"
+            style="margin-top:20px"
+          ></div>
 
         </div>
-      </div>
 
 
-      <div class="card">
-        <h2>Menu Food Manager</h2>
 
-        <input type="hidden" id="foodId">
+        <!-- FOOD FORM -->
 
-        <div class="grid">
+        <div class="card">
 
-          <div>
-            <label>Food Name</label>
-            <input id="foodName">
+          <div class="card-header">
 
-            <label>Price</label>
-            <input id="foodPrice">
+            <div>
 
-            <label>Category</label>
-            <select id="foodCategory">
-              <option value="">Select Category</option>
-            </select>
+              <h3>Add / Edit Food</h3>
+
+              <p class="muted">
+                Select a category from the database.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <input
+            id="foodId"
+            type="hidden"
+          >
+
+
+          <div class="grid">
+
+            <div>
+
+              <label>Food Name</label>
+
+              <input
+                id="foodName"
+                type="text"
+                placeholder="Chicken Biryani"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Price</label>
+
+              <input
+                id="foodPrice"
+                type="text"
+                placeholder="€12.50"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Category</label>
+
+              <select id="foodCategory">
+
+                <option value="">
+                  Select Category
+                </option>
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label>Food Image URL</label>
+
+              <input
+                id="foodImage"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+          </div>
+
+
+          <div style="margin-top:15px">
 
             <label>Description</label>
-            <textarea id="foodDescription"></textarea>
+
+            <textarea
+              id="foodDescription"
+              placeholder="Food description..."
+            ></textarea>
+
           </div>
 
-          <div>
-            <label>Food Image URL</label>
-            <input id="foodImage">
 
-            <br>
+          <div class="actions" style="margin-top:15px">
 
-            <button class="btn" onclick="saveFood()">
-              Add / Save Food
+            <button
+              class="btn btn-gold"
+              onclick="saveFood()"
+            >
+              Save Food
             </button>
 
-            <button class="btn btn-dark" onclick="clearFoodForm()">
+            <button
+              class="btn btn-dark"
+              onclick="clearFoodForm()"
+            >
               Clear
             </button>
+
           </div>
 
         </div>
-      </div>
-
-
-      <div class="card">
-        <h2>Food Items</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Category</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="foodsTable"></tbody>
-          </table>
-        </div>
-      </div>
 
-    </section>
-
-
-    <!-- ================= GALLERY ================= -->
-
-    <section id="page-gallery" class="page">
-
-      <div class="card">
-        <h2>Gallery</h2>
-
-        <label>Image URL</label>
-        <input id="galleryUrl">
-
-        <label>Title</label>
-        <input id="galleryTitle">
-
-        <label>Category</label>
-        <input id="galleryCategory" value="Restaurant">
-
-        <button class="btn" onclick="addGalleryByUrl()">
-          Add Gallery Image
-        </button>
-      </div>
-
-      <div class="card">
-        <h2>Gallery Images</h2>
-        <div id="galleryList" class="media-list"></div>
-      </div>
-
-    </section>
 
 
-    <!-- ================= BOOKINGS ================= -->
+        <!-- FOOD TABLE -->
 
-    <section id="page-bookings" class="page">
+        <div class="card">
 
-      <div class="card">
-        <h2>Table Bookings</h2>
+          <div class="card-header">
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Customer</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Guests</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="bookingsTable"></tbody>
-          </table>
-        </div>
-      </div>
+            <h3>Food Items</h3>
 
-    </section>
+          </div>
 
 
-    <!-- ================= REVIEWS ================= -->
+          <div class="table-wrap">
 
-    <section id="page-reviews" class="page">
+            <table>
 
-      <div class="card">
-        <h2>Customer Reviews</h2>
+              <thead>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Rating</th>
-                <th>Message</th>
-                <th>Status</th>
-                <th>Featured</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reviewsTable"></tbody>
-          </table>
-        </div>
-      </div>
+                <tr>
 
-    </section>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Category</th>
+                  <th>Actions</th>
 
+                </tr>
 
-    <!-- ================= REPORTS ================= -->
+              </thead>
 
-    <section id="page-reports" class="page">
+              <tbody id="foodsTable"></tbody>
 
-      <div class="card">
-        <h2>Customer Reports / Complaints</h2>
+            </table>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Subject</th>
-                <th>Message</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="reportsTable"></tbody>
-          </table>
-        </div>
-      </div>
+          </div>
 
-    </section>
-
-
-    <!-- ================= CONTACT ================= -->
-
-    <section id="page-contact" class="page">
-
-      <div class="card">
-        <h2>Contact Information</h2>
-
-        <label>Address</label>
-        <input id="contactAddress">
-
-        <label>Phone 1</label>
-        <input id="contactPhone1">
-
-        <label>Phone 2</label>
-        <input id="contactPhone2">
-
-        <label>WhatsApp</label>
-        <input id="contactWhatsapp">
-
-        <label>Google Maps URL</label>
-        <input id="contactMaps">
-
-        <button class="btn" onclick="saveContact()">
-          Save Contact
-        </button>
-      </div>
-
-    </section>
-
-
-    <!-- ================= SOCIAL ================= -->
-
-    <section id="page-social" class="page">
-
-      <div class="card">
-        <h2>Social Media</h2>
-
-        <label>Facebook</label>
-        <input id="socialFacebook">
-
-        <label>Instagram</label>
-        <input id="socialInstagram">
-
-        <label>TikTok</label>
-        <input id="socialTikTok">
-
-        <label>YouTube</label>
-        <input id="socialYoutube">
-
-        <button class="btn" onclick="saveSocial()">
-          Save Social Media
-        </button>
-      </div>
-
-    </section>
-
-
-    <!-- ================= HOURS ================= -->
-
-    <section id="page-hours" class="page">
-
-      <div class="card">
-        <h2>Opening Hours</h2>
-
-        <div id="hoursForm"></div>
-
-        <button class="btn" onclick="saveHours()">
-          Save Opening Hours
-        </button>
-      </div>
-
-    </section>
-
-
-    <!-- ================= DISCOUNTS ================= -->
-
-    <section id="page-discounts" class="page">
-
-      <div class="card">
-        <h2>🎟️ Discount Campaign</h2>
-
-        <div class="notice">
-          Discount Staff can manage this section.
         </div>
 
-        <label>
-          <input id="staffDiscountEnabled" type="checkbox" style="width:auto">
-          Campaign Enabled
-        </label>
-
-        <label>Campaign Title</label>
-        <input id="staffDiscountTitle">
-
-        <label>Discount Percent</label>
-        <input id="staffDiscountPercent" type="number">
-
-        <label>Campaign Text</label>
-        <textarea id="staffDiscountText"></textarea>
-
-        <button class="btn" onclick="saveStaffDiscount()">
-          Save Campaign
-        </button>
-      </div>
+      </section>
 
 
-      <div class="card">
-        <h2>Discount Codes</h2>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Campaign</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Used</th>
-              </tr>
-            </thead>
-            <tbody id="discountCodesTable"></tbody>
-          </table>
-        </div>
-      </div>
+      <!-- =====================================================
+           GALLERY
+      ====================================================== -->
 
-    </section>
+      <section
+        class="page"
+        id="page-gallery"
+      >
 
-
-    <!-- ================= STAFF ================= -->
-
-    <section id="page-staff" class="page">
-
-      <div class="card">
-        <h2>👥 Staff Management</h2>
-
-        <div class="notice">
-          Only Super Admin can create or manage staff accounts.
-        </div>
-
-        <div id="staffMessage"></div>
-
-        <div class="grid">
+        <div class="page-header">
 
           <div>
 
-            <label>Full Name</label>
-            <input id="newStaffName" placeholder="Staff name">
+            <h2>Gallery</h2>
 
-            <label>Email</label>
-            <input id="newStaffEmail" type="email" placeholder="staff@example.com">
+            <p class="muted">
+              Add and manage restaurant photos.
+            </p>
 
           </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="grid">
+
+            <div>
+
+              <label>Image URL</label>
+
+              <input
+                id="galleryUrl"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+            <div>
+
+              <label>Title</label>
+
+              <input
+                id="galleryTitle"
+                type="text"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Category</label>
+
+              <input
+                id="galleryCategory"
+                type="text"
+                value="Restaurant"
+              >
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="addGalleryByUrl()"
+          >
+            Add Gallery Image
+          </button>
+
+        </div>
+
+
+        <div
+          class="media-grid"
+          id="galleryList"
+        ></div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           BOOKINGS
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-bookings"
+      >
+
+        <div class="page-header">
 
           <div>
 
-            <label>Password</label>
-            <input id="newStaffPassword" type="password" placeholder="Minimum 8 characters">
+            <h2>Table Bookings</h2>
 
-            <label>Role</label>
-            <select id="newStaffRole">
-              <option value="DISCOUNT_STAFF">
-                Discount Staff
-              </option>
-              <option value="BOOKING_STAFF">
-                Booking Staff
-              </option>
-              <option value="SUPER_ADMIN">
-                Super Admin
-              </option>
-            </select>
+            <p class="muted">
+              Manage customer reservations.
+            </p>
 
           </div>
 
         </div>
 
-        <button class="btn" onclick="createStaff()">
-          ➕ Create Staff Account
-        </button>
 
-      </div>
+        <div class="card">
 
+          <div class="table-wrap">
 
-      <div class="card">
-        <h2>Existing Staff</h2>
+            <table>
 
-        <div class="table-wrap">
+              <thead>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+                <tr>
 
-            <tbody id="staffTable"></tbody>
+                  <th>Reference</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Guests</th>
+                  <th>Status</th>
+                  <th>Actions</th>
 
-          </table>
+                </tr>
+
+              </thead>
+
+              <tbody id="bookingsTable"></tbody>
+
+            </table>
+
+          </div>
 
         </div>
 
-      </div>
+      </section>
 
-    </section>
+
+
+      <!-- =====================================================
+           REVIEWS
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-reviews"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Reviews</h2>
+
+            <p class="muted">
+              Approve, feature or remove customer reviews.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Name</th>
+                  <th>Rating</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Featured</th>
+                  <th>Actions</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="reviewsTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           REPORTS
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-reports"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Reports / Complaints</h2>
+
+            <p class="muted">
+              Manage customer reports.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="reportsTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           CONTACT
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-contact"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Contact</h2>
+
+            <p class="muted">
+              Restaurant contact details.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="grid">
+
+            <div>
+
+              <label>Address</label>
+
+              <input id="contactAddress">
+
+            </div>
+
+            <div>
+
+              <label>Phone 1</label>
+
+              <input id="contactPhone1">
+
+            </div>
+
+            <div>
+
+              <label>Phone 2</label>
+
+              <input id="contactPhone2">
+
+            </div>
+
+            <div>
+
+              <label>WhatsApp</label>
+
+              <input id="contactWhatsapp">
+
+            </div>
+
+            <div>
+
+              <label>Google Maps URL</label>
+
+              <input id="contactMaps">
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="saveContact()"
+          >
+            Save Contact
+          </button>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           SOCIAL
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-social"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Social Media</h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="grid">
+
+            <div>
+              <label>Facebook</label>
+              <input id="socialFacebook">
+            </div>
+
+            <div>
+              <label>Instagram</label>
+              <input id="socialInstagram">
+            </div>
+
+            <div>
+              <label>TikTok</label>
+              <input id="socialTikTok">
+            </div>
+
+            <div>
+              <label>YouTube</label>
+              <input id="socialYoutube">
+            </div>
+
+          </div>
+
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="saveSocial()"
+          >
+            Save Social Media
+          </button>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           HOURS
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-hours"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Opening Hours</h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div id="hoursForm"></div>
+
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="saveHours()"
+          >
+            Save Opening Hours
+          </button>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           DISCOUNTS
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-discounts"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Discounts</h2>
+
+            <p class="muted">
+              Campaign, discount codes and staff verification.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <h3>Discount Campaign</h3>
+
+          <div class="grid">
+
+            <div>
+
+              <label>Enabled</label>
+
+              <select id="staffDiscountEnabled">
+
+                <option value="false">Disabled</option>
+
+                <option value="true">Enabled</option>
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label>Campaign Title</label>
+
+              <input id="staffDiscountTitle">
+
+            </div>
+
+            <div>
+
+              <label>Discount Percent</label>
+
+              <input
+                id="staffDiscountPercent"
+                type="number"
+                min="0"
+                max="100"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div style="margin-top:15px">
+
+            <label>Description</label>
+
+            <textarea id="staffDiscountText"></textarea>
+
+          </div>
+
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="saveStaffDiscount()"
+          >
+            Save Discount Campaign
+          </button>
+
+        </div>
+
+
+
+        <!-- CHECK CODE -->
+
+        <div
+          class="card"
+          id="discountCheckCard"
+        >
+
+          <h3>Check Discount Code</h3>
+
+          <p class="muted">
+            Staff can verify a customer's discount code.
+          </p>
+
+          <div class="grid">
+
+            <div>
+
+              <label>Discount Code</label>
+
+              <input
+                id="checkDiscountCode"
+                placeholder="NB-000001"
+              >
+
+            </div>
+
+            <div style="display:flex;align-items:end">
+
+              <button
+                class="btn btn-gold"
+                style="width:100%"
+                onclick="checkDiscountCode()"
+              >
+                Check Code
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div id="discountCheckResult"></div>
+
+        </div>
+
+
+
+        <!-- CODES -->
+
+        <div class="card">
+
+          <h3>Discount Codes</h3>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Code</th>
+                  <th>Campaign</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Action</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="discountCodesTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STAFF ACTIVITY -->
+
+        <div
+          class="card"
+          id="discountActivityCard"
+        >
+
+          <h3>My Discount Activity</h3>
+
+          <div id="myDiscountActivity"></div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =====================================================
+           STAFF
+      ====================================================== -->
+
+      <section
+        class="page"
+        id="page-staff"
+      >
+
+        <div class="page-header">
+
+          <div>
+
+            <h2>Staff Management</h2>
+
+            <p class="muted">
+              Create accounts, manage roles and monitor performance.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- CREATE STAFF -->
+
+        <div class="card">
+
+          <h3>Create Staff Account</h3>
+
+          <div class="grid">
+
+            <div>
+
+              <label>Full Name</label>
+
+              <input
+                id="newStaffName"
+                placeholder="Staff name"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Email</label>
+
+              <input
+                id="newStaffEmail"
+                type="email"
+                placeholder="staff@email.com"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Password</label>
+
+              <input
+                id="newStaffPassword"
+                type="password"
+                placeholder="Minimum 8 characters"
+              >
+
+            </div>
+
+            <div>
+
+              <label>Role</label>
+
+              <select id="newStaffRole">
+
+                <option value="DISCOUNT_STAFF">
+                  Discount Staff
+                </option>
+
+                <option value="BOOKING_STAFF">
+                  Booking Staff
+                </option>
+
+                <option value="SUPER_ADMIN">
+                  Super Admin
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="btn btn-gold"
+            style="margin-top:15px"
+            onclick="createStaff()"
+          >
+            Create Staff Account
+          </button>
+
+
+          <div id="staffMessage"></div>
+
+        </div>
+
+
+
+        <!-- STAFF TABLE -->
+
+        <div class="card">
+
+          <h3>Staff Accounts</h3>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Profile</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="staffTable"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- PROFILE PHOTO -->
+
+        <div class="card">
+
+          <h3>Staff Profile Photo</h3>
+
+          <p class="muted">
+            Super Admin can change a staff member's profile photo.
+          </p>
+
+          <div class="grid">
+
+            <div>
+
+              <label>Select Staff</label>
+
+              <select id="photoStaffSelect"></select>
+
+            </div>
+
+            <div>
+
+              <label>Photo URL</label>
+
+              <input
+                id="staffAvatarUrl"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+          </div>
+
+
+          <div class="actions" style="margin-top:15px">
+
+            <button
+              class="btn btn-gold"
+              onclick="saveStaffAvatar()"
+            >
+              Save Photo
+            </button>
+
+            <button
+              class="btn btn-danger"
+              onclick="removeStaffAvatar()"
+            >
+              Remove Photo
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- PERFORMANCE -->
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div>
+
+              <h3>Staff Performance</h3>
+
+              <p class="muted">
+                Individual discount and booking activity.
+              </p>
+
+            </div>
+
+            <button
+              class="btn btn-small"
+              onclick="loadStaffPerformance()"
+            >
+              Refresh
+            </button>
+
+          </div>
+
+
+          <div id="staffPerformance"></div>
+
+        </div>
+
+      </section>
+
+
+    </div>
 
   </main>
+
 </div>
+
 
 
 <script>
@@ -1078,80 +2538,9 @@ let currentStaff = null;
 
 const ADMIN_FUNCTION_NAME = "create-staff";
 
-/* ================= SUPABASE INIT ================= */
-
-function initSupabase(){
-
-  try{
-
-    if(
-      !window.SUPABASE_URL ||
-      !window.SUPABASE_ANON_KEY
-    ){
-
-      throw new Error(
-        "Supabase configuration is missing."
-      );
-
-    }
-
-    if(
-      !window.supabase ||
-      typeof window.supabase.createClient !== "function"
-    ){
-
-      throw new Error(
-        "Supabase library is not loaded."
-      );
-
-    }
-
-    sb = window.supabase.createClient(
-      window.SUPABASE_URL,
-      window.SUPABASE_ANON_KEY
-    );
-
-    return true;
-
-  }catch(error){
-
-    console.error(
-      "Supabase initialization error:",
-      error
-    );
-
-    sb = null;
-
-    return false;
-
-  }
-
-}
-
-
-/* Initialize immediately */
-
-const supabaseReady = initSupabase();
-
-if(!supabaseReady){
-
-  window.addEventListener(
-    "load",
-    ()=>{
-      initSupabase();
-    }
-  );
-
-}
-
-
-/* =========================================================
-   ROLE ACCESS
-========================================================= */
-
 const ROLE_PAGES = {
 
-  SUPER_ADMIN: [
+  SUPER_ADMIN:[
     "dashboard",
     "home",
     "breaking",
@@ -1169,62 +2558,108 @@ const ROLE_PAGES = {
     "staff"
   ],
 
-  DISCOUNT_STAFF: [
+  DISCOUNT_STAFF:[
     "discounts"
   ],
 
-  BOOKING_STAFF: [
+  BOOKING_STAFF:[
     "bookings"
   ]
 
 };
 
 
-/* =========================================================
-   INIT
-========================================================= */
+function initSupabase(){
 
-document.addEventListener("DOMContentLoaded", async () => {
+  try{
 
-  try {
-
-    if (!window.supabase) {
-      throw new Error("Supabase library not loaded.");
-    }
-
-    if (
+    if(
       typeof SUPABASE_URL === "undefined" ||
       typeof SUPABASE_ANON_KEY === "undefined"
-    ) {
-      throw new Error("config.js variables not found.");
+    ){
+
+      console.error("Supabase config.js values missing.");
+      return false;
+
     }
 
-    sb = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
 
-    const {
-      data:{session}
-    } = await sb.auth.getSession();
+    sb =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
 
-    if (session?.user) {
-      currentUser = session.user;
-      await openAdmin();
-    }
 
-  } catch(error) {
+    return true;
+
+  }catch(error){
 
     console.error(error);
 
-    showLoginMessage(
-      error.message,
-      "error"
-    );
+    return false;
 
   }
 
-});
+}
+
+
+initSupabase();
+
+
+
+/* =========================================================
+   START
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async()=>{
+
+    if(!sb){
+
+      initSupabase();
+
+    }
+
+
+    if(!sb){
+
+      showLoginMessage(
+        "Supabase configuration could not be loaded.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    try{
+
+      const {
+        data:{session}
+      } = await sb.auth.getSession();
+
+
+      if(session?.user){
+
+        currentUser =
+          session.user;
+
+        await openAdmin();
+
+      }
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+);
+
 
 
 /* =========================================================
@@ -1233,26 +2668,47 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function login(){
 
-  const email =
-    document.getElementById("loginEmail").value.trim();
-
-  const password =
-    document.getElementById("loginPassword").value;
-
-  if(!email || !password){
+  if(!sb){
 
     showLoginMessage(
-      "Please enter email and password.",
+      "Supabase is not ready.",
       "error"
     );
 
     return;
+
   }
 
+
+  const email =
+    document
+      .getElementById("loginEmail")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("loginPassword")
+      .value;
+
+
+  if(!email || !password){
+
+    showLoginMessage(
+      "Enter email and password.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
   showLoginMessage(
-    "Signing in...",
-    ""
+    "Signing in..."
   );
+
 
   try{
 
@@ -1264,11 +2720,16 @@ async function login(){
       password
     });
 
+
     if(error) throw error;
 
-    currentUser = data.user;
+
+    currentUser =
+      data.user;
+
 
     await openAdmin();
+
 
   }catch(error){
 
@@ -1280,7 +2741,9 @@ async function login(){
     );
 
   }
+
 }
+
 
 
 /* =========================================================
@@ -1293,43 +2756,54 @@ async function openAdmin(){
 
     await loadMyRole();
 
-    document.getElementById("loginScreen").style.display="none";
-    document.getElementById("app").style.display="block";
 
-    document.getElementById("userEmail").textContent =
-      currentUser?.email || "";
+    document
+      .getElementById("loginScreen")
+      .style.display="none";
 
-    document.getElementById("userRole").textContent =
-      roleName(currentRole);
 
-    document.getElementById("roleBadge").textContent =
-      roleName(currentRole);
+    document
+      .getElementById("app")
+      .style.display="block";
+
+
+    document
+      .getElementById("sidebarUser")
+      .innerHTML=`
+        <strong>
+          ${escapeHtml(
+            currentStaff?.full_name ||
+            currentUser?.email ||
+            ""
+          )}
+        </strong>
+
+        <small>
+          ${escapeHtml(roleName(currentRole))}
+        </small>
+      `;
+
 
     applyRoleMenu();
 
-    const pages = ROLE_PAGES[currentRole] || [];
 
-    if(!pages.length){
-
-      throw new Error(
-        "This account has no administration permission."
-      );
-
-    }
-
-    if(currentRole === "SUPER_ADMIN"){
+    if(currentRole==="SUPER_ADMIN"){
 
       await loadAll();
 
       showPage("dashboard");
 
-    }else if(currentRole === "DISCOUNT_STAFF"){
+    }
+
+    else if(currentRole==="DISCOUNT_STAFF"){
 
       await loadDiscountStaff();
 
       showPage("discounts");
 
-    }else if(currentRole === "BOOKING_STAFF"){
+    }
+
+    else if(currentRole==="BOOKING_STAFF"){
 
       await loadBookings();
 
@@ -1343,13 +2817,19 @@ async function openAdmin(){
 
     await sb.auth.signOut();
 
-    currentUser=null;
+    document
+      .getElementById("loginScreen")
+      .style.display="flex";
 
-    document.getElementById("app").style.display="none";
-    document.getElementById("loginScreen").style.display="flex";
+
+    document
+      .getElementById("app")
+      .style.display="none";
+
 
     showLoginMessage(
-      error.message || "Access denied.",
+      error.message ||
+      "Unable to open admin panel.",
       "error"
     );
 
@@ -1358,19 +2838,27 @@ async function openAdmin(){
 }
 
 
+
 /* =========================================================
-   LOAD CURRENT ROLE
+   ROLE
 ========================================================= */
 
 async function loadMyRole(){
 
   if(!currentUser?.email){
 
-    throw new Error("No authenticated user.");
+    throw new Error(
+      "No authenticated user."
+    );
+
   }
 
+
   const email =
-    currentUser.email.toLowerCase();
+    currentUser.email
+      .trim()
+      .toLowerCase();
+
 
   const {
     data,
@@ -1378,31 +2866,55 @@ async function loadMyRole(){
   } = await sb
     .from("admin_staff")
     .select("*")
-    .eq("email",email)
+    .ilike("email",email)
     .maybeSingle();
 
+
   if(error) throw error;
+
 
   if(!data){
 
     throw new Error(
-      "This email is not registered as Admin Staff."
+      "This account is not registered as admin staff."
     );
 
   }
 
-  if(!data.enabled){
+
+  if(data.enabled !== true){
 
     throw new Error(
-      "This staff account has been disabled."
+      "This staff account is disabled."
     );
 
   }
 
-  currentStaff=data;
-  currentRole=data.role;
+
+  currentStaff =
+    data;
+
+
+  currentRole =
+    data.role;
+
+
+  if(
+    ![
+      "SUPER_ADMIN",
+      "DISCOUNT_STAFF",
+      "BOOKING_STAFF"
+    ].includes(currentRole)
+  ){
+
+    throw new Error(
+      "Invalid staff role."
+    );
+
+  }
 
 }
+
 
 
 /* =========================================================
@@ -1414,23 +2926,28 @@ function applyRoleMenu(){
   const allowed =
     ROLE_PAGES[currentRole] || [];
 
-  document.querySelectorAll(".nav button[data-page]")
+
+  document
+    .querySelectorAll(".nav-btn")
     .forEach(button=>{
 
-      const page=button.dataset.page;
+      const page =
+        button.dataset.page;
+
 
       button.style.display =
         allowed.includes(page)
-          ? "block"
-          : "none";
+        ? "block"
+        : "none";
 
     });
 
 }
 
 
+
 /* =========================================================
-   PAGE NAVIGATION
+   SHOW PAGE
 ========================================================= */
 
 function showPage(page){
@@ -1438,25 +2955,36 @@ function showPage(page){
   const allowed =
     ROLE_PAGES[currentRole] || [];
 
-  if(!allowed.includes(page)){
 
-    alert("You do not have permission to access this section.");
+  if(!allowed.includes(page)){
 
     return;
 
   }
 
-  document.querySelectorAll(".page")
-    .forEach(p=>p.classList.remove("active"));
+
+  document
+    .querySelectorAll(".page")
+    .forEach(item=>{
+      item.classList.remove("active");
+    });
+
 
   const target =
-    document.getElementById("page-"+page);
+    document.getElementById(
+      `page-${page}`
+    );
+
 
   if(target){
+
     target.classList.add("active");
+
   }
 
-  document.querySelectorAll(".nav button[data-page]")
+
+  document
+    .querySelectorAll(".nav-btn")
     .forEach(button=>{
 
       button.classList.toggle(
@@ -1466,11 +2994,13 @@ function showPage(page){
 
     });
 
+
   const titles={
+
     dashboard:"Dashboard",
     home:"Home / Hero",
     breaking:"Breaking News",
-    logo:"Restaurant Logo",
+    logo:"Logo",
     about:"About Us",
     menu:"Menu Manager",
     gallery:"Gallery",
@@ -1480,24 +3010,79 @@ function showPage(page){
     contact:"Contact",
     social:"Social Media",
     hours:"Opening Hours",
-    discounts:"Discount Management",
+    discounts:"Discounts",
     staff:"Staff Management"
+
   };
 
-  document.getElementById("pageTitle").textContent =
-    titles[page] || "Admin";
 
-  if(window.innerWidth<=850){
-    document
-      .getElementById("sidebar")
-      .classList.remove("open");
+  document
+    .getElementById("topTitle")
+    .textContent =
+      titles[page] || "Administration";
+
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("open");
+
+
+  if(page==="menu"){
+
+    loadCategories();
+    loadFoods();
+
+  }
+
+  if(page==="gallery"){
+
+    loadGallery();
+
+  }
+
+  if(page==="bookings"){
+
+    loadBookings();
+
+  }
+
+  if(page==="reviews"){
+
+    loadReviews();
+
+  }
+
+  if(page==="reports"){
+
+    loadReports();
+
+  }
+
+  if(page==="discounts"){
+
+    loadDiscounts();
+
+    if(currentRole!=="SUPER_ADMIN"){
+
+      loadMyDiscountActivity();
+
+    }
+
+  }
+
+  if(page==="staff"){
+
+    loadStaff();
+    loadStaffPerformance();
+
   }
 
 }
 
 
+
 /* =========================================================
-   LOAD ALL SUPER ADMIN
+   LOAD ALL
 ========================================================= */
 
 async function loadAll(){
@@ -1520,26 +3105,9 @@ async function loadAll(){
 }
 
 
-/* =========================================================
-   ROLE LOADERS
-========================================================= */
-
-async function loadDiscountStaff(){
-
-  await loadDiscounts();
-
-}
-
-
-async function loadBookingsStaff(){
-
-  await loadBookings();
-
-}
-
 
 /* =========================================================
-   SETTINGS HELPERS
+   SETTINGS
 ========================================================= */
 
 async function getSetting(key){
@@ -1553,14 +3121,19 @@ async function getSetting(key){
     .eq("key",key)
     .maybeSingle();
 
+
   if(error) throw error;
+
 
   return data?.value || {};
 
 }
 
 
-async function saveSetting(key,value){
+async function saveSetting(
+  key,
+  value
+){
 
   const {
     error
@@ -1569,125 +3142,173 @@ async function saveSetting(key,value){
     .upsert({
       key,
       value,
-      updated_at:new Date().toISOString()
+      updated_at:
+        new Date().toISOString()
     });
+
 
   if(error) throw error;
 
 }
 
 
+
 /* =========================================================
-   LOAD SETTINGS
+   SETTINGS LOAD
 ========================================================= */
 
 async function loadSettings(){
 
   try{
 
-    const hero=await getSetting("hero");
+    const hero =
+      await getSetting("hero");
+
 
     document.getElementById("heroTitle").value =
       hero.title || "";
 
+
     document.getElementById("heroText").value =
       hero.text || "";
+
 
     document.getElementById("heroImage").value =
       hero.image_url || "";
 
 
-    const videos=await getSetting("videos");
+    const videos =
+      await getSetting("videos");
+
 
     document.getElementById("video1").value =
       videos.video1 || "";
+
 
     document.getElementById("video2").value =
       videos.video2 || "";
 
 
-    const breaking=await getSetting("breaking_news");
+    const breaking =
+      await getSetting("breaking_news");
 
-    document.getElementById("breakingEnabled").checked =
-      !!breaking.enabled;
+
+    document.getElementById("breakingEnabled").value =
+      String(!!breaking.enabled);
+
 
     document.getElementById("breakingText").value =
       breaking.text || "";
 
-    document.getElementById("breakingMedia").value =
-      breaking.media_url || "";
+
+    document.getElementById("breakingImage").value =
+      breaking.image_url || "";
+
+
+    document.getElementById("breakingVideo").value =
+      breaking.video_url || "";
+
 
     document.getElementById("breakingStart").value =
-      breaking.start_at || "";
+      toDateTimeLocal(breaking.start_at);
+
 
     document.getElementById("breakingEnd").value =
-      breaking.end_at || "";
+      toDateTimeLocal(breaking.end_at);
 
 
-    const logo=await getSetting("logo");
+    const logo =
+      await getSetting("logo");
+
 
     document.getElementById("logoUrl").value =
       logo.url || "";
 
-    renderLogo(logo.url);
+
+    renderLogo(logo.url || "");
 
 
-    const about=await getSetting("about");
+    const about =
+      await getSetting("about");
+
 
     document.getElementById("aboutTitle").value =
       about.title || "";
 
+
     document.getElementById("aboutText").value =
       about.text || "";
 
-    document.getElementById("aboutMedia").value =
-      about.media_url || "";
+
+    document.getElementById("aboutImage").value =
+      about.image_url || "";
 
 
-    const contact=await getSetting("contact");
+    document.getElementById("aboutVideo").value =
+      about.video_url || "";
+
+
+    const contact =
+      await getSetting("contact");
+
 
     document.getElementById("contactAddress").value =
       contact.address || "";
 
+
     document.getElementById("contactPhone1").value =
       contact.phone1 || "";
+
 
     document.getElementById("contactPhone2").value =
       contact.phone2 || "";
 
+
     document.getElementById("contactWhatsapp").value =
       contact.whatsapp || "";
+
 
     document.getElementById("contactMaps").value =
       contact.google_maps || "";
 
 
-    const social=await getSetting("social");
+    const social =
+      await getSetting("social");
+
 
     document.getElementById("socialFacebook").value =
       social.facebook || "";
 
+
     document.getElementById("socialInstagram").value =
       social.instagram || "";
 
+
     document.getElementById("socialTikTok").value =
       social.tiktok || "";
+
 
     document.getElementById("socialYoutube").value =
       social.youtube || "";
 
 
-    const hours=await getSetting("hours");
+    const hours =
+      await getSetting("hours");
+
 
     renderHours(hours);
 
   }catch(error){
 
-    console.error("Settings:",error);
+    console.error(
+      "loadSettings:",
+      error
+    );
 
   }
 
 }
+
 
 
 /* =========================================================
@@ -1698,13 +3319,24 @@ async function saveHero(){
 
   try{
 
-    await saveSetting("hero",{
-      title:document.getElementById("heroTitle").value,
-      text:document.getElementById("heroText").value,
-      image_url:document.getElementById("heroImage").value
-    });
+    await saveSetting(
+      "hero",
+      {
+        title:
+          document.getElementById("heroTitle").value,
 
-    alert("Hero saved successfully.");
+        text:
+          document.getElementById("heroText").value,
+
+        image_url:
+          document.getElementById("heroImage").value.trim()
+      }
+    );
+
+
+    alert(
+      "Hero saved successfully."
+    );
 
   }catch(error){
 
@@ -1719,12 +3351,21 @@ async function saveVideos(){
 
   try{
 
-    await saveSetting("videos",{
-      video1:document.getElementById("video1").value,
-      video2:document.getElementById("video2").value
-    });
+    await saveSetting(
+      "videos",
+      {
+        video1:
+          document.getElementById("video1").value.trim(),
 
-    alert("Videos saved successfully.");
+        video2:
+          document.getElementById("video2").value.trim()
+      }
+    );
+
+
+    alert(
+      "Videos saved successfully."
+    );
 
   }catch(error){
 
@@ -1737,41 +3378,80 @@ async function saveVideos(){
 
 async function deleteHeroImage(){
 
-  document.getElementById("heroImage").value="";
+  try{
 
-  await saveHero();
+    const hero =
+      await getSetting("hero");
+
+
+    hero.image_url = "";
+
+
+    await saveSetting(
+      "hero",
+      hero
+    );
+
+
+    document.getElementById("heroImage").value =
+      "";
+
+
+    alert(
+      "Hero image removed."
+    );
+
+  }catch(error){
+
+    alert(error.message);
+
+  }
 
 }
 
 
+
 /* =========================================================
-   BREAKING
+   BREAKING NEWS
 ========================================================= */
 
 async function saveBreaking(){
 
   try{
 
-    await saveSetting("breaking_news",{
+    await saveSetting(
+      "breaking_news",
+      {
 
-      enabled:
-        document.getElementById("breakingEnabled").checked,
+        enabled:
+          document.getElementById("breakingEnabled").value==="true",
 
-      text:
-        document.getElementById("breakingText").value,
+        text:
+          document.getElementById("breakingText").value,
 
-      media_url:
-        document.getElementById("breakingMedia").value,
+        image_url:
+          document.getElementById("breakingImage").value.trim(),
 
-      start_at:
-        document.getElementById("breakingStart").value,
+        video_url:
+          document.getElementById("breakingVideo").value.trim(),
 
-      end_at:
-        document.getElementById("breakingEnd").value
+        start_at:
+          localToIso(
+            document.getElementById("breakingStart").value
+          ),
 
-    });
+        end_at:
+          localToIso(
+            document.getElementById("breakingEnd").value
+          )
 
-    alert("Breaking News saved.");
+      }
+    );
+
+
+    alert(
+      "Breaking News saved."
+    );
 
   }catch(error){
 
@@ -1784,48 +3464,29 @@ async function saveBreaking(){
 
 async function deleteBreakingMedia(){
 
-  document.getElementById("breakingMedia").value="";
-
-  await saveBreaking();
-
-}
-
-
-/* =========================================================
-   DISCOUNT
-========================================================= */
-
-async function saveDiscount(){
-
   try{
 
-    const enabled =
-      document.getElementById("discountEnabled").checked;
+    const breaking =
+      await getSetting("breaking_news");
 
-    const title =
-      document.getElementById("discountTitle").value;
 
-    const percent =
-      Number(document.getElementById("discountPercent").value || 0);
+    breaking.image_url="";
+    breaking.video_url="";
 
-    const textValue =
-      document.getElementById("discountText").value;
 
-    const {
-      error
-    } = await sb
-      .from("discount_campaign")
-      .update({
-        enabled,
-        title,
-        discount_percent:percent,
-        description:textValue
-      })
-      .eq("id",1);
+    await saveSetting(
+      "breaking_news",
+      breaking
+    );
 
-    if(error) throw error;
 
-    alert("Discount campaign saved.");
+    document.getElementById("breakingImage").value="";
+    document.getElementById("breakingVideo").value="";
+
+
+    alert(
+      "Breaking News media removed."
+    );
 
   }catch(error){
 
@@ -1836,6 +3497,7 @@ async function saveDiscount(){
 }
 
 
+
 /* =========================================================
    LOGO
 ========================================================= */
@@ -1844,16 +3506,25 @@ async function saveLogo(){
 
   try{
 
-    const url=
-      document.getElementById("logoUrl").value.trim();
+    const url =
+      document
+        .getElementById("logoUrl")
+        .value
+        .trim();
 
-    await saveSetting("logo",{
-      url
-    });
+
+    await saveSetting(
+      "logo",
+      {url}
+    );
+
 
     renderLogo(url);
 
-    alert("Logo saved successfully.");
+
+    alert(
+      "Logo saved successfully."
+    );
 
   }catch(error){
 
@@ -1866,30 +3537,67 @@ async function saveLogo(){
 
 function renderLogo(url){
 
-  const box=
-    document.getElementById("logoPreview");
+  const box =
+    document.getElementById(
+      "logoPreview"
+    );
 
-  if(!url){
 
-    box.innerHTML=
-      '<div class="empty">No logo image.</div>';
+  if(!box) return;
 
-    return;
-  }
 
-  box.innerHTML=
-    `<img class="preview" src="${escapeHtml(url)}" alt="Logo">`;
+  box.innerHTML =
+    url
+    ? `
+      <img
+        src="${escapeHtml(url)}"
+        style="
+          width:140px;
+          height:140px;
+          object-fit:contain;
+          border:1px solid #333;
+          border-radius:12px;
+          background:#111;
+          padding:10px;
+        "
+      >
+    `
+    : `
+      <div class="empty">
+        No logo set.
+      </div>
+    `;
 
 }
 
 
 async function deleteLogo(){
 
-  document.getElementById("logoUrl").value="";
+  try{
 
-  await saveLogo();
+    await saveSetting(
+      "logo",
+      {url:""}
+    );
+
+
+    document.getElementById("logoUrl").value="";
+
+    renderLogo("");
+
+
+    alert(
+      "Logo removed."
+    );
+
+  }catch(error){
+
+    alert(error.message);
+
+  }
 
 }
+
 
 
 /* =========================================================
@@ -1900,20 +3608,29 @@ async function saveAbout(){
 
   try{
 
-    await saveSetting("about",{
+    await saveSetting(
+      "about",
+      {
 
-      title:
-        document.getElementById("aboutTitle").value,
+        title:
+          document.getElementById("aboutTitle").value,
 
-      text:
-        document.getElementById("aboutText").value,
+        text:
+          document.getElementById("aboutText").value,
 
-      media_url:
-        document.getElementById("aboutMedia").value
+        image_url:
+          document.getElementById("aboutImage").value.trim(),
 
-    });
+        video_url:
+          document.getElementById("aboutVideo").value.trim()
 
-    alert("About section saved.");
+      }
+    );
+
+
+    alert(
+      "About section saved."
+    );
 
   }catch(error){
 
@@ -1926,11 +3643,38 @@ async function saveAbout(){
 
 async function deleteAboutMedia(){
 
-  document.getElementById("aboutMedia").value="";
+  try{
 
-  await saveAbout();
+    const about =
+      await getSetting("about");
+
+
+    about.image_url="";
+    about.video_url="";
+
+
+    await saveSetting(
+      "about",
+      about
+    );
+
+
+    document.getElementById("aboutImage").value="";
+    document.getElementById("aboutVideo").value="";
+
+
+    alert(
+      "About media removed."
+    );
+
+  }catch(error){
+
+    alert(error.message);
+
+  }
 
 }
+
 
 
 /* =========================================================
@@ -1939,90 +3683,204 @@ async function deleteAboutMedia(){
 
 async function loadCategories(){
 
-  const {
-    data,
-    error
-  } = await sb
-    .from("menu_categories")
-    .select("*")
-    .order("sort_order")
-    .order("id");
+  try{
 
-  if(error){
+    const {
+      data,
+      error
+    } = await sb
+      .from("menu_categories")
+      .select("*")
+      .order("sort_order",{ascending:true})
+      .order("id",{ascending:true});
 
-    console.error(error);
-    return;
+
+    if(error) throw error;
+
+
+    const select =
+      document.getElementById(
+        "foodCategory"
+      );
+
+
+    if(select){
+
+      const current =
+        select.value;
+
+
+      select.innerHTML = `
+        <option value="">
+          Select Category
+        </option>
+      `;
+
+
+      (data || []).forEach(category=>{
+
+        const option =
+          document.createElement("option");
+
+
+        option.value =
+          category.name;
+
+
+        option.textContent =
+          category.name;
+
+
+        select.appendChild(option);
+
+      });
+
+
+      if(
+        current &&
+        [...select.options]
+          .some(
+            option =>
+              option.value===current
+          )
+      ){
+
+        select.value=current;
+
+      }
+
+    }
+
+
+    const list =
+      document.getElementById(
+        "categoriesList"
+      );
+
+
+    if(!list) return;
+
+
+    list.innerHTML="";
+
+
+    if(!data?.length){
+
+      list.innerHTML =
+        `<div class="empty">
+          No categories yet.
+        </div>`;
+
+      return;
+
+    }
+
+
+    data.forEach(category=>{
+
+      const div =
+        document.createElement("div");
+
+
+      div.className =
+        "category-row";
+
+
+      const image =
+        category.image_url
+        ? `
+          <img
+            class="category-image"
+            src="${escapeHtml(category.image_url)}"
+          >
+        `
+        : `
+          <div
+            class="category-image"
+            style="
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              color:#666;
+              font-size:10px;
+            "
+          >
+            No Image
+          </div>
+        `;
+
+
+      div.innerHTML=`
+
+        <div class="category-info">
+
+          ${image}
+
+          <div>
+
+            <strong>
+              ${escapeHtml(category.name)}
+            </strong>
+
+            <div
+              style="
+                color:#777;
+                font-size:12px;
+                margin-top:4px;
+              "
+            >
+              Order:
+              ${Number(category.sort_order || 0)}
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="actions">
+
+          <button
+            class="btn btn-small"
+            onclick="
+              editCategory(
+                ${category.id},
+                '${jsString(category.name)}',
+                ${Number(category.sort_order || 0)},
+                '${jsString(category.image_url || "")}'
+              )
+            "
+          >
+            Edit
+          </button>
+
+
+          <button
+            class="btn btn-danger btn-small"
+            onclick="
+              deleteCategory(${category.id})
+            "
+          >
+            Delete
+          </button>
+
+        </div>
+
+      `;
+
+
+      list.appendChild(div);
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "loadCategories:",
+      error
+    );
 
   }
-
-  const select=
-    document.getElementById("foodCategory");
-
-  select.innerHTML=
-    '<option value="">Select Category</option>';
-
-  (data||[]).forEach(category=>{
-
-    const option=
-      document.createElement("option");
-
-    option.value=category.name;
-    option.textContent=category.name;
-
-    select.appendChild(option);
-
-  });
-
-
-  const list=
-    document.getElementById("categoriesList");
-
-  list.innerHTML="";
-
-  if(!data?.length){
-
-    list.innerHTML=
-      '<div class="empty">No categories yet.</div>';
-
-    return;
-
-  }
-
-  data.forEach(category=>{
-
-    const div=
-      document.createElement("div");
-
-    div.style.cssText=
-      "padding:10px;border-bottom:1px solid #292929";
-
-    div.innerHTML=`
-
-      <strong>${escapeHtml(category.name)}</strong>
-
-      <div style="color:#777;font-size:12px">
-        Order: ${category.sort_order || 0}
-      </div>
-
-      <div class="actions" style="margin-top:7px">
-
-        <button class="btn btn-small"
-          onclick="editCategory(${category.id},'${jsString(category.name)}',${category.sort_order || 0},'${jsString(category.image_url || "")}')">
-          Edit
-        </button>
-
-        <button class="btn btn-danger btn-small"
-          onclick="deleteCategory(${category.id})">
-          Delete
-        </button>
-
-      </div>
-
-    `;
-
-    list.appendChild(div);
-
-  });
 
 }
 
@@ -2031,18 +3889,30 @@ async function saveCategory(){
 
   try{
 
-    const name=
-      document.getElementById("categoryName").value.trim();
+    const name =
+      document
+        .getElementById("categoryName")
+        .value
+        .trim();
+
 
     if(!name){
 
-      alert("Category name is required.");
+      alert(
+        "Category name is required."
+      );
+
       return;
 
     }
 
-    const id=
-      document.getElementById("categoryName").dataset.id;
+
+    const id =
+      document
+        .getElementById("categoryName")
+        .dataset
+        .id;
+
 
     const payload={
 
@@ -2050,39 +3920,56 @@ async function saveCategory(){
 
       sort_order:
         Number(
-          document.getElementById("categoryOrder").value || 0
+          document.getElementById(
+            "categoryOrder"
+          ).value || 0
         ),
 
       image_url:
-        document.getElementById("categoryImage").value.trim()
+        document.getElementById(
+          "categoryImage"
+        ).value.trim()
 
     };
 
 
+    let result;
+
+
     if(id){
 
-      const {error}=await sb
-        .from("menu_categories")
-        .update(payload)
-        .eq("id",id);
-
-      if(error) throw error;
+      result =
+        await sb
+          .from("menu_categories")
+          .update(payload)
+          .eq("id",id);
 
     }else{
 
-      const {error}=await sb
-        .from("menu_categories")
-        .insert(payload);
-
-      if(error) throw error;
+      result =
+        await sb
+          .from("menu_categories")
+          .insert(payload);
 
     }
 
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+
     clearCategoryForm();
+
 
     await loadCategories();
 
-    alert("Category saved.");
+
+    alert(
+      "Category saved successfully."
+    );
 
   }catch(error){
 
@@ -2093,42 +3980,134 @@ async function saveCategory(){
 }
 
 
-function editCategory(id,name,order,image){
+function editCategory(
+  id,
+  name,
+  order,
+  image
+){
 
-  document.getElementById("categoryName").value=name;
-  document.getElementById("categoryOrder").value=order;
-  document.getElementById("categoryImage").value=image;
+  document.getElementById(
+    "categoryName"
+  ).value=name || "";
 
-  document.getElementById("categoryName").dataset.id=id;
+
+  document.getElementById(
+    "categoryOrder"
+  ).value=
+    Number(order || 0);
+
+
+  document.getElementById(
+    "categoryImage"
+  ).value=image || "";
+
+
+  document.getElementById(
+    "categoryName"
+  ).dataset.id=id;
+
+
+  document.getElementById(
+    "categoryName"
+  ).scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
 
 }
 
 
 function clearCategoryForm(){
 
-  document.getElementById("categoryName").value="";
-  document.getElementById("categoryOrder").value="0";
-  document.getElementById("categoryImage").value="";
+  document.getElementById(
+    "categoryName"
+  ).value="";
 
-  delete document.getElementById("categoryName").dataset.id;
+
+  document.getElementById(
+    "categoryOrder"
+  ).value="0";
+
+
+  document.getElementById(
+    "categoryImage"
+  ).value="";
+
+
+  delete document.getElementById(
+    "categoryName"
+  ).dataset.id;
 
 }
 
 
 async function deleteCategory(id){
 
-  if(!confirm("Delete this category?")) return;
+  if(
+    !confirm(
+      "Delete this category?"
+    )
+  ) return;
+
 
   try{
 
-    const {error}=await sb
+    const {
+      data:category,
+      error:categoryError
+    } = await sb
+      .from("menu_categories")
+      .select("name")
+      .eq("id",id)
+      .single();
+
+
+    if(categoryError) throw categoryError;
+
+
+    const {
+      data:foods,
+      error:foodError
+    } = await sb
+      .from("Menu")
+      .select("id,name")
+      .eq("category",category.name);
+
+
+    if(foodError) throw foodError;
+
+
+    if(foods?.length){
+
+      const proceed =
+        confirm(
+          `This category is used by ${foods.length} food item(s).\n\nDelete the category anyway?`
+        );
+
+
+      if(!proceed) return;
+
+    }
+
+
+    const {
+      error
+    } = await sb
       .from("menu_categories")
       .delete()
       .eq("id",id);
 
+
     if(error) throw error;
 
+
     await loadCategories();
+
+
+    alert(
+      "Category deleted."
+    );
 
   }catch(error){
 
@@ -2137,6 +4116,7 @@ async function deleteCategory(id){
   }
 
 }
+
 
 
 /* =========================================================
@@ -2145,79 +4125,126 @@ async function deleteCategory(id){
 
 async function loadFoods(){
 
-  const {
-    data,
-    error
-  } = await sb
-    .from("Menu")
-    .select("*")
-    .order("id",{ascending:false});
+  try{
 
-  if(error){
+    await loadCategories();
 
-    console.error(error);
-    return;
+
+    const {
+      data,
+      error
+    } = await sb
+      .from("Menu")
+      .select("*")
+      .order("id",{ascending:false});
+
+
+    if(error) throw error;
+
+
+    const table =
+      document.getElementById(
+        "foodsTable"
+      );
+
+
+    table.innerHTML="";
+
+
+    if(!data?.length){
+
+      table.innerHTML=`
+        <tr>
+          <td
+            colspan="5"
+            class="empty"
+          >
+            No food items.
+          </td>
+        </tr>
+      `;
+
+      return;
+
+    }
+
+
+    data.forEach(food=>{
+
+      const tr =
+        document.createElement("tr");
+
+
+      tr.innerHTML=`
+
+        <td>
+
+          ${
+            food.image_url
+            ? `
+              <img
+                class="preview"
+                src="${escapeHtml(food.image_url)}"
+              >
+            `
+            : "-"
+          }
+
+        </td>
+
+        <td>
+          ${escapeHtml(food.name || "")}
+        </td>
+
+        <td>
+          ${escapeHtml(food.price || "")}
+        </td>
+
+        <td>
+          ${escapeHtml(food.category || "")}
+        </td>
+
+        <td>
+
+          <div class="actions">
+
+            <button
+              class="btn btn-small"
+              onclick="
+                editFood(${food.id})
+              "
+            >
+              Edit
+            </button>
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="
+                deleteFood(${food.id})
+              "
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      table.appendChild(tr);
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "loadFoods:",
+      error
+    );
 
   }
-
-  const table=
-    document.getElementById("foodsTable");
-
-  table.innerHTML="";
-
-  if(!data?.length){
-
-    table.innerHTML=
-      '<tr><td colspan="5" class="empty">No food items.</td></tr>';
-
-    return;
-
-  }
-
-  data.forEach(food=>{
-
-    const tr=
-      document.createElement("tr");
-
-    tr.innerHTML=`
-
-      <td>
-        ${
-          food.image_url
-          ? `<img class="preview"
-              src="${escapeHtml(food.image_url)}">`
-          : "-"
-        }
-      </td>
-
-      <td>${escapeHtml(food.name || "")}</td>
-
-      <td>${escapeHtml(food.price || "")}</td>
-
-      <td>${escapeHtml(food.category || "")}</td>
-
-      <td>
-
-        <div class="actions">
-
-          <button class="btn btn-small"
-            onclick="editFood(${food.id})">
-            Edit
-          </button>
-
-          <button class="btn btn-danger btn-small"
-            onclick="deleteFood(${food.id})">
-            Delete
-          </button>
-
-        </div>
-
-      </td>
-    `;
-
-    table.appendChild(tr);
-
-  });
 
 }
 
@@ -2226,59 +4253,101 @@ async function saveFood(){
 
   try{
 
-    const id=
-      document.getElementById("foodId").value;
+    const id =
+      document.getElementById(
+        "foodId"
+      ).value;
+
 
     const payload={
 
       name:
-        document.getElementById("foodName").value.trim(),
+        document.getElementById(
+          "foodName"
+        ).value.trim(),
 
       price:
-        document.getElementById("foodPrice").value.trim(),
+        document.getElementById(
+          "foodPrice"
+        ).value.trim(),
 
       category:
-        document.getElementById("foodCategory").value,
+        document.getElementById(
+          "foodCategory"
+        ).value,
 
       description:
-        document.getElementById("foodDescription").value,
+        document.getElementById(
+          "foodDescription"
+        ).value.trim(),
 
       image_url:
-        document.getElementById("foodImage").value.trim()
+        document.getElementById(
+          "foodImage"
+        ).value.trim()
 
     };
 
+
     if(!payload.name){
 
-      alert("Food name is required.");
+      alert(
+        "Food name is required."
+      );
+
       return;
 
     }
 
-    let result;
 
-    if(id){
+    if(!payload.category){
 
-      result=await sb
-        .from("Menu")
-        .update(payload)
-        .eq("id",id);
+      alert(
+        "Please select a category."
+      );
 
-    }else{
-
-      result=await sb
-        .from("Menu")
-        .insert(payload);
+      return;
 
     }
 
-    if(result.error) throw result.error;
+
+    let result;
+
+
+    if(id){
+
+      result =
+        await sb
+          .from("Menu")
+          .update(payload)
+          .eq("id",id);
+
+    }else{
+
+      result =
+        await sb
+          .from("Menu")
+          .insert(payload);
+
+    }
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
 
     clearFoodForm();
 
+
     await loadFoods();
 
-    alert("Food saved successfully.");
+
+    alert(
+      "Food saved successfully."
+    );
 
   }catch(error){
 
@@ -2291,70 +4360,172 @@ async function saveFood(){
 
 async function editFood(id){
 
-  const {
-    data,
-    error
-  }=await sb
-    .from("Menu")
-    .select("*")
-    .eq("id",id)
-    .single();
+  try{
 
-  if(error){
+    const {
+      data,
+      error
+    } = await sb
+      .from("Menu")
+      .select("*")
+      .eq("id",id)
+      .single();
+
+
+    if(error) throw error;
+
+
+    await loadCategories();
+
+
+    document.getElementById(
+      "foodId"
+    ).value=data.id;
+
+
+    document.getElementById(
+      "foodName"
+    ).value=data.name || "";
+
+
+    document.getElementById(
+      "foodPrice"
+    ).value=data.price || "";
+
+
+    document.getElementById(
+      "foodDescription"
+    ).value=data.description || "";
+
+
+    document.getElementById(
+      "foodImage"
+    ).value=data.image_url || "";
+
+
+    const select =
+      document.getElementById(
+        "foodCategory"
+      );
+
+
+    select.value =
+      data.category || "";
+
+
+    if(
+      data.category &&
+      select.value!==data.category
+    ){
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        data.category;
+
+
+      option.textContent =
+        data.category;
+
+
+      select.appendChild(option);
+
+
+      select.value =
+        data.category;
+
+    }
+
+
+    showPage("menu");
+
+
+    document.getElementById(
+      "foodName"
+    ).scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+
+  }catch(error){
 
     alert(error.message);
-    return;
 
   }
-
-  document.getElementById("foodId").value=data.id;
-  document.getElementById("foodName").value=data.name || "";
-  document.getElementById("foodPrice").value=data.price || "";
-  document.getElementById("foodCategory").value=data.category || "";
-  document.getElementById("foodDescription").value=data.description || "";
-  document.getElementById("foodImage").value=data.image_url || "";
-
-  showPage("menu");
-
-  window.scrollTo({
-    top:document.getElementById("page-menu").offsetTop,
-    behavior:"smooth"
-  });
 
 }
 
 
 async function deleteFood(id){
 
-  if(!confirm("Delete this food item?")) return;
+  if(
+    !confirm(
+      "Delete this food item?"
+    )
+  ) return;
 
-  const {error}=await sb
-    .from("Menu")
-    .delete()
-    .eq("id",id);
 
-  if(error){
+  try{
+
+    const {
+      error
+    } = await sb
+      .from("Menu")
+      .delete()
+      .eq("id",id);
+
+
+    if(error) throw error;
+
+
+    await loadFoods();
+
+  }catch(error){
 
     alert(error.message);
-    return;
 
   }
-
-  await loadFoods();
 
 }
 
 
 function clearFoodForm(){
 
-  document.getElementById("foodId").value="";
-  document.getElementById("foodName").value="";
-  document.getElementById("foodPrice").value="";
-  document.getElementById("foodCategory").value="";
-  document.getElementById("foodDescription").value="";
-  document.getElementById("foodImage").value="";
+  document.getElementById(
+    "foodId"
+  ).value="";
+
+
+  document.getElementById(
+    "foodName"
+  ).value="";
+
+
+  document.getElementById(
+    "foodPrice"
+  ).value="";
+
+
+  document.getElementById(
+    "foodCategory"
+  ).value="";
+
+
+  document.getElementById(
+    "foodDescription"
+  ).value="";
+
+
+  document.getElementById(
+    "foodImage"
+  ).value="";
 
 }
+
 
 
 /* =========================================================
@@ -2363,141 +4534,219 @@ function clearFoodForm(){
 
 async function loadGallery(){
 
-  const {
-    data,
-    error
-  }=await sb
-    .from("gallery")
-    .select("*")
-    .order("sort_order")
-    .order("id",{ascending:false});
+  try{
 
-  if(error){
+    const {
+      data,
+      error
+    } = await sb
+      .from("gallery")
+      .select("*")
+      .order("sort_order")
+      .order("id",{ascending:false});
 
-    console.error(error);
-    return;
 
-  }
+    if(error) throw error;
 
-  const list=
-    document.getElementById("galleryList");
 
-  list.innerHTML="";
+    const list =
+      document.getElementById(
+        "galleryList"
+      );
 
-  if(!data?.length){
 
-    list.innerHTML=
-      '<div class="empty">No gallery images.</div>';
+    list.innerHTML="";
 
-    return;
 
-  }
+    if(!data?.length){
 
-  data.forEach(item=>{
+      list.innerHTML=
+        `<div class="empty">
+          No gallery images.
+        </div>`;
 
-    const div=
-      document.createElement("div");
+      return;
 
-    div.className="media-item";
+    }
 
-    div.innerHTML=`
 
-      <img src="${escapeHtml(item.image_url)}">
+    data.forEach(item=>{
 
-      <div style="padding:5px">
-        <strong>${escapeHtml(item.title || "")}</strong>
+      const div =
+        document.createElement("div");
 
-        <div style="font-size:12px;color:#777">
-          ${escapeHtml(item.category || "")}
+
+      div.className =
+        "media-item";
+
+
+      div.innerHTML=`
+
+        <img
+          src="${escapeHtml(item.image_url)}"
+        >
+
+        <div style="padding:10px">
+
+          <strong>
+            ${escapeHtml(item.title || "")}
+          </strong>
+
+          <div
+            style="
+              color:#777;
+              font-size:12px;
+              margin-top:4px;
+            "
+          >
+            ${escapeHtml(item.category || "")}
+          </div>
+
+
+          <div
+            class="actions"
+            style="margin-top:10px"
+          >
+
+            <button
+              class="btn btn-small"
+              onclick="
+                toggleGallery(
+                  ${item.id},
+                  ${!item.is_visible}
+                )
+              "
+            >
+              ${item.is_visible ? "Hide" : "Show"}
+            </button>
+
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="
+                deleteGallery(${item.id})
+              "
+            >
+              Delete
+            </button>
+
+          </div>
+
         </div>
 
-        <div class="actions" style="margin-top:7px">
+      `;
 
-          <button
-            class="btn btn-small"
-            onclick="toggleGallery(${item.id},${!item.is_visible})">
-            ${item.is_visible ? "Hide" : "Show"}
-          </button>
 
-          <button
-            class="btn btn-danger btn-small"
-            onclick="deleteGallery(${item.id})">
-            Delete
-          </button>
+      list.appendChild(div);
 
-        </div>
-      </div>
+    });
 
-    `;
+  }catch(error){
 
-    list.appendChild(div);
+    console.error(
+      "loadGallery:",
+      error
+    );
 
-  });
+  }
 
 }
 
 
 async function addGalleryByUrl(){
 
-  const url=
-    document.getElementById("galleryUrl").value.trim();
+  const url =
+    document
+      .getElementById("galleryUrl")
+      .value.trim();
+
 
   if(!url){
 
-    alert("Image URL is required.");
+    alert(
+      "Image URL is required."
+    );
+
     return;
 
   }
 
+
   const {
     error
-  }=await sb
+  } = await sb
     .from("gallery")
     .insert({
 
       image_url:url,
 
       title:
-        document.getElementById("galleryTitle").value.trim(),
+        document
+          .getElementById(
+            "galleryTitle"
+          )
+          .value.trim(),
 
       category:
-        document.getElementById("galleryCategory").value.trim()
-        || "Restaurant",
+        document
+          .getElementById(
+            "galleryCategory"
+          )
+          .value.trim() ||
+        "Restaurant",
 
       is_visible:true
 
     });
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
 
-  document.getElementById("galleryUrl").value="";
-  document.getElementById("galleryTitle").value="";
+
+  document.getElementById(
+    "galleryUrl"
+  ).value="";
+
+
+  document.getElementById(
+    "galleryTitle"
+  ).value="";
+
 
   await loadGallery();
 
 }
 
 
-async function toggleGallery(id,value){
+async function toggleGallery(
+  id,
+  value
+){
 
-  const {error}=await sb
+  const {
+    error
+  } = await sb
     .from("gallery")
     .update({
       is_visible:value
     })
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
+
 
   await loadGallery();
 
@@ -2506,23 +4755,34 @@ async function toggleGallery(id,value){
 
 async function deleteGallery(id){
 
-  if(!confirm("Delete this gallery image?")) return;
+  if(
+    !confirm(
+      "Delete this gallery image?"
+    )
+  ) return;
 
-  const {error}=await sb
+
+  const {
+    error
+  } = await sb
     .from("gallery")
     .delete()
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
 
+
   await loadGallery();
 
 }
+
 
 
 /* =========================================================
@@ -2531,144 +4791,270 @@ async function deleteGallery(id){
 
 async function loadBookings(){
 
-  const {
-    data,
-    error
-  }=await sb
-    .from("table_bookings")
-    .select("*")
-    .order("created_at",{ascending:false});
+  try{
 
-  if(error){
+    const {
+      data,
+      error
+    } = await sb
+      .from("table_bookings")
+      .select("*")
+      .order("created_at",{ascending:false});
 
-    console.error(error);
 
-    document.getElementById("bookingsTable").innerHTML=
-      `<tr><td colspan="9">${escapeHtml(error.message)}</td></tr>`;
+    if(error) throw error;
 
-    return;
+
+    const table =
+      document.getElementById(
+        "bookingsTable"
+      );
+
+
+    table.innerHTML="";
+
+
+    if(!data?.length){
+
+      table.innerHTML=
+        `<tr>
+          <td
+            colspan="9"
+            class="empty"
+          >
+            No bookings.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+
+    data.forEach(booking=>{
+
+      const tr =
+        document.createElement("tr");
+
+
+      tr.innerHTML=`
+
+        <td>
+          ${escapeHtml(
+            booking.booking_reference ||
+            booking.reference ||
+            "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            booking.customer_name || ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            booking.phone || ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            booking.email || ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            booking.booking_date || ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            booking.booking_time || ""
+          )}
+        </td>
+
+        <td>
+          ${booking.guests || 0}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            booking.status || ""
+          )}
+        </td>
+
+        <td>
+
+          <div class="actions">
+
+            <button
+              class="btn btn-green btn-small"
+              onclick="
+                bookingStatus(
+                  ${booking.id},
+                  'Confirmed'
+                )
+              "
+            >
+              Confirm
+            </button>
+
+            <button
+              class="btn btn-dark btn-small"
+              onclick="
+                bookingStatus(
+                  ${booking.id},
+                  'Pending'
+                )
+              "
+            >
+              Pending
+            </button>
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="
+                bookingStatus(
+                  ${booking.id},
+                  'Cancelled'
+                )
+              "
+            >
+              Cancel
+            </button>
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="
+                deleteBooking(${booking.id})
+              "
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      table.appendChild(tr);
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "loadBookings:",
+      error
+    );
 
   }
-
-  const table=
-    document.getElementById("bookingsTable");
-
-  table.innerHTML="";
-
-  if(!data?.length){
-
-    table.innerHTML=
-      '<tr><td colspan="9" class="empty">No bookings.</td></tr>';
-
-    return;
-
-  }
-
-  data.forEach(booking=>{
-
-    const tr=document.createElement("tr");
-
-    tr.innerHTML=`
-
-      <td>
-        ${escapeHtml(
-          booking.booking_reference ||
-          booking.reference ||
-          "-"
-        )}
-      </td>
-
-      <td>${escapeHtml(booking.customer_name || "")}</td>
-
-      <td>${escapeHtml(booking.phone || "")}</td>
-
-      <td>${escapeHtml(booking.email || "")}</td>
-
-      <td>${escapeHtml(booking.booking_date || "")}</td>
-
-      <td>${escapeHtml(booking.booking_time || "")}</td>
-
-      <td>${booking.guests || 0}</td>
-
-      <td>${escapeHtml(booking.status || "")}</td>
-
-      <td>
-
-        <div class="actions">
-
-          <button class="btn btn-green btn-small"
-            onclick="bookingStatus(${booking.id},'Confirmed')">
-            Confirm
-          </button>
-
-          <button class="btn btn-dark btn-small"
-            onclick="bookingStatus(${booking.id},'Pending')">
-            Pending
-          </button>
-
-          <button class="btn btn-danger btn-small"
-            onclick="bookingStatus(${booking.id},'Cancelled')">
-            Cancel
-          </button>
-
-          <button class="btn btn-danger btn-small"
-            onclick="deleteBooking(${booking.id})">
-            Delete
-          </button>
-
-        </div>
-
-      </td>
-    `;
-
-    table.appendChild(tr);
-
-  });
 
 }
 
 
-async function bookingStatus(id,status){
+async function bookingStatus(
+  id,
+  status
+){
 
-  const {error}=await sb
-    .from("table_bookings")
-    .update({
-      status,
-      updated_at:new Date().toISOString()
-    })
-    .eq("id",id);
+  try{
 
-  if(error){
+    const {
+      data:booking,
+      error:findError
+    } = await sb
+      .from("table_bookings")
+      .select("booking_reference")
+      .eq("id",id)
+      .single();
+
+
+    if(findError) throw findError;
+
+
+    const {
+      error
+    } = await sb
+      .from("table_bookings")
+      .update({
+
+        status,
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq("id",id);
+
+
+    if(error) throw error;
+
+
+    if(
+      currentRole==="BOOKING_STAFF"
+    ){
+
+      await recordBookingActivity(
+        id,
+        booking?.booking_reference || "",
+        status==="Confirmed"
+          ? "CONFIRMED"
+          : status==="Cancelled"
+          ? "CANCELLED"
+          : "UPDATED"
+      );
+
+    }
+
+
+    await loadBookings();
+
+  }catch(error){
 
     alert(error.message);
-    return;
 
   }
-
-  await loadBookings();
 
 }
 
 
 async function deleteBooking(id){
 
-  if(!confirm("Delete this booking?")) return;
+  if(
+    !confirm(
+      "Delete this booking?"
+    )
+  ) return;
 
-  const {error}=await sb
+
+  const {
+    error
+  } = await sb
     .from("table_bookings")
     .delete()
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
 
+
   await loadBookings();
 
 }
+
 
 
 /* =========================================================
@@ -2677,122 +5063,220 @@ async function deleteBooking(id){
 
 async function loadReviews(){
 
-  const {
-    data,
-    error
-  }=await sb
-    .from("reviews")
-    .select("*")
-    .order("created_at",{ascending:false});
+  try{
 
-  if(error){
+    const {
+      data,
+      error
+    } = await sb
+      .from("reviews")
+      .select("*")
+      .order("created_at",{ascending:false});
 
-    console.error(error);
-    return;
+
+    if(error) throw error;
+
+
+    const table =
+      document.getElementById(
+        "reviewsTable"
+      );
+
+
+    table.innerHTML="";
+
+
+    if(!data?.length){
+
+      table.innerHTML=
+        `<tr>
+          <td
+            colspan="6"
+            class="empty"
+          >
+            No reviews.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+
+    data.forEach(review=>{
+
+      const tr =
+        document.createElement("tr");
+
+
+      tr.innerHTML=`
+
+        <td>
+          ${escapeHtml(
+            review.customer_name || ""
+          )}
+        </td>
+
+        <td>
+          ${
+            "⭐".repeat(
+              Math.min(
+                5,
+                Math.max(
+                  0,
+                  review.rating || 0
+                )
+              )
+            )
+          }
+        </td>
+
+        <td>
+          ${escapeHtml(
+            review.message || ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            review.status || ""
+          )}
+        </td>
+
+        <td>
+          ${
+            review.is_featured
+            ? "Yes"
+            : "No"
+          }
+        </td>
+
+        <td>
+
+          <div class="actions">
+
+            <button
+              class="btn btn-green btn-small"
+              onclick="
+                reviewStatus(
+                  ${review.id},
+                  'Approved'
+                )
+              "
+            >
+              Approve
+            </button>
+
+            <button
+              class="btn btn-dark btn-small"
+              onclick="
+                reviewStatus(
+                  ${review.id},
+                  'Pending'
+                )
+              "
+            >
+              Pending
+            </button>
+
+            <button
+              class="btn btn-blue btn-small"
+              onclick="
+                featureReview(
+                  ${review.id},
+                  ${!review.is_featured}
+                )
+              "
+            >
+              ${
+                review.is_featured
+                ? "Unfeature"
+                : "Feature"
+              }
+            </button>
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="
+                deleteReview(${review.id})
+              "
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      table.appendChild(tr);
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "loadReviews:",
+      error
+    );
 
   }
-
-  const table=
-    document.getElementById("reviewsTable");
-
-  table.innerHTML="";
-
-  if(!data?.length){
-
-    table.innerHTML=
-      '<tr><td colspan="6" class="empty">No reviews.</td></tr>';
-
-    return;
-
-  }
-
-  data.forEach(review=>{
-
-    const tr=document.createElement("tr");
-
-    tr.innerHTML=`
-
-      <td>${escapeHtml(review.customer_name || "")}</td>
-
-      <td>${"⭐".repeat(Math.min(5,Math.max(0,review.rating || 0)))}</td>
-
-      <td>${escapeHtml(review.message || "")}</td>
-
-      <td>${escapeHtml(review.status || "")}</td>
-
-      <td>${review.is_featured ? "Yes" : "No"}</td>
-
-      <td>
-
-        <div class="actions">
-
-          <button class="btn btn-green btn-small"
-            onclick="reviewStatus(${review.id},'Approved')">
-            Approve
-          </button>
-
-          <button class="btn btn-dark btn-small"
-            onclick="reviewStatus(${review.id},'Pending')">
-            Pending
-          </button>
-
-          <button class="btn btn-blue btn-small"
-            onclick="featureReview(${review.id},${!review.is_featured})">
-            Feature
-          </button>
-
-          <button class="btn btn-danger btn-small"
-            onclick="deleteReview(${review.id})">
-            Delete
-          </button>
-
-        </div>
-
-      </td>
-
-    `;
-
-    table.appendChild(tr);
-
-  });
 
 }
 
 
-async function reviewStatus(id,status){
+async function reviewStatus(
+  id,
+  status
+){
 
-  const {error}=await sb
+  const {
+    error
+  } = await sb
     .from("reviews")
     .update({status})
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
+
 
   await loadReviews();
 
 }
 
 
-async function featureReview(id,value){
+async function featureReview(
+  id,
+  value
+){
 
-  const {error}=await sb
+  const {
+    error
+  } = await sb
     .from("reviews")
     .update({
       is_featured:value
     })
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
+
 
   await loadReviews();
 
@@ -2801,23 +5285,34 @@ async function featureReview(id,value){
 
 async function deleteReview(id){
 
-  if(!confirm("Delete this review?")) return;
+  if(
+    !confirm(
+      "Delete this review?"
+    )
+  ) return;
 
-  const {error}=await sb
+
+  const {
+    error
+  } = await sb
     .from("reviews")
     .delete()
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
 
+
   await loadReviews();
 
 }
+
 
 
 /* =========================================================
@@ -2826,93 +5321,147 @@ async function deleteReview(id){
 
 async function loadReports(){
 
-  const {
-    data,
-    error
-  }=await sb
-    .from("customer_reports")
-    .select("*")
-    .order("created_at",{ascending:false});
+  try{
 
-  if(error){
+    const {
+      data,
+      error
+    } = await sb
+      .from("customer_reports")
+      .select("*")
+      .order("created_at",{ascending:false});
 
-    console.error(error);
-    return;
+
+    if(error) throw error;
+
+
+    const table =
+      document.getElementById(
+        "reportsTable"
+      );
+
+
+    table.innerHTML="";
+
+
+    if(!data?.length){
+
+      table.innerHTML=
+        `<tr>
+          <td
+            colspan="7"
+            class="empty"
+          >
+            No reports.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+
+    data.forEach(report=>{
+
+      const tr =
+        document.createElement("tr");
+
+
+      tr.innerHTML=`
+
+        <td>${escapeHtml(report.customer_name || "")}</td>
+
+        <td>${escapeHtml(report.phone || "")}</td>
+
+        <td>${escapeHtml(report.email || "")}</td>
+
+        <td>${escapeHtml(report.subject || "")}</td>
+
+        <td>${escapeHtml(report.message || "")}</td>
+
+        <td>${escapeHtml(report.status || "")}</td>
+
+        <td>
+
+          <div class="actions">
+
+            <button
+              class="btn btn-green btn-small"
+              onclick="
+                reportStatus(
+                  ${report.id},
+                  'Resolved'
+                )
+              "
+            >
+              Resolve
+            </button>
+
+            <button
+              class="btn btn-dark btn-small"
+              onclick="
+                reportStatus(
+                  ${report.id},
+                  'New'
+                )
+              "
+            >
+              New
+            </button>
+
+            <button
+              class="btn btn-danger btn-small"
+              onclick="
+                deleteReport(${report.id})
+              "
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      table.appendChild(tr);
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "loadReports:",
+      error
+    );
 
   }
-
-  const table=
-    document.getElementById("reportsTable");
-
-  table.innerHTML="";
-
-  if(!data?.length){
-
-    table.innerHTML=
-      '<tr><td colspan="7" class="empty">No reports.</td></tr>';
-
-    return;
-
-  }
-
-  data.forEach(report=>{
-
-    const tr=document.createElement("tr");
-
-    tr.innerHTML=`
-
-      <td>${escapeHtml(report.customer_name || "")}</td>
-      <td>${escapeHtml(report.phone || "")}</td>
-      <td>${escapeHtml(report.email || "")}</td>
-      <td>${escapeHtml(report.subject || "")}</td>
-      <td>${escapeHtml(report.message || "")}</td>
-      <td>${escapeHtml(report.status || "")}</td>
-
-      <td>
-
-        <div class="actions">
-
-          <button class="btn btn-green btn-small"
-            onclick="reportStatus(${report.id},'Resolved')">
-            Resolve
-          </button>
-
-          <button class="btn btn-dark btn-small"
-            onclick="reportStatus(${report.id},'New')">
-            New
-          </button>
-
-          <button class="btn btn-danger btn-small"
-            onclick="deleteReport(${report.id})">
-            Delete
-          </button>
-
-        </div>
-
-      </td>
-
-    `;
-
-    table.appendChild(tr);
-
-  });
 
 }
 
 
-async function reportStatus(id,status){
+async function reportStatus(
+  id,
+  status
+){
 
-  const {error}=await sb
+  const {
+    error
+  } = await sb
     .from("customer_reports")
     .update({status})
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
+
 
   await loadReports();
 
@@ -2921,23 +5470,34 @@ async function reportStatus(id,status){
 
 async function deleteReport(id){
 
-  if(!confirm("Delete this report?")) return;
+  if(
+    !confirm(
+      "Delete this report?"
+    )
+  ) return;
 
-  const {error}=await sb
+
+  const {
+    error
+  } = await sb
     .from("customer_reports")
     .delete()
     .eq("id",id);
 
+
   if(error){
 
     alert(error.message);
+
     return;
 
   }
 
+
   await loadReports();
 
 }
+
 
 
 /* =========================================================
@@ -2948,26 +5508,42 @@ async function saveContact(){
 
   try{
 
-    await saveSetting("contact",{
+    await saveSetting(
+      "contact",
+      {
 
-      address:
-        document.getElementById("contactAddress").value,
+        address:
+          document.getElementById(
+            "contactAddress"
+          ).value,
 
-      phone1:
-        document.getElementById("contactPhone1").value,
+        phone1:
+          document.getElementById(
+            "contactPhone1"
+          ).value,
 
-      phone2:
-        document.getElementById("contactPhone2").value,
+        phone2:
+          document.getElementById(
+            "contactPhone2"
+          ).value,
 
-      whatsapp:
-        document.getElementById("contactWhatsapp").value,
+        whatsapp:
+          document.getElementById(
+            "contactWhatsapp"
+          ).value,
 
-      google_maps:
-        document.getElementById("contactMaps").value
+        google_maps:
+          document.getElementById(
+            "contactMaps"
+          ).value
 
-    });
+      }
+    );
 
-    alert("Contact information saved.");
+
+    alert(
+      "Contact information saved."
+    );
 
   }catch(error){
 
@@ -2976,6 +5552,7 @@ async function saveContact(){
   }
 
 }
+
 
 
 /* =========================================================
@@ -2986,23 +5563,37 @@ async function saveSocial(){
 
   try{
 
-    await saveSetting("social",{
+    await saveSetting(
+      "social",
+      {
 
-      facebook:
-        document.getElementById("socialFacebook").value,
+        facebook:
+          document.getElementById(
+            "socialFacebook"
+          ).value,
 
-      instagram:
-        document.getElementById("socialInstagram").value,
+        instagram:
+          document.getElementById(
+            "socialInstagram"
+          ).value,
 
-      tiktok:
-        document.getElementById("socialTikTok").value,
+        tiktok:
+          document.getElementById(
+            "socialTikTok"
+          ).value,
 
-      youtube:
-        document.getElementById("socialYoutube").value
+        youtube:
+          document.getElementById(
+            "socialYoutube"
+          ).value
 
-    });
+      }
+    );
 
-    alert("Social media saved.");
+
+    alert(
+      "Social media saved."
+    );
 
   }catch(error){
 
@@ -3013,11 +5604,13 @@ async function saveSocial(){
 }
 
 
+
 /* =========================================================
    HOURS
 ========================================================= */
 
 const DAYS=[
+
   "Monday",
   "Tuesday",
   "Wednesday",
@@ -3025,50 +5618,77 @@ const DAYS=[
   "Friday",
   "Saturday",
   "Sunday"
+
 ];
 
 
 function renderHours(hours){
 
-  const box=
-    document.getElementById("hoursForm");
+  const box =
+    document.getElementById(
+      "hoursForm"
+    );
+
 
   box.innerHTML="";
 
+
   DAYS.forEach(day=>{
 
-    const value=
+    const value =
       hours?.[day] || {
         open:"12:00",
         close:"23:00"
       };
 
-    const row=
+
+    const row =
       document.createElement("div");
 
-    row.className="grid";
+
+    row.className =
+      "grid";
+
+
+    row.style.marginBottom =
+      "10px";
+
 
     row.innerHTML=`
 
       <div>
-        <label>${day}</label>
+
+        <label>
+          ${day} — Open
+        </label>
+
         <input
           class="hour-open"
           data-day="${day}"
           type="time"
-          value="${escapeHtml(value.open || "")}">
+          value="${escapeHtml(value.open || "")}"
+        >
+
       </div>
 
+
       <div>
-        <label>&nbsp;</label>
+
+        <label>
+          ${day} — Close
+        </label>
+
         <input
           class="hour-close"
           data-day="${day}"
           type="time"
-          value="${escapeHtml(value.close || "")}">
+          value="${escapeHtml(value.close || "")}"
+        >
+
       </div>
 
     `;
+
 
     box.appendChild(row);
 
@@ -3083,27 +5703,44 @@ async function saveHours(){
 
     const hours={};
 
+
     document
-      .querySelectorAll(".hour-open")
+      .querySelectorAll(
+        ".hour-open"
+      )
       .forEach(input=>{
 
-        const day=input.dataset.day;
+        const day =
+          input.dataset.day;
 
-        const close=
+
+        const close =
           document.querySelector(
             `.hour-close[data-day="${day}"]`
           );
 
+
         hours[day]={
+
           open:input.value,
-          close:close?.value || ""
+
+          close:
+            close?.value || ""
+
         };
 
       });
 
-    await saveSetting("hours",hours);
 
-    alert("Opening hours saved.");
+    await saveSetting(
+      "hours",
+      hours
+    );
+
+
+    alert(
+      "Opening hours saved."
+    );
 
   }catch(error){
 
@@ -3114,9 +5751,17 @@ async function saveHours(){
 }
 
 
+
 /* =========================================================
-   DISCOUNT STAFF
+   DISCOUNTS
 ========================================================= */
+
+async function loadDiscountStaff(){
+
+  await loadDiscounts();
+
+}
+
 
 async function loadDiscounts(){
 
@@ -3125,45 +5770,51 @@ async function loadDiscounts(){
     const {
       data:campaign,
       error:campaignError
-    }=await sb
+    } = await sb
       .from("discount_campaign")
       .select("*")
       .eq("id",1)
       .maybeSingle();
 
-    if(campaignError) throw campaignError;
+
+    if(campaignError)
+      throw campaignError;
+
 
     if(campaign){
 
-      document.getElementById("discountEnabled").checked =
-        !!campaign.enabled;
+      document.getElementById(
+        "staffDiscountEnabled"
+      ).value =
+        String(!!campaign.enabled);
 
-      document.getElementById("discountTitle").value =
+
+      document.getElementById(
+        "staffDiscountTitle"
+      ).value =
         campaign.title || "";
 
-      document.getElementById("discountPercent").value =
+
+      document.getElementById(
+        "staffDiscountPercent"
+      ).value =
         campaign.discount_percent || "";
 
-      document.getElementById("discountText").value =
-        campaign.description || "";
 
-      document.getElementById("staffDiscountEnabled").checked =
-        !!campaign.enabled;
-
-      document.getElementById("staffDiscountTitle").value =
-        campaign.title || "";
-
-      document.getElementById("staffDiscountPercent").value =
-        campaign.discount_percent || "";
-
-      document.getElementById("staffDiscountText").value =
+      document.getElementById(
+        "staffDiscountText"
+      ).value =
         campaign.description || "";
 
     }
 
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Discount campaign:",
+      error
+    );
 
   }
 
@@ -3173,39 +5824,58 @@ async function loadDiscounts(){
     const {
       data,
       error
-    }=await sb
+    } = await sb
       .from("discount_codes")
       .select("*")
       .order("created_at",{ascending:false});
 
+
     if(error) throw error;
 
-    const table=
-      document.getElementById("discountCodesTable");
+
+    const table =
+      document.getElementById(
+        "discountCodesTable"
+      );
+
 
     table.innerHTML="";
+
 
     if(!data?.length){
 
       table.innerHTML=
-        '<tr><td colspan="5" class="empty">No discount codes.</td></tr>';
+        `<tr>
+          <td
+            colspan="5"
+            class="empty"
+          >
+            No discount codes.
+          </td>
+        </tr>`;
 
       return;
 
     }
 
+
     data.forEach(code=>{
 
-      const tr=document.createElement("tr");
+      const tr =
+        document.createElement("tr");
 
-      const used=
-        code.used === true ||
-        code.status === "Used";
+
+      const used =
+        code.used===true ||
+        code.status==="Used";
+
 
       tr.innerHTML=`
 
         <td>
-          <strong>${escapeHtml(code.code || "")}</strong>
+          <strong>
+            ${escapeHtml(code.code || "")}
+          </strong>
         </td>
 
         <td>
@@ -3217,11 +5887,21 @@ async function loadDiscounts(){
         </td>
 
         <td>
+
           ${
             used
-            ? '<span style="color:#ff7777">USED</span>'
-            : '<span style="color:#72d69b">AVAILABLE</span>'
+            ? `
+              <span style="color:#ff7777">
+                USED
+              </span>
+            `
+            : `
+              <span style="color:#72d69b">
+                AVAILABLE
+              </span>
+            `
           }
+
         </td>
 
         <td>
@@ -3233,10 +5913,16 @@ async function loadDiscounts(){
           ${
             used
             ? "✓"
+
             : `
               <button
                 class="btn btn-green btn-small"
-                onclick="useDiscountCode('${jsString(code.code)}')">
+                onclick="
+                  useDiscountCode(
+                    '${jsString(code.code)}'
+                  )
+                "
+              >
                 Mark Used
               </button>
             `
@@ -3246,13 +5932,27 @@ async function loadDiscounts(){
 
       `;
 
+
       table.appendChild(tr);
 
     });
 
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Discount codes:",
+      error
+    );
+
+  }
+
+
+  if(
+    currentRole==="DISCOUNT_STAFF"
+  ){
+
+    await loadMyDiscountActivity();
 
   }
 
@@ -3263,32 +5963,63 @@ async function saveStaffDiscount(){
 
   try{
 
+    if(
+      ![
+        "SUPER_ADMIN",
+        "DISCOUNT_STAFF"
+      ].includes(currentRole)
+    ){
+
+      alert(
+        "You do not have permission."
+      );
+
+      return;
+
+    }
+
+
     const {
       error
-    }=await sb
+    } = await sb
       .from("discount_campaign")
       .update({
 
         enabled:
-          document.getElementById("staffDiscountEnabled").checked,
+          document
+            .getElementById(
+              "staffDiscountEnabled"
+            )
+            .value==="true",
 
         title:
-          document.getElementById("staffDiscountTitle").value,
+          document.getElementById(
+            "staffDiscountTitle"
+          ).value,
 
         discount_percent:
           Number(
-            document.getElementById("staffDiscountPercent").value || 0
+            document.getElementById(
+              "staffDiscountPercent"
+            ).value || 0
           ),
 
         description:
-          document.getElementById("staffDiscountText").value
+          document.getElementById(
+            "staffDiscountText"
+          ).value
 
       })
       .eq("id",1);
 
+
     if(error) throw error;
 
-    alert("Discount campaign saved.");
+
+    alert(
+      "Discount campaign saved."
+    );
+
 
     await loadDiscounts();
 
@@ -3301,30 +6032,243 @@ async function saveStaffDiscount(){
 }
 
 
-async function useDiscountCode(code){
 
-  if(!confirm(`Mark ${code} as USED?`)) return;
+/* =========================================================
+   CHECK DISCOUNT CODE
+========================================================= */
+
+async function checkDiscountCode(){
+
+  const code =
+    document
+      .getElementById(
+        "checkDiscountCode"
+      )
+      .value
+      .trim()
+      .toUpperCase();
+
+
+  const resultBox =
+    document.getElementById(
+      "discountCheckResult"
+    );
+
+
+  if(!code){
+
+    resultBox.innerHTML =
+      `<div class="notice error">
+        Enter a discount code.
+      </div>`;
+
+    return;
+
+  }
+
+
+  resultBox.innerHTML =
+    `<div class="notice">
+      Checking code...
+    </div>`;
+
 
   try{
 
     const {
       data,
       error
-    }=await sb.rpc(
+    } = await sb
+      .from("discount_codes")
+      .select("*")
+      .eq("code",code)
+      .maybeSingle();
+
+
+    if(error) throw error;
+
+
+    if(!data){
+
+      await recordDiscountActivity(
+        code,
+        "INVALID"
+      );
+
+
+      resultBox.innerHTML =
+        `<div class="notice error">
+          ❌ Invalid discount code.
+        </div>`;
+
+      return;
+
+    }
+
+
+    const used =
+      data.used===true ||
+      data.status==="Used";
+
+
+    if(used){
+
+      await recordDiscountActivity(
+        code,
+        "CHECKED"
+      );
+
+
+      resultBox.innerHTML =
+        `<div class="notice error">
+
+          ❌ This code has already been used.
+
+          <br><br>
+
+          <strong>
+            ${escapeHtml(code)}
+          </strong>
+
+        </div>`;
+
+      return;
+
+    }
+
+
+    const campaign =
+      await getDiscountCampaign();
+
+
+    const percent =
+      campaign?.discount_percent ||
+      data.discount_percent ||
+      0;
+
+
+    await recordDiscountActivity(
+      code,
+      "CHECKED"
+    );
+
+
+    resultBox.innerHTML = `
+
+      <div
+        class="notice success"
+        style="margin-top:15px"
+      >
+
+        <strong>
+          ✓ Valid Discount Code
+        </strong>
+
+        <br><br>
+
+        Code:
+        <strong>
+          ${escapeHtml(code)}
+        </strong>
+
+        <br>
+
+        Discount:
+        <strong>
+          ${escapeHtml(percent)}%
+        </strong>
+
+        <br><br>
+
+        <button
+          class="btn btn-green btn-small"
+          onclick="
+            useDiscountCode('${jsString(code)}')
+          "
+        >
+          Mark as Used
+        </button>
+
+      </div>
+
+    `;
+
+  }catch(error){
+
+    resultBox.innerHTML =
+      `<div class="notice error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
+  }
+
+}
+
+
+async function getDiscountCampaign(){
+
+  const {
+    data,
+    error
+  } = await sb
+    .from("discount_campaign")
+    .select("*")
+    .eq("id",1)
+    .maybeSingle();
+
+
+  if(error) throw error;
+
+
+  return data;
+
+}
+
+
+async function useDiscountCode(code){
+
+  if(
+    !confirm(
+      `Mark ${code} as USED?`
+    )
+  ) return;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } = await sb.rpc(
       "use_discount_code",
       {
         p_code:code
       }
     );
 
+
     if(error) throw error;
+
+
+    await recordDiscountActivity(
+      code,
+      "USED"
+    );
+
 
     alert(
       data?.message ||
       "Discount code marked as used."
     );
 
+
+    document.getElementById(
+      "discountCheckResult"
+    ).innerHTML="";
+
+
     await loadDiscounts();
+
 
   }catch(error){
 
@@ -3333,6 +6277,168 @@ async function useDiscountCode(code){
   }
 
 }
+
+
+
+/* =========================================================
+   DISCOUNT STAFF ACTIVITY
+========================================================= */
+
+async function recordDiscountActivity(
+  code,
+  action
+){
+
+  if(
+    !currentUser?.email
+  ) return;
+
+
+  try{
+
+    await sb
+      .from("discount_staff_activity")
+      .insert({
+
+        staff_email:
+          currentUser.email,
+
+        staff_name:
+          currentStaff?.full_name || "",
+
+        discount_code:
+          code,
+
+        action
+
+      });
+
+  }catch(error){
+
+    console.error(
+      "Activity:",
+      error
+    );
+
+  }
+
+}
+
+
+async function loadMyDiscountActivity(){
+
+  if(
+    !currentUser?.email
+  ) return;
+
+
+  const box =
+    document.getElementById(
+      "myDiscountActivity"
+    );
+
+
+  if(!box) return;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } = await sb
+      .from("discount_staff_activity")
+      .select("*")
+      .ilike(
+        "staff_email",
+        currentUser.email
+      )
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(100);
+
+
+    if(error) throw error;
+
+
+    const checked =
+      (data || [])
+        .filter(
+          x=>x.action==="CHECKED"
+        ).length;
+
+
+    const used =
+      (data || [])
+        .filter(
+          x=>x.action==="USED"
+        ).length;
+
+
+    const invalid =
+      (data || [])
+        .filter(
+          x=>x.action==="INVALID"
+        ).length;
+
+
+    box.innerHTML=`
+
+      <div class="grid-3">
+
+        <div class="stat">
+
+          <span>
+            Codes Checked
+          </span>
+
+          <strong>
+            ${checked}
+          </strong>
+
+        </div>
+
+        <div class="stat">
+
+          <span>
+            Codes Used
+          </span>
+
+          <strong>
+            ${used}
+          </strong>
+
+        </div>
+
+        <div class="stat">
+
+          <span>
+            Invalid
+          </span>
+
+          <strong>
+            ${invalid}
+          </strong>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }catch(error){
+
+    box.innerHTML =
+      `<div class="notice error">
+        ${escapeHtml(error.message)}
+      </div>`;
+
+  }
+
+}
+
 
 
 /* =========================================================
@@ -3341,130 +6447,308 @@ async function useDiscountCode(code){
 
 async function loadStaff(){
 
-  if(currentRole!=="SUPER_ADMIN") return;
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ) return;
 
-  const {
-    data,
-    error
-  }=await sb
-    .from("admin_staff")
-    .select("*")
-    .order("created_at",{ascending:false});
 
-  if(error){
+  try{
 
-    console.error(error);
-    return;
+    const {
+      data,
+      error
+    } = await sb
+      .from("admin_staff")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      );
 
-  }
 
-  const table=
-    document.getElementById("staffTable");
+    if(error) throw error;
 
-  table.innerHTML="";
 
-  if(!data?.length){
+    const table =
+      document.getElementById(
+        "staffTable"
+      );
 
-    table.innerHTML=
-      '<tr><td colspan="6" class="empty">No staff accounts.</td></tr>';
 
-    return;
+    table.innerHTML="";
 
-  }
 
-  data.forEach(staff=>{
+    const select =
+      document.getElementById(
+        "photoStaffSelect"
+      );
 
-    const tr=document.createElement("tr");
 
-    const isMe =
-      currentUser?.email?.toLowerCase() ===
-      staff.email?.toLowerCase();
+    if(select){
 
-    tr.innerHTML=`
+      select.innerHTML =
+        `<option value="">
+          Select Staff
+        </option>`;
 
-      <td>
-        ${escapeHtml(staff.full_name || "-")}
-      </td>
+    }
 
-      <td>
-        ${escapeHtml(staff.email || "")}
-      </td>
 
-      <td>
+    if(!data?.length){
 
-        <select
-          id="role-${staff.id}"
-          onchange="changeStaffRole(${staff.id},this.value)"
-        >
+      table.innerHTML=
+        `<tr>
+          <td
+            colspan="6"
+            class="empty"
+          >
+            No staff accounts.
+          </td>
+        </tr>`;
 
-          <option value="SUPER_ADMIN"
-            ${staff.role==="SUPER_ADMIN" ? "selected" : ""}>
-            Super Admin
-          </option>
+      return;
 
-          <option value="DISCOUNT_STAFF"
-            ${staff.role==="DISCOUNT_STAFF" ? "selected" : ""}>
-            Discount Staff
-          </option>
+    }
 
-          <option value="BOOKING_STAFF"
-            ${staff.role==="BOOKING_STAFF" ? "selected" : ""}>
-            Booking Staff
-          </option>
 
-        </select>
+    data.forEach(staff=>{
 
-      </td>
+      const tr =
+        document.createElement("tr");
 
-      <td>
 
-        ${
-          staff.enabled
-          ? '<span style="color:#72d69b">ACTIVE</span>'
-          : '<span style="color:#ff7777">DISABLED</span>'
-        }
+      const isMe =
+        currentUser?.email?.toLowerCase() ===
+        staff.email?.toLowerCase();
 
-      </td>
 
-      <td>
-        ${formatDate(staff.created_at)}
-      </td>
+      const avatar =
+        staff.avatar_url
+        ? `
+          <img
+            class="staff-avatar"
+            src="${escapeHtml(staff.avatar_url)}"
+          >
+        `
+        : `
+          <div
+            class="staff-avatar"
+            style="
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              color:#d4af37;
+            "
+          >
+            ${(staff.full_name || "S")
+              .charAt(0)
+              .toUpperCase()}
+          </div>
+        `;
 
-      <td>
 
-        <div class="actions">
+      tr.innerHTML=`
+
+        <td>
+
+          <div class="staff-profile">
+
+            ${avatar}
+
+            <div>
+
+              <strong>
+                ${escapeHtml(
+                  staff.full_name || "-"
+                )}
+              </strong>
+
+              <small
+                style="color:#777"
+              >
+                ${escapeHtml(
+                  roleName(staff.role)
+                )}
+              </small>
+
+            </div>
+
+          </div>
+
+        </td>
+
+
+        <td>
+          ${escapeHtml(
+            staff.email || ""
+          )}
+        </td>
+
+
+        <td>
+
+          <select
+            onchange="
+              changeStaffRole(
+                ${staff.id},
+                this.value
+              )
+            "
+          >
+
+            <option
+              value="SUPER_ADMIN"
+              ${
+                staff.role==="SUPER_ADMIN"
+                ? "selected"
+                : ""
+              }
+            >
+              Super Admin
+            </option>
+
+            <option
+              value="DISCOUNT_STAFF"
+              ${
+                staff.role==="DISCOUNT_STAFF"
+                ? "selected"
+                : ""
+              }
+            >
+              Discount Staff
+            </option>
+
+            <option
+              value="BOOKING_STAFF"
+              ${
+                staff.role==="BOOKING_STAFF"
+                ? "selected"
+                : ""
+              }
+            >
+              Booking Staff
+            </option>
+
+          </select>
+
+        </td>
+
+
+        <td>
 
           ${
-            isMe
-            ? '<span style="color:#777">Current account</span>'
+            staff.enabled
+            ? `
+              <span style="color:#72d69b">
+                ACTIVE
+              </span>
+            `
             : `
-              <button
-                class="btn ${
-                  staff.enabled
-                  ? "btn-danger"
-                  : "btn-green"
-                } btn-small"
-                onclick="toggleStaff(${staff.id},${!staff.enabled})">
-                ${
-                  staff.enabled
-                  ? "Disable"
-                  : "Enable"
-                }
-              </button>
+              <span style="color:#ff7777">
+                DISABLED
+              </span>
             `
           }
 
-        </div>
+        </td>
 
-      </td>
 
-    `;
+        <td>
+          ${formatDate(
+            staff.created_at
+          )}
+        </td>
 
-    table.appendChild(tr);
 
-  });
+        <td>
+
+          <div class="actions">
+
+            ${
+              isMe
+
+              ? `
+                <span
+                  style="color:#777"
+                >
+                  Current account
+                </span>
+              `
+
+              : `
+                <button
+                  class="
+                    btn
+                    ${
+                      staff.enabled
+                      ? "btn-danger"
+                      : "btn-green"
+                    }
+                    btn-small
+                  "
+                  onclick="
+                    toggleStaff(
+                      ${staff.id},
+                      ${!staff.enabled}
+                    )
+                  "
+                >
+                  ${
+                    staff.enabled
+                    ? "Disable"
+                    : "Enable"
+                  }
+                </button>
+              `
+            }
+
+          </div>
+
+        </td>
+
+      `;
+
+
+      table.appendChild(tr);
+
+
+      if(select){
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+
+        option.value =
+          staff.id;
+
+
+        option.textContent =
+          `${staff.full_name || staff.email} — ${roleName(staff.role)}`;
+
+
+        option.dataset.avatar =
+          staff.avatar_url || "";
+
+
+        select.appendChild(option);
+
+      }
+
+    });
+
+  }catch(error){
+
+    console.error(
+      "loadStaff:",
+      error
+    );
+
+  }
 
 }
+
 
 
 /* =========================================================
@@ -3473,53 +6757,89 @@ async function loadStaff(){
 
 async function createStaff(){
 
-  if(currentRole!=="SUPER_ADMIN"){
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ){
 
-    alert("Only Super Admin can create staff accounts.");
+    alert(
+      "Only Super Admin can create staff accounts."
+    );
+
     return;
 
   }
 
+
   const full_name =
-    document.getElementById("newStaffName").value.trim();
+    document.getElementById(
+      "newStaffName"
+    ).value.trim();
+
 
   const email =
-    document.getElementById("newStaffEmail").value.trim();
+    document.getElementById(
+      "newStaffEmail"
+    ).value.trim();
+
 
   const password =
-    document.getElementById("newStaffPassword").value;
+    document.getElementById(
+      "newStaffPassword"
+    ).value;
+
 
   const role =
-    document.getElementById("newStaffRole").value;
+    document.getElementById(
+      "newStaffRole"
+    ).value;
 
 
   if(!full_name){
 
-    alert("Full Name is required.");
+    alert(
+      "Full Name is required."
+    );
+
     return;
 
   }
+
 
   if(!email){
 
-    alert("Email is required.");
+    alert(
+      "Email is required."
+    );
+
     return;
 
   }
 
-  if(!password || password.length<8){
 
-    alert("Password must contain at least 8 characters.");
+  if(
+    !password ||
+    password.length<8
+  ){
+
+    alert(
+      "Password must contain at least 8 characters."
+    );
+
     return;
 
   }
 
 
-  const box=
-    document.getElementById("staffMessage");
+  const box =
+    document.getElementById(
+      "staffMessage"
+    );
 
-  box.innerHTML=
-    '<div class="notice">Creating account...</div>';
+
+  box.innerHTML =
+    `<div class="notice">
+      Creating account...
+    </div>`;
 
 
   try{
@@ -3527,13 +6847,18 @@ async function createStaff(){
     const {
       data:{session},
       error:sessionError
-    }=await sb.auth.getSession();
+    } = await sb.auth.getSession();
 
-    if(sessionError) throw sessionError;
+
+    if(sessionError)
+      throw sessionError;
+
 
     if(!session){
 
-      throw new Error("Login session expired.");
+      throw new Error(
+        "Login session expired."
+      );
 
     }
 
@@ -3546,31 +6871,41 @@ async function createStaff(){
           method:"POST",
 
           headers:{
-            "Content-Type":"application/json",
+
+            "Content-Type":
+              "application/json",
+
             "Authorization":
               `Bearer ${session.access_token}`,
-            "apikey":SUPABASE_ANON_KEY
+
+            "apikey":
+              SUPABASE_ANON_KEY
+
           },
 
-          body:JSON.stringify({
+          body:
+            JSON.stringify({
 
-            email,
-            password,
-            full_name,
-            role,
-            enabled:true
+              email,
+              password,
+              full_name,
+              role,
+              enabled:true
 
-          })
+            })
 
         }
       );
 
 
-    const result=
+    const result =
       await response.json();
 
 
-    if(!response.ok || !result.success){
+    if(
+      !response.ok ||
+      !result.success
+    ){
 
       throw new Error(
         result.message ||
@@ -3580,28 +6915,47 @@ async function createStaff(){
     }
 
 
-    box.innerHTML=
+    box.innerHTML =
       `<div class="notice success">
         Staff account created successfully.
       </div>`;
 
 
-    document.getElementById("newStaffName").value="";
-    document.getElementById("newStaffEmail").value="";
-    document.getElementById("newStaffPassword").value="";
-    document.getElementById("newStaffRole").value="DISCOUNT_STAFF";
+    document.getElementById(
+      "newStaffName"
+    ).value="";
+
+
+    document.getElementById(
+      "newStaffEmail"
+    ).value="";
+
+
+    document.getElementById(
+      "newStaffPassword"
+    ).value="";
+
+
+    document.getElementById(
+      "newStaffRole"
+    ).value=
+      "DISCOUNT_STAFF";
 
 
     await loadStaff();
 
 
+    await loadStaffPerformance();
+
   }catch(error){
 
     console.error(error);
 
-    box.innerHTML=
+    box.innerHTML =
       `<div class="notice error">
-        ${escapeHtml(error.message)}
+        ${escapeHtml(
+          error.message
+        )}
       </div>`;
 
   }
@@ -3609,31 +6963,43 @@ async function createStaff(){
 }
 
 
+
 /* =========================================================
-   CHANGE STAFF ROLE
+   CHANGE ROLE
 ========================================================= */
 
-async function changeStaffRole(id,newRole){
+async function changeStaffRole(
+  id,
+  newRole
+){
 
-  if(currentRole!=="SUPER_ADMIN"){
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ){
 
-    alert("Only Super Admin can change roles.");
+    alert(
+      "Only Super Admin can change roles."
+    );
+
     return;
 
   }
+
 
   try{
 
     const {
       data:staff,
       error:findError
-    }=await sb
+    } = await sb
       .from("admin_staff")
       .select("*")
       .eq("id",id)
       .single();
 
-    if(findError) throw findError;
+
+    if(findError)
+      throw findError;
 
 
     if(
@@ -3641,7 +7007,10 @@ async function changeStaffRole(id,newRole){
       currentUser.email.toLowerCase()
     ){
 
-      alert("You cannot change your own role here.");
+      alert(
+        "You cannot change your own role here."
+      );
+
 
       await loadStaff();
 
@@ -3652,7 +7021,7 @@ async function changeStaffRole(id,newRole){
 
     const {
       error
-    }=await sb
+    } = await sb
       .from("admin_staff")
       .update({
 
@@ -3664,11 +7033,19 @@ async function changeStaffRole(id,newRole){
       })
       .eq("id",id);
 
+
     if(error) throw error;
 
-    alert("Staff role updated.");
+
+    alert(
+      "Staff role updated."
+    );
+
 
     await loadStaff();
+
+
+    await loadStaffPerformance();
 
   }catch(error){
 
@@ -3681,31 +7058,43 @@ async function changeStaffRole(id,newRole){
 }
 
 
+
 /* =========================================================
-   ENABLE / DISABLE STAFF
+   ENABLE / DISABLE
 ========================================================= */
 
-async function toggleStaff(id,enabled){
+async function toggleStaff(
+  id,
+  enabled
+){
 
-  if(currentRole!=="SUPER_ADMIN"){
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ){
 
-    alert("Only Super Admin can change staff status.");
+    alert(
+      "Only Super Admin can change staff status."
+    );
+
     return;
 
   }
+
 
   try{
 
     const {
       data:staff,
       error:findError
-    }=await sb
+    } = await sb
       .from("admin_staff")
       .select("*")
       .eq("id",id)
       .single();
 
-    if(findError) throw findError;
+
+    if(findError)
+      throw findError;
 
 
     if(
@@ -3713,7 +7102,10 @@ async function toggleStaff(id,enabled){
       currentUser.email.toLowerCase()
     ){
 
-      alert("You cannot disable your own account.");
+      alert(
+        "You cannot disable your own account."
+      );
+
       return;
 
     }
@@ -3721,7 +7113,7 @@ async function toggleStaff(id,enabled){
 
     const {
       error
-    }=await sb
+    } = await sb
       .from("admin_staff")
       .update({
 
@@ -3733,7 +7125,9 @@ async function toggleStaff(id,enabled){
       })
       .eq("id",id);
 
+
     if(error) throw error;
+
 
     await loadStaff();
 
@@ -3746,6 +7140,475 @@ async function toggleStaff(id,enabled){
 }
 
 
+
+/* =========================================================
+   STAFF AVATAR
+========================================================= */
+
+document.addEventListener(
+  "change",
+  event=>{
+
+    if(
+      event.target?.id ===
+      "photoStaffSelect"
+    ){
+
+      const option =
+        event.target
+          .selectedOptions[0];
+
+
+      document.getElementById(
+        "staffAvatarUrl"
+      ).value =
+        option?.dataset.avatar || "";
+
+    }
+
+  }
+);
+
+
+async function saveStaffAvatar(){
+
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ){
+
+    alert(
+      "Only Super Admin can change staff photos."
+    );
+
+    return;
+
+  }
+
+
+  const id =
+    document.getElementById(
+      "photoStaffSelect"
+    ).value;
+
+
+  const url =
+    document.getElementById(
+      "staffAvatarUrl"
+    ).value.trim();
+
+
+  if(!id){
+
+    alert(
+      "Select a staff member."
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      error
+    } = await sb
+      .from("admin_staff")
+      .update({
+
+        avatar_url:url,
+
+        updated_at:
+          new Date().toISOString()
+
+      })
+      .eq("id",id);
+
+
+    if(error) throw error;
+
+
+    alert(
+      "Staff photo saved."
+    );
+
+
+    await loadStaff();
+
+
+    await loadStaffPerformance();
+
+  }catch(error){
+
+    alert(error.message);
+
+  }
+
+}
+
+
+async function removeStaffAvatar(){
+
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ){
+
+    alert(
+      "Only Super Admin can remove staff photos."
+    );
+
+    return;
+
+  }
+
+
+  const id =
+    document.getElementById(
+      "photoStaffSelect"
+    ).value;
+
+
+  if(!id){
+
+    alert(
+      "Select a staff member."
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const {
+      error
+    } = await sb
+      .from("admin_staff")
+      .update({
+        avatar_url:null
+      })
+      .eq("id",id);
+
+
+    if(error) throw error;
+
+
+    document.getElementById(
+      "staffAvatarUrl"
+    ).value="";
+
+
+    alert(
+      "Staff photo removed."
+    );
+
+
+    await loadStaff();
+
+
+    await loadStaffPerformance();
+
+  }catch(error){
+
+    alert(error.message);
+
+  }
+
+}
+
+
+
+/* =========================================================
+   STAFF PERFORMANCE
+========================================================= */
+
+async function loadStaffPerformance(){
+
+  if(
+    currentRole!=="SUPER_ADMIN"
+  ) return;
+
+
+  const box =
+    document.getElementById(
+      "staffPerformance"
+    );
+
+
+  if(!box) return;
+
+
+  box.innerHTML =
+    `<div class="notice">
+      Loading performance...
+    </div>`;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } = await sb.rpc(
+      "get_staff_performance"
+    );
+
+
+    if(error) throw error;
+
+
+    if(!data?.length){
+
+      box.innerHTML =
+        `<div class="empty">
+          No staff performance data.
+        </div>`;
+
+      return;
+
+    }
+
+
+    box.innerHTML="";
+
+
+    data.forEach(staff=>{
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "performance-card";
+
+
+      const avatar =
+        staff.avatar_url
+        ? `
+          <img
+            class="staff-avatar"
+            src="${escapeHtml(staff.avatar_url)}"
+          >
+        `
+        : `
+          <div
+            class="staff-avatar"
+            style="
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              color:#d4af37;
+            "
+          >
+            ${(staff.staff_name || "S")
+              .charAt(0)
+              .toUpperCase()}
+          </div>
+        `;
+
+
+      card.innerHTML=`
+
+        <div class="performance-head">
+
+          <div class="staff-profile">
+
+            ${avatar}
+
+            <div>
+
+              <strong>
+                ${escapeHtml(
+                  staff.staff_name || "-"
+                )}
+              </strong>
+
+              <div
+                style="
+                  color:#777;
+                  font-size:12px;
+                "
+              >
+                ${escapeHtml(
+                  staff.staff_email || ""
+                )}
+              </div>
+
+              <div
+                style="
+                  color:#d4af37;
+                  font-size:12px;
+                  margin-top:3px;
+                "
+              >
+                ${escapeHtml(
+                  roleName(staff.role)
+                )}
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="grid-4">
+
+          <div class="stat">
+
+            <span>
+              Codes Checked
+            </span>
+
+            <strong class="performance-number">
+              ${staff.discount_checked || 0}
+            </strong>
+
+          </div>
+
+
+          <div class="stat">
+
+            <span>
+              Codes Used
+            </span>
+
+            <strong class="performance-number">
+              ${staff.discount_used || 0}
+            </strong>
+
+          </div>
+
+
+          <div class="stat">
+
+            <span>
+              Invalid Codes
+            </span>
+
+            <strong class="performance-number">
+              ${staff.discount_invalid || 0}
+            </strong>
+
+          </div>
+
+
+          <div class="stat">
+
+            <span>
+              Bookings Viewed
+            </span>
+
+            <strong class="performance-number">
+              ${staff.bookings_viewed || 0}
+            </strong>
+
+          </div>
+
+
+          <div class="stat">
+
+            <span>
+              Confirmed
+            </span>
+
+            <strong class="performance-number">
+              ${staff.bookings_confirmed || 0}
+            </strong>
+
+          </div>
+
+
+          <div class="stat">
+
+            <span>
+              Cancelled
+            </span>
+
+            <strong class="performance-number">
+              ${staff.bookings_cancelled || 0}
+            </strong>
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      box.appendChild(card);
+
+    });
+
+  }catch(error){
+
+    box.innerHTML =
+      `<div class="notice error">
+        ${escapeHtml(
+          error.message
+        )}
+      </div>`;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   BOOKING ACTIVITY
+========================================================= */
+
+async function recordBookingActivity(
+  bookingId,
+  reference,
+  action
+){
+
+  if(
+    !currentUser?.email
+  ) return;
+
+
+  try{
+
+    await sb
+      .from("booking_staff_activity")
+      .insert({
+
+        staff_email:
+          currentUser.email,
+
+        staff_name:
+          currentStaff?.full_name || "",
+
+        booking_id:
+          bookingId,
+
+        booking_reference:
+          reference,
+
+        action
+
+      });
+
+  }catch(error){
+
+    console.error(
+      "Booking activity:",
+      error
+    );
+
+  }
+
+}
+
+
+
 /* =========================================================
    DASHBOARD
 ========================================================= */
@@ -3754,87 +7617,156 @@ async function loadDashboardStats(){
 
   try{
 
-    const menu=
+    const menu =
       await sb
         .from("Menu")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statMenu").textContent =
+
+    document.getElementById(
+      "statMenu"
+    ).textContent =
       menu.count || 0;
 
 
-    const gallery=
+    const gallery =
       await sb
         .from("gallery")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statGallery").textContent =
+
+    document.getElementById(
+      "statGallery"
+    ).textContent =
       gallery.count || 0;
 
 
-    const bookings=
+    const bookings =
       await sb
         .from("table_bookings")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statBookings").textContent =
+
+    document.getElementById(
+      "statBookings"
+    ).textContent =
       bookings.count || 0;
 
 
-    const reviews=
+    const reviews =
       await sb
         .from("reviews")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statReviews").textContent =
+
+    document.getElementById(
+      "statReviews"
+    ).textContent =
       reviews.count || 0;
 
 
-    const reports=
+    const reports =
       await sb
         .from("customer_reports")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statReports").textContent =
+
+    document.getElementById(
+      "statReports"
+    ).textContent =
       reports.count || 0;
 
 
-    const codes=
+    const codes =
       await sb
         .from("discount_codes")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statDiscountCodes").textContent =
+
+    document.getElementById(
+      "statDiscountCodes"
+    ).textContent =
       codes.count || 0;
 
 
-    const staff=
+    const staff =
       await sb
         .from("admin_staff")
-        .select("id",{count:"exact",head:true});
+        .select(
+          "id",
+          {
+            count:"exact",
+            head:true
+          }
+        );
 
-    document.getElementById("statStaff").textContent =
+
+    document.getElementById(
+      "statStaff"
+    ).textContent =
       staff.count || 0;
 
 
     const {
       data:usedCodes
-    }=await sb
+    } = await sb
       .from("discount_codes")
       .select("id")
       .eq("used",true);
 
-    document.getElementById("statCodesUsed").textContent =
-      usedCodes?.length || 0;
 
+    document.getElementById(
+      "statCodesUsed"
+    ).textContent =
+      usedCodes?.length || 0;
 
   }catch(error){
 
-    console.error("Dashboard:",error);
+    console.error(
+      "Dashboard:",
+      error
+    );
 
   }
 
 }
+
 
 
 /* =========================================================
@@ -3843,22 +7775,38 @@ async function loadDashboardStats(){
 
 async function logout(){
 
-  await sb.auth.signOut();
+  if(sb){
+
+    await sb.auth.signOut();
+
+  }
+
 
   currentUser=null;
   currentRole="";
   currentStaff=null;
 
-  document.getElementById("app").style.display="none";
-  document.getElementById("loginScreen").style.display="flex";
 
-  document.getElementById("loginPassword").value="";
+  document.getElementById(
+    "app"
+  ).style.display="none";
+
+
+  document.getElementById(
+    "loginScreen"
+  ).style.display="flex";
+
+
+  document.getElementById(
+    "loginPassword"
+  ).value="";
 
 }
 
 
+
 /* =========================================================
-   MOBILE SIDEBAR
+   MOBILE
 ========================================================= */
 
 function toggleSidebar(){
@@ -3870,6 +7818,7 @@ function toggleSidebar(){
 }
 
 
+
 /* =========================================================
    HELPERS
 ========================================================= */
@@ -3879,59 +7828,100 @@ function roleName(role){
   if(role==="SUPER_ADMIN")
     return "👑 Super Admin";
 
+
   if(role==="DISCOUNT_STAFF")
     return "🎟️ Discount Staff";
 
+
   if(role==="BOOKING_STAFF")
     return "📅 Booking Staff";
+
 
   return role || "";
 
 }
 
 
-function showLoginMessage(message,type){
+function showLoginMessage(
+  message,
+  type=""
+){
 
-  const box=
-    document.getElementById("loginMessage");
+  const box =
+    document.getElementById(
+      "loginMessage"
+    );
+
 
   box.className =
-    type === "error"
-      ? "notice error"
-      : "notice";
+    type==="error"
+    ? "notice error"
+    : "notice";
 
-  box.textContent=message;
+
+  box.textContent =
+    message || "";
 
 }
 
 
 function escapeHtml(value){
 
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
 function jsString(value){
 
-  return String(value ?? "")
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'");
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    );
+
 }
 
 
 function formatDate(value){
 
-  if(!value) return "-";
+  if(!value)
+    return "-";
+
 
   try{
 
-    return new Date(value).toLocaleString(
+    return new Date(
+      value
+    ).toLocaleString(
       "it-IT",
       {
         dateStyle:"short",
@@ -3948,34 +7938,87 @@ function formatDate(value){
 }
 
 
+function toDateTimeLocal(value){
+
+  if(!value)
+    return "";
+
+
+  try{
+
+    const date =
+      new Date(value);
+
+
+    const pad =
+      n =>
+        String(n)
+          .padStart(2,"0");
+
+
+    return `${date.getFullYear()}-${pad(
+      date.getMonth()+1
+    )}-${pad(
+      date.getDate()
+    )}T${pad(
+      date.getHours()
+    )}:${pad(
+      date.getMinutes()
+    )}`;
+
+  }catch{
+
+    return "";
+
+  }
+
+}
+
+
+function localToIso(value){
+
+  if(!value)
+    return null;
+
+
+  try{
+
+    return new Date(value)
+      .toISOString();
+
+  }catch{
+
+    return null;
+
+  }
+
+}
+
+
+
 /* =========================================================
    AUTH STATE
 ========================================================= */
 
-if(typeof window !== "undefined"){
+if(sb){
 
-  setTimeout(()=>{
+  sb.auth.onAuthStateChange(
+    async(_event,session)=>{
 
-    if(sb){
+      if(session?.user){
 
-      sb.auth.onAuthStateChange(
-        async (_event,session)=>{
+        currentUser =
+          session.user;
 
-          if(session?.user){
-
-            currentUser=session.user;
-
-          }
-
-        }
-      );
+      }
 
     }
-
-  },1000);
+  );
 
 }
+
 </script>
 
 </body>
 </html>
+```
