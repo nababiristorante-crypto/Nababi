@@ -4904,6 +4904,7 @@ async function saveDiscountCampaign(){
    COUPONS
 ========================================================= */
 
+
 async function generateCoupons(){
 
   try{
@@ -4914,17 +4915,16 @@ async function generateCoupons(){
         Math.max(
           1,
           Number(
-            $("couponCount")
-              .value || 1
+            $("couponCount").value || 1
           )
         )
       );
 
-    const results=[];
+    const results = [];
 
     for(
-      let i=0;
-      i<count;
+      let i = 0;
+      i < count;
       i++
     ){
 
@@ -4933,9 +4933,7 @@ async function generateCoupons(){
         error
       } =
       await supabaseClient
-        .rpc(
-          "create_discount_code"
-        );
+        .rpc("create_discount_code");
 
       if(error)
         throw error;
@@ -4945,8 +4943,7 @@ async function generateCoupons(){
     }
 
     toast(
-      count+
-      " coupon code(s) created."
+      count + " coupon code(s) created."
     );
 
     await loadCoupons();
@@ -4962,122 +4959,332 @@ async function generateCoupons(){
 
 async function loadCoupons(){
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("discount_codes")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    )
-    .limit(300);
+  try{
 
-  if(error)
-    throw error;
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("discount_codes")
+      .select(`
+        id,
+        claim_number,
+        code,
+        discount_text,
+        status,
+        created_at,
+        used_at,
+        campaign_id,
+        discount_campaign (
+          id,
+          title,
+          discount_text,
+          discount_percent,
+          enabled,
+          start_at,
+          end_at
+        )
+      `)
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(300);
 
-  $("couponList").innerHTML =
-    `
-    <div class="tablewrap">
+    if(error)
+      throw error;
 
-    <table class="table">
 
-    <thead>
+    const now =
+      new Date();
 
-    <tr>
-      <th>Code</th>
-      <th>Status</th>
-      <th>Discount</th>
-      <th>Created</th>
-      <th>Used</th>
-    </tr>
 
-    </thead>
+    $("couponList").innerHTML =
+      `
+      <div class="tablewrap">
 
-    <tbody>
+      <table class="table">
 
-    ${(data||[])
-      .map(item=>`
+      <thead>
 
       <tr>
 
-        <td>
-          <b>
-            ${escapeHtml(
-              item.code
-            )}
-          </b>
-        </td>
+        <th>Number</th>
 
-        <td>
+        <th>Coupon Code</th>
 
-          <span class="pill ${
-            String(
-              item.status
-            ).toLowerCase()==="used"
-            ?"ok"
-            :""
-          }">
+        <th>Campaign</th>
 
-            ${escapeHtml(
-              item.status ||
-              "Active"
-            )}
+        <th>Discount</th>
 
-          </span>
+        <th>Status</th>
 
-        </td>
+        <th>Created</th>
 
-        <td>
-          ${
-            item.discount_percent !== undefined
-            ?
-            escapeHtml(
-              item.discount_percent
-            )+"%"
-            :
-            "—"
-          }
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.created_at
-            ?
-            item.created_at.slice(0,16)
-            :
-            ""
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.used_at
-            ?
-            item.used_at.slice(0,16)
-            :
-            "—"
-          )}
-        </td>
+        <th>Used</th>
 
       </tr>
 
-    `).join("")}
+      </thead>
 
-    </tbody>
+      <tbody>
 
-    </table>
+      ${(data || [])
+        .map(item => {
 
-    </div>
-    `;
+          const campaign =
+            item.discount_campaign || null;
+
+          let status =
+            String(
+              item.status || "active"
+            ).toLowerCase();
+
+
+          /*
+           * Campaign expired হলে
+           * coupon automatically EXPIRED
+           */
+
+          if(
+            status !== "used" &&
+            campaign
+          ){
+
+            if(
+              campaign.end_at &&
+              new Date(
+                campaign.end_at
+              ) < now
+            ){
+
+              status = "expired";
+
+            }
+
+            else if(
+              campaign.start_at &&
+              new Date(
+                campaign.start_at
+              ) > now
+            ){
+
+              status = "upcoming";
+
+            }
+
+            else if(
+              campaign.enabled === false
+            ){
+
+              status = "expired";
+
+            }
+
+          }
+
+
+          let statusClass = "";
+
+          if(status === "used"){
+            statusClass = "ok";
+          }
+
+          else if(status === "expired"){
+            statusClass = "bad";
+          }
+
+          else if(status === "upcoming"){
+            statusClass = "";
+          }
+
+
+          const discount =
+            item.discount_text ||
+            (
+              campaign &&
+              campaign.discount_text
+            ) ||
+            (
+              campaign &&
+              campaign.discount_percent !== null &&
+              campaign.discount_percent !== undefined
+                ? campaign.discount_percent + "%"
+                : "—"
+            );
+
+
+          return `
+
+          <tr>
+
+            <td>
+              <b>
+                ${
+                  item.claim_number !== null &&
+                  item.claim_number !== undefined
+                    ? escapeHtml(
+                        String(
+                          item.claim_number
+                        )
+                      )
+                    : "—"
+                }
+              </b>
+            </td>
+
+
+            <td>
+
+              <b>
+                ${escapeHtml(
+                  item.code || ""
+                )}
+              </b>
+
+            </td>
+
+
+            <td>
+
+              ${
+                campaign
+                  ? `
+                    <strong>
+                      ${escapeHtml(
+                        campaign.title || "Campaign"
+                      )}
+                    </strong>
+
+                    ${
+                      campaign.start_at ||
+                      campaign.end_at
+                      ? `
+                        <div
+                          class="muted"
+                          style="
+                            font-size:11px;
+                            margin-top:4px
+                          "
+                        >
+                          ${
+                            campaign.start_at
+                            ? escapeHtml(
+                                campaign.start_at
+                                  .slice(0,16)
+                              )
+                            : ""
+                          }
+
+                          ${
+                            campaign.end_at
+                            ? " → " +
+                              escapeHtml(
+                                campaign.end_at
+                                  .slice(0,16)
+                              )
+                            : ""
+                          }
+                        </div>
+                      `
+                      : ""
+                    }
+                  `
+                  : "—"
+              }
+
+            </td>
+
+
+            <td>
+
+              <b>
+                ${escapeHtml(
+                  String(discount)
+                )}
+              </b>
+
+            </td>
+
+
+            <td>
+
+              <span
+                class="pill ${statusClass}"
+              >
+
+                ${
+                  status === "used"
+                    ? "USED"
+                    : status === "expired"
+                      ? "EXPIRED"
+                      : status === "upcoming"
+                        ? "NOT STARTED"
+                        : "ACTIVE"
+                }
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              ${
+                item.created_at
+                  ? escapeHtml(
+                      item.created_at
+                        .slice(0,16)
+                    )
+                  : "—"
+              }
+
+            </td>
+
+
+            <td>
+
+              ${
+                item.used_at
+                  ? escapeHtml(
+                      item.used_at
+                        .slice(0,16)
+                    )
+                  : "—"
+              }
+
+            </td>
+
+          </tr>
+
+          `;
+
+        })
+        .join("")}
+
+      </tbody>
+
+      </table>
+
+      </div>
+      `;
+
+
+  }catch(error){
+
+    console.error(
+      "loadCoupons error:",
+      error
+    );
+
+    showError(error);
+
+  }
 
 }
-
-
 /* =========================================================
    STAFF PERMISSIONS
 ========================================================= */
