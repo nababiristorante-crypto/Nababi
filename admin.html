@@ -3958,35 +3958,48 @@ async function applyCurrentRolePermissions(){
   const first=[...document.querySelectorAll(".nav")].find(n=>n.style.display!=="none");
   if(first){ const active=document.querySelector(".nav.active"); if(!active || active.style.display==="none") first.click(); }
 }
-async function verifyCouponCodeInput(inputId,resultId){
+async function useCouponInput(inputId,resultId){
 
   const code=normalizeCouponCode($(inputId).value);
 
   if(!code){
     $(resultId).innerHTML=
       '<div class="card bad">🔴 Coupon number দিন।</div>';
-    return null;
+    return;
   }
 
   try{
 
-    const {data,error} =
-      await supabaseClient.rpc(
-        "verify_discount_coupon",
-        {p_code:code}
-      );
+    /* CHECK CURRENT COUPON STATUS FIRST */
 
-    if(error) throw error;
+    const {data:coupon,error:couponError}=
+      await supabaseClient
+        .from("discount_codes")
+        .select("id,code,status,used_at,usage_count")
+        .ilike("code",code)
+        .maybeSingle();
 
-    const result=data||{};
+    if(couponError) throw couponError;
 
-    /* USED COUPON = NEVER GREEN */
+    /* COUPON NOT FOUND */
+
+    if(!coupon){
+
+      $(resultId).innerHTML=
+        `<div class="card bad">
+          🔴 <b>${escapeHtml(code)}</b>
+          — Coupon not found.
+        </div>`;
+
+      return;
+    }
+
+    /* ALREADY USED = ALWAYS RED */
 
     if(
-      String(result.status||"").toLowerCase()==="used" ||
-      result.used===true ||
-      result.used_at ||
-      Number(result.usage_count||0)>=1
+      String(coupon.status||"").toLowerCase()==="used" ||
+      coupon.used_at ||
+      Number(coupon.usage_count||0)>=1
     ){
 
       $(resultId).innerHTML=
@@ -3995,88 +4008,10 @@ async function verifyCouponCodeInput(inputId,resultId){
           — এই Coupon ইতিমধ্যে ব্যবহার করা হয়েছে।
         </div>`;
 
-      return result;
+      return;
     }
 
-    /* INVALID COUPON */
-
-    if(!result.success){
-
-      $(resultId).innerHTML=
-        `<div class="card bad">
-          🔴 ${escapeHtml(
-            result.message||"Coupon invalid"
-          )}
-        </div>`;
-
-      return result;
-    }
-
-    /* VALID + UNUSED */
-
-    $(resultId).innerHTML=
-      `<div class="card ok">
-        🟢 <b>${escapeHtml(result.code||code)}</b>
-        valid •
-        ${escapeHtml(result.campaign_title||"")} •
-        ${escapeHtml(result.discount_text||"")}
-      </div>`;
-
-    await logStaffActivity(
-      "COUPON_VERIFIED",
-      "discount_codes",
-      result.code_id||null,
-      {
-        code:result.code||code,
-        campaign_id:result.campaign_id||null
-      }
-    );
-
-    return result;
-
-  }catch(error){
-
-    $(resultId).innerHTML=
-      `<div class="card bad">
-        🔴 ${escapeHtml(error.message)}
-      </div>`;
-
-    return null;
-
-  }
-
-}
-
-
-/* SECRET COUPON */
-
-async function checkSecretCoupon(){
-
-  return verifyCouponCodeInput(
-    "secretCouponCode",
-    "secretCouponResult"
-  );
-
-}
-
-
-/* USE COUPON */
-
-async function useCouponInput(inputId,resultId){
-
-  const code=
-    normalizeCouponCode($(inputId).value);
-
-  if(!code){
-
-    $(resultId).innerHTML=
-      '<div class="card bad">🔴 Coupon number দিন।</div>';
-
-    return;
-
-  }
-
-  try{
+    /* USE COUPON */
 
     const {data,error}=
       await supabaseClient.rpc(
@@ -4088,18 +4023,22 @@ async function useCouponInput(inputId,resultId){
 
     const result=data||{};
 
-    if(!result.success){
+    /* RPC REJECTED */
+
+    if(result.success!==true){
 
       $(resultId).innerHTML=
         `<div class="card bad">
-          🔴 ${escapeHtml(
+          🔴 <b>${escapeHtml(code)}</b>
+          — ${escapeHtml(
             result.message||"Coupon could not be used"
           )}
         </div>`;
 
       return;
-
     }
+
+    /* SUCCESS - FIRST USE ONLY */
 
     $(resultId).innerHTML=
       `<div class="card ok">
@@ -4111,7 +4050,7 @@ async function useCouponInput(inputId,resultId){
     await logStaffActivity(
       "COUPON_USED",
       "discount_codes",
-      result.code_id||null,
+      result.code_id||coupon.id||null,
       {
         code:result.code||code,
         campaign_id:result.campaign_id||null
@@ -4123,15 +4062,17 @@ async function useCouponInput(inputId,resultId){
 
   }catch(error){
 
+    console.error(error);
+
     $(resultId).innerHTML=
       `<div class="card bad">
-        🔴 ${escapeHtml(error.message)}
+        🔴 ${escapeHtml(
+          error.message||"Coupon could not be used."
+        )}
       </div>`;
 
   }
-
 }
-
 
 async function useSecretCoupon(){
 
