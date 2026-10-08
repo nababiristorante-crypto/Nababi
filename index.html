@@ -3014,14 +3014,8 @@ function setSocialLink(id,url){
 
 function renderHours(hours){
 
-  const list =
-    document.getElementById(
-      "hoursList"
-    );
-
-  if(!list){
-    return;
-  }
+  const list = document.getElementById("hoursList");
+  if(!list) return;
 
   const days = [
     ["Monday","Lunedì"],
@@ -3033,21 +3027,91 @@ function renderHours(hours){
     ["Sunday","Domenica"]
   ];
 
+  function formatHours(value){
+
+    if(value === null || value === undefined || value === ""){
+      return "";
+    }
+
+    // Admin থেকে সময় যদি সরাসরি text হিসেবে আসে
+    if(typeof value === "string" || typeof value === "number"){
+      return String(value);
+    }
+
+    // Admin থেকে open/close object হিসেবে এলে
+    if(typeof value === "object"){
+
+      if(value.closed === true || value.is_closed === true){
+        return "Closed";
+      }
+
+      // Lunch ও dinner-এর আলাদা সময় থাকলে
+      const periods = [];
+
+      const morningOpen =
+        value.morning_open || value.lunch_open || "";
+
+      const morningClose =
+        value.morning_close || value.lunch_close || "";
+
+      const eveningOpen =
+        value.evening_open || value.dinner_open || "";
+
+      const eveningClose =
+        value.evening_close || value.dinner_close || "";
+
+      if(morningOpen && morningClose){
+        periods.push(`${morningOpen} - ${morningClose}`);
+      }
+
+      if(eveningOpen && eveningClose){
+        periods.push(`${eveningOpen} - ${eveningClose}`);
+      }
+
+      if(periods.length){
+        return periods.join(" & ");
+      }
+
+      // সাধারণ opening ও closing time
+      const open = value.open || value.open_time || "";
+      const close = value.close || value.close_time || "";
+
+      if(open && close){
+        return `${open} - ${close}`;
+      }
+
+      if(open){
+        return String(open);
+      }
+
+      if(close){
+        return String(close);
+      }
+
+      // বিকল্প হিসেবে আগে থেকেই তৈরি করা display text
+      return value.hours || value.time || value.label || "";
+    }
+
+    return "";
+  }
+
   let html = "";
 
-  days.forEach(([key,label]) => {
+  days.forEach(([key, label]) => {
 
     const value =
-      hours[key] ||
-      hours[key.toLowerCase()] ||
+      hours?.[key] ??
+      hours?.[key.toLowerCase()] ??
       "";
 
-    if(value){
+    const time = formatHours(value);
+
+    if(time){
 
       html += `
         <div class="hours-row">
-          <strong>${label}</strong>
-          <span>${escapeHTML(value)}</span>
+          <strong>${escapeHTML(label)}</strong>
+          <span>${escapeHTML(time)}</span>
         </div>
       `;
 
@@ -3056,22 +3120,16 @@ function renderHours(hours){
   });
 
   if(!html){
-
     html = `
       <div class="hours-row">
-        <strong>Monday</strong>
-        <span>12:00 - 23:00</span>
+        <strong>Opening Hours</strong>
+        <span>Hours not available</span>
       </div>
     `;
-
   }
 
-  list.innerHTML =
-    html;
-
+  list.innerHTML = html;
 }
-
-
 /* =========================================================
    BREAKING NEWS
    FIXED MEDIA SYSTEM
