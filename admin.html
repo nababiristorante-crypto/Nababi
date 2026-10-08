@@ -3847,43 +3847,89 @@ async function generateCoupons(){
 
   try{
 
-    const count =
-      Math.min(
-        100,
-        Math.max(
-          1,
-          Number(
-            $("couponCount").value || 1
-          )
-        )
-      );
-
-
-    const results = [];
-
-    for(let i=0;i<count;i++){
-
-      const {
-        data,
-        error
-      } =
-      await supabaseClient
-        .rpc(
-          "create_discount_code"
-        );
-
-      if(error)
-        throw error;
-
-      results.push(data);
-
-    }
-
-    toast(
-      count +
-      " coupon code(s) created."
+    const count = Math.min(
+      100,
+      Math.max(1, Number($("couponCount").value || 1))
     );
 
+    /* Find the currently active campaign first. */
+    const now = new Date().toISOString();
+    const { data: campaign, error: campaignError } =
+      await supabaseClient
+        .from("discount_campaign")
+        .select("*")
+        .eq("enabled", true)
+        .lte("start_at", now)
+        .gte("end_at", now)
+        .order("id", { ascending:false })
+        .limit(1)
+        .maybeSingle();
+
+    if(campaignError) throw campaignError;
+
+    if(!campaign){
+      throw new Error("No active discount campaign found. Please save and enable a Discount Campaign first.");
+    }
+
+    const created = [];
+
+    for(let i=0; i<count; i++){
+
+      let code = "";
+      let exists = true;
+
+      /* Generate a unique NB-XXXX code. */
+      for(let attempt=0; attempt<20 && exists; attempt++){
+        const suffix = String(Math.floor(1000 + Math.random()*9000));
+        code = "NB-" + suffix;
+
+        const { data: existing, error: existsError } =
+          await supabaseClient
+            .from("discount_codes")
+            .select("id")
+            .eq("code", code)
+            .maybeSingle();
+
+        if(existsError) throw existsError;
+        exists = !!existing;
+      }
+
+      if(exists){
+        throw new Error("Could not generate a unique discount code. Please try again.");
+      }
+
+      const { data, error } =
+        await supabaseClient
+          .from("discount_codes")
+          .insert({
+            claim_number: Number(code.slice(3)),
+            code,
+            discount_text:
+              campaign.discount_text ||
+              `${campaign.discount_percent || 0}% OFF`,
+            status: "active",
+            campaign_id: campaign.id,
+            created_by_email: currentUser?.email || null,
+            created_by_name: currentStaff?.full_name || null
+          })
+          .select()
+          .single();
+
+      if(error) throw error;
+
+      created.push(data);
+
+      if(typeof logStaffActivity === "function"){
+        await logStaffActivity(
+          "COUPON_CREATED",
+          "discount_codes",
+          data.id,
+          { code, campaign_id: campaign.id }
+        );
+      }
+    }
+
+    toast(created.length + " coupon code(s) created.");
     await loadCoupons();
 
   }catch(error){
@@ -3893,7 +3939,6 @@ async function generateCoupons(){
   }
 
 }
-
 
 async function loadCoupons(){
 
