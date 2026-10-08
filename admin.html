@@ -4145,9 +4145,16 @@ function formatDateTime(value){
   }).format(d));
 }
 
+function normalizeSecretCouponCode(value){
+  let code=String(value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
+  // Staff can enter either NB-934278 or just 934278.
+  if(/^\d{1,10}$/.test(code)) code="NB-"+code;
+  return code;
+}
+
 async function checkSecretCoupon(){
   const input=$("secretCouponCode");
-  const code=String(input?.value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
+  const code=normalizeSecretCouponCode(input?.value||"");
   const box=$("secretCouponResult");
   if(!box)return;
   if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
@@ -4177,7 +4184,7 @@ async function checkSecretCoupon(){
 }
 
 async function useSecretCoupon(){
-  const code=String($("secretCouponCode")?.value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
+  const code=normalizeSecretCouponCode($("secretCouponCode")?.value||"");
   const box=$("secretCouponResult");
   if(!code||!box)return;
   box.innerHTML='<div class="muted">Redeeming coupon…</div>';
