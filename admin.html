@@ -342,7 +342,7 @@ textarea{
     display:block
   }
 }
-.login-brand{text-align:center;margin-bottom:14px}.login-logo{display:block;width:92px;height:92px;object-fit:contain;border-radius:18px;margin:0 auto 10px;box-shadow:0 8px 24px rgba(0,0,0,.18)}.brand-head{display:flex;align-items:center;gap:10px}.header-logo{width:42px;height:42px;object-fit:contain;border-radius:10px;background:#fff;padding:3px}</style>
+</style>
 </head>
 
 <body>
@@ -352,10 +352,9 @@ textarea{
 
   <div class="card">
 
-    <div class="login-brand">
-      <img id="loginLogo" class="login-logo" src="" alt="Nababi Ristorante Logo" onerror="this.style.display='none'">
-      <h1><span class="gold">Nababi Ristorante</span></h1>
-    </div>
+    <h1>
+      👑 <span class="gold">Nababi</span> Admin
+    </h1>
 
     <p class="muted">
       Master Control Panel
@@ -402,10 +401,10 @@ textarea{
       ☰
     </button>
 
-    <div class="brand-head">
-      <img id="headerLogo" class="header-logo" src="" alt="Nababi Ristorante Logo" onerror="this.style.display='none'">
-      <b>Nababi Ristorante <span class="gold">Master Admin</span></b>
-    </div>
+    <b>
+      👑 Nababi Ristorante
+      <span class="gold">Master Admin</span>
+    </b>
 
   </div>
 
@@ -498,12 +497,8 @@ textarea{
 🔢 Coupon Codes
 </button>
 
-<button class="nav" data-section="secretCoupon">
-🔐 Secret Coupon Box
-</button>
-
-<button class="nav" data-section="staff" onclick="focusStaffCoupon()">
-🔐 Staff Admin
+<button class="nav" data-section="staff">
+👥 Staff Management
 </button>
 
 <button class="nav" data-section="performance">
@@ -1447,20 +1442,6 @@ Customers collect the code and show it to restaurant staff.
 </section>
 
 
-<!-- SECRET COUPON -->
-<section id="secretCoupon" class="section">
-<h2>🔐 Secret Coupon Box</h2>
-<div class="card">
-<p class="muted">Verify a coupon first. Verification never consumes it. Use Coupon will redeem it one time.</p>
-<div class="row">
-<input id="secretCouponCode" placeholder="Enter coupon code" style="flex:1;min-width:220px">
-<button class="btn green" onclick="checkSecretCoupon()">🟢 VERIFY</button>
-<button class="btn red" onclick="clearSecretCoupon()">🔴 CLEAR</button>
-</div>
-<div id="secretCouponResult" style="margin-top:12px"></div>
-</div>
-</section>
-
 <!-- STAFF -->
 <section
  id="staff"
@@ -1553,9 +1534,6 @@ Disabled
  style="margin-top:16px"
 ></div>
 
-
-<div class="card" style="margin-top:16px"><div class="toolbar"><div><h3>⭐ Reviews</h3><p class="muted">Customer reviews দেখুন এবং প্রয়োজন হলে manage করুন।</p></div><button class="btn small" onclick="loadStaffReviews()">Refresh</button></div><div id="staffReviewList"></div></div>
-<div class="card" style="margin-top:16px"><div class="toolbar"><div><h3>📝 Customer Reports</h3><p class="muted">Customer reports দেখুন এবং প্রয়োজন হলে resolve করুন।</p></div><button class="btn small" onclick="loadStaffReports()">Refresh</button></div><div id="staffReportList"></div></div>
 </section>
 
 
@@ -1618,8 +1596,6 @@ supabase.createClient(
 
 let currentUser = null;
 let currentStaff = null;
-
-loadAdminBrandLogo().catch(()=>{});
 
 
 /* =========================================================
@@ -1897,8 +1873,6 @@ async function initializeAdmin(){
   currentStaff =
     data;
 
-  await loadAdminBrandLogo();
-
   $("login").classList.add("hidden");
 
   $("app").classList.remove("hidden");
@@ -1947,10 +1921,6 @@ async function getSetting(key){
 
 }
 
-
-async function loadAdminBrandLogo(){
-  try{const logo=await getSetting("logo");const url=logo?.url||"";if($("loginLogo")){ $("loginLogo").src=url; $("loginLogo").style.display=url?"block":"none";}if($("headerLogo")){ $("headerLogo").src=url; $("headerLogo").style.display=url?"block":"none";}}catch(error){console.warn("Logo load failed",error);}
-}
 
 async function saveSetting(key,value){
 
@@ -3847,89 +3817,43 @@ async function generateCoupons(){
 
   try{
 
-    const count = Math.min(
-      100,
-      Math.max(1, Number($("couponCount").value || 1))
+    const count =
+      Math.min(
+        100,
+        Math.max(
+          1,
+          Number(
+            $("couponCount").value || 1
+          )
+        )
+      );
+
+
+    const results = [];
+
+    for(let i=0;i<count;i++){
+
+      const {
+        data,
+        error
+      } =
+      await supabaseClient
+        .rpc(
+          "create_discount_code"
+        );
+
+      if(error)
+        throw error;
+
+      results.push(data);
+
+    }
+
+    toast(
+      count +
+      " coupon code(s) created."
     );
 
-    /* Find the currently active campaign first. */
-    const now = new Date().toISOString();
-    const { data: campaign, error: campaignError } =
-      await supabaseClient
-        .from("discount_campaign")
-        .select("*")
-        .eq("enabled", true)
-        .lte("start_at", now)
-        .gte("end_at", now)
-        .order("id", { ascending:false })
-        .limit(1)
-        .maybeSingle();
-
-    if(campaignError) throw campaignError;
-
-    if(!campaign){
-      throw new Error("No active discount campaign found. Please save and enable a Discount Campaign first.");
-    }
-
-    const created = [];
-
-    for(let i=0; i<count; i++){
-
-      let code = "";
-      let exists = true;
-
-      /* Generate a unique NB-XXXX code. */
-      for(let attempt=0; attempt<20 && exists; attempt++){
-        const suffix = String(Math.floor(1000 + Math.random()*9000));
-        code = "NB-" + suffix;
-
-        const { data: existing, error: existsError } =
-          await supabaseClient
-            .from("discount_codes")
-            .select("id")
-            .eq("code", code)
-            .maybeSingle();
-
-        if(existsError) throw existsError;
-        exists = !!existing;
-      }
-
-      if(exists){
-        throw new Error("Could not generate a unique discount code. Please try again.");
-      }
-
-      const { data, error } =
-        await supabaseClient
-          .from("discount_codes")
-          .insert({
-            claim_number: Number(code.slice(3)),
-            code,
-            discount_text:
-              campaign.discount_text ||
-              `${campaign.discount_percent || 0}% OFF`,
-            status: "active",
-            campaign_id: campaign.id,
-            created_by_email: currentUser?.email || null,
-            created_by_name: currentStaff?.full_name || null
-          })
-          .select()
-          .single();
-
-      if(error) throw error;
-
-      created.push(data);
-
-      if(typeof logStaffActivity === "function"){
-        await logStaffActivity(
-          "COUPON_CREATED",
-          "discount_codes",
-          data.id,
-          { code, campaign_id: campaign.id }
-        );
-      }
-    }
-
-    toast(created.length + " coupon code(s) created.");
     await loadCoupons();
 
   }catch(error){
@@ -3939,6 +3863,7 @@ async function generateCoupons(){
   }
 
 }
+
 
 async function loadCoupons(){
 
@@ -4102,17 +4027,28 @@ async function applyCurrentRolePermissions(){
   if(first && !document.querySelector(".nav.active")?.style.display!="none") first.click();
 }
 async function checkSecretCoupon(){
-  const code=$("secretCouponCode")?.value.trim().toUpperCase(); const box=$("secretCouponResult"); if(!box)return;
+  const code=$("secretCouponCode")?.value.trim().toUpperCase();
+  const box=$("secretCouponResult");
+  if(!box) return;
   if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
-  box.innerHTML='<div class="muted">Checking coupon…</div>';
-  try{const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Invalid coupon code.")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br>Usage count: ${escapeHtml(data.usage_count??0)}<br><button class="btn red" style="margin-top:12px" onclick="useSecretCoupon()">🎟️ USE COUPON</button></div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
-
-async function useSecretCoupon(){
-  const code=$("secretCouponCode")?.value.trim().toUpperCase(); const box=$("secretCouponResult"); if(!code)return; if(!confirm('Use this coupon now? This action consumes the coupon and cannot be undone.'))return;
-  box.innerHTML='<div class="muted">Redeeming coupon…</div>';
-  try{const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Coupon could not be used.")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br>Used at: ${escapeHtml(data.used_at||new Date().toISOString())}<br>Usage count: ${escapeHtml(data.usage_count??1)}</div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
-
-function clearSecretCoupon(){const input=$("secretCouponCode");const box=$("secretCouponResult");if(input)input.value="";if(box)box.innerHTML="";}
+  try{
+    const {data,error}=await supabaseClient.from("discount_codes").select("*").ilike("code",code).maybeSingle();
+    if(error) throw error;
+    if(!data){box.innerHTML='<div class="card bad">🔴 Invalid coupon code.</div>';return;}
+    const status=String(data.status||"active").toLowerCase();
+    const now=Date.now();
+    if(status!=="active" && status!=="unused"){box.innerHTML='<div class="card bad">🔴 Coupon is '+escapeHtml(data.status||"inactive")+'.</div>';return;}
+    if(data.start_at && new Date(data.start_at).getTime()>now){box.innerHTML='<div class="card bad">🔴 Coupon is not active yet.</div>';return;}
+    if(data.expires_at && new Date(data.expires_at).getTime()<now){box.innerHTML='<div class="card bad">🔴 Coupon expired.</div>';return;}
+    box.innerHTML='<div class="card ok">🟢 Coupon valid — '+escapeHtml(data.code)+'.</div>';
+  }catch(error){showError(error);}
+}
+function clearSecretCoupon(){
+  const input=$("secretCouponCode");
+  const box=$("secretCouponResult");
+  if(input) input.value="";
+  if(box) box.innerHTML="";
+}
 
 function focusStaffCoupon(){
   setTimeout(()=>{
@@ -4125,11 +4061,120 @@ function focusStaffCoupon(){
 }
 
 async function verifyStaffCoupon(){
-  const input=$("staffCouponCode"); const box=$("staffCouponResult"); const code=input.value.trim().toUpperCase(); if(!code){box.innerHTML='<div class="card bad">🔴 Discount Code দিন।</div>';return;} box.innerHTML='<div class="muted">Checking discount code…</div>';
-  try{const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Invalid Discount Code")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>🟢 Discount Code Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br><button class="btn red" style="margin-top:10px" onclick="useStaffCoupon()">🎟️ USE COUPON</button></div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
 
-async function useStaffCoupon(){
-  const code=$("staffCouponCode").value.trim().toUpperCase(); const box=$("staffCouponResult"); if(!code||!confirm('Use this coupon now?'))return; try{const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Coupon could not be used.")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br>Used at: ${escapeHtml(data.used_at||new Date().toISOString())}</div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
+  const input = $("staffCouponCode");
+  const box = $("staffCouponResult");
+
+  const code =
+    input.value
+      .trim()
+      .toUpperCase();
+
+  if(!code){
+
+    box.innerHTML =
+      '<div class="card bad">🔴 Discount Code দিন।</div>';
+
+    return;
+
+  }
+
+  box.innerHTML =
+    '<div class="muted">Checking discount code…</div>';
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient
+      .from("discount_codes")
+      .select("*")
+      .ilike("code",code)
+      .maybeSingle();
+
+    if(error)
+      throw error;
+
+    if(!data){
+
+      box.innerHTML =
+        '<div class="card bad">🔴 Invalid Discount Code — ভুল Code</div>';
+
+      return;
+
+    }
+
+    const status =
+      String(
+        data.status || "active"
+      ).toLowerCase();
+
+    if(
+      status !== "active" &&
+      status !== "unused"
+    ){
+
+      box.innerHTML =
+        `<div class="card bad">
+          🔴 Discount Code Invalid —
+          ${escapeHtml(data.status || "inactive")}
+        </div>`;
+
+      return;
+
+    }
+
+    const now =
+      new Date();
+
+    if(
+      data.start_at &&
+      new Date(data.start_at) > now
+    ){
+
+      box.innerHTML =
+        '<div class="card bad">🔴 Discount Code এখনো Active হয়নি।</div>';
+
+      return;
+
+    }
+
+    if(
+      data.expires_at &&
+      new Date(data.expires_at) < now
+    ){
+
+      box.innerHTML =
+        '<div class="card bad">🔴 Discount Code Expired।</div>';
+
+      return;
+
+    }
+
+    box.innerHTML =
+      `<div class="card ok" style="font-size:18px">
+        🟢 Discount Code Valid
+        <br>
+        <span style="font-size:14px">
+          Code: ${escapeHtml(data.code)}
+        </span>
+      </div>`;
+
+  }catch(error){
+
+    box.innerHTML =
+      `<div class="card bad">
+        🔴 ${escapeHtml(
+          error.message ||
+          "Discount code verification failed"
+        )}
+      </div>`;
+
+  }
+
+}
 
 async function loadStaffReviews(){
 
