@@ -3959,18 +3959,98 @@ async function applyCurrentRolePermissions(){
   if(first){ const active=document.querySelector(".nav.active"); if(!active || active.style.display==="none") first.click(); }
 }
 async function verifyCouponCodeInput(inputId,resultId){
+
   const code=normalizeCouponCode($(inputId).value);
-  if(!code){$(resultId).innerHTML='<div class="card bad">🔴 Coupon number দিন।</div>';return null;}
+
+  if(!code){
+    $(resultId).innerHTML=
+      '<div class="card bad">🔴 Coupon number দিন।</div>';
+    return null;
+  }
+
   try{
-    const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});
+
+    const {data,error} =
+      await supabaseClient.rpc(
+        "verify_discount_coupon",
+        {p_code:code}
+      );
+
     if(error) throw error;
+
     const result=data||{};
-    if(!result.success){$(resultId).innerHTML=`<div class="card bad">🔴 ${escapeHtml(result.message||"Coupon invalid")}</div>`;return result;}
-    $(resultId).innerHTML=`<div class="card ok">🟢 <b>${escapeHtml(result.code||code)}</b> valid • ${escapeHtml(result.campaign_title||"")} • ${escapeHtml(result.discount_text||"")}</div>`;
-    await logStaffActivity("COUPON_VERIFIED","discount_codes",result.code_id||null,{code:result.code||code,campaign_id:result.campaign_id||null});
+
+
+    /* =========================================
+       IMPORTANT:
+       USED COUPON MUST NEVER SHOW GREEN
+       ========================================= */
+
+    if(
+      String(result.status||"").toLowerCase()==="used" ||
+      result.used===true ||
+      result.used_at ||
+      Number(result.usage_count||0)>=1
+    ){
+
+      $(resultId).innerHTML=
+        `<div class="card bad">
+          🔴 <b>${escapeHtml(code)}</b>
+          — এই Coupon ইতিমধ্যে ব্যবহার করা হয়েছে।
+        </div>`;
+
+      return result;
+    }
+
+
+    /* Normal invalid coupon */
+
+    if(!result.success){
+
+      $(resultId).innerHTML=
+        `<div class="card bad">
+          🔴 ${escapeHtml(
+            result.message||"Coupon invalid"
+          )}
+        </div>`;
+
+      return result;
+    }
+
+
+    /* Valid and unused coupon */
+
+    $(resultId).innerHTML=
+      `<div class="card ok">
+        🟢 <b>${escapeHtml(result.code||code)}</b>
+        valid •
+        ${escapeHtml(result.campaign_title||"")} •
+        ${escapeHtml(result.discount_text||"")}
+      </div>`;
+
+
+    await logStaffActivity(
+      "COUPON_VERIFIED",
+      "discount_codes",
+      result.code_id||null,
+      {
+        code:result.code||code,
+        campaign_id:result.campaign_id||null
+      }
+    );
+
+
     return result;
-  }catch(error){$(resultId).innerHTML=`<div class="card bad">🔴 ${escapeHtml(error.message)}</div>`;return null;}
-}
+
+  }catch(error){
+
+    $(resultId).innerHTML=
+      `<div class="card bad">
+        🔴 ${escapeHtml(error.message)}
+      </div>`;
+
+    return null;
+  }
 async function checkSecretCoupon(){return verifyCouponCodeInput("secretCouponCode","secretCouponResult");}
 async function useCouponInput(inputId,resultId){
   const code=normalizeCouponCode($(inputId).value);
