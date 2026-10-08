@@ -1476,6 +1476,11 @@ Customers collect the code and show it to restaurant staff.
 </div>
 
 <div class="card" style="margin-top:16px">
+<div class="toolbar"><div><h3>👤 Today — Customer Coupon Limits</h3><p class="muted">Each customer name can receive up to 10 coupons per Rome calendar day. The count starts again tomorrow.</p></div><button class="btn small" onclick="loadCouponTracking()">Refresh</button></div>
+<div id="couponDailyCustomerList"></div>
+</div>
+
+<div class="card" style="margin-top:16px">
 <div class="toolbar"><div><h3>📊 Coupon Customer & Restaurant History</h3><p class="muted">Customer name, code, views, every copy time, presentation, staff and usage.</p></div><button class="btn small" onclick="loadCouponTracking()">Refresh History</button></div>
 <div id="couponTrackingList"></div>
 </div>
@@ -4190,6 +4195,7 @@ async function useSecretCoupon(){
 
 async function loadCouponTracking(){
   const box=$("couponTrackingList");
+  const dailyBox=$("couponDailyCustomerList");
   if(!box)return;
   try{
     const {data,error}=await supabaseClient.rpc("get_discount_coupon_tracking");
@@ -4208,13 +4214,33 @@ async function loadCouponTracking(){
     $("couponStatUsed").textContent=used;
     $("couponStatRemaining").textContent=Math.max(0,generated-used);
     $("couponStatCustomers").textContent=customers;
+
+    const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+    const todayRows=rows.filter(r=>String(r.customer_day||"")===today);
+    const groups={};
+    todayRows.forEach(r=>{
+      const key=String(r.customer_name||"").trim().toLowerCase();
+      if(!key)return;
+      if(!groups[key]) groups[key]={name:String(r.customer_name||"").trim(),count:0,codes:[]};
+      groups[key].count++;
+      if(r.code) groups[key].codes.push(r.code);
+    });
+    if(dailyBox){
+      const list=Object.values(groups).sort((a,b)=>a.name.localeCompare(b.name));
+      dailyBox.innerHTML=list.length?`<div class="tablewrap"><table class="table"><thead><tr><th>Customer</th><th>Today</th><th>Limit</th><th>Remaining</th><th>Codes</th></tr></thead><tbody>${list.map(c=>{const remaining=Math.max(0,10-c.count);return `<tr><td><b>${escapeHtml(c.name)}</b></td><td><span class="pill ${c.count>=10?"ok":""}">${c.count}/10</span></td><td>10</td><td>${remaining}</td><td>${c.codes.map(escapeHtml).join(", ")||"—"}</td></tr>`}).join("")}</tbody></table></div>`:`<div class="muted">No customer coupons have been generated today.</div>`;
+    }
+
     box.innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Customer</th><th>Coupon</th><th>Discount</th><th>Views</th><th>Copies / Times</th><th>Presented</th><th>Used</th><th>Created</th></tr></thead><tbody>${rows.map(r=>{
       const copyTimes=(r.copy_times||[]).map(escapeHtml).join("<br>");
       const viewTimes=(r.view_times||[]).map(escapeHtml).join("<br>");
       return `<tr><td><b>${escapeHtml(r.customer_name||"—")}</b><br><span class="muted">${escapeHtml(r.customer_day||"")}</span></td><td><b>${escapeHtml(r.code||"")}</b></td><td>${escapeHtml(r.discount_text||"—")}</td><td>${Number(r.viewed_count||0)}<div class="history-details">${viewTimes||"—"}</div></td><td>${Number(r.copied_count||0)}<div class="history-details">${copyTimes||"—"}</div></td><td><span class="pill ${Number(r.presented_count||0)>0?"ok":""}">${Number(r.presented_count||0)}</span><div class="history-details">${r.presented_at?`<b>${formatDateTime(r.presented_at)}</b><br>${escapeHtml(r.presented_by_name||"—")}<br>${escapeHtml(r.presented_by_email||"")}`:"—"}</div></td><td><span class="pill ${Number(r.used_count||0)>0?"ok":""}">${Number(r.used_count||0)}</span><div class="history-details">${r.used_at?`<b>${formatDateTime(r.used_at)}</b><br>${escapeHtml(r.used_by_name||"—")}<br>${escapeHtml(r.used_by_email||"")}`:"—"}</div></td><td>${formatDateTime(r.created_at)}<div class="history-details">${escapeHtml(r.created_by_name||r.created_by_email||"—")}</div></td></tr>`;
     }).join("")}</tbody></table></div>`;
-  }catch(error){box.innerHTML=`<div class="card bad">🔴 ${escapeHtml(error.message||String(error))}</div>`;}
+  }catch(error){
+    box.innerHTML=`<div class="card bad">🔴 ${escapeHtml(error.message||String(error))}</div>`;
+    if(dailyBox) dailyBox.innerHTML=box.innerHTML;
+  }
 }
+
 
 function clearSecretCoupon(){const input=$("secretCouponCode");const box=$("secretCouponResult");if(input)input.value="";if(box)box.innerHTML="";}
 
