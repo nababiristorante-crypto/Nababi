@@ -498,6 +498,9 @@ textarea{
 🔢 Coupon Codes
 </button>
 
+<button class="nav" data-section="secretCoupon">
+🔐 Secret Coupon Box
+</button>
 
 <button class="nav" data-section="staff" onclick="focusStaffCoupon()">
 🔐 Staff Admin
@@ -1447,26 +1450,14 @@ Customers collect the code and show it to restaurant staff.
 <!-- SECRET COUPON -->
 <section id="secretCoupon" class="section">
 <h2>🔐 Secret Coupon Box</h2>
-<div class="grid g3" style="margin-bottom:16px">
-<div class="card stat"><span class="muted">Total Generated</span><b id="couponStatGenerated">0</b><span class="muted">codes</span></div>
-<div class="card stat"><span class="muted">Viewed / Opened</span><b id="couponStatViewed">0</b><span class="muted">times</span></div>
-<div class="card stat"><span class="muted">Copied</span><b id="couponStatCopied">0</b><span class="muted">times</span></div>
-<div class="card stat"><span class="muted">Used at Restaurant</span><b id="couponStatUsed">0</b><span class="muted">times</span></div>
-<div class="card stat"><span class="muted">Not Used Yet</span><b id="couponStatRemaining">0</b><span class="muted">codes</span></div>
-<div class="card stat"><span class="muted">Unique Customers</span><b id="couponStatCustomers">0</b><span class="muted">names</span></div>
-</div>
 <div class="card">
-<p class="muted">Verify a coupon first. A used coupon can never become green again. Use Coupon redeems it exactly once.</p>
+<p class="muted">Verify a coupon first. Verification never consumes it. Use Coupon will redeem it one time.</p>
 <div class="row">
 <input id="secretCouponCode" placeholder="Enter coupon code" style="flex:1;min-width:220px">
 <button class="btn green" onclick="checkSecretCoupon()">🟢 VERIFY</button>
 <button class="btn red" onclick="clearSecretCoupon()">🔴 CLEAR</button>
 </div>
 <div id="secretCouponResult" style="margin-top:12px"></div>
-</div>
-<div class="card" style="margin-top:16px">
-<div class="toolbar"><div><h3>📊 Coupon Customer & Restaurant History</h3><p class="muted">Customer name, viewed, copied, used, staff name and exact time.</p></div><button class="btn small" onclick="loadCouponTracking()">Refresh History</button></div>
-<div id="couponTrackingList"></div>
 </div>
 </section>
 
@@ -1772,9 +1763,6 @@ async function loadSection(id){
 
     if(id==="coupons")
       await loadCoupons();
-
-    if(id==="secretCoupon")
-      await loadCouponTracking();
 
     if(id==="staff"){
       await loadStaff();
@@ -4069,7 +4057,7 @@ async function loadCoupons(){
 ========================================================= */
 const ROLE_PERMISSIONS_DEFAULT={
  SUPER_ADMIN:{all:true},
- BOOKING_STAFF:{view:["dashboard","bookings"]},
+ BOOKING_STAFF:{view:["dashboard","bookings","secretCoupon"]},
  REVIEW_STAFF:{view:["dashboard","reviews","reports"]},
  DISCOUNT_STAFF:{view:["dashboard","discount","coupons","secretCoupon"]},
  MENU_STAFF:{view:["dashboard","menu","categories"]},
@@ -4114,78 +4102,34 @@ async function applyCurrentRolePermissions(){
   if(first && !document.querySelector(".nav.active")?.style.display!="none") first.click();
 }
 async function checkSecretCoupon(){
-  const code=$("secretCouponCode")?.value.trim().toUpperCase();
-  const box=$("secretCouponResult");
-  if(!box)return;
+  const code=$("secretCouponCode")?.value.trim().toUpperCase(); const box=$("secretCouponResult"); if(!box)return;
   if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
   box.innerHTML='<div class="muted">Checking coupon…</div>';
-  try{
-    const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});
-    if(error)throw error;
-    if(!data?.success){
-      box.innerHTML=`<div class="card bad"><b>🔴 ${escapeHtml(data?.message||"Invalid coupon code.")}</b><br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_by_email?`<br>Staff email: ${escapeHtml(data.used_by_email)}`:""}${data?.used_at?`<br>Used at: ${escapeHtml(formatDateTime(data.used_at))}`:""}</div>`;
-      await loadCouponTracking();
-      return;
-    }
-    box.innerHTML=`<div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Created: ${escapeHtml(formatDateTime(data.created_at))}<br>Copied: ${escapeHtml(data.copy_count??0)} time(s)<br>Presented: ${escapeHtml(formatDateTime(data.presented_at))}<br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br><button class="btn red" style="margin-top:12px" onclick="useSecretCoupon()">🎟️ USE COUPON</button></div>`;
-    await loadCouponTracking();
-  }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}
-}
+  try{const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Invalid coupon code.")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br>Usage count: ${escapeHtml(data.usage_count??0)}<br><button class="btn red" style="margin-top:12px" onclick="useSecretCoupon()">🎟️ USE COUPON</button></div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
 
 async function useSecretCoupon(){
-  const code=$("secretCouponCode")?.value.trim().toUpperCase();
-  const box=$("secretCouponResult");
-  if(!code||!confirm("Use this coupon now? This action consumes the coupon and cannot be undone."))return;
+  const code=$("secretCouponCode")?.value.trim().toUpperCase(); const box=$("secretCouponResult"); if(!code)return; if(!confirm('Use this coupon now? This action consumes the coupon and cannot be undone.'))return;
   box.innerHTML='<div class="muted">Redeeming coupon…</div>';
-  try{
-    const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});
-    if(error)throw error;
-    if(!data?.success){
-      box.innerHTML=`<div class="card bad">🔴 <b>${escapeHtml(data?.message||"Coupon could not be used.")}</b><br>Code: ${escapeHtml(data?.code||code)}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_at?`<br>Used at: ${escapeHtml(formatDateTime(data.used_at))}`:""}</div>`;
-      await loadCouponTracking();
-      return;
-    }
-    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: ${escapeHtml(data.customer_name||"—")}<br>Used by: ${escapeHtml(data.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(data.used_by_email||currentUser?.email||"—")}<br>Used at: ${escapeHtml(formatDateTime(data.used_at))}<br>Usage count: 1</div>`;
-    await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
-    await loadCoupons();
-    await loadCouponTracking();
-    await loadDashboard();
-  }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}
-}
-
-async function loadCouponTracking(){
-  const box=$("couponTrackingList");
-  if(!box)return;
-  try{
-    const {data,error}=await supabaseClient.rpc("get_discount_coupon_tracking");
-    if(error)throw error;
-    const rows=data||[];
-    const generated=rows.length;
-    const viewed=rows.reduce((n,r)=>n+Number(r.viewed_count||0),0);
-    const copied=rows.reduce((n,r)=>n+Number(r.copied_count||0),0);
-    const used=rows.reduce((n,r)=>n+Number(r.used_count||0),0);
-    const customers=new Set(rows.map(r=>String(r.customer_name||"").trim().toLowerCase()).filter(Boolean)).size;
-    $("couponStatGenerated").textContent=generated;
-    $("couponStatViewed").textContent=viewed;
-    $("couponStatCopied").textContent=copied;
-    $("couponStatUsed").textContent=used;
-    $("couponStatRemaining").textContent=Math.max(0,generated-used);
-    $("couponStatCustomers").textContent=customers;
-    box.innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Customer</th><th>Coupon</th><th>Viewed</th><th>Copy Times</th><th>Presented</th><th>Used</th><th>Used By</th><th>Used At</th><th>Created</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${escapeHtml(r.customer_name||"—")}</b></td><td><b>${escapeHtml(r.code||"")}</b></td><td>${Number(r.viewed_count||0)}</td><td>${Number(r.copied_count||0)}${Array.isArray(r.copy_times)&&r.copy_times.length?`<details><summary>Times</summary><small>${r.copy_times.map(t=>escapeHtml(t)).join("<br>")}</small></details>`:""}</td><td>${escapeHtml(formatDateTime(r.presented_at))}${r.presented_by_name?`<br><small>${escapeHtml(r.presented_by_name)}</small>`:""}</td><td><span class="pill ${Number(r.used_count||0)>0?"ok":""}">${Number(r.used_count||0)}</span></td><td>${escapeHtml(r.used_by_name||r.used_by_email||"—")}${r.used_by_email?`<br><small>${escapeHtml(r.used_by_email)}</small>`:""}</td><td>${escapeHtml(formatDateTime(r.used_at))}</td><td>${escapeHtml(formatDateTime(r.created_at))}</td></tr>`).join("")}</tbody></table></div>`;
-  }catch(error){box.innerHTML=`<div class="card bad">🔴 ${escapeHtml(error.message||String(error))}</div>`;}
-}
+  try{const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Coupon could not be used.")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br>Used at: ${escapeHtml(data.used_at||new Date().toISOString())}<br>Usage count: ${escapeHtml(data.usage_count??1)}</div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
 
 function clearSecretCoupon(){const input=$("secretCouponCode");const box=$("secretCouponResult");if(input)input.value="";if(box)box.innerHTML="";}
 
 function focusStaffCoupon(){
   setTimeout(()=>{
-    const input=$("secretCouponCode");
-    if(input){input.focus();input.scrollIntoView({behavior:"smooth",block:"center"});}
+    const input=$("staffCouponCode");
+    if(input){
+      input.focus();
+      input.scrollIntoView({behavior:"smooth",block:"center"});
+    }
   },120);
 }
 
-async function verifyStaffCoupon(){return checkSecretCoupon();}
-async function useStaffCoupon(){return useSecretCoupon();}
+async function verifyStaffCoupon(){
+  const input=$("staffCouponCode"); const box=$("staffCouponResult"); const code=input.value.trim().toUpperCase(); if(!code){box.innerHTML='<div class="card bad">🔴 Discount Code দিন।</div>';return;} box.innerHTML='<div class="muted">Checking discount code…</div>';
+  try{const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Invalid Discount Code")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>🟢 Discount Code Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br><button class="btn red" style="margin-top:10px" onclick="useStaffCoupon()">🎟️ USE COUPON</button></div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
+
+async function useStaffCoupon(){
+  const code=$("staffCouponCode").value.trim().toUpperCase(); const box=$("staffCouponResult"); if(!code||!confirm('Use this coupon now?'))return; try{const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});if(error)throw error;if(!data?.success){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(data?.message||"Coupon could not be used.")+'</div>';return;}box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Discount: ${escapeHtml(data.discount_text||"—")}<br>Used at: ${escapeHtml(data.used_at||new Date().toISOString())}</div>`;}catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}}
 
 async function loadStaffReviews(){
 
