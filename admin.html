@@ -1633,15 +1633,7 @@ const SUPABASE_KEY =
 const supabaseClient =
 supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: window.localStorage
-    }
-  }
+  SUPABASE_KEY
 );
 
 let currentUser = null;
@@ -1818,13 +1810,8 @@ async function loadSection(id){
    AUTH
 ========================================================= */
 
-let loginInProgress = false;
 async function login(){
-  if(loginInProgress) return;
-  loginInProgress = true;
-  const loginButton = document.querySelector('#login button[onclick="login()"]');
-  if(loginButton){ loginButton.disabled = true; loginButton.textContent = "PLEASE WAIT…"; }
-  try {
+
   const email =
     $("loginEmail").value.trim();
 
@@ -1861,25 +1848,13 @@ async function login(){
 
   }
 
-  currentUser = data.user;
+  currentUser =
+    data.user;
+
   await initializeAdmin();
-  } catch(error) {
-    const message = $("loginMessage");
-    if(message) message.textContent = error?.message || String(error);
-  } finally {
-    loginInProgress = false;
-    const button = document.querySelector('#login button[onclick="login()"]');
-    if(button){ button.disabled = false; button.textContent = "LOGIN"; }
-  }
+
 }
 
-// Allow Enter to submit the one login form rather than creating another prompt.
-["loginEmail","loginPassword"].forEach(id=>{
-  const field=$(id);
-  if(field) field.addEventListener("keydown",event=>{
-    if(event.key==="Enter"){ event.preventDefault(); login(); }
-  });
-});
 
 async function initializeAdmin(){
 
@@ -3959,7 +3934,9 @@ async function generateCoupons(){
           .from("discount_codes")
           .insert({
             code,
-            discount_text: `${Number(campaign.discount_percent || 0)}% OFF`,
+            discount_text:
+              campaign.discount_text ||
+              `${campaign.discount_percent || 0}% OFF`,
             status: "Unused",
             campaign_id: campaign.id,
             created_by_email: currentUser?.email || null,
@@ -4168,56 +4145,51 @@ function formatDateTime(value){
   }).format(d));
 }
 
-function normalizeAdminCouponCode(value){
-  let code=String(value||'').trim().toUpperCase().replace(/[‐-―−]/g,'-').replace(/\s+/g,'');
-  if(/^\d{1,6}$/.test(code)) code='NB-'+code;
-  return code;
-}
-
 async function checkSecretCoupon(){
   const input=$("secretCouponCode");
+  const code=String(input?.value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
   const box=$("secretCouponResult");
   if(!box)return;
-  const code=normalizeAdminCouponCode(input?.value);
-  if(input) input.value=code;
   if(!code){box.innerHTML='<div class="card bad">🔴 Coupon code দিন।</div>';return;}
+  if(input)input.value=code;
   box.innerHTML='<div class="muted">Checking coupon…</div>';
   try{
     const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});
-    if(error){
-      console.error('verify_discount_coupon RPC error',error);
-      throw error;
-    }
-    const result=data||{};
-    if(!result.success){
-      const status=String(result.status||'INVALID').toUpperCase();
-      const title=(status==='USED'||/already used/i.test(result.message||''))?'🔴 Coupon Already Used':status==='UNAUTHORIZED'?'🔴 Staff Authorization Required':'🔴 Coupon Invalid';
-      box.innerHTML=`<div class="card bad"><b>${title}</b><br>${escapeHtml(result.message||'Invalid coupon code.')}<br>Code: ${escapeHtml(result.code||code)}${result.customer_name?`<br>Customer: ${escapeHtml(result.customer_name)}`:''}${result.used_by_name?`<br>Used by: ${escapeHtml(result.used_by_name)}`:''}${result.used_at?`<br>Used at: ${formatDateTime(result.used_at)}`:''}</div>`;
+    if(error)throw error;
+    if(!data?.success){
+      box.innerHTML='<div class="card bad"><b>🔴 '+escapeHtml(data?.status==="USED"?"ALREADY USED":"Coupon Invalid")+'</b><br>'+escapeHtml(data?.message||"Invalid coupon code.")+
+        (data?.code?'<br>Code: '+escapeHtml(data.code):'<br>Code: '+escapeHtml(code))+
+        (data?.customer_name?'<br>Customer: '+escapeHtml(data.customer_name):'')+
+        (data?.used_by_name?'<br>Already used by: '+escapeHtml(data.used_by_name):'')+
+        (data?.used_by_email?'<br>Staff email: '+escapeHtml(data.used_by_email):'')+
+        (data?.used_at?'<br>Used at: '+formatDateTime(data.used_at):'')+'</div>';
       await loadCouponTracking();
       return;
     }
-    box.innerHTML=`<div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(result.code||code)}<br>Customer: ${escapeHtml(result.customer_name||'—')}<br>Campaign: ${escapeHtml(result.campaign_title||'—')}<br><b>Discount to apply: ${escapeHtml(result.discount_text||'—')}</b><br>Created: ${formatDateTime(result.created_at)}<br>Viewed: ${escapeHtml(result.viewed_count??0)}<br>Copied: ${escapeHtml(result.copy_count??0)}<br>Presented at: ${formatDateTime(result.presented_at)}<br>Presented by: ${escapeHtml(result.presented_by_name||'—')}<br>Staff email: ${escapeHtml(result.presented_by_email||'—')}<br><button class="btn red" style="margin-top:12px" onclick="useSecretCoupon()">🎟️ USE COUPON</button></div>`;
+    box.innerHTML=`<div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount to apply: <b>${escapeHtml(data.discount_text||"—")}</b><br>Created: ${formatDateTime(data.created_at)}<br>Viewed: ${escapeHtml(data.viewed_count??0)}<br>Copied: ${escapeHtml(data.copy_count??0)}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Presented by: ${escapeHtml(data.presented_by_name||"—")}<br>Staff email: ${escapeHtml(data.presented_by_email||"—")}<br><span class="muted">Confirm করলে কুপনটি সঙ্গে সঙ্গে Used হবে।</span></div>`;
     await loadCouponTracking();
-  }catch(error){
-    box.innerHTML=`<div class="card bad"><b>🔴 Verification Error</b><br>${escapeHtml(error?.message||String(error))}</div>`;
-  }
+    if(!confirm(`Confirm coupon use?\n\nCustomer: ${data.customer_name||"—"}\nCode: ${data.code||code}\nDiscount: ${data.discount_text||"—"}\n\nConfirm করলে কুপনটি একবারের জন্য Used হবে এবং আর ব্যবহার করা যাবে না.`)){
+      box.innerHTML+=`<div class="card" style="margin-top:10px">কুপন ব্যবহার করা হয়নি। প্রয়োজনে পরে আবার Check করতে পারবেন।</div>`;
+      return;
+    }
+    await useSecretCoupon();
+  }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}
 }
 
 async function useSecretCoupon(){
-  const code=normalizeAdminCouponCode($("secretCouponCode")?.value);
-  if($("secretCouponCode")) $("secretCouponCode").value=code;
+  const code=String($("secretCouponCode")?.value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
   const box=$("secretCouponResult");
-  if(!code||!confirm("Use this coupon now? This action consumes the coupon and cannot be undone."))return;
+  if(!code||!box)return;
   box.innerHTML='<div class="muted">Redeeming coupon…</div>';
   try{
     const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});
     if(error)throw error;
     if(!data?.success){
-      box.innerHTML=`<div class="card bad">🔴 <b>${escapeHtml(data?.message||"Coupon could not be used.")}</b><br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_at?`<br>Used at: ${formatDateTime(data.used_at)}`:""}</div>`;
+      box.innerHTML=`<div class="card bad"><b>🔴 ${escapeHtml(data?.status==="USED"?"ALREADY USED":data?.message||"Coupon could not be used.")}</b><br>${escapeHtml(data?.message||"Coupon could not be used.")}<br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_by_email?`<br>Staff email: ${escapeHtml(data.used_by_email)}`:""}${data?.used_at?`<br>Used at: ${formatDateTime(data.used_at)}`:""}</div>`;
       await loadCouponTracking();
       return;
     }
-    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: ${escapeHtml(data.customer_name||"—")}<br>Used by: ${escapeHtml(data.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(data.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Used at: ${formatDateTime(data.used_at)}<br>Usage count: 1</div>`;
+    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Discount applied: ${escapeHtml(data.discount_text||"—")}<br>Used by: ${escapeHtml(data.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(data.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Used at: ${formatDateTime(data.used_at)}<br>Usage count: ${escapeHtml(data.usage_count??1)}</div>`;
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
     await loadCoupons();
     await loadCouponTracking();
@@ -4938,17 +4910,17 @@ async function loadDashboard(){
 
 supabaseClient.auth
   .getSession()
-  .then(async({data,error})=>{
-    if(error) throw error;
-    if(data?.session?.user){
-      currentUser = data.session.user;
+  .then(async({data})=>{
+
+    if(data.session){
+
+      currentUser =
+        data.session.user;
+
       await initializeAdmin();
+
     }
-  })
-  .catch(error=>{
-    console.error("Session restore failed:",error);
-    const message=$("loginMessage");
-    if(message) message.textContent="Please log in again: "+(error?.message||String(error));
+
   });
 
 </script>
