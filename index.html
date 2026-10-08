@@ -2218,7 +2218,7 @@
     </h3>
 
     <p style="color:#aaa;">
-      Enter your name to receive today's secret coupon. One coupon per name per day.
+      Enter your name to receive a secret coupon. The same name can receive up to 10 coupons today.
     </p>
 
     <div class="field" style="margin-top:18px;">
@@ -2240,6 +2240,11 @@
     >
       🎟️ Get My Secret Code
     </button>
+
+    <div
+      id="discountCustomerCount"
+      style="display:none;text-align:center;margin:12px 0;color:#aaa;font-size:14px;"
+    ></div>
 
     <div
       id="discountCode"
@@ -5153,6 +5158,7 @@ async function openDiscount(){
   const nameInput = document.getElementById("discountCustomerName");
   const codeElement = document.getElementById("discountCode");
   const copyButton = document.getElementById("copyDiscountBtn");
+  const countElement = document.getElementById("discountCustomerCount");
   const status = document.getElementById("discountStatus");
 
   modal.classList.add("show");
@@ -5165,9 +5171,11 @@ async function openDiscount(){
   codeElement.textContent = "";
   codeElement.style.display = "none";
   copyButton.style.display = "none";
+  if(countElement){ countElement.style.display = "none"; countElement.textContent = ""; }
   status.textContent = "";
 
 }
+
 
 
 async function generateCustomerDiscount(){
@@ -5175,6 +5183,7 @@ async function generateCustomerDiscount(){
   const nameInput = document.getElementById("discountCustomerName");
   const codeElement = document.getElementById("discountCode");
   const copyButton = document.getElementById("copyDiscountBtn");
+  const countElement = document.getElementById("discountCustomerCount");
   const status = document.getElementById("discountStatus");
   const generateButton = document.getElementById("generateDiscountBtn");
 
@@ -5194,10 +5203,10 @@ async function generateCustomerDiscount(){
   codeElement.style.display = "block";
   codeElement.textContent = "Generating...";
   copyButton.style.display = "none";
+  if(countElement){ countElement.style.display = "none"; countElement.textContent = ""; }
   status.textContent = "";
 
   try{
-
     const {data,error} = await supabaseClient.rpc(
       "create_customer_discount_code",
       {p_customer_name:customerName}
@@ -5215,29 +5224,31 @@ async function generateCustomerDiscount(){
     codeElement.textContent = data.code;
     copyButton.style.display = "block";
 
-    if(data.already_exists){
-      status.textContent = "You already received today's coupon.\nYour existing code is shown below.";
-    }else{
-      status.textContent = "Your secret coupon is ready. Show it to our staff at the restaurant.";
+    const count = Number(data.customer_count || 1);
+    const remaining = Math.max(0,10-count);
+    if(countElement){
+      countElement.style.display = "block";
+      countElement.textContent = `Today: ${count}/10 coupons • ${remaining} remaining`;
     }
 
-  }catch(error){
+    status.textContent = data.limit_reached
+      ? "This is your 10th and final coupon for today."
+      : "Your secret coupon is ready. Show it to our staff at the restaurant.";
 
+  }catch(error){
     console.error(error);
     codeElement.textContent = "NB-ERROR";
     status.textContent = error?.message || "Unable to generate discount code.";
     copyButton.style.display = "none";
-
+    if(countElement){ countElement.style.display = "none"; }
   }finally{
-
     if(generateButton){
       generateButton.disabled = false;
       generateButton.textContent = "🎟️ Get My Secret Code";
     }
-
   }
-
 }
+
 
 
 async function copyDiscountCode(){
