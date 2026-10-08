@@ -3674,15 +3674,26 @@ async function saveDiscountCampaign(){
 /* =========================================================
    COUPONS
 ========================================================= */
-
 function normalizeCouponCode(value){
-  let v=String(value??"").trim().toUpperCase();
-  if(v.startsWith("NB-")) v=v.slice(3);
-  v=v.replace(/\D/g,"").slice(-3);
-  if(!v) return "";
-  if(v.length<3) v=v.padStart(3,"0");
-  return "NB-"+v;
+  let raw = String(value || "").trim().toUpperCase();
+
+  if(!raw) return "";
+
+  // Remove spaces
+  raw = raw.replace(/\s+/g, "");
+
+  // Remove NB- if already entered
+  raw = raw.replace(/^NB-/, "");
+
+  // Keep numbers only
+  raw = raw.replace(/\D/g, "");
+
+  if(!raw) return "";
+
+  // Always use 4 digits
+  return "NB-" + raw.padStart(4, "0");
 }
+
 function bindCouponPreview(inputId,outputId){
   const input=$(inputId); if(!input) return;
   input.addEventListener("input",()=>{ const code=normalizeCouponCode(input.value); $(outputId).textContent="Code: "+(code||"NB-___"); });
