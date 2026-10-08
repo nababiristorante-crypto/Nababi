@@ -4903,67 +4903,31 @@ async function saveDiscountCampaign(){
 /* =========================================================
    COUPONS
 ========================================================= */
-
-
-async function generateCoupons(){
-
-  try{
-
-    const count =
-      Math.min(
-        100,
-        Math.max(
-          1,
-          Number(
-            $("couponCount").value || 1
-          )
-        )
-      );
-
-    const results = [];
-
-    for(
-      let i = 0;
-      i < count;
-      i++
-    ){
-
-      const {
-        data,
-        error
-      } =
-      await supabaseClient
-        .rpc("create_discount_code");
-
-      if(error)
-        throw error;
-
-      results.push(data);
-
-    }
-
-    toast(
-      count + " coupon code(s) created."
-    );
-
-    await loadCoupons();
-
-  }catch(error){
-
-    showError(error);
-
-  }
-
-}
-
-
 async function loadCoupons(){
 
   try{
 
+    const couponBox = $("couponList");
+
+    if(!couponBox){
+      console.error("couponList element not found.");
+      return;
+    }
+
+    couponBox.innerHTML = `
+      <div class="card">
+        ⏳ Loading coupons...
+      </div>
+    `;
+
+
+    /* =========================
+       1. LOAD COUPONS
+    ========================= */
+
     const {
-      data,
-      error
+      data: coupons,
+      error: couponError
     } =
     await supabaseClient
       .from("discount_codes")
@@ -4975,16 +4939,7 @@ async function loadCoupons(){
         status,
         created_at,
         used_at,
-        campaign_id,
-        discount_campaign (
-          id,
-          title,
-          discount_text,
-          discount_percent,
-          enabled,
-          start_at,
-          end_at
-        )
+        campaign_id
       `)
       .order(
         "created_at",
@@ -4994,293 +4949,577 @@ async function loadCoupons(){
       )
       .limit(300);
 
-    if(error)
-      throw error;
+
+    if(couponError)
+      throw couponError;
 
 
-    const now =
-      new Date();
+    /* =========================
+       2. LOAD CAMPAIGNS
+    ========================= */
+
+    const {
+      data: campaigns,
+      error: campaignError
+    } =
+    await supabaseClient
+      .from("discount_campaign")
+      .select(`
+        id,
+        title,
+        description,
+        discount_text,
+        discount_percent,
+        enabled,
+        start_at,
+        end_at,
+        minimum_amount,
+        maximum_discount
+      `);
 
 
-    $("couponList").innerHTML =
-      `
+    if(campaignError)
+      throw campaignError;
+
+
+    const campaignMap = {};
+
+
+    (campaigns || []).forEach(
+      campaign => {
+
+        campaignMap[
+          String(campaign.id)
+        ] = campaign;
+
+      }
+    );
+
+
+    const now = new Date();
+
+
+    /* =========================
+       3. EMPTY STATE
+    ========================= */
+
+    if(!coupons || coupons.length === 0){
+
+      couponBox.innerHTML = `
+        <div class="card">
+          
+          <div
+            style="
+              font-size:36px;
+              margin-bottom:8px
+            "
+          >
+            🎟️
+          </div>
+
+          <h3>
+            No Coupon Codes Yet
+          </h3>
+
+          <p class="muted">
+            Generate a coupon code to see it here.
+          </p>
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    /* =========================
+       4. BUILD TABLE
+    ========================= */
+
+    couponBox.innerHTML = `
+
       <div class="tablewrap">
 
-      <table class="table">
+        <table class="table">
 
-      <thead>
+          <thead>
 
-      <tr>
+            <tr>
 
-        <th>Number</th>
+              <th>
+                Number
+              </th>
 
-        <th>Coupon Code</th>
+              <th>
+                Coupon Code
+              </th>
 
-        <th>Campaign</th>
+              <th>
+                Campaign / Match
+              </th>
 
-        <th>Discount</th>
+              <th>
+                Discount
+              </th>
 
-        <th>Status</th>
+              <th>
+                Status
+              </th>
 
-        <th>Created</th>
+              <th>
+                Created
+              </th>
 
-        <th>Used</th>
+              <th>
+                Used
+              </th>
 
-      </tr>
+            </tr>
 
-      </thead>
-
-      <tbody>
-
-      ${(data || [])
-        .map(item => {
-
-          const campaign =
-            item.discount_campaign || null;
-
-          let status =
-            String(
-              item.status || "active"
-            ).toLowerCase();
-
-
-          /*
-           * Campaign expired হলে
-           * coupon automatically EXPIRED
-           */
-
-          if(
-            status !== "used" &&
-            campaign
-          ){
-
-            if(
-              campaign.end_at &&
-              new Date(
-                campaign.end_at
-              ) < now
-            ){
-
-              status = "expired";
-
-            }
-
-            else if(
-              campaign.start_at &&
-              new Date(
-                campaign.start_at
-              ) > now
-            ){
-
-              status = "upcoming";
-
-            }
-
-            else if(
-              campaign.enabled === false
-            ){
-
-              status = "expired";
-
-            }
-
-          }
+          </thead>
 
 
-          let statusClass = "";
+          <tbody>
 
-          if(status === "used"){
-            statusClass = "ok";
-          }
+            ${
+              coupons.map(item => {
 
-          else if(status === "expired"){
-            statusClass = "bad";
-          }
-
-          else if(status === "upcoming"){
-            statusClass = "";
-          }
-
-
-          const discount =
-            item.discount_text ||
-            (
-              campaign &&
-              campaign.discount_text
-            ) ||
-            (
-              campaign &&
-              campaign.discount_percent !== null &&
-              campaign.discount_percent !== undefined
-                ? campaign.discount_percent + "%"
-                : "—"
-            );
-
-
-          return `
-
-          <tr>
-
-            <td>
-              <b>
-                ${
-                  item.claim_number !== null &&
-                  item.claim_number !== undefined
-                    ? escapeHtml(
+                const campaign =
+                  item.campaign_id
+                    ? campaignMap[
                         String(
-                          item.claim_number
+                          item.campaign_id
                         )
+                      ]
+                    : null;
+
+
+                /* =========================
+                   STATUS
+                ========================= */
+
+                let status =
+                  String(
+                    item.status ||
+                    "active"
+                  ).toLowerCase();
+
+
+                /*
+                 * USED always remains USED
+                 */
+
+                if(status === "used"){
+
+                  status = "used";
+
+                }
+
+                /*
+                 * Campaign status
+                 */
+
+                else if(!campaign){
+
+                  status = "invalid";
+
+                }
+
+                else if(
+                  campaign.enabled === false
+                ){
+
+                  status = "expired";
+
+                }
+
+                else if(
+                  campaign.start_at &&
+                  new Date(
+                    campaign.start_at
+                  ) > now
+                ){
+
+                  status = "upcoming";
+
+                }
+
+                else if(
+                  campaign.end_at &&
+                  new Date(
+                    campaign.end_at
+                  ) < now
+                ){
+
+                  status = "expired";
+
+                }
+
+                else{
+
+                  status = "active";
+
+                }
+
+
+                /* =========================
+                   STATUS CLASS
+                ========================= */
+
+                let statusClass = "";
+
+
+                if(status === "used"){
+
+                  statusClass = "ok";
+
+                }
+
+                else if(
+                  status === "expired" ||
+                  status === "invalid"
+                ){
+
+                  statusClass = "bad";
+
+                }
+
+
+                /* =========================
+                   DISCOUNT
+                ========================= */
+
+                let discount = "—";
+
+
+                if(item.discount_text){
+
+                  discount =
+                    item.discount_text;
+
+                }
+
+                else if(
+                  campaign &&
+                  campaign.discount_text
+                ){
+
+                  discount =
+                    campaign.discount_text;
+
+                }
+
+                else if(
+                  campaign &&
+                  campaign.discount_percent !== null &&
+                  campaign.discount_percent !== undefined
+                ){
+
+                  discount =
+                    campaign.discount_percent +
+                    "% OFF";
+
+                }
+
+
+                /* =========================
+                   CAMPAIGN TITLE
+                ========================= */
+
+                const campaignTitle =
+                  campaign
+                    ? (
+                        campaign.title ||
+                        "Campaign"
                       )
-                    : "—"
-                }
-              </b>
-            </td>
+                    : "No Campaign";
 
 
-            <td>
+                /* =========================
+                   CAMPAIGN TIME
+                ========================= */
 
-              <b>
-                ${escapeHtml(
-                  item.code || ""
-                )}
-              </b>
-
-            </td>
+                let campaignTime = "";
 
 
-            <td>
+                if(campaign){
 
-              ${
-                campaign
-                  ? `
-                    <strong>
-                      ${escapeHtml(
-                        campaign.title || "Campaign"
-                      )}
-                    </strong>
+                  const start =
+                    campaign.start_at
+                      ? new Date(
+                          campaign.start_at
+                        ).toLocaleString()
+                      : "";
 
-                    ${
-                      campaign.start_at ||
-                      campaign.end_at
-                      ? `
-                        <div
-                          class="muted"
-                          style="
-                            font-size:11px;
-                            margin-top:4px
-                          "
-                        >
-                          ${
-                            campaign.start_at
-                            ? escapeHtml(
-                                campaign.start_at
-                                  .slice(0,16)
-                              )
-                            : ""
-                          }
+                  const end =
+                    campaign.end_at
+                      ? new Date(
+                          campaign.end_at
+                        ).toLocaleString()
+                      : "";
 
-                          ${
-                            campaign.end_at
-                            ? " → " +
-                              escapeHtml(
-                                campaign.end_at
-                                  .slice(0,16)
-                              )
-                            : ""
-                          }
-                        </div>
+
+                  if(start || end){
+
+                    campaignTime =
                       `
-                      : ""
-                    }
-                  `
-                  : "—"
-              }
+                      <div
+                        class="muted"
+                        style="
+                          font-size:11px;
+                          margin-top:5px;
+                          line-height:1.5
+                        "
+                      >
 
-            </td>
+                        ${
+                          start
+                            ? "Start: " +
+                              escapeHtml(start)
+                            : ""
+                        }
 
+                        ${
+                          end
+                            ? "<br>End: " +
+                              escapeHtml(end)
+                            : ""
+                        }
 
-            <td>
+                      </div>
+                      `;
 
-              <b>
-                ${escapeHtml(
-                  String(discount)
-                )}
-              </b>
+                  }
 
-            </td>
-
-
-            <td>
-
-              <span
-                class="pill ${statusClass}"
-              >
-
-                ${
-                  status === "used"
-                    ? "USED"
-                    : status === "expired"
-                      ? "EXPIRED"
-                      : status === "upcoming"
-                        ? "NOT STARTED"
-                        : "ACTIVE"
                 }
 
-              </span>
 
-            </td>
+                /* =========================
+                   STATUS TEXT
+                ========================= */
 
-
-            <td>
-
-              ${
-                item.created_at
-                  ? escapeHtml(
-                      item.created_at
-                        .slice(0,16)
-                    )
-                  : "—"
-              }
-
-            </td>
+                let statusText =
+                  "ACTIVE";
 
 
-            <td>
+                if(status === "used"){
 
-              ${
-                item.used_at
-                  ? escapeHtml(
-                      item.used_at
-                        .slice(0,16)
-                    )
-                  : "—"
-              }
+                  statusText =
+                    "USED";
 
-            </td>
+                }
 
-          </tr>
+                else if(status === "expired"){
 
-          `;
+                  statusText =
+                    "EXPIRED";
 
-        })
-        .join("")}
+                }
 
-      </tbody>
+                else if(status === "upcoming"){
 
-      </table>
+                  statusText =
+                    "NOT STARTED";
+
+                }
+
+                else if(status === "invalid"){
+
+                  statusText =
+                    "NO CAMPAIGN";
+
+                }
+
+
+                /* =========================
+                   RETURN ROW
+                ========================= */
+
+                return `
+
+                  <tr>
+
+                    <!-- NUMBER -->
+
+                    <td>
+
+                      <b>
+
+                        ${
+                          item.claim_number !== null &&
+                          item.claim_number !== undefined
+
+                            ? escapeHtml(
+                                String(
+                                  item.claim_number
+                                )
+                              )
+
+                            : "—"
+                        }
+
+                      </b>
+
+                    </td>
+
+
+                    <!-- CODE -->
+
+                    <td>
+
+                      <b
+                        style="
+                          font-size:15px;
+                          letter-spacing:.5px
+                        "
+                      >
+
+                        ${escapeHtml(
+                          item.code || ""
+                        )}
+
+                      </b>
+
+                    </td>
+
+
+                    <!-- CAMPAIGN -->
+
+                    <td>
+
+                      <strong>
+
+                        ${escapeHtml(
+                          campaignTitle
+                        )}
+
+                      </strong>
+
+                      ${campaignTime}
+
+                    </td>
+
+
+                    <!-- DISCOUNT -->
+
+                    <td>
+
+                      <b>
+
+                        ${escapeHtml(
+                          String(
+                            discount
+                          )
+                        )}
+
+                      </b>
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                      <span
+                        class="pill ${statusClass}"
+                      >
+
+                        ${statusText}
+
+                      </span>
+
+                    </td>
+
+
+                    <!-- CREATED -->
+
+                    <td>
+
+                      ${
+                        item.created_at
+
+                          ? escapeHtml(
+                              new Date(
+                                item.created_at
+                              ).toLocaleString()
+                            )
+
+                          : "—"
+                      }
+
+                    </td>
+
+
+                    <!-- USED -->
+
+                    <td>
+
+                      ${
+                        item.used_at
+
+                          ? escapeHtml(
+                              new Date(
+                                item.used_at
+                              ).toLocaleString()
+                            )
+
+                          : "—"
+                      }
+
+                    </td>
+
+                  </tr>
+
+                `;
+
+              }).join("")
+            }
+
+          </tbody>
+
+        </table>
 
       </div>
-      `;
+
+    `;
 
 
   }catch(error){
 
     console.error(
-      "loadCoupons error:",
+      "loadCoupons ERROR:",
       error
     );
 
-    showError(error);
+
+    const couponBox =
+      $("couponList");
+
+
+    if(couponBox){
+
+      couponBox.innerHTML = `
+
+        <div class="card bad">
+
+          <h3>
+            🔴 Coupon List Error
+          </h3>
+
+          <p>
+            ${escapeHtml(
+              error.message ||
+              "Unable to load coupons."
+            )}
+          </p>
+
+        </div>
+
+      `;
+
+    }
 
   }
 
