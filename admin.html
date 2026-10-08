@@ -5913,166 +5913,645 @@ function clearStaffCoupon(){
 
 async function verifyMainStaffCoupon(){
 
-  const input =
-    $("staffCouponCodeMain");
+  const input = $("staffCouponCodeMain");
+  const box = $("staffCouponResultMain");
 
-  const box =
-    $("staffCouponResultMain");
-
-  const code =
-    input.value
-      .trim()
-      .toUpperCase();
+  const code = input.value.trim().toUpperCase();
 
   if(!code){
 
-    box.innerHTML =
-      `
+    box.innerHTML = `
       <div class="card bad">
-        🔴 Coupon code দিন।
+        🔴 Please enter a Coupon Number / Code.
       </div>
-      `;
+    `;
 
     return;
-
   }
+
+  box.innerHTML = `
+    <div class="card">
+      ⏳ Verifying coupon...
+    </div>
+  `;
 
   try{
 
-    const {
-      data,
-      error
-    } =
-    await supabaseClient
-      .from("discount_codes")
-      .select("*")
-      .ilike(
-        "code",
-        code
-      )
-      .maybeSingle();
+    const { data, error } =
+      await supabaseClient.rpc(
+        "verify_discount_coupon",
+        {
+          p_code: code
+        }
+      );
 
     if(error)
       throw error;
 
     if(!data){
 
-      box.innerHTML =
-        `
+      box.innerHTML = `
         <div class="card bad">
-          🔴 Invalid Coupon Code
+          🔴 Coupon verification failed.
         </div>
-        `;
-
-      return;
-
-    }
-
-    const status =
-      String(
-        data.status ||
-        "active"
-      ).toLowerCase();
-
-    if(
-      status!=="active" &&
-      status!=="unused"
-    ){
-
-      box.innerHTML =
-        `
-        <div class="card bad">
-          🔴 Coupon is
-          ${escapeHtml(
-            data.status ||
-            "inactive"
-          )}.
-        </div>
-        `;
-
-      return;
-
-    }
-
-    const now =
-      new Date();
-
-    if(
-      data.start_at &&
-      new Date(
-        data.start_at
-      ) > now
-    ){
-
-      box.innerHTML =
-        `
-        <div class="card bad">
-          🔴 Coupon is not active yet.
-        </div>
-        `;
-
-      return;
-
-    }
-
-    if(
-      data.expires_at &&
-      new Date(
-        data.expires_at
-      ) < now
-    ){
-
-      box.innerHTML =
-        `
-        <div class="card bad">
-          🔴 Coupon Expired
-        </div>
-        `;
-
-      return;
-
-    }
-
-    const {
-      error:updateError
-    } =
-    await supabaseClient
-      .from("discount_codes")
-      .update({
-        status:"used",
-        used_at:
-          now.toISOString()
-      })
-      .eq(
-        "id",
-        data.id
-      );
-
-    if(updateError)
-      throw updateError;
-
-    box.innerHTML =
-      `
-      <div class="card ok">
-        🟢 Coupon successfully used.
-      </div>
       `;
 
-    await loadDashboard();
-    await loadCoupons();
+      return;
+    }
+
+    /* INVALID / EXPIRED / USED / NOT STARTED */
+
+    if(data.success !== true){
+
+      let icon = "🔴";
+
+      if(data.status === "EXPIRED")
+        icon = "⏰";
+
+      if(data.status === "USED")
+        icon = "🚫";
+
+      if(data.status === "NOT_STARTED")
+        icon = "⏳";
+
+      box.innerHTML = `
+        <div class="card bad"
+          style="
+            border:1px solid rgba(255,80,80,.35);
+            padding:18px;
+          "
+        >
+
+          <div style="
+            font-size:22px;
+            font-weight:700;
+            margin-bottom:8px;
+          ">
+            ${icon} ${escapeHtml(
+              data.status || "INVALID"
+            )}
+          </div>
+
+          <div style="
+            font-size:16px;
+            margin-bottom:12px;
+          ">
+            ${escapeHtml(
+              data.message || "Coupon is not valid."
+            )}
+          </div>
+
+          ${
+            data.code
+              ? `
+                <div class="muted">
+                  Coupon:
+                  <b>${escapeHtml(data.code)}</b>
+                </div>
+              `
+              : ""
+          }
+
+          ${
+            data.discount_text
+              ? `
+                <div class="muted">
+                  Discount:
+                  <b>${escapeHtml(data.discount_text)}</b>
+                </div>
+              `
+              : ""
+          }
+
+          ${
+            data.campaign_title
+              ? `
+                <div class="muted">
+                  Campaign:
+                  <b>${escapeHtml(
+                    data.campaign_title
+                  )}</b>
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+      `;
+
+      return;
+    }
+
+    /* VALID COUPON */
+
+    const startText =
+      data.start_at
+        ? new Date(
+            data.start_at
+          ).toLocaleString()
+        : "—";
+
+    const endText =
+      data.end_at
+        ? new Date(
+            data.end_at
+          ).toLocaleString()
+        : "—";
+
+    box.innerHTML = `
+      <div
+        class="card ok"
+        style="
+          border:2px solid rgba(70,200,120,.35);
+          padding:20px;
+        "
+      >
+
+        <div style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-bottom:16px;
+        ">
+
+          <div style="
+            font-size:22px;
+            font-weight:800;
+          ">
+            🟢 COUPON VALID
+          </div>
+
+          <span style="
+            padding:6px 12px;
+            border-radius:20px;
+            background:rgba(60,200,100,.15);
+            color:#55d98a;
+            font-weight:700;
+          ">
+            ACTIVE
+          </span>
+
+        </div>
+
+        <div style="
+          display:grid;
+          grid-template-columns:
+            repeat(auto-fit,minmax(180px,1fr));
+          gap:12px;
+        ">
+
+          <div>
+            <small class="muted">
+              Coupon Number
+            </small>
+
+            <div style="
+              font-size:18px;
+              font-weight:800;
+              margin-top:4px;
+            ">
+              ${escapeHtml(
+                data.claim_number ??
+                "—"
+              )}
+            </div>
+          </div>
+
+          <div>
+            <small class="muted">
+              Coupon Code
+            </small>
+
+            <div style="
+              font-size:18px;
+              font-weight:800;
+              margin-top:4px;
+              word-break:break-all;
+            ">
+              ${escapeHtml(
+                data.code || code
+              )}
+            </div>
+          </div>
+
+          <div>
+            <small class="muted">
+              Discount
+            </small>
+
+            <div style="
+              font-size:20px;
+              font-weight:800;
+              margin-top:4px;
+            ">
+              ${escapeHtml(
+                data.discount_text || "—"
+              )}
+            </div>
+          </div>
+
+          ${
+            data.discount_percent !== null &&
+            data.discount_percent !== undefined
+              ? `
+                <div>
+                  <small class="muted">
+                    Discount Percentage
+                  </small>
+
+                  <div style="
+                    font-size:20px;
+                    font-weight:800;
+                    margin-top:4px;
+                  ">
+                    ${escapeHtml(
+                      String(
+                        data.discount_percent
+                      )
+                    )}%
+                  </div>
+                </div>
+              `
+              : ""
+          }
+
+          <div>
+            <small class="muted">
+              Campaign / Match
+            </small>
+
+            <div style="
+              font-size:17px;
+              font-weight:700;
+              margin-top:4px;
+            ">
+              ${escapeHtml(
+                data.campaign_title || "—"
+              )}
+            </div>
+          </div>
+
+          ${
+            data.minimum_amount !== null &&
+            data.minimum_amount !== undefined &&
+            Number(data.minimum_amount) > 0
+              ? `
+                <div>
+                  <small class="muted">
+                    Minimum Amount
+                  </small>
+
+                  <div style="
+                    font-size:17px;
+                    font-weight:700;
+                    margin-top:4px;
+                  ">
+                    €${escapeHtml(
+                      String(
+                        data.minimum_amount
+                      )
+                    )}
+                  </div>
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+
+        ${
+          data.campaign_description
+            ? `
+              <div style="
+                margin-top:16px;
+                padding:12px;
+                border-radius:10px;
+                background:rgba(255,255,255,.04);
+              ">
+                <small class="muted">
+                  Campaign Details
+                </small>
+
+                <div style="margin-top:5px">
+                  ${escapeHtml(
+                    data.campaign_description
+                  )}
+                </div>
+              </div>
+            `
+            : ""
+        }
+
+        <div style="
+          margin-top:16px;
+          padding-top:14px;
+          border-top:1px solid rgba(255,255,255,.08);
+          display:grid;
+          grid-template-columns:
+            repeat(auto-fit,minmax(200px,1fr));
+          gap:10px;
+        ">
+
+          <div class="muted">
+            🟢 Starts:
+            <b>${escapeHtml(startText)}</b>
+          </div>
+
+          <div class="muted">
+            ⏰ Ends:
+            <b>${escapeHtml(endText)}</b>
+          </div>
+
+        </div>
+
+        <div style="
+          margin-top:20px;
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+        ">
+
+          <button
+            class="btn green"
+            onclick="useMainStaffCoupon()"
+          >
+            ✅ USE COUPON
+          </button>
+
+          <button
+            class="btn red"
+            onclick="clearMainStaffCoupon()"
+          >
+            🔴 CLEAR
+          </button>
+
+        </div>
+
+        <div style="
+          margin-top:10px;
+          font-size:13px;
+          color:#aaa;
+        ">
+          ⚠️ Verify করা হলে Coupon ব্যবহার হয় না।
+          <b>USE COUPON</b> চাপলেই এটি একবারের জন্য ব্যবহার হবে।
+        </div>
+
+      </div>
+    `;
 
   }catch(error){
 
-    box.innerHTML =
-      `
+    console.error(
+      "verifyMainStaffCoupon:",
+      error
+    );
+
+    box.innerHTML = `
       <div class="card bad">
         🔴
         ${escapeHtml(
           error.message ||
-          "Coupon verification failed"
+          "Coupon verification failed."
         )}
       </div>
+    `;
+
+  }
+
+}
+
+
+async function useMainStaffCoupon(){
+
+  const input = $("staffCouponCodeMain");
+  const box = $("staffCouponResultMain");
+
+  const code =
+    input.value.trim().toUpperCase();
+
+  if(!code){
+
+    box.innerHTML = `
+      <div class="card bad">
+        🔴 Coupon code দিন।
+      </div>
+    `;
+
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      "এই Coupon এখন USE করবেন?\n\n" +
+      "একবার USE করার পর এটি আর ব্যবহার করা যাবে না।"
+    );
+
+  if(!confirmed)
+    return;
+
+  box.innerHTML = `
+    <div class="card">
+      ⏳ Using coupon...
+    </div>
+  `;
+
+  try{
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        "use_discount_coupon",
+        {
+          p_code: code
+        }
+      );
+
+    if(error)
+      throw error;
+
+    if(!data){
+
+      box.innerHTML = `
+        <div class="card bad">
+          🔴 Coupon use failed.
+        </div>
       `;
+
+      return;
+    }
+
+    if(data.success !== true){
+
+      box.innerHTML = `
+        <div class="card bad">
+
+          <div style="
+            font-size:20px;
+            font-weight:800;
+            margin-bottom:8px;
+          ">
+            🚫
+            ${escapeHtml(
+              data.status || "FAILED"
+            )}
+          </div>
+
+          <div>
+            ${escapeHtml(
+              data.message ||
+              "Coupon could not be used."
+            )}
+          </div>
+
+        </div>
+      `;
+
+      return;
+    }
+
+    const usedAt =
+      data.used_at
+        ? new Date(
+            data.used_at
+          ).toLocaleString()
+        : new Date().toLocaleString();
+
+    box.innerHTML = `
+      <div
+        class="card ok"
+        style="
+          border:2px solid rgba(70,200,120,.4);
+          padding:20px;
+        "
+      >
+
+        <div style="
+          font-size:24px;
+          font-weight:900;
+          margin-bottom:12px;
+        ">
+          ✅ COUPON USED SUCCESSFULLY
+        </div>
+
+        <div style="
+          display:grid;
+          grid-template-columns:
+            repeat(auto-fit,minmax(180px,1fr));
+          gap:12px;
+        ">
+
+          <div>
+            <small class="muted">
+              Coupon Number
+            </small>
+
+            <div style="
+              font-size:18px;
+              font-weight:800;
+            ">
+              ${escapeHtml(
+                data.claim_number ??
+                "—"
+              )}
+            </div>
+          </div>
+
+          <div>
+            <small class="muted">
+              Coupon Code
+            </small>
+
+            <div style="
+              font-size:18px;
+              font-weight:800;
+            ">
+              ${escapeHtml(
+                data.code || code
+              )}
+            </div>
+          </div>
+
+          <div>
+            <small class="muted">
+              Discount
+            </small>
+
+            <div style="
+              font-size:20px;
+              font-weight:800;
+            ">
+              ${escapeHtml(
+                data.discount_text || "—"
+              )}
+            </div>
+          </div>
+
+          <div>
+            <small class="muted">
+              Campaign
+            </small>
+
+            <div style="
+              font-size:17px;
+              font-weight:700;
+            ">
+              ${escapeHtml(
+                data.campaign_title || "—"
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        <div style="
+          margin-top:16px;
+          padding:12px;
+          border-radius:10px;
+          background:rgba(70,200,120,.08);
+        ">
+          🕒 Used At:
+          <b>${escapeHtml(usedAt)}</b>
+        </div>
+
+        <div style="
+          margin-top:16px;
+          color:#aaa;
+          font-size:13px;
+        ">
+          🔒 এই Coupon এখন USED।
+          এটি দ্বিতীয়বার ব্যবহার করা যাবে না।
+        </div>
+
+      </div>
+    `;
+
+    if(
+      typeof loadDashboard === "function"
+    )
+      await loadDashboard();
+
+    if(
+      typeof loadCoupons === "function"
+    )
+      await loadCoupons();
+
+  }catch(error){
+
+    console.error(
+      "useMainStaffCoupon:",
+      error
+    );
+
+    box.innerHTML = `
+      <div class="card bad">
+        🔴
+        ${escapeHtml(
+          error.message ||
+          "Coupon use failed."
+        )}
+      </div>
+    `;
 
   }
 
@@ -6081,11 +6560,9 @@ async function verifyMainStaffCoupon(){
 
 function clearMainStaffCoupon(){
 
-  $("staffCouponCodeMain")
-    .value="";
+  $("staffCouponCodeMain").value = "";
 
-  $("staffCouponResultMain")
-    .innerHTML="";
+  $("staffCouponResultMain").innerHTML = "";
 
 }
 
