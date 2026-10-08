@@ -310,6 +310,22 @@ textarea{
   background:#29292e
 }
 
+
+/* ===== COMPACT STAFF MANAGEMENT ===== */
+.staff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.staff-card{margin:0!important;padding:16px}
+.staff-card h3{margin:0 0 8px;font-size:18px}
+.staff-card .muted{margin:0 0 12px;font-size:12px;line-height:1.5}
+.staff-card .grid{gap:10px}
+.staff-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.staff-list-card{margin-top:14px!important}
+.staff-list-card #staffList{margin-top:0!important}
+.staff-permissions{overflow:auto;max-height:520px}
+.brand-logo{width:46px;height:46px;border-radius:50%;object-fit:contain;border:1px solid var(--gold,#d8b25c);background:#111;padding:5px;display:none}
+.login-logo{width:88px;height:88px;border-radius:50%;object-fit:contain;border:1px solid #d8b25c;background:#111;padding:8px;margin:0 auto 12px;display:none}
+.header-brand{display:flex;align-items:center;gap:10px}
+@media(max-width:850px){.staff-grid{grid-template-columns:1fr}}
+
 @media(max-width:850px){
 
   .layout{
@@ -352,8 +368,10 @@ textarea{
 
   <div class="card">
 
+    <img id="loginLogo" class="login-logo" alt="Nababi Ristorante Logo">
+
     <h1>
-      👑 <span class="gold">Nababi</span> Admin
+      <span class="gold">Nababi</span> Admin
     </h1>
 
     <p class="muted">
@@ -401,10 +419,10 @@ textarea{
       ☰
     </button>
 
-    <b>
-      👑 Nababi Ristorante
-      <span class="gold">Master Admin</span>
-    </b>
+    <div class="header-brand">
+      <img id="adminBrandLogo" class="brand-logo" alt="Nababi Ristorante Logo">
+      <b>Nababi Ristorante <span class="gold">Master Admin</span></b>
+    </div>
 
   </div>
 
@@ -497,8 +515,8 @@ textarea{
 🔢 Coupon Codes
 </button>
 
-<button class="nav" data-section="staff">
-👥 Staff Management
+<button class="nav" data-section="staff" onclick="focusStaffCoupon()">
+🔐 Staff Admin
 </button>
 
 <button class="nav" data-section="performance">
@@ -1443,96 +1461,83 @@ Customers collect the code and show it to restaurant staff.
 
 
 <!-- STAFF -->
-<section
- id="staff"
- class="section"
->
+<section id="staff" class="section">
 
 <div class="toolbar">
+  <div>
+    <h2>👥 Staff Management</h2>
+    <p class="muted">Staff, permissions, reviews and discount checking — সব এক জায়গায়।</p>
+  </div>
+  <button class="btn" onclick="loadStaff()">Refresh</button>
+</div>
 
-<h2>👥 Staff Management</h2>
+<div class="staff-grid">
 
-<button
- class="btn"
- onclick="loadStaff()"
->
-Refresh
-</button>
+  <div class="card staff-card">
+    <h3>🔐 Discount Code Check</h3>
+    <p class="muted">Code check করুন। এতে coupon consume হবে না।</p>
+    <div class="row">
+      <input id="staffCouponCode" placeholder="Enter Discount Code" style="flex:1;min-width:170px">
+      <button class="btn green small" onclick="verifyStaffCoupon()">Check</button>
+      <button class="btn red small" onclick="clearStaffCoupon()">Clear</button>
+    </div>
+    <div id="staffCouponResult" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card staff-card">
+    <h3>➕ Create Staff Account</h3>
+    <div class="grid g2">
+      <input id="staffName" placeholder="Full Name">
+      <input id="staffEmail" type="email" placeholder="Email">
+      <input id="staffPassword" type="password" placeholder="Password — minimum 8 characters">
+      <select id="staffRole">
+        <option value="SUPER_ADMIN">SUPER ADMIN</option>
+        <option value="BOOKING_STAFF">BOOKING STAFF</option>
+        <option value="REVIEW_STAFF">REVIEW STAFF</option>
+        <option value="DISCOUNT_STAFF">DISCOUNT STAFF</option>
+        <option value="MENU_STAFF">MENU STAFF</option>
+        <option value="CONTENT_STAFF">CONTENT STAFF</option>
+      </select>
+      <select id="staffEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select>
+    </div>
+    <div class="staff-actions">
+      <button class="btn small" onclick="createStaffAccount()">Create Staff</button>
+    </div>
+    <p id="staffMessage" class="muted"></p>
+  </div>
+
+  <div class="card staff-card">
+    <div class="toolbar">
+      <div><h3>⭐ Reviews</h3><p class="muted">Staff review management.</p></div>
+      <button class="btn small" onclick="loadStaffReviews()">Refresh</button>
+    </div>
+    <div id="staffReviewList"></div>
+  </div>
+
+  <div class="card staff-card">
+    <div class="toolbar">
+      <div><h3>📝 Customer Reports</h3><p class="muted">Reports দেখুন এবং resolve করুন।</p></div>
+      <button class="btn small" onclick="loadStaffReports()">Refresh</button>
+    </div>
+    <div id="staffReportList"></div>
+  </div>
 
 </div>
 
-
-<div class="card">
-
-<h3>Create Staff Account</h3>
-
-<div class="grid g2">
-
-<input
- id="staffName"
- placeholder="Full Name"
->
-
-<input
- id="staffEmail"
- type="email"
- placeholder="Email"
->
-
-<input
- id="staffPassword"
- type="password"
- placeholder="Password — minimum 8 characters"
->
-
-<select id="staffRole">
-<option value="SUPER_ADMIN">SUPER ADMIN</option>
-<option value="BOOKING_STAFF">BOOKING STAFF</option>
-<option value="REVIEW_STAFF">REVIEW STAFF</option>
-<option value="DISCOUNT_STAFF">DISCOUNT STAFF</option>
-<option value="MENU_STAFF">MENU STAFF</option>
-<option value="CONTENT_STAFF">CONTENT STAFF</option>
-</select>
-
-<select id="staffEnabled">
-
-<option value="true">
-Enabled
-</option>
-
-<option value="false">
-Disabled
-</option>
-
-</select>
-
+<div class="card staff-card staff-list-card">
+  <div class="toolbar">
+    <div><h3>👤 Staff Accounts</h3><p class="muted">সব staff account এক জায়গায়।</p></div>
+  </div>
+  <div id="staffList"></div>
 </div>
 
-<button
- class="btn"
- onclick="createStaffAccount()"
->
-➕ Create Staff Account
-</button>
-
-<p
- id="staffMessage"
- class="muted"
-></p>
-
+<div class="card staff-card staff-list-card">
+  <div class="toolbar">
+    <div><h3>🔑 Staff Permissions</h3><p class="muted">Role অনুযায়ী access control। SUPER_ADMIN-এর full access থাকবে।</p></div>
+    <button class="btn small" onclick="saveStaffPermissions()">Save Permissions</button>
+  </div>
+  <div class="staff-permissions" id="permissionMatrix"></div>
 </div>
-
-<div class="card" style="margin-top:16px">
-<h3>🔑 Staff Permissions</h3>
-<p class="muted">Set what each role can View, Add, Edit or Delete. SUPER_ADMIN always has full access.</p>
-<div id="permissionMatrix"></div>
-<button class="btn" onclick="saveStaffPermissions()">💾 Save Permissions</button>
-</div>
-
-<div
- id="staffList"
- style="margin-top:16px"
-></div>
 
 </section>
 
@@ -1809,6 +1814,19 @@ async function login(){
 }
 
 
+async function loadAdminBrandLogo(){
+  try{
+    const logo=await getSetting("logo");
+    const url=logo?.url||"";
+    ["loginLogo","adminBrandLogo"].forEach(id=>{
+      const el=$(id);
+      if(!el) return;
+      if(url){el.src=url;el.style.display="block";}
+      else{el.style.display="none";}
+    });
+  }catch(error){console.warn("Logo load skipped",error);}
+}
+
 async function initializeAdmin(){
 
   if(!currentUser){
@@ -1941,6 +1959,8 @@ async function saveSetting(key,value){
 
 }
 
+
+loadAdminBrandLogo().catch(()=>{});
 
 /* =========================================================
    STORAGE
