@@ -2218,27 +2218,49 @@
     </h3>
 
     <p style="color:#aaa;">
-      Show this code to our staff.
+      Enter your name to receive today's secret coupon. One coupon per name per day.
     </p>
+
+    <div class="field" style="margin-top:18px;">
+      <label for="discountCustomerName">Your Name</label>
+      <input
+        id="discountCustomerName"
+        type="text"
+        maxlength="80"
+        autocomplete="name"
+        placeholder="Enter your full name"
+      >
+    </div>
+
+    <button
+      id="generateDiscountBtn"
+      class="btn"
+      onclick="generateCustomerDiscount()"
+      style="width:100%;"
+    >
+      🎟️ Get My Secret Code
+    </button>
 
     <div
       id="discountCode"
       class="discount-code"
+      style="display:none;"
     >
       NB-000001
     </div>
 
     <button
-      class="btn"
+      id="copyDiscountBtn"
+      class="btn btn-outline"
       onclick="copyDiscountCode()"
-      style="width:100%;"
+      style="width:100%;display:none;"
     >
       Copy Code
     </button>
 
     <div
       id="discountStatus"
-      style="text-align:center;margin-top:12px;color:#aaa;"
+      style="text-align:center;margin-top:12px;color:#aaa;white-space:pre-line;"
     ></div>
 
   </div>
@@ -5127,102 +5149,91 @@ async function submitReport(){
 
 async function openDiscount(){
 
-  const modal =
-    document.getElementById(
-      "discountModal"
-    );
+  const modal = document.getElementById("discountModal");
+  const nameInput = document.getElementById("discountCustomerName");
+  const codeElement = document.getElementById("discountCode");
+  const copyButton = document.getElementById("copyDiscountBtn");
+  const status = document.getElementById("discountStatus");
 
-  const codeElement =
-    document.getElementById(
-      "discountCode"
-    );
+  modal.classList.add("show");
 
-  const status =
-    document.getElementById(
-      "discountStatus"
-    );
+  const savedName = localStorage.getItem("nababi_discount_customer_name") || "";
+  if(nameInput && savedName && !nameInput.value){
+    nameInput.value = savedName;
+  }
+
+  codeElement.textContent = "";
+  codeElement.style.display = "none";
+  copyButton.style.display = "none";
+  status.textContent = "";
+
+}
 
 
-  modal.classList.add(
-    "show"
-  );
+async function generateCustomerDiscount(){
 
+  const nameInput = document.getElementById("discountCustomerName");
+  const codeElement = document.getElementById("discountCode");
+  const copyButton = document.getElementById("copyDiscountBtn");
+  const status = document.getElementById("discountStatus");
+  const generateButton = document.getElementById("generateDiscountBtn");
 
-  codeElement.textContent =
-    "Generating...";
+  const customerName = (nameInput?.value || "").trim().replace(/\s+/g," ");
 
-  status.textContent =
-    "";
+  if(customerName.length < 2){
+    status.textContent = "Please enter your full name.";
+    if(nameInput) nameInput.focus();
+    return;
+  }
 
+  if(generateButton){
+    generateButton.disabled = true;
+    generateButton.textContent = "Generating...";
+  }
+
+  codeElement.style.display = "block";
+  codeElement.textContent = "Generating...";
+  copyButton.style.display = "none";
+  status.textContent = "";
 
   try{
 
-    const {data,error} =
-      await supabaseClient.rpc(
-        "create_discount_code"
-      );
-
-
-    if(error){
-      throw error;
-    }
-
-
-    let code = "";
-
-
-    if(
-      typeof data ===
-      "string"
-    ){
-
-      code =
-        data;
-
-    }else if(
-      data &&
-      typeof data ===
-      "object"
-    ){
-
-      code =
-        data.code ||
-        data.discount_code ||
-        data[0]?.code ||
-        data[0]?.discount_code ||
-        "";
-
-    }
-
-
-    if(!code){
-
-      throw new Error(
-        "No discount code returned."
-      );
-
-    }
-
-
-    codeElement.textContent =
-      code;
-
-
-    localStorage.setItem(
-      "nababi_discount_code",
-      code
+    const {data,error} = await supabaseClient.rpc(
+      "create_customer_discount_code",
+      {p_customer_name:customerName}
     );
 
+    if(error) throw error;
+
+    if(!data?.success || !data?.code){
+      throw new Error(data?.message || "Unable to generate your coupon.");
+    }
+
+    localStorage.setItem("nababi_discount_customer_name",customerName);
+    localStorage.setItem("nababi_discount_code",data.code);
+
+    codeElement.textContent = data.code;
+    copyButton.style.display = "block";
+
+    if(data.already_exists){
+      status.textContent = "You already received today's coupon.\nYour existing code is shown below.";
+    }else{
+      status.textContent = "Your secret coupon is ready. Show it to our staff at the restaurant.";
+    }
 
   }catch(error){
 
     console.error(error);
+    codeElement.textContent = "NB-ERROR";
+    status.textContent = error?.message || "Unable to generate discount code.";
+    copyButton.style.display = "none";
 
-    codeElement.textContent =
-      "NB-ERROR";
+  }finally{
 
-    status.textContent =
-      "Unable to generate discount code.";
+    if(generateButton){
+      generateButton.disabled = false;
+      generateButton.textContent = "🎟️ Get My Secret Code";
+    }
 
   }
 
@@ -5231,35 +5242,41 @@ async function openDiscount(){
 
 async function copyDiscountCode(){
 
-  const code =
-    document.getElementById(
-      "discountCode"
-    ).textContent.trim();
+  const code = document.getElementById("discountCode").textContent.trim();
+  const status = document.getElementById("discountStatus");
 
-  const status =
-    document.getElementById(
-      "discountStatus"
-    );
-
+  if(!/^NB-[0-9]+$/i.test(code)){
+    status.textContent = "Please generate a valid coupon first.";
+    return;
+  }
 
   try{
 
-    await navigator.clipboard.writeText(
-      code
+    await navigator.clipboard.writeText(code);
+
+    const customerName = localStorage.getItem("nababi_discount_customer_name") || null;
+
+    const {error} = await supabaseClient.rpc(
+      "track_discount_coupon_event",
+      {
+        p_code:code,
+        p_event_type:"copied",
+        p_customer_name:customerName
+      }
     );
 
-    status.textContent =
-      "Code copied.";
+    if(error) console.error("Coupon copy tracking:",error);
+
+    status.textContent = "Code copied successfully.";
 
   }catch(error){
 
-    status.textContent =
-      "Please copy the code manually.";
+    console.error(error);
+    status.textContent = "Please copy the code manually.";
 
   }
 
 }
-
 
 /* =========================================================
    MODALS
@@ -5397,6 +5414,15 @@ async function initializeSite(){
 
 }
 
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const input=document.getElementById("discountCustomerName");
+  if(input){
+    input.addEventListener("keydown",event=>{
+      if(event.key==="Enter") generateCustomerDiscount();
+    });
+  }
+});
 
 initializeSite();
 
