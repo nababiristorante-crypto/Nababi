@@ -1582,19 +1582,17 @@ Customers collect the code and show it to restaurant staff.
   </div>
 </div>
 
-<div class="card" style="margin:14px 0">
-  <h3>🧮 Discount Calculator</h3>
-  <p class="muted" style="margin-top:-4px">মূল দাম ও discount percentage লিখলেই discount কত ইউরো এবং customer কত দেবে—সঙ্গে সঙ্গে দেখাবে।</p>
-  <div class="grid g2">
-    <div><label for="discountCalcPrice">Original price (€)</label><input id="discountCalcPrice" type="number" min="0" step="0.01" inputmode="decimal" value="10" oninput="calculateManualDiscount()"></div>
-    <div><label for="discountCalcPercent">Discount (%)</label><input id="discountCalcPercent" type="number" min="0" max="100" step="0.01" inputmode="decimal" value="2" oninput="calculateManualDiscount()"></div>
+<div class="card" id="couponSoundSettings" style="margin:14px 0">
+  <h3>🔊 Coupon Sound Settings</h3>
+  <p class="muted" style="margin-top:-4px">এখান থেকে সাউন্ড চালু/বন্ধ করুন এবং প্রতিটি সাউন্ড Test করে শুনুন। সেটিংস এই ব্রাউজার/ডিভাইসে থাকবে।</p>
+  <label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="couponSoundsEnabled" type="checkbox" checked style="width:auto;margin:0" onchange="saveCouponSoundSettings()"> Coupon sounds ON</label>
+  <label style="display:flex;align-items:center;gap:10px;margin:10px 0"><input id="couponVoiceEnabled" type="checkbox" checked style="width:auto;margin:0" onchange="saveCouponSoundSettings()"> Spoken voice message ON</label>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><b>🎉 Success</b><p class="muted">কুপন সফল হলে</p><button class="btn green" onclick="testCouponSound('success')">▶ Test Success</button></div>
+    <div class="card"><b>❌ Invalid</b><p class="muted">ভুল কুপন হলে</p><button class="btn dark" onclick="testCouponSound('invalid')">▶ Test Invalid</button></div>
+    <div class="card"><b>⚠️ Already Used</b><p class="muted">আগে ব্যবহার করা হলে</p><button class="btn red" onclick="testCouponSound('used')">▶ Test Already Used</button></div>
   </div>
-  <div class="calc-results" aria-live="polite">
-    <div class="calc-result"><span>Original price</span><b id="calcOriginal">€10.00</b></div>
-    <div class="calc-result"><span>Discount amount</span><b id="calcSavings">€0.20</b></div>
-    <div class="calc-result"><span>Customer pays</span><b id="calcFinal">€9.80</b></div>
-  </div>
-  <p class="muted" style="font-size:12px;margin-bottom:0">উদাহরণ: €10-এর 2% = €0.20 discount; customer দেবে €9.80। এটি হিসাবের calculator—কুপন ব্যবহার/রেকর্ড পরিবর্তন করে না।</p>
+  <p id="couponSoundMessage" class="muted" aria-live="polite">প্রথমবার সাউন্ড শুনতে Test বোতামে চাপ দিন।</p>
 </div>
 
 <div class="quick-heading" style="margin-top:18px">
@@ -4332,23 +4330,57 @@ function formatDateTime(value){
   }).format(d));
 }
 
-// Coupon voice feedback: uses the browser's built-in speech engine (no external audio file needed).
-function speakCouponMessage(kind){
+// Coupon sound settings and built-in browser voice. No external audio files are required.
+function getCouponSoundSettings(){
+  try{return JSON.parse(localStorage.getItem('nababi_coupon_sound_settings')||'{"sounds":true,"voice":true}')}catch(e){return {sounds:true,voice:true};}
+}
+function saveCouponSoundSettings(){
+  const settings={sounds:!!$('couponSoundsEnabled')?.checked,voice:!!$('couponVoiceEnabled')?.checked};
+  try{localStorage.setItem('nababi_coupon_sound_settings',JSON.stringify(settings));}catch(e){}
+  const msg=$('couponSoundMessage');if(msg)msg.textContent='Sound settings saved on this browser/device.';
+}
+function loadCouponSoundSettings(){
+  const s=getCouponSoundSettings();
+  if($('couponSoundsEnabled'))$('couponSoundsEnabled').checked=s.sounds!==false;
+  if($('couponVoiceEnabled'))$('couponVoiceEnabled').checked=s.voice!==false;
+}
+function playCouponTone(kind){
+  const settings=getCouponSoundSettings(); if(settings.sounds===false)return;
   try{
-    if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+    const ctx=new AudioCtx();
+    const patterns={success:[523,659,784,1047],invalid:[330,247],used:[440,349,262]};
+    const notes=patterns[kind]||patterns.invalid;
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type='sine';osc.frequency.value=freq;gain.gain.setValueAtTime(0.0001,ctx.currentTime+i*0.16);
+      gain.gain.exponentialRampToValueAtTime(0.18,ctx.currentTime+i*0.16+0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+i*0.16+0.14);
+      osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime+i*0.16);osc.stop(ctx.currentTime+i*0.16+0.15);
+    });
+    setTimeout(()=>ctx.close().catch(()=>{}),notes.length*180+250);
+  }catch(e){}
+}
+function speakCouponMessage(kind){
+  const settings=getCouponSoundSettings();if(settings.sounds===false)return;
+  playCouponTone(kind);
+  if(settings.voice===false)return;
+  try{
+    if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window))return;
     window.speechSynthesis.cancel();
-    const messages={
-      success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',
-      invalid:'Sorry, this coupon is invalid. Please check and try again.',
-      used:'Sorry, this coupon has already been used and cannot be used again.'
-    };
+    const messages={success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
     const utterance=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);
-    utterance.lang='en-GB';
-    utterance.rate=0.92;
-    utterance.pitch=1.02;
-    utterance.volume=1;
+    utterance.lang='en-GB';utterance.rate=0.92;utterance.pitch=1.02;utterance.volume=1;
     window.speechSynthesis.speak(utterance);
-  }catch(e){ /* Visual result remains available if speech is unsupported. */ }
+  }catch(e){}
+}
+function testCouponSound(kind){
+  const settings=getCouponSoundSettings();
+  if(settings.sounds===false){const m=$('couponSoundMessage');if(m)m.textContent='আগে “Coupon sounds ON” চালু করুন।';return;}
+  playCouponTone(kind);
+  const messages={success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
+  if(settings.voice!==false){try{if('speechSynthesis'in window&&'SpeechSynthesisUtterance'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);u.lang='en-GB';u.rate=0.92;u.pitch=1.02;u.volume=1;window.speechSynthesis.speak(u);}}catch(e){}}
+  const m=$('couponSoundMessage');if(m)m.textContent='Test playing: '+({success:'Success',invalid:'Invalid coupon',used:'Already used'}[kind]||kind)+'. If silent, check your phone volume and silent mode.';
 }
 
 function normalizeSecretCouponCode(value){
@@ -5139,5 +5171,6 @@ supabaseClient.auth
 
 </script>
 
+<script>document.addEventListener('DOMContentLoaded',loadCouponSoundSettings);</script>
 </body>
 </html>
