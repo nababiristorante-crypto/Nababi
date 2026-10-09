@@ -1504,6 +1504,7 @@ Refresh
 <div class="card">
 
 <h3>Create Staff Account</h3>
+<p class="muted">Add an optional staff photo here. Use Edit to change name, role or status, Photo to replace the picture, and Delete to remove this staff profile.</p>
 
 <div class="grid g2">
 
@@ -1523,6 +1524,12 @@ Refresh
  type="password"
  placeholder="Password — minimum 8 characters"
 >
+
+<div>
+  <label for="staffPhoto">Staff Photo (optional)</label>
+  <input id="staffPhoto" type="file" accept="image/*">
+  <div id="staffPhotoProgress"></div>
+</div>
 
 <select id="staffRole">
 <option value="SUPER_ADMIN">SUPER ADMIN</option>
@@ -4432,233 +4439,157 @@ async function loadStaffReports(){
    STAFF
 ========================================================= */
 
+function requireSuperAdminStaffAction(){
+  if(!currentStaff || currentStaff.role !== "SUPER_ADMIN"){
+    throw new Error("Only SUPER_ADMIN can manage staff accounts.");
+  }
+}
+
 async function createStaffAccount(){
-
   try{
+    requireSuperAdminStaffAction();
+    const {data:sessionData}=await supabaseClient.auth.getSession();
+    const session=sessionData.session;
+    if(!session) throw new Error("Admin session expired. Please log in again.");
 
-    const {
-      data:sessionData
-    } =
-    await supabaseClient.auth
-      .getSession();
-
-    const session =
-      sessionData.session;
-
-    if(!session){
-
-      throw new Error(
-        "Admin session expired."
-      );
-
-    }
-
-
-    const body = {
-
-      email:
-        $("staffEmail")
-          .value
-          .trim()
-          .toLowerCase(),
-
-      password:
-        $("staffPassword").value,
-
-      full_name:
-        $("staffName")
-          .value
-          .trim(),
-
-      role:
-        $("staffRole").value,
-
-      enabled:
-        $("staffEnabled").value ===
-        "true"
-
+    const email=$("staffEmail").value.trim().toLowerCase();
+    const photoFile=$("staffPhoto")?.files?.[0] || null;
+    const body={
+      email,
+      password:$("staffPassword").value,
+      full_name:$("staffName").value.trim(),
+      role:$("staffRole").value,
+      enabled:$("staffEnabled").value === "true"
     };
-
-
-    const response =
-      await fetch(
-        SUPABASE_URL +
-        "/functions/v1/create-staff",
-        {
-          method:"POST",
-
-          headers:{
-            "Authorization":
-              "Bearer "+
-              session.access_token,
-
-            "apikey":
-              SUPABASE_KEY,
-
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(body)
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        result.error ||
-        result.message ||
-        "Could not create staff account."
-      );
-
+    if(!email || !body.full_name || !body.password){
+      throw new Error("Please enter staff name, email, and password.");
     }
 
+    const response=await fetch(SUPABASE_URL+"/functions/v1/create-staff",{
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+session.access_token,
+        "apikey":SUPABASE_KEY,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(body)
+    });
+    const result=await response.json();
+    if(!response.ok) throw new Error(result.error || result.message || "Could not create staff account.");
 
-    $("staffMessage").textContent =
-      "Staff account created successfully.";
+    if(photoFile){
+      const avatarUrl=await uploadSiteMedia(photoFile,"staff","staffPhotoProgress");
+      const {error:updateError}=await supabaseClient.from("admin_staff")
+        .update({avatar_url:avatarUrl})
+        .ilike("email",email);
+      if(updateError) throw new Error("Staff account was created, but the photo could not be saved: "+updateError.message);
+    }
 
+    $("staffMessage").textContent="Staff account created successfully.";
     $("staffName").value="";
     $("staffEmail").value="";
     $("staffPassword").value="";
-
+    if($("staffPhoto")) $("staffPhoto").value="";
     await loadStaff();
-
-    toast(
-      "Staff account created."
-    );
-
+    toast("Staff account created.");
   }catch(error){
-
-    $("staffMessage").textContent =
-      error.message;
-
+    if($("staffMessage")) $("staffMessage").textContent=error.message;
     showError(error);
-
   }
-
 }
 
+let staffRowsCache=[];
 
 async function loadStaff(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("admin_staff")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-  if(error)
-    throw error;
-
-
-  $("staffList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-
-    <tr>
-      <th>Photo</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Role</th>
-      <th>Status</th>
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-
-          ${
-            item.avatar_url
-            ?
-            `<img
-              class="avatar"
-              src="${escapeHtml(
-                item.avatar_url
-              )}"
-            >`
-            :
-            "👤"
-          }
-
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.full_name
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.email
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.role
-          )}
-        </td>
-
-        <td>
-
-          <span class="pill ${
-            item.enabled
-            ?
-            "ok"
-            :
-            "bad"
-          }">
-
-            ${
-              item.enabled
-              ?
-              "Enabled"
-              :
-              "Disabled"
-            }
-
-          </span>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
+  requireSuperAdminStaffAction();
+  const {data,error}=await supabaseClient.from("admin_staff").select("*").order("created_at",{ascending:false});
+  if(error) throw error;
+  staffRowsCache=data||[];
+  $("staffList").innerHTML=`
+    <div class="tablewrap"><table class="table">
+      <thead><tr><th>Photo</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${staffRowsCache.map(item=>`
+        <tr>
+          <td>${item.avatar_url?`<img class="avatar" src="${escapeHtml(item.avatar_url)}" alt="Staff photo">`:`<span class="avatar" style="display:grid;place-items:center">👤</span>`}</td>
+          <td>${escapeHtml(item.full_name||"—")}</td>
+          <td>${escapeHtml(item.email||"—")}</td>
+          <td>${escapeHtml(item.role||"—")}</td>
+          <td><span class="pill ${item.enabled?"ok":"bad"}">${item.enabled?"Enabled":"Disabled"}</span></td>
+          <td><div class="row">
+            <button class="btn small" onclick="editStaff('${escapeHtml(String(item.id))}')">✏️ Edit</button>
+            <button class="btn dark small" onclick="changeStaffPhoto('${escapeHtml(String(item.id))}')">📷 Photo</button>
+            <button class="btn red small" onclick="deleteStaff('${escapeHtml(String(item.id))}')">🗑️ Delete</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table></div>`;
 }
 
+async function editStaff(id){
+  try{
+    requireSuperAdminStaffAction();
+    const item=staffRowsCache.find(row=>String(row.id)===String(id));
+    if(!item) throw new Error("Staff record not found. Refresh the list and try again.");
+    const fullName=prompt("Staff full name:",item.full_name||"");
+    if(fullName===null) return;
+    if(!fullName.trim()) throw new Error("Staff name cannot be empty.");
+    const roleOptions=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","MENU_STAFF","CONTENT_STAFF"];
+    const roleInput=prompt("Enter role exactly as one of:\n"+roleOptions.join(", "),item.role||"BOOKING_STAFF");
+    if(roleInput===null) return;
+    const role=roleInput.trim().toUpperCase();
+    if(!roleOptions.includes(role)) throw new Error("Invalid role. Use one of: "+roleOptions.join(", "));
+    const enabledInput=prompt("Account status: type ENABLED or DISABLED",item.enabled?"ENABLED":"DISABLED");
+    if(enabledInput===null) return;
+    const status=enabledInput.trim().toUpperCase();
+    if(!["ENABLED","DISABLED"].includes(status)) throw new Error("Status must be ENABLED or DISABLED.");
+    if(String(item.email||"").toLowerCase()===String(currentUser?.email||"").toLowerCase() && status==="DISABLED"){
+      throw new Error("You cannot disable your own currently logged-in account.");
+    }
+    const {error}=await supabaseClient.from("admin_staff").update({full_name:fullName.trim(),role,enabled:status==="ENABLED"}).eq("id",item.id);
+    if(error) throw error;
+    toast("Staff details updated.");
+    await loadStaff();
+  }catch(error){showError(error);}
+}
+
+async function changeStaffPhoto(id){
+  try{
+    requireSuperAdminStaffAction();
+    const item=staffRowsCache.find(row=>String(row.id)===String(id));
+    if(!item) throw new Error("Staff record not found. Refresh the list and try again.");
+    const picker=document.createElement("input");
+    picker.type="file"; picker.accept="image/*";
+    picker.onchange=async()=>{
+      const file=picker.files?.[0];
+      if(!file) return;
+      try{
+        if(!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+        const avatarUrl=await uploadSiteMedia(file,"staff","staffPhotoProgress");
+        const {error}=await supabaseClient.from("admin_staff").update({avatar_url:avatarUrl}).eq("id",item.id);
+        if(error) throw error;
+        toast("Staff photo updated.");
+        await loadStaff();
+      }catch(error){showError(error);}
+    };
+    picker.click();
+  }catch(error){showError(error);}
+}
+
+async function deleteStaff(id){
+  try{
+    requireSuperAdminStaffAction();
+    const item=staffRowsCache.find(row=>String(row.id)===String(id));
+    if(!item) throw new Error("Staff record not found. Refresh the list and try again.");
+    if(String(item.email||"").toLowerCase()===String(currentUser?.email||"").toLowerCase()){
+      throw new Error("You cannot delete your own currently logged-in admin profile.");
+    }
+    const confirmed=confirm(`Delete staff access for ${item.full_name||item.email}?\nThis removes their admin_staff profile and they will no longer be able to sign in to this Admin Panel.`);
+    if(!confirmed) return;
+    const {error}=await supabaseClient.from("admin_staff").delete().eq("id",item.id);
+    if(error) throw error;
+    toast("Staff profile deleted.");
+    await loadStaff();
+  }catch(error){showError(error);}
+}
 
 /* =========================================================
    STAFF PERFORMANCE
