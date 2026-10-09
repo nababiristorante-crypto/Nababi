@@ -404,6 +404,30 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 }
 @media(min-width:851px){.quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
+
+/* Mobile overflow safeguards */
+*,*::before,*::after{box-sizing:border-box}
+.card,.section,.grid,.row,.toolbar,.quick-heading{min-width:0;max-width:100%}
+.card, .muted, .stat-caption, label, p, h1, h2, h3, td, th, .pill, .btn{overflow-wrap:anywhere;word-break:normal}
+.row{flex-wrap:wrap}
+.row>*{min-width:0;max-width:100%}
+.tablewrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#secretCouponResult .card{overflow-wrap:anywhere;line-height:1.65}
+.calc-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.calc-result{min-width:0;border:1px solid #453a27;border-radius:13px;padding:12px;background:#101014}
+.calc-result span{display:block;color:#aaa;font-size:12px;line-height:1.35}
+.calc-result b{display:block;color:#f1d18b;font-size:clamp(16px,4vw,23px);margin-top:7px;overflow-wrap:anywhere}
+.delivery-link{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid #39332a;border-radius:13px;padding:12px;margin:10px 0;background:#101014;min-width:0}
+.delivery-link .link-details{min-width:0;flex:1;overflow-wrap:anywhere}
+.delivery-link a{color:#e4bd70;overflow-wrap:anywhere;word-break:break-word}
+.celebration{position:relative;overflow:hidden;text-align:center;padding:18px 12px 14px;border:1px solid #4da878;border-radius:15px;background:linear-gradient(135deg,#123d2a,#14271f);margin-bottom:12px}
+.celebration h3{color:#9bf0bc;margin:6px 0;font-size:clamp(20px,5vw,28px)}
+.celebration .fireworks{font-size:clamp(24px,7vw,38px);letter-spacing:4px;animation:celebratePop .8s ease-in-out infinite alternate;line-height:1.5}
+.celebration .confetti{position:absolute;inset:0;pointer-events:none;opacity:.7;animation:confettiFade 2.5s ease-out forwards}
+@keyframes celebratePop{from{transform:scale(.92) rotate(-2deg)}to{transform:scale(1.06) rotate(2deg)}}
+@keyframes confettiFade{0%{opacity:.9;transform:translateY(-6px)}100%{opacity:.18;transform:translateY(18px)}}
+@media(max-width:520px){.calc-results{grid-template-columns:1fr}.calc-result{display:flex;align-items:center;justify-content:space-between;gap:12px}.calc-result b{margin:0;text-align:right}.delivery-link .link-actions{display:flex;gap:8px;width:100%}.delivery-link .link-actions .btn{flex:1}.coupon-hero .row>.btn{flex:1 1 100%}#secretCouponCode{flex:1 1 100%}}
+
 </style>
 </head>
 
@@ -531,6 +555,12 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 <button class="nav" data-section="social">
 🌐 Social Media
 </button>
+
+<button class="nav" data-section="deliveryLinks">
+🚚 Food Delivery Links
+</button>
+
+
 
 <button class="nav" data-section="hours">
 🕐 Opening Hours
@@ -1510,6 +1540,27 @@ Customers collect the code and show it to restaurant staff.
 
 
 <!-- SECRET COUPON -->
+<!-- FOOD DELIVERY LINKS -->
+<section id="deliveryLinks" class="section">
+  <h2>🚚 Food Delivery Links</h2>
+  <p class="muted">আপনার food delivery website/app-এর একাধিক লিংক যোগ করুন। এগুলো Supabase-এর site_settings-এ সংরক্ষণ হবে।</p>
+  <div class="card">
+    <h3 id="deliveryFormTitle">Add delivery link</h3>
+    <label for="deliveryLinkName">Link name</label>
+    <input id="deliveryLinkName" placeholder="যেমন: Order Online / Food Delivery">
+    <label for="deliveryLinkUrl">Full URL</label>
+    <input id="deliveryLinkUrl" type="url" inputmode="url" placeholder="https://example.com/order">
+    <div class="row">
+      <button class="btn green" id="deliverySaveButton" onclick="saveDeliveryLink()">＋ Add Link</button>
+      <button class="btn dark" id="deliveryCancelButton" onclick="cancelDeliveryEdit()" style="display:none">Cancel edit</button>
+      <button class="btn dark" onclick="loadDeliveryLinks()">↻ Refresh</button>
+    </div>
+    <p id="deliveryLinkMessage" class="muted" aria-live="polite"></p>
+  </div>
+  <div class="quick-heading"><div><h3 style="margin:0 0 4px">Saved Delivery Links</h3><p class="muted" style="margin:0;font-size:12px">Add more links later, or edit/delete existing links.</p></div></div>
+  <div id="deliveryLinksList"><div class="card muted">Loading delivery links…</div></div>
+</section>
+
 <section id="secretCoupon" class="section active">
 <div class="card coupon-hero" style="margin-bottom:14px">
   <div class="row" style="justify-content:space-between;align-items:flex-start">
@@ -1529,6 +1580,21 @@ Customers collect the code and show it to restaurant staff.
     </div>
     <div id="secretCouponResult" style="margin-top:12px"></div>
   </div>
+</div>
+
+<div class="card" style="margin:14px 0">
+  <h3>🧮 Discount Calculator</h3>
+  <p class="muted" style="margin-top:-4px">মূল দাম ও discount percentage লিখলেই discount কত ইউরো এবং customer কত দেবে—সঙ্গে সঙ্গে দেখাবে।</p>
+  <div class="grid g2">
+    <div><label for="discountCalcPrice">Original price (€)</label><input id="discountCalcPrice" type="number" min="0" step="0.01" inputmode="decimal" value="10" oninput="calculateManualDiscount()"></div>
+    <div><label for="discountCalcPercent">Discount (%)</label><input id="discountCalcPercent" type="number" min="0" max="100" step="0.01" inputmode="decimal" value="2" oninput="calculateManualDiscount()"></div>
+  </div>
+  <div class="calc-results" aria-live="polite">
+    <div class="calc-result"><span>Original price</span><b id="calcOriginal">€10.00</b></div>
+    <div class="calc-result"><span>Discount amount</span><b id="calcSavings">€0.20</b></div>
+    <div class="calc-result"><span>Customer pays</span><b id="calcFinal">€9.80</b></div>
+  </div>
+  <p class="muted" style="font-size:12px;margin-bottom:0">উদাহরণ: €10-এর 2% = €0.20 discount; customer দেবে €9.80। এটি হিসাবের calculator—কুপন ব্যবহার/রেকর্ড পরিবর্তন করে না।</p>
 </div>
 
 <div class="quick-heading" style="margin-top:18px">
@@ -1875,6 +1941,9 @@ async function loadSection(id){
 
     if(id==="social")
       await loadSocial();
+
+    if(id==="deliveryLinks")
+      await loadDeliveryLinks();
 
     if(id==="hours")
       await loadHours();
@@ -4291,7 +4360,7 @@ async function checkSecretCoupon(){
       await loadCouponTracking();
       return;
     }
-    box.innerHTML=`<div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount to apply: <b>${escapeHtml(data.discount_text||"—")}</b><br>Created: ${formatDateTime(data.created_at)}<br>Viewed: ${escapeHtml(data.viewed_count??0)}<br>Copied: ${escapeHtml(data.copy_count??0)}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Presented by: ${escapeHtml(data.presented_by_name||"—")}<br>Staff email: ${escapeHtml(data.presented_by_email||"—")}<br><span class="muted">Confirm করলে কুপনটি সঙ্গে সঙ্গে Used হবে।</span></div>`;
+    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎉 🎆 🎊 🎇 🎉</div><h3>Congratulations!</h3><b>কুপন কোড সফলভাবে যাচাই হয়েছে!</b><div style="margin-top:5px;color:#b8f4cc">✓ VALID COUPON</div></div><div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount to apply: <b>${escapeHtml(data.discount_text||"—")}</b><br>Created: ${formatDateTime(data.created_at)}<br>Viewed: ${escapeHtml(data.viewed_count??0)}<br>Copied: ${escapeHtml(data.copy_count??0)}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Presented by: ${escapeHtml(data.presented_by_name||"—")}<br>Staff email: ${escapeHtml(data.presented_by_email||"—")}<br><span class="muted">Confirm করলে কুপনটি সঙ্গে সঙ্গে Used হবে।</span></div>`;
     await loadCouponTracking();
     if(!confirm(`Confirm coupon use?\n\nCustomer: ${data.customer_name||"—"}\nCode: ${data.code||code}\nDiscount: ${data.discount_text||"—"}\n\nConfirm করলে কুপনটি একবারের জন্য Used হবে এবং আর ব্যবহার করা যাবে না.`)){
       box.innerHTML+=`<div class="card" style="margin-top:10px">কুপন ব্যবহার করা হয়নি। প্রয়োজনে পরে আবার Check করতে পারবেন।</div>`;
@@ -4350,7 +4419,82 @@ async function loadCouponTracking(){
   }catch(error){box.innerHTML=`<div class="card bad">🔴 ${escapeHtml(error.message||String(error))}</div>`;}
 }
 
+
+/* =========================================================
+   FOOD DELIVERY LINK MANAGER — stored in site_settings
+========================================================= */
+let deliveryLinksCache=[];
+let deliveryEditingId=null;
+function safeDeliveryUrl(value){
+  try{const u=new URL(String(value||'').trim());return (u.protocol==='https:'||u.protocol==='http:')?u.href:'';}catch(_){return '';}
+}
+async function loadDeliveryLinks(){
+  const list=$('deliveryLinksList');
+  const msg=$('deliveryLinkMessage');
+  if(list)list.innerHTML='<div class="card muted">Loading delivery links…</div>';
+  try{
+    const setting=await getSetting('food_delivery_links');
+    deliveryLinksCache=Array.isArray(setting.links)?setting.links:[];
+    renderDeliveryLinks();
+    if(msg)msg.textContent='';
+  }catch(error){
+    if(list)list.innerHTML='<div class="card bad">Could not load delivery links: '+escapeHtml(error.message||String(error))+'</div>';
+  }
+}
+function renderDeliveryLinks(){
+  const list=$('deliveryLinksList');if(!list)return;
+  if(!deliveryLinksCache.length){list.innerHTML='<div class="card muted">এখনো কোনো delivery link যোগ করা হয়নি। উপরের ফর্ম থেকে প্রথম লিংকটি যোগ করুন।</div>';return;}
+  list.innerHTML=deliveryLinksCache.map(item=>{
+    const id=escapeHtml(item.id||'');const name=escapeHtml(item.name||'Delivery link');const url=safeDeliveryUrl(item.url);
+    return `<div class="delivery-link"><div class="link-details"><b>${name}</b><br><a href="${escapeHtml(url||'#')}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.url||'')}</a></div><div class="link-actions row"><button class="btn dark small" onclick="editDeliveryLink('${id}')">✏️ Edit</button><button class="btn red small" onclick="deleteDeliveryLink('${id}')">🗑 Delete</button></div></div>`;
+  }).join('');
+}
+async function persistDeliveryLinks(){await saveSetting('food_delivery_links',{links:deliveryLinksCache});}
+async function saveDeliveryLink(){
+  const name=$('deliveryLinkName')?.value.trim()||'';
+  const rawUrl=$('deliveryLinkUrl')?.value.trim()||'';
+  const url=safeDeliveryUrl(rawUrl);const msg=$('deliveryLinkMessage');
+  if(!name){if(msg)msg.textContent='লিংকের নাম লিখুন।';return;}
+  if(!url){if(msg)msg.textContent='সঠিক URL দিন, যেমন https://example.com/order';return;}
+  const button=$('deliverySaveButton');if(button){button.disabled=true;button.textContent='Saving…';}
+  try{
+    if(deliveryEditingId){deliveryLinksCache=deliveryLinksCache.map(item=>item.id===deliveryEditingId?{...item,name,url}:item);}
+    else{deliveryLinksCache.push({id:'dl-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),name,url});}
+    await persistDeliveryLinks();
+    cancelDeliveryEdit();renderDeliveryLinks();if(msg)msg.textContent='Saved successfully.';
+    if(typeof logStaffActivity==='function')await logStaffActivity('FOOD_DELIVERY_LINK_SAVED','site_settings',null,{name,url});
+  }catch(error){if(msg)msg.textContent='Save failed: '+(error.message||String(error));await loadDeliveryLinks();}
+  finally{if(button){button.disabled=false;button.textContent=deliveryEditingId?'Save Changes':'＋ Add Link';}}
+}
+function editDeliveryLink(id){
+  const item=deliveryLinksCache.find(x=>x.id===id);if(!item)return;
+  deliveryEditingId=id;$('deliveryLinkName').value=item.name||'';$('deliveryLinkUrl').value=item.url||'';
+  $('deliveryFormTitle').textContent='Edit delivery link';$('deliverySaveButton').textContent='Save Changes';$('deliveryCancelButton').style.display='inline-block';
+  $('deliveryLinkName').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function cancelDeliveryEdit(){deliveryEditingId=null;if($('deliveryLinkName'))$('deliveryLinkName').value='';if($('deliveryLinkUrl'))$('deliveryLinkUrl').value='';if($('deliveryFormTitle'))$('deliveryFormTitle').textContent='Add delivery link';if($('deliverySaveButton'))$('deliverySaveButton').textContent='＋ Add Link';if($('deliveryCancelButton'))$('deliveryCancelButton').style.display='none';}
+async function deleteDeliveryLink(id){
+  const item=deliveryLinksCache.find(x=>x.id===id);if(!item)return;
+  if(!confirm('Delete delivery link “'+(item.name||'Delivery link')+'”?'))return;
+  const old=[...deliveryLinksCache];deliveryLinksCache=deliveryLinksCache.filter(x=>x.id!==id);
+  try{await persistDeliveryLinks();renderDeliveryLinks();if($('deliveryLinkMessage'))$('deliveryLinkMessage').textContent='Link deleted.';if(typeof logStaffActivity==='function')await logStaffActivity('FOOD_DELIVERY_LINK_DELETED','site_settings',null,{name:item.name,url:item.url});}
+  catch(error){deliveryLinksCache=old;renderDeliveryLinks();if($('deliveryLinkMessage'))$('deliveryLinkMessage').textContent='Delete failed: '+(error.message||String(error));}
+}
+function calculateManualDiscount(){
+  const price=Number($('discountCalcPrice')?.value||0);
+  const percent=Number($('discountCalcPercent')?.value||0);
+  const validPrice=Number.isFinite(price)?Math.max(0,price):0;
+  const validPercent=Number.isFinite(percent)?Math.min(100,Math.max(0,percent)):0;
+  const savings=Math.round((validPrice*validPercent/100+Number.EPSILON)*100)/100;
+  const final=Math.max(0,Math.round((validPrice-savings+Number.EPSILON)*100)/100);
+  const euro=n=>'€'+n.toLocaleString('en-IE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if($('calcOriginal'))$('calcOriginal').textContent=euro(validPrice);
+  if($('calcSavings'))$('calcSavings').textContent=euro(savings)+' ('+validPercent.toLocaleString('en-IE')+'%)';
+  if($('calcFinal'))$('calcFinal').textContent=euro(final);
+}
+
 function clearSecretCoupon(){const input=$("secretCouponCode");const box=$("secretCouponResult");if(input)input.value="";if(box)box.innerHTML="";}
+window.addEventListener("DOMContentLoaded",()=>{calculateManualDiscount();});
 
 function focusStaffCoupon(){
   setTimeout(()=>{
