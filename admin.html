@@ -4332,6 +4332,25 @@ function formatDateTime(value){
   }).format(d));
 }
 
+// Coupon voice feedback: uses the browser's built-in speech engine (no external audio file needed).
+function speakCouponMessage(kind){
+  try{
+    if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+    window.speechSynthesis.cancel();
+    const messages={
+      success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',
+      invalid:'Sorry, this coupon is invalid. Please check and try again.',
+      used:'Sorry, this coupon has already been used and cannot be used again.'
+    };
+    const utterance=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);
+    utterance.lang='en-GB';
+    utterance.rate=0.92;
+    utterance.pitch=1.02;
+    utterance.volume=1;
+    window.speechSynthesis.speak(utterance);
+  }catch(e){ /* Visual result remains available if speech is unsupported. */ }
+}
+
 function normalizeSecretCouponCode(value){
   let code=String(value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
   // Staff can enter either NB-934278 or just 934278.
@@ -4357,6 +4376,7 @@ async function checkSecretCoupon(){
         (data?.used_by_name?'<br>Already used by: '+escapeHtml(data.used_by_name):'')+
         (data?.used_by_email?'<br>Staff email: '+escapeHtml(data.used_by_email):'')+
         (data?.used_at?'<br>Used at: '+formatDateTime(data.used_at):'')+'</div>';
+      speakCouponMessage(data?.status==="USED"?"used":"invalid");
       await loadCouponTracking();
       return;
     }
@@ -4383,7 +4403,8 @@ async function useSecretCoupon(){
       await loadCouponTracking();
       return;
     }
-    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Discount applied: ${escapeHtml(data.discount_text||"—")}<br>Used by: ${escapeHtml(data.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(data.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Used at: ${formatDateTime(data.used_at)}<br>Usage count: ${escapeHtml(data.usage_count??1)}</div>`;
+    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎆 🎇 🎉 🎆</div><h3>🎉 Congratulations!</h3><b>Nababi Ristorante congratulates you!</b><p style="color:#b8f4cc;margin:8px 0">Enjoy your discount: ${escapeHtml(data.discount_text||"—")}</p></div><div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Discount applied: ${escapeHtml(data.discount_text||"—")}<br>Used by: ${escapeHtml(data.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(data.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Used at: ${formatDateTime(data.used_at)}<br>Usage count: ${escapeHtml(data.usage_count??1)}</div>`;
+    speakCouponMessage("success");
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
     await loadCoupons();
     await loadCouponTracking();
