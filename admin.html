@@ -421,11 +421,12 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 .delivery-link .link-details{min-width:0;flex:1;overflow-wrap:anywhere}
 .delivery-link a{color:#e4bd70;overflow-wrap:anywhere;word-break:break-word}
 /* Full-screen coupon success celebration with canvas-based realistic fireworks */
-#couponCelebrationOverlay{position:fixed;inset:0;z-index:999999;background:radial-gradient(ellipse at 50% 45%,#063b28 0%,#052217 48%,#010906 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;color:#fff}
-#couponFireworksCanvas{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;pointer-events:none}
+#couponCelebrationOverlay{position:fixed;inset:0;z-index:999999;background:radial-gradient(ellipse at 50% 45%,#16834a 0%,#07552f 48%,#022817 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;color:#fff}
+#couponFireworksCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #couponCelebrationOverlay .celebration-content{position:relative;z-index:2;text-align:center;width:min(94vw,900px);padding:24px 10px;text-shadow:0 2px 18px #000}
-#couponCelebrationOverlay .congrats-title{font-size:clamp(38px,9vw,92px);font-weight:1000;letter-spacing:clamp(1px,1vw,6px);line-height:1.04;color:#75ffad;text-shadow:0 0 12px #18ff75,0 0 35px #00d968,0 0 75px #00ff88;margin:0 0 24px;animation:congratsGlow 1.5s ease-in-out infinite alternate}
+#couponCelebrationOverlay .congrats-title{font-size:clamp(38px,9vw,92px);font-weight:1000;letter-spacing:clamp(1px,1vw,6px);line-height:1.04;color:#ffe39b;text-shadow:0 0 12px #ffbd42,0 0 35px #f18b27,0 0 75px #ffdf7a;margin:0 0 24px;animation:congratsGlow 1.5s ease-in-out infinite alternate}
 #couponCelebrationOverlay .coupon-euro-amount{font-size:clamp(54px,13vw,124px);font-weight:1000;line-height:1.05;color:#fff;text-shadow:0 0 14px #4dffbf,0 0 42px #13d9a0;margin:0}
+#couponCelebrationOverlay .coupon-celebration-message{font-size:clamp(20px,4.5vw,38px);font-weight:900;line-height:1.25;color:#fff;text-shadow:0 0 14px #4dffbf,0 0 32px #13d9a0;margin:0 auto;max-width:800px}
 #couponCelebrationOverlay .celebration-close{position:absolute;z-index:4;top:calc(12px + env(safe-area-inset-top));right:14px;border:1px solid #ffffff75;border-radius:999px;background:#111a;color:white;padding:11px 17px;font-weight:800;font-size:14px}
 @keyframes congratsGlow{from{transform:scale(1);filter:brightness(1)}to{transform:scale(1.035);filter:brightness(1.2)}}
 @media(prefers-reduced-motion:reduce){#couponCelebrationOverlay .congrats-title{animation:none}}
@@ -4358,9 +4359,6 @@ function playCouponTone(kind){
   }catch(e){}
 }
 function playFireworksAudio(){
-  // Intentionally silent: fireworks are visual only; only spoken congratulations may play.
-  return;
-
   const settings=getCouponSoundSettings(); if(settings.sounds===false)return;
   try{
     const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
@@ -4382,15 +4380,16 @@ function playFireworksAudio(){
     if(ctx.state==="suspended")ctx.resume().then(start).catch(()=>{});else start();
   }catch(e){}
 }
-let lastCelebrationAmount = null;
 function showCouponCelebration(amount){
-  lastCelebrationAmount = amount;
   const old=document.getElementById("couponCelebrationOverlay");if(old)old.remove();
   const overlay=document.createElement("div");overlay.id="couponCelebrationOverlay";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Congratulations, coupon redeemed");
-  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1><p class="coupon-euro-amount">'+escapeHtml(couponEuro(amount))+'</p></div>';
+  const rewardLine = amount !== null && amount !== undefined && Number.isFinite(Number(amount))
+    ? '<p class="coupon-euro-amount">'+escapeHtml(couponEuro(amount))+'</p>'
+    : '<p class="coupon-celebration-message">YOUR COUPON HAS BEEN REDEEMED SUCCESSFULLY!</p>';
+  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1>'+rewardLine+'</div>';
   document.body.appendChild(overlay);document.body.style.overflow="hidden";
   runCouponFireworks(document.getElementById("couponFireworksCanvas"));
-  // No fireworks sound. Keep the animation visual-only.
+  // Fireworks are intentionally silent. The separate congratulations voice remains enabled by settings.
 }
 function closeCouponCelebration(){const el=document.getElementById("couponCelebrationOverlay");if(el)el.remove();document.body.style.overflow="";}
 function runCouponFireworks(canvas){
@@ -4411,13 +4410,12 @@ function runCouponFireworks(canvas){
 }
 function speakCouponMessage(kind){
   const settings=getCouponSoundSettings();if(settings.sounds===false)return;
-  if(kind!=="success") playCouponTone(kind);
+  playCouponTone(kind);
   if(settings.voice===false)return;
   try{
     if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window))return;
     window.speechSynthesis.cancel();
-    const euroText=(typeof lastCelebrationAmount!=='undefined' && lastCelebrationAmount!==null)?formatCouponEuro(lastCelebrationAmount):'';
-    const messages={success:'Congratulations! You received '+(euroText||'your')+' discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
+    const messages={success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
     const utterance=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);
     utterance.lang='en-GB';utterance.rate=0.92;utterance.pitch=1.02;utterance.volume=1;
     window.speechSynthesis.speak(utterance);
@@ -4427,8 +4425,7 @@ function testCouponSound(kind){
   const settings=getCouponSoundSettings();
   if(settings.sounds===false){const m=$('couponSoundMessage');if(m)m.textContent='আগে “Coupon sounds ON” চালু করুন।';return;}
   playCouponTone(kind);
-  const euroText=(typeof lastCelebrationAmount!=='undefined' && lastCelebrationAmount!==null)?formatCouponEuro(lastCelebrationAmount):'';
-    const messages={success:'Congratulations! You received '+(euroText||'your')+' discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
+  const messages={success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
   if(settings.voice!==false){try{if('speechSynthesis'in window&&'SpeechSynthesisUtterance'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);u.lang='en-GB';u.rate=0.92;u.pitch=1.02;u.volume=1;window.speechSynthesis.speak(u);}}catch(e){}}
   const m=$('couponSoundMessage');if(m)m.textContent='Test playing: '+({success:'Success',invalid:'Invalid coupon',used:'Already used'}[kind]||kind)+'. If silent, check your phone volume and silent mode.';
 }
@@ -4562,7 +4559,7 @@ async function useSecretCoupon(){
     const discountAmount = couponDiscountAmount(displayData);
     const euroAmount = formatCouponEuro(discountAmount);
     box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}${discountAmount===null?'<br><span class="muted">Discount amount unavailable: Supabase did not return a saved euro amount or both the bill total and discount percentage.</span>':''}</div>`;
-    if(discountAmount!==null) showCouponCelebration(discountAmount);
+    showCouponCelebration(discountAmount);
     speakCouponMessage("success");
     lastVerifiedCouponData = null;
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
