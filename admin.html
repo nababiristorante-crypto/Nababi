@@ -4478,10 +4478,23 @@ async function useSecretCoupon(verifiedData=null){
     if(!data?.success){box.innerHTML=couponErrorMarkup(data,code);speakCouponMessage(data?.status==="USED"?"used":"invalid");await loadCouponTracking();return;}
     let merged={...(verifiedData||{}),...(data||{})};
     if(couponDiscountPercent(merged)===null){
-      try{const campaignResult=await supabaseClient.from("discount_campaign").select("discount_percent,maximum_discount,discount_text").limit(1).maybeSingle();if(!campaignResult.error&&campaignResult.data)merged={...campaignResult.data,...merged,discount_percent:merged.discount_percent??campaignResult.data.discount_percent,maximum_discount:merged.maximum_discount??campaignResult.data.maximum_discount,discount_text:merged.discount_text??campaignResult.data.discount_text};}catch(e){}
+      // Read the campaign row using its actual existing columns. Selecting the
+      // nonexistent discount_text column can make the whole query fail.
+      try{
+        const campaignResult=await supabaseClient.from("discount_campaign").select("*").limit(1).maybeSingle();
+        if(!campaignResult.error && campaignResult.data){
+          merged={...campaignResult.data,...merged};
+          if(merged.discount_percent==null) merged.discount_percent=campaignResult.data.discount_percent;
+          if(merged.maximum_discount==null) merged.maximum_discount=campaignResult.data.maximum_discount;
+          if(merged.minimum_amount==null) merged.minimum_amount=campaignResult.data.minimum_amount;
+        }
+      }catch(e){console.warn("Could not load discount campaign details",e);}
     }
     const amount=couponDiscountAmount(merged);
-    if(amount===null){box.innerHTML='<div class="card bad">🔴 কুপনটি Used হয়েছে, কিন্তু Supabase থেকে discount percentage পাওয়া যায়নি। Admin-এর Discount Campaign-এ percentage সেট আছে কি না যাচাই করুন।</div>';await loadCoupons();await loadCouponTracking();await loadDashboard();return;}
+    if(amount===null){
+      box.innerHTML='<div class="card bad">🔴 কুপনটি Used হয়েছে, কিন্তু এই কুপনের সঙ্গে বিলের মোট টাকা বা গণনা করা discount amount Supabase থেকে আসেনি। Discount Campaign-এর percentage পাওয়া গেলেও বিলের মোট টাকা ছাড়া € ছাড় গণনা করা যায় না।</div>';
+      await loadCoupons();await loadCouponTracking();await loadDashboard();return;
+    }
     box.innerHTML='<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: '+escapeHtml(data.code||code)+'<br>Customer: <b>'+escapeHtml(data.customer_name||verifiedData?.customer_name||"—")+'</b><br>Discount: <b style="color:#b8f4cc;font-size:1.25em">'+escapeHtml(couponEuro(amount))+'</b><br>Used by: '+escapeHtml(data.used_by_name||currentStaff?.full_name||"—")+'<br>Staff email: '+escapeHtml(data.used_by_email||currentUser?.email||"—")+'<br>Presented at: '+formatDateTime(data.presented_at||verifiedData?.presented_at)+'<br>Used at: '+formatDateTime(data.used_at)+'<br>Usage count: '+escapeHtml(data.usage_count??1)+'</div>';
     showCouponCelebration(amount);speakCouponMessage("success");
     if(typeof logStaffActivity==="function")await logStaffActivity("COUPON_USED","discount_codes",data.code_id||verifiedData?.code_id||null,{code:data.code||code,customer_name:data.customer_name||verifiedData?.customer_name||null,used_at:data.used_at,discount_amount:amount,bill_total:Number(data.bill_total||data.total_amount||verifiedData?.bill_total||verifiedData?.total_amount||0)});
