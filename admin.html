@@ -4393,6 +4393,44 @@ function couponDiscountLabel(data){
   return "Discount percentage not provided";
 }
 
+function couponDiscountAmount(data){
+  if(!data || typeof data !== "object") return null;
+  const nested=[data.campaign,data.discount_campaign,data.campaign_data,data.coupon,data.details].filter(v=>v&&typeof v==="object");
+  const sources=[data,...nested];
+  let bill=null;
+  for(const source of sources){
+    const candidates=[source.bill_total,source.bill_amount,source.total_bill,source.invoice_total,source.order_total,source.order_amount,source.subtotal,source.total_amount,source.billTotal,source.billAmount,source.totalBill,source.invoiceTotal,source.orderTotal,source.subTotal];
+    const found=candidates.find(v=>v!==undefined&&v!==null&&String(v).trim()!==""&&Number.isFinite(Number(v))&&Number(v)>=0);
+    if(found!==undefined){bill=Number(found);break;}
+  }
+  let percent=null;
+  for(const source of sources){
+    const raw=source.discount_percent??source.campaign_discount_percent??source.discount_percentage??source.percent_off??source.percentage_off??source.discount_rate??source.campaign_percentage??source.percentage;
+    if(raw!==undefined&&raw!==null&&String(raw).trim()!==""){
+      const match=String(raw).replace(/,/g,".").match(/[0-9]+(?:\.[0-9]+)?/);
+      if(match){percent=Number(match[0]);break;}
+    }
+  }
+  if(percent===null){
+    const label=couponDiscountLabel(data);
+    const match=String(label).replace(/,/g,".").match(/[0-9]+(?:\.[0-9]+)?/);
+    if(match) percent=Number(match[0]);
+  }
+  if(bill===null||percent===null||percent<0) return null;
+  let amount=Math.round((bill*percent/100+Number.EPSILON)*100)/100;
+  let maxDiscount=null;
+  for(const source of sources){
+    const cap=source.maximum_discount??source.max_discount??source.discount_cap;
+    if(cap!==undefined&&cap!==null&&String(cap).trim()!==""&&Number.isFinite(Number(cap))&&Number(cap)>0){maxDiscount=Number(cap);break;}
+  }
+  if(maxDiscount!==null) amount=Math.min(amount,maxDiscount);
+  return amount;
+}
+function formatCouponEuro(amount){
+  if(amount===null||amount===undefined||!Number.isFinite(Number(amount))) return "—";
+  return "€"+Number(amount).toLocaleString("en-IE",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
 function normalizeSecretCouponCode(value){
   let code=String(value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
   // Staff can enter either NB-934278 or just 934278.
@@ -4426,13 +4464,7 @@ async function checkSecretCoupon(){
       return;
     }
     lastVerifiedCouponData = data;
-    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎉 🎆 🎊 🎇 🎉</div><h3>Congratulations!</h3><b>কুপন কোড সফলভাবে যাচাই হয়েছে!</b><div style="margin-top:5px;color:#b8f4cc">✓ VALID COUPON</div></div><div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount percentage: <b style="font-size:1.25em;color:#b8f4cc">${escapeHtml(couponDiscountLabel(data))}</b><br>Created: ${formatDateTime(data.created_at)}<br>Viewed: ${escapeHtml(data.viewed_count??0)}<br>Copied: ${escapeHtml(data.copy_count??0)}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Presented by: ${escapeHtml(data.presented_by_name||"—")}<br>Staff email: ${escapeHtml(data.presented_by_email||"—")}<br><span class="muted">Confirm করলে কুপনটি সঙ্গে সঙ্গে Used হবে।</span></div>`;
-    speakCouponMessage("success");
-    await loadCouponTracking();
-    if(!confirm(`Confirm coupon use?\n\nCustomer: ${data.customer_name||"—"}\nCode: ${data.code||code}\nDiscount: ${couponDiscountLabel(data)}\n\nConfirm করলে কুপনটি একবারের জন্য Used হবে এবং আর ব্যবহার করা যাবে না.`)){
-      box.innerHTML+=`<div class="card" style="margin-top:10px">কুপন ব্যবহার করা হয়নি। প্রয়োজনে পরে আবার Check করতে পারবেন।</div>`;
-      return;
-    }
+    // Valid coupon: redeem immediately. No OK/Cancel confirmation popup.
     await useSecretCoupon();
   }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}
 }
@@ -4454,8 +4486,9 @@ async function useSecretCoupon(){
     const redeemResult = data || {};
     const verified = lastVerifiedCouponData || {};
     const displayData = {...verified, ...Object.fromEntries(Object.entries(redeemResult).filter(([_,v]) => v !== null && v !== undefined && v !== ""))};
-    const discountLabel = couponDiscountLabel(displayData);
-    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎆 🎇 🎉 🎆</div><h3>🎉 Congratulations!</h3><b>Nababi Ristorante congratulates you!</b><p style="color:#b8f4cc;margin:8px 0">Your discount: ${escapeHtml(discountLabel)}</p></div><div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Discount percentage applied: <b style="color:#b8f4cc;font-size:1.15em">${escapeHtml(discountLabel)}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}</div>`;
+    const discountAmount = couponDiscountAmount(displayData);
+    const euroAmount = formatCouponEuro(discountAmount);
+    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎆 🎇 🎉 🎆</div><h3>🎉 Congratulations!</h3><b>Nababi Ristorante congratulates you!</b><p style="color:#b8f4cc;margin:8px 0;font-size:2rem;font-weight:800">${escapeHtml(euroAmount)}</p></div><div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Discount: <b style="color:#b8f4cc;font-size:1.15em">${escapeHtml(euroAmount)}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}${discountAmount===null?'<br><span class="muted">Bill total or discount percentage was not returned by Supabase, so the euro amount could not be calculated.</span>':''}</div>`;
     speakCouponMessage("success");
     lastVerifiedCouponData = null;
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
