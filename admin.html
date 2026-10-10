@@ -4163,114 +4163,49 @@ async function generateCoupons(){
 }
 
 async function loadCoupons(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
+  const { data, error } = await supabaseClient
     .from("discount_codes")
     .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    )
+    .order("created_at", { ascending:false })
     .limit(300);
+  if(error) throw error;
 
-  if(error)
-    throw error;
-
-  $("couponList").innerHTML =
-    `
+  const rows = data || [];
+  $("couponList").innerHTML = `
     <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-
-    <tr>
-      <th>Code</th>
-      <th>Status</th>
-      <th>Discount</th>
-      <th>Created</th>
-      <th>Used</th>
-    </tr>
-
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          <b>
-            ${escapeHtml(item.code)}
-          </b>
-        </td>
-
-        <td>
-
-          <span class="pill ${
-            String(item.status).toLowerCase()==="used"
-            ?"ok"
-            :""
-          }">
-
-            ${escapeHtml(
-              item.status || "Active"
-            )}
-
-          </span>
-
-        </td>
-
-        <td>
-          ${
-            item.discount_percent !== undefined
-            ?
-            escapeHtml(
-              item.discount_percent
-            )+"%"
-            :
-            "—"
-          }
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.created_at
-            ?
-            item.created_at.slice(0,16)
-            :
-            ""
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.used_at
-            ?
-            item.used_at.slice(0,16)
-            :
-            "—"
-          )}
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
+      <table class="table">
+        <thead><tr>
+          <th>Code</th><th>Status</th><th>Discount</th>
+          <th>Created By</th><th>Created Time</th>
+          <th>Discount Amount</th><th>Used By</th><th>Used Time</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(item=>{
+            const createdBy = item.created_by_name || item.created_by_email || item.created_by || "—";
+            const usedBy = item.used_by_name || item.used_by_email || item.redeemed_by_name || item.redeemed_by_email || "—";
+            const discountLabel = item.discount_text || item.discount_label || item.discount_percent != null
+              ? (item.discount_text || item.discount_label || (item.discount_percent != null ? String(item.discount_percent)+"% OFF" : "—"))
+              : "—";
+            const rawAmount = item.discount_amount ?? item.calculated_discount_amount ?? item.amount_saved ?? item.savings_amount ?? null;
+            const amountLabel = rawAmount !== null && rawAmount !== "" && Number.isFinite(Number(rawAmount))
+              ? formatCouponEuro(Number(rawAmount))
+              : "—";
+            const createdAt = item.created_at ? formatDateTime(item.created_at) : "—";
+            const usedAt = item.used_at || item.redeemed_at ? formatDateTime(item.used_at || item.redeemed_at) : "—";
+            return `<tr>
+              <td><b>${escapeHtml(item.code || "—")}</b></td>
+              <td><span class="pill ${String(item.status).toLowerCase()==="used"?"ok":""}">${escapeHtml(item.status || "Active")}</span></td>
+              <td>${escapeHtml(discountLabel)}</td>
+              <td>${escapeHtml(createdBy)}${item.created_by_name && item.created_by_email ? `<br><span class="muted">${escapeHtml(item.created_by_email)}</span>` : ""}</td>
+              <td>${escapeHtml(createdAt)}</td>
+              <td>${escapeHtml(amountLabel)}${item.bill_amount != null ? `<br><span class="muted">Bill: ${escapeHtml(formatCouponEuro(Number(item.bill_amount)))}</span>` : ""}</td>
+              <td>${escapeHtml(usedBy)}${item.used_by_name && item.used_by_email ? `<br><span class="muted">${escapeHtml(item.used_by_email)}</span>` : ""}</td>
+              <td>${escapeHtml(usedAt)}</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>`;
 }
 
 
@@ -4509,6 +4444,13 @@ function formatCouponEuro(amount){
   const n=Math.round(Number(amount)*100)/100;
   return "€"+n.toLocaleString("en-IE",{minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2});
 }
+
+// Backward-compatible global alias for every desktop/mobile caller.
+function couponEuro(amount){
+  return formatCouponEuro(amount);
+}
+window.couponEuro = couponEuro;
+window.formatCouponEuro = formatCouponEuro;
 
 function normalizeSecretCouponCode(value){
   let code=String(value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
