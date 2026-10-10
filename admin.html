@@ -434,6 +434,24 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 
 @media(max-width:520px){.calc-results{grid-template-columns:1fr}.calc-result{display:flex;align-items:center;justify-content:space-between;gap:12px}.calc-result b{margin:0;text-align:right}.delivery-link .link-actions{display:flex;gap:8px;width:100%}.delivery-link .link-actions .btn{flex:1}.coupon-hero .row>.btn{flex:1 1 100%}#secretCouponCode{flex:1 1 100%}}
 
+/* Final layout safeguards: keep all text and controls inside their cards. */
+html,body{max-width:100%;overflow-x:hidden}
+.layout,.main,.section,.card,.grid,.grid>*{min-width:0}
+.card{overflow-wrap:anywhere}
+label,p,h1,h2,h3,th,td,.pill,.quick-label,.nav,.btn{overflow-wrap:anywhere;word-break:normal;white-space:normal}
+input,select,textarea{width:100%;max-width:100%;min-width:0}
+.btn{max-width:100%;line-height:1.3;text-align:center}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.website-settings-grid{align-items:stretch}
+.website-status-card{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.website-status-card .btn{align-self:flex-start}
+.website-setting-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#302718;color:#e4bd70;font-size:25px}
+.status-note{border:1px solid #4b3b20;border-radius:12px;background:#211b12;padding:12px;color:#e7d8b8;line-height:1.55}
+.tablewrap{max-width:100%;overflow-x:auto}
+@media(max-width:850px){.g2,.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.top .row{min-width:0}.top .brand-head{min-width:0}.top .brand-head b{overflow-wrap:anywhere}}
+@media(max-width:520px){.g2,.g3{grid-template-columns:minmax(0,1fr)}.website-status-card .btn{width:100%}#headerLogoChangeButton{font-size:11px;padding:8px}.main{padding:10px}.card{padding:14px}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 
@@ -503,6 +521,8 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 
   <div class="row">
 
+    <button id="headerLogoChangeButton" class="btn dark small" onclick="openQuickSection('hero')" title="Change restaurant logo">🖼️ Change Logo</button>
+
     <span
       id="roleBadge"
       class="pill"
@@ -532,6 +552,10 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 
 <button class="nav" data-section="dashboard">
 📊 Dashboard
+</button>
+
+<button class="nav" data-section="websiteSettings">
+🌐 Website ON/OFF & Public
 </button>
 
 <button class="nav" data-section="hero">
@@ -689,6 +713,34 @@ Refresh
 
 </div>
 
+</section>
+
+
+<!-- WEBSITE VISIBILITY SETTINGS -->
+<section id="websiteSettings" class="section">
+  <div class="toolbar">
+    <div><h2>🌐 Website Status & Visibility</h2><p class="muted">শুধু Super Admin এই সেটিং পরিবর্তন করতে পারবেন।</p></div>
+    <button class="btn dark" onclick="loadWebsiteSettings()">↻ Refresh</button>
+  </div>
+  <div class="grid g2 website-settings-grid">
+    <div class="card website-status-card">
+      <span class="website-setting-icon">🌍</span>
+      <h3>Public Website</h3>
+      <p class="muted">ON করলে ওয়েবসাইট চালু থাকবে, OFF করলে বন্ধ করার সেটিং সংরক্ষণ হবে।</p>
+      <label for="websiteEnabled">Website status</label>
+      <select id="websiteEnabled"><option value="true">🟢 ON — চালু</option><option value="false">🔴 OFF — বন্ধ</option></select>
+      <label for="websiteVisibility">Public visibility</label>
+      <select id="websiteVisibility"><option value="public">🌐 PUBLIC — সবাই দেখতে পারবে</option><option value="private">🔒 PRIVATE — ব্যক্তিগত</option></select>
+      <button class="btn" onclick="saveWebsiteSettings()">Save Website Settings</button>
+      <p id="websiteSettingsMessage" class="muted" role="status" aria-live="polite"></p>
+    </div>
+    <div class="card website-status-card">
+      <span class="website-setting-icon">🛡️</span>
+      <h3>Important</h3>
+      <p>এই সেটিং Supabase-এর <code>site_settings</code> টেবিলে সংরক্ষণ হবে। পাবলিক পেজে ON/OFF বা PUBLIC/PRIVATE সত্যিই কার্যকর করতে আপনার <code>index.html</code>-এও এই সেটিং যাচাই করার কোড থাকতে হবে। শুধু <code>admin.html</code> বদলালে পাবলিক পেজ স্বয়ংক্রিয়ভাবে বন্ধ হবে না।</p>
+      <div class="status-note">কুপন তৈরি, কুপন নম্বর, বুকিং এবং অন্যান্য পুরোনো ফিচার এই পরিবর্তনে বদলানো হচ্ছে না।</div>
+    </div>
+  </div>
 </section>
 
 
@@ -1622,6 +1674,7 @@ Customers collect the code and show it to restaurant staff.
 </div>
 <div id="quickAccessGrid" class="quick-grid">
   <button class="quick-card" data-quick-section="dashboard" onclick="openQuickSection('dashboard')"><span class="quick-icon">📊</span><span class="quick-label">Dashboard & Reports</span></button>
+  <button class="quick-card" data-quick-section="websiteSettings" onclick="openQuickSection('websiteSettings')"><span class="quick-icon">🌐</span><span class="quick-label">Website ON/OFF & Public</span></button>
   <button class="quick-card" data-quick-section="hero" onclick="openQuickSection('hero')"><span class="quick-icon">🏠</span><span class="quick-label">Website & Logo</span></button>
   <button class="quick-card" data-quick-section="videos" onclick="openQuickSection('videos')"><span class="quick-icon">🎬</span><span class="quick-label">Hero Videos</span></button>
   <button class="quick-card" data-quick-section="about" onclick="openQuickSection('about')"><span class="quick-icon">📝</span><span class="quick-label">About Us</span></button>
@@ -1927,6 +1980,9 @@ async function loadSection(id){
     if(id==="dashboard")
       await loadDashboard();
 
+    if(id==="websiteSettings")
+      await loadWebsiteSettings();
+
     if(id==="hero")
       await loadHero();
 
@@ -2122,6 +2178,7 @@ async function initializeAdmin(){
 
   await applyCurrentRolePermissions();
   syncQuickAccessPermissions();
+  if($("headerLogoChangeButton")) $("headerLogoChangeButton").style.display=(data.role==="SUPER_ADMIN")?"inline-flex":"none";
 
   const secretNav = document.querySelector('.nav[data-section="secretCoupon"]');
   const secretAllowed = secretNav && secretNav.style.display !== "none";
@@ -2261,6 +2318,39 @@ function showUploadProgress(targetId,percent,message){
 
 
 /* =========================================================
+   WEBSITE STATUS & PUBLIC VISIBILITY
+========================================================= */
+async function loadWebsiteSettings(){
+  const message=$("websiteSettingsMessage");
+  try{
+    if(currentStaff && currentStaff.role!=="SUPER_ADMIN"){
+      throw new Error("Only SUPER_ADMIN can change website visibility.");
+    }
+    const status=await getSetting("website_status");
+    $("websiteEnabled").value=String(status.enabled!==false);
+    $("websiteVisibility").value=status.visibility==="private"?"private":"public";
+    if(message) message.textContent="Saved settings loaded.";
+  }catch(error){
+    if(message) message.textContent=error.message||"Could not load website settings.";
+  }
+}
+async function saveWebsiteSettings(){
+  const message=$("websiteSettingsMessage");
+  try{
+    if(!currentStaff || currentStaff.role!=="SUPER_ADMIN"){
+      throw new Error("Only SUPER_ADMIN can change website visibility.");
+    }
+    const value={enabled:$("websiteEnabled").value==="true",visibility:$("websiteVisibility").value==="private"?"private":"public",updated_at:new Date().toISOString(),updated_by:currentUser?.email||""};
+    await saveSetting("website_status",value);
+    if(message) message.textContent="Settings saved in Supabase. Public-page enforcement also requires the matching index.html update.";
+    toast("Website settings saved.");
+  }catch(error){
+    if(message) message.textContent=error.message||"Could not save website settings.";
+    showError(error);
+  }
+}
+
+/* =========================================================
    HERO
 ========================================================= */
 
@@ -2392,6 +2482,7 @@ async function deleteHeroImage(){
 async function uploadLogo(){
 
   try{
+    if(!currentStaff || currentStaff.role!=="SUPER_ADMIN") throw new Error("Only SUPER_ADMIN can change the restaurant logo.");
 
     const file =
       $("logoFile").files[0];
@@ -2425,6 +2516,7 @@ async function uploadLogo(){
 
 async function deleteLogo(){
 
+  if(!currentStaff || currentStaff.role!=="SUPER_ADMIN"){ showError(new Error("Only SUPER_ADMIN can delete the restaurant logo.")); return; }
   await saveSetting(
     "logo",
     {
@@ -4163,49 +4255,114 @@ async function generateCoupons(){
 }
 
 async function loadCoupons(){
-  const { data, error } = await supabaseClient
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
     .from("discount_codes")
     .select("*")
-    .order("created_at", { ascending:false })
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
+    )
     .limit(300);
-  if(error) throw error;
 
-  const rows = data || [];
-  $("couponList").innerHTML = `
+  if(error)
+    throw error;
+
+  $("couponList").innerHTML =
+    `
     <div class="tablewrap">
-      <table class="table">
-        <thead><tr>
-          <th>Code</th><th>Status</th><th>Discount</th>
-          <th>Created By</th><th>Created Time</th>
-          <th>Discount Amount</th><th>Used By</th><th>Used Time</th>
-        </tr></thead>
-        <tbody>
-          ${rows.map(item=>{
-            const createdBy = item.created_by_name || item.created_by_email || item.created_by || "—";
-            const usedBy = item.used_by_name || item.used_by_email || item.redeemed_by_name || item.redeemed_by_email || "—";
-            const discountLabel = item.discount_text || item.discount_label || item.discount_percent != null
-              ? (item.discount_text || item.discount_label || (item.discount_percent != null ? String(item.discount_percent)+"% OFF" : "—"))
-              : "—";
-            const rawAmount = item.discount_amount ?? item.calculated_discount_amount ?? item.amount_saved ?? item.savings_amount ?? null;
-            const amountLabel = rawAmount !== null && rawAmount !== "" && Number.isFinite(Number(rawAmount))
-              ? formatCouponEuro(Number(rawAmount))
-              : "—";
-            const createdAt = item.created_at ? formatDateTime(item.created_at) : "—";
-            const usedAt = item.used_at || item.redeemed_at ? formatDateTime(item.used_at || item.redeemed_at) : "—";
-            return `<tr>
-              <td><b>${escapeHtml(item.code || "—")}</b></td>
-              <td><span class="pill ${String(item.status).toLowerCase()==="used"?"ok":""}">${escapeHtml(item.status || "Active")}</span></td>
-              <td>${escapeHtml(discountLabel)}</td>
-              <td>${escapeHtml(createdBy)}${item.created_by_name && item.created_by_email ? `<br><span class="muted">${escapeHtml(item.created_by_email)}</span>` : ""}</td>
-              <td>${escapeHtml(createdAt)}</td>
-              <td>${escapeHtml(amountLabel)}${item.bill_amount != null ? `<br><span class="muted">Bill: ${escapeHtml(formatCouponEuro(Number(item.bill_amount)))}</span>` : ""}</td>
-              <td>${escapeHtml(usedBy)}${item.used_by_name && item.used_by_email ? `<br><span class="muted">${escapeHtml(item.used_by_email)}</span>` : ""}</td>
-              <td>${escapeHtml(usedAt)}</td>
-            </tr>`;
-          }).join("")}
-        </tbody>
-      </table>
-    </div>`;
+
+    <table class="table">
+
+    <thead>
+
+    <tr>
+      <th>Code</th>
+      <th>Status</th>
+      <th>Discount</th>
+      <th>Created</th>
+      <th>Used</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+
+    ${(data || []).map(item=>`
+
+      <tr>
+
+        <td>
+          <b>
+            ${escapeHtml(item.code)}
+          </b>
+        </td>
+
+        <td>
+
+          <span class="pill ${
+            String(item.status).toLowerCase()==="used"
+            ?"ok"
+            :""
+          }">
+
+            ${escapeHtml(
+              item.status || "Active"
+            )}
+
+          </span>
+
+        </td>
+
+        <td>
+          ${
+            item.discount_percent !== undefined
+            ?
+            escapeHtml(
+              item.discount_percent
+            )+"%"
+            :
+            "—"
+          }
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.created_at
+            ?
+            item.created_at.slice(0,16)
+            :
+            ""
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            item.used_at
+            ?
+            item.used_at.slice(0,16)
+            :
+            "—"
+          )}
+        </td>
+
+      </tr>
+
+    `).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
 }
 
 
@@ -4220,7 +4377,7 @@ const ROLE_PERMISSIONS_DEFAULT={
  MENU_STAFF:{view:["dashboard","menu","categories"]},
  CONTENT_STAFF:{view:["dashboard","hero","videos","about","breaking","gallery","contact","social","hours"]}
 };
-const PERMISSION_SECTIONS=["dashboard","hero","videos","about","breaking","gallery","contact","social","hours","menu","categories","bookings","reviews","reports","discount","coupons","secretCoupon","staff","performance"];
+const PERMISSION_SECTIONS=["dashboard","websiteSettings","hero","videos","about","breaking","gallery","contact","social","hours","menu","categories","bookings","reviews","reports","discount","coupons","secretCoupon","staff","performance"];
 const PERMISSION_ROLES=["SUPER_ADMIN","BOOKING_STAFF","REVIEW_STAFF","DISCOUNT_STAFF","MENU_STAFF","CONTENT_STAFF"];
 
 async function getStaffPermissions(){
@@ -4330,7 +4487,7 @@ function playFireworksAudio(){
 function showCouponCelebration(amount){
   const old=document.getElementById("couponCelebrationOverlay");if(old)old.remove();
   const overlay=document.createElement("div");overlay.id="couponCelebrationOverlay";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Congratulations, coupon redeemed");
-  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1><p class="coupon-euro-amount">'+escapeHtml(formatCouponEuro(amount))+'</p></div>';
+  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1><p class="coupon-euro-amount">'+escapeHtml(couponEuro(amount))+'</p></div>';
   document.body.appendChild(overlay);document.body.style.overflow="hidden";
   runCouponFireworks(document.getElementById("couponFireworksCanvas"));
 }
@@ -4444,13 +4601,9 @@ function formatCouponEuro(amount){
   const n=Math.round(Number(amount)*100)/100;
   return "€"+n.toLocaleString("en-IE",{minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2});
 }
-
-// Backward-compatible global alias for every desktop/mobile caller.
-function couponEuro(amount){
-  return formatCouponEuro(amount);
-}
+// Backward-compatible alias: older celebration code calls couponEuro().
+function couponEuro(amount){ return formatCouponEuro(amount); }
 window.couponEuro = couponEuro;
-window.formatCouponEuro = formatCouponEuro;
 
 function normalizeSecretCouponCode(value){
   let code=String(value||"").trim().toUpperCase().replace(/[‐‑‒–—−]/g,"-").replace(/\s+/g,"");
