@@ -4508,26 +4508,47 @@ function runCouponFireworks(canvas){
   ctx.fillStyle="#030610";ctx.fillRect(0,0,w,h);draw();
   const observer=new MutationObserver(()=>{if(!document.getElementById("couponCelebrationOverlay")){stopped=true;cancelAnimationFrame(raf);window.removeEventListener("resize",resize);observer.disconnect();}});observer.observe(document.body,{childList:true});
 }
+// Prefer an available English female voice on each device. The exact voice depends on voices installed by the device/browser.
+function speakCouponWithFemaleVoice(text){
+  if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window))return;
+  const synth=window.speechSynthesis;
+  const speakNow=()=>{
+    try{
+      const voices=synth.getVoices()||[];
+      const english=voices.filter(v=>/^en([_-]|$)/i.test((v.lang||'').replace('_','-')));
+      const femaleHints=/female|woman|samantha|ava|zoe|karen|moira|tessa|victoria|fiona|serena|kate|allison|susan|google uk english female/i;
+      const preferred=english.find(v=>femaleHints.test(v.name||''))
+        || voices.find(v=>femaleHints.test(v.name||''))
+        || english.find(v=>/^en-GB/i.test(v.lang||''))
+        || english[0];
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=preferred||null;u.lang=(preferred&&preferred.lang)||'en-GB';u.rate=0.92;u.pitch=1.08;u.volume=1;
+      synth.cancel();synth.speak(u);
+    }catch(e){}
+  };
+  const available=synth.getVoices();
+  if(available&&available.length){speakNow();}
+  else{
+    let done=false;
+    const finish=()=>{if(done)return;done=true;synth.removeEventListener('voiceschanged',finish);speakNow();};
+    synth.addEventListener('voiceschanged',finish);
+    setTimeout(finish,900);
+  }
+}
 function speakCouponMessage(kind, discountAmount=null){
   const settings=getCouponSoundSettings();if(settings.sounds===false)return;
   playCouponTone(kind);
   if(settings.voice===false)return;
-  try{
-    if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window))return;
-    window.speechSynthesis.cancel();
-    const amountText=(discountAmount!==null&&discountAmount!==undefined&&Number.isFinite(Number(discountAmount))) ? (Number(discountAmount).toLocaleString('en-IE',{minimumFractionDigits:Number.isInteger(Number(discountAmount))?0:2,maximumFractionDigits:2})+' euros') : '';
-    const messages={success:amountText ? `Congratulations! You received ${amountText} discount at Nababi Ristorante.` : 'Congratulations! Your coupon was redeemed successfully at Nababi Ristorante.',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
-    const utterance=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);
-    utterance.lang='en-GB';utterance.rate=0.92;utterance.pitch=1.02;utterance.volume=1;
-    window.speechSynthesis.speak(utterance);
-  }catch(e){}
+  const amountText=(discountAmount!==null&&discountAmount!==undefined&&Number.isFinite(Number(discountAmount))) ? (Number(discountAmount).toLocaleString('en-IE',{minimumFractionDigits:Number.isInteger(Number(discountAmount))?0:2,maximumFractionDigits:2})+' euros') : '';
+  const messages={success:amountText ? `Congratulations! You have received a discount of ${amountText} at Nababi Ristorante.` : 'Your coupon was redeemed successfully at Nababi Ristorante. Please check the bill for the discount amount.',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
+  speakCouponWithFemaleVoice(messages[kind]||messages.invalid);
 }
 function testCouponSound(kind){
   const settings=getCouponSoundSettings();
   if(settings.sounds===false){const m=$('couponSoundMessage');if(m)m.textContent='আগে “Coupon sounds ON” চালু করুন।';return;}
   playCouponTone(kind);
   const messages={success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
-  if(settings.voice!==false){try{if('speechSynthesis'in window&&'SpeechSynthesisUtterance'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);u.lang='en-GB';u.rate=0.92;u.pitch=1.02;u.volume=1;window.speechSynthesis.speak(u);}}catch(e){}}
+  if(settings.voice!==false)speakCouponWithFemaleVoice(messages[kind]||messages.invalid);
   const m=$('couponSoundMessage');if(m)m.textContent='Test playing: '+({success:'Success',invalid:'Invalid coupon',used:'Already used'}[kind]||kind)+'. If silent, check your phone volume and silent mode.';
 }
 
@@ -4701,7 +4722,7 @@ async function useSecretCoupon(){
       : "";
     box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}${billSummary}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}</div>`;
     showCouponCelebration(discountAmount);
-    speakCouponMessage("success");
+    speakCouponMessage("success", discountAmount);
     lastVerifiedCouponData=null;
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at,discount_percent:percent,discount_amount:discountAmount,bill_amount:billAmount,final_payment:finalPayment});
     await loadCoupons();
