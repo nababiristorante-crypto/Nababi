@@ -5393,110 +5393,110 @@ document
   });
 
 
+
 /* =========================================================
    INITIALIZE
 ========================================================= */
 
-async function initializeSite(){
+async function trackWebsiteVisit() {
+  try {
+    if (sessionStorage.getItem("nababi_visit_counted") === "1") {
+      return;
+    }
 
-  try{
+    const { error } = await supabaseClient
+      .from("website_visits")
+      .insert({});
 
+    if (error) throw error;
+
+    sessionStorage.setItem("nababi_visit_counted", "1");
+  } catch (error) {
+    console.warn("Visit tracking:", error);
+  }
+}
+
+async function trackWebsiteClick(eventType) {
+  try {
+    const { error } = await supabaseClient
+      .from("website_clicks")
+      .insert({ event_type: eventType });
+
+    if (error) throw error;
+  } catch (error) {
+    console.warn("Click tracking:", error);
+  }
+}
+
+async function initializeSite() {
+  try {
     loadLanguage();
 
+    // Website visit count
+    trackWebsiteVisit();
 
-    document.getElementById(
-      "currentYear"
-    ).textContent =
-      new Date().getFullYear();
+    const yearElement = document.getElementById("currentYear");
 
+    if (yearElement) {
+      yearElement.textContent = new Date().getFullYear();
+    }
 
     /*
       Settings আগে load হবে।
-      তারপর Breaking + Discount আলাদা করে load হবে।
+      তারপর Breaking News ও Discount load হবে।
     */
 
     await loadSettings();
 
-
     await loadDiscountCampaign();
 
-
     await Promise.all([
-
       loadCategories(),
-
       loadMenu(),
-
       loadGallery(),
-
       loadReviews()
-
     ]);
 
-
     /*
-      Breaking News আবার render করা হচ্ছে
-      যাতে Discount status-ও সঠিকভাবে reflect করে।
+      Breaking News এবং Discount আবার render হবে।
     */
 
     renderBreakingNews();
     renderDiscountHome();
 
-
     setupStars();
 
+  } catch (error) {
+    console.error("Site initialization error:", error);
 
-  }catch(error){
-
-    console.error(
-      "Site initialization error:",
-      error
-    );
-
-  }finally{
-
+  } finally {
     setTimeout(() => {
+      const loader = document.getElementById("loadingScreen");
 
-      const loader =
-        document.getElementById(
-          "loadingScreen"
-        );
+      if (loader) {
+        loader.style.opacity = "0";
+        loader.style.transition = "opacity .35s";
 
-      if(loader){
-
-        loader.style.opacity =
-          "0";
-
-        loader.style.transition =
-          "opacity .35s";
-
-        setTimeout(
-          () => loader.remove(),
-          350
-        );
-
+        setTimeout(() => loader.remove(), 350);
       }
-
-    },300);
-
+    }, 300);
   }
-
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("discountCustomerName");
 
-document.addEventListener("DOMContentLoaded",()=>{
-  const input=document.getElementById("discountCustomerName");
-  if(input){
-    input.addEventListener("keydown",event=>{
-      if(event.key==="Enter") generateCustomerDiscount();
+  if (input) {
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        generateCustomerDiscount();
+      }
     });
   }
 });
 
 initializeSite();
-
 </script>
-
 
 <a
   href="admin.html"
