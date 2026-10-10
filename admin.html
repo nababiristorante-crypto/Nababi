@@ -4321,7 +4321,8 @@ function formatDateTime(value){
 
 // Coupon sound settings and built-in browser voice. No external audio files are required.
 function getCouponSoundSettings(){
-  try{return JSON.parse(localStorage.getItem('nababi_coupon_sound_settings')||'{"sounds":true,"voice":true}')}catch(e){return {sounds:true,voice:true};}
+  // Sound settings UI was intentionally removed; keep result sounds and voice enabled.
+  return {sounds:true,voice:true};
 }
 function saveCouponSoundSettings(){
   const settings={sounds:!!$('couponSoundsEnabled')?.checked,voice:!!$('couponVoiceEnabled')?.checked};
@@ -4374,13 +4375,21 @@ function testCouponSound(kind){
 
 function couponDiscountLabel(data){
   if(!data || typeof data !== "object") return "Discount percentage not provided";
-  const percent = data.discount_percent ?? data.campaign_discount_percent ?? data.discount_percentage ?? data.percent_off;
+  const nested = [data.campaign, data.discount_campaign, data.campaign_data, data.coupon, data.details].filter(v => v && typeof v === "object");
+  const sources = [data, ...nested];
+  let percent = null;
+  for (const source of sources) {
+    percent = source.discount_percent ?? source.campaign_discount_percent ?? source.discount_percentage ?? source.percent_off ?? source.percentage_off ?? source.discount_rate ?? source.campaign_percentage ?? source.percentage;
+    if (percent !== undefined && percent !== null && String(percent).trim() !== "") break;
+  }
   if(percent !== undefined && percent !== null && String(percent).trim() !== "") {
     const clean = String(percent).trim();
     return (clean.includes("%") ? clean : `${clean}%`) + (clean.toUpperCase().includes("OFF") ? "" : " OFF");
   }
-  const text = String(data.discount_text || data.discount || data.coupon_discount || "").trim();
-  if(text) return text;
+  for (const source of sources) {
+    const text = String(source.discount_text || source.discount_label || source.discount || source.coupon_discount || "").trim();
+    if(text) return text;
+  }
   return "Discount percentage not provided";
 }
 
@@ -4390,6 +4399,8 @@ function normalizeSecretCouponCode(value){
   if(/^\d{1,10}$/.test(code)) code="NB-"+code;
   return code;
 }
+
+let lastVerifiedCouponData = null;
 
 async function checkSecretCoupon(){
   const input=$("secretCouponCode");
@@ -4403,6 +4414,7 @@ async function checkSecretCoupon(){
     const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});
     if(error)throw error;
     if(!data?.success){
+      lastVerifiedCouponData = null;
       box.innerHTML='<div class="card bad"><b>🔴 '+escapeHtml(data?.status==="USED"?"ALREADY USED":"Coupon Invalid")+'</b><br>'+escapeHtml(data?.message||"Invalid coupon code.")+
         (data?.code?'<br>Code: '+escapeHtml(data.code):'<br>Code: '+escapeHtml(code))+
         (data?.customer_name?'<br>Customer: '+escapeHtml(data.customer_name):'')+
@@ -4413,6 +4425,7 @@ async function checkSecretCoupon(){
       await loadCouponTracking();
       return;
     }
+    lastVerifiedCouponData = data;
     box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎉 🎆 🎊 🎇 🎉</div><h3>Congratulations!</h3><b>কুপন কোড সফলভাবে যাচাই হয়েছে!</b><div style="margin-top:5px;color:#b8f4cc">✓ VALID COUPON</div></div><div class="card ok"><b>🟢 Coupon Valid</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Campaign: ${escapeHtml(data.campaign_title||"—")}<br>Discount percentage: <b style="font-size:1.25em;color:#b8f4cc">${escapeHtml(couponDiscountLabel(data))}</b><br>Created: ${formatDateTime(data.created_at)}<br>Viewed: ${escapeHtml(data.viewed_count??0)}<br>Copied: ${escapeHtml(data.copy_count??0)}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Presented by: ${escapeHtml(data.presented_by_name||"—")}<br>Staff email: ${escapeHtml(data.presented_by_email||"—")}<br><span class="muted">Confirm করলে কুপনটি সঙ্গে সঙ্গে Used হবে।</span></div>`;
     speakCouponMessage("success");
     await loadCouponTracking();
@@ -4438,7 +4451,13 @@ async function useSecretCoupon(){
       await loadCouponTracking();
       return;
     }
-    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎆 🎇 🎉 🎆</div><h3>🎉 Congratulations!</h3><b>Nababi Ristorante congratulates you!</b><p style="color:#b8f4cc;margin:8px 0">Your discount: ${escapeHtml(couponDiscountLabel(data))}</p></div><div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(data.code||code)}<br>Customer: <b>${escapeHtml(data.customer_name||"—")}</b><br>Discount percentage applied: <b style="color:#b8f4cc;font-size:1.15em">${escapeHtml(couponDiscountLabel(data))}</b><br>Used by: ${escapeHtml(data.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(data.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(data.presented_at)}<br>Used at: ${formatDateTime(data.used_at)}<br>Usage count: ${escapeHtml(data.usage_count??1)}</div>`;
+    const redeemResult = data || {};
+    const verified = lastVerifiedCouponData || {};
+    const displayData = {...verified, ...Object.fromEntries(Object.entries(redeemResult).filter(([_,v]) => v !== null && v !== undefined && v !== ""))};
+    const discountLabel = couponDiscountLabel(displayData);
+    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎆 🎇 🎉 🎆</div><h3>🎉 Congratulations!</h3><b>Nababi Ristorante congratulates you!</b><p style="color:#b8f4cc;margin:8px 0">Your discount: ${escapeHtml(discountLabel)}</p></div><div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Discount percentage applied: <b style="color:#b8f4cc;font-size:1.15em">${escapeHtml(discountLabel)}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}</div>`;
+    speakCouponMessage("success");
+    lastVerifiedCouponData = null;
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
     await loadCoupons();
     await loadCouponTracking();
