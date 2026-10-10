@@ -5419,17 +5419,25 @@ async function trackWebsiteVisit() {
   }
 }
 
+
 async function trackWebsiteClick(eventType) {
   try {
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("website_clicks")
-      .insert({ event_type: eventType });
+      .insert({ event_type: eventType })
+      .select("id, event_type");
 
-    if (error) throw error;
+    if (error) {
+      console.error("Click tracking failed:", error);
+      return;
+    }
+
+    console.log("Click tracking saved:", data);
   } catch (error) {
-    console.warn("Click tracking:", error);
+    console.error("Click tracking exception:", error);
   }
 }
+
 
 async function initializeSite() {
   try {
