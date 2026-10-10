@@ -421,12 +421,11 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 .delivery-link .link-details{min-width:0;flex:1;overflow-wrap:anywhere}
 .delivery-link a{color:#e4bd70;overflow-wrap:anywhere;word-break:break-word}
 /* Full-screen coupon success celebration with canvas-based realistic fireworks */
-#couponCelebrationOverlay{position:fixed;inset:0;z-index:999999;background:radial-gradient(ellipse at 50% 45%,#16834a 0%,#07552f 48%,#022817 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;color:#fff}
+#couponCelebrationOverlay{position:fixed;inset:0;z-index:999999;background:radial-gradient(ellipse at 50% 45%,#142447 0%,#070b18 48%,#020308 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;color:#fff}
 #couponFireworksCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #couponCelebrationOverlay .celebration-content{position:relative;z-index:2;text-align:center;width:min(94vw,900px);padding:24px 10px;text-shadow:0 2px 18px #000}
-#couponCelebrationOverlay .congrats-title{font-size:clamp(38px,9vw,92px);font-weight:1000;letter-spacing:clamp(1px,1vw,6px);line-height:1.04;color:#ffe39b;text-shadow:0 0 12px #ffbd42,0 0 35px #f18b27,0 0 75px #ffdf7a;margin:0 0 24px;animation:congratsGlow 1.5s ease-in-out infinite alternate}
+#couponCelebrationOverlay .congrats-title{font-size:clamp(38px,9vw,92px);font-weight:1000;letter-spacing:clamp(1px,1vw,6px);line-height:1.04;color:#63ff9b;text-shadow: 0 0 12px #20e875,0 0 35px #00b85c,0 0 75px #63ff9b;margin:0 0 24px;animation:congratsGlow 1.5s ease-in-out infinite alternate}
 #couponCelebrationOverlay .coupon-euro-amount{font-size:clamp(54px,13vw,124px);font-weight:1000;line-height:1.05;color:#fff;text-shadow:0 0 14px #4dffbf,0 0 42px #13d9a0;margin:0}
-#couponCelebrationOverlay .coupon-celebration-message{font-size:clamp(20px,4.5vw,38px);font-weight:900;line-height:1.25;color:#fff;text-shadow:0 0 14px #4dffbf,0 0 32px #13d9a0;margin:0 auto;max-width:800px}
 #couponCelebrationOverlay .celebration-close{position:absolute;z-index:4;top:calc(12px + env(safe-area-inset-top));right:14px;border:1px solid #ffffff75;border-radius:999px;background:#111a;color:white;padding:11px 17px;font-weight:800;font-size:14px}
 @keyframes congratsGlow{from{transform:scale(1);filter:brightness(1)}to{transform:scale(1.035);filter:brightness(1.2)}}
 @media(prefers-reduced-motion:reduce){#couponCelebrationOverlay .congrats-title{animation:none}}
@@ -644,8 +643,18 @@ Refresh
 <div class="grid g3">
 
 <div class="card stat">
-🌐 Website Visits
-<b id="statVisits">—</b>
+🌐 Total Website Visits
+<b id="statVisits">146</b>
+</div>
+
+<div class="card stat">
+🍽️ Menu Clicks
+<b id="statMenuClicks">—</b>
+</div>
+
+<div class="card stat">
+🖼️ Gallery Clicks
+<b id="statGalleryClicks">—</b>
 </div>
 
 <div class="card stat">
@@ -1579,15 +1588,12 @@ Customers collect the code and show it to restaurant staff.
     <span class="pill" style="color:#f1d18b;background:#302718;border:1px solid #5c4827">SECURE</span>
   </div>
   <div style="margin-top:18px;position:relative;z-index:1">
-    <label for="couponBillAmount">Bill Amount (€) — Optional</label>
-    <input id="couponBillAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Enter bill amount only if you want the payment calculation" style="width:100%;margin:0 0 14px">
     <label for="secretCouponCode">Customer coupon code</label>
     <div class="row" style="align-items:stretch">
       <input id="secretCouponCode" placeholder="NB-123" maxlength="14" autocomplete="off" style="flex:1;min-width:0;text-transform:uppercase;margin:0">
       <button class="btn green" onclick="checkSecretCoupon()">✓ VERIFY</button>
       <button class="btn red" onclick="clearSecretCoupon()">CLEAR</button>
     </div>
-    <p class="muted" style="font-size:12px;margin:8px 0 0">Bill amount is optional. Enter it to calculate the discount and final payment automatically, or leave it blank to redeem the coupon without bill calculations.</p>
     <div id="secretCouponResult" style="margin-top:12px"></div>
   </div>
 </div>
@@ -4386,13 +4392,9 @@ function playFireworksAudio(){
 function showCouponCelebration(amount){
   const old=document.getElementById("couponCelebrationOverlay");if(old)old.remove();
   const overlay=document.createElement("div");overlay.id="couponCelebrationOverlay";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Congratulations, coupon redeemed");
-  const rewardLine = amount !== null && amount !== undefined && Number.isFinite(Number(amount))
-    ? '<p class="coupon-euro-amount">'+escapeHtml(formatCouponEuro(amount))+'</p>'
-    : '<p class="coupon-celebration-message">YOUR COUPON HAS BEEN REDEEMED SUCCESSFULLY!</p>';
-  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1>'+rewardLine+'</div>';
+  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1><p class="coupon-euro-amount">'+escapeHtml(couponEuro(amount))+'</p></div>';
   document.body.appendChild(overlay);document.body.style.overflow="hidden";
   runCouponFireworks(document.getElementById("couponFireworksCanvas"));
-  // Fireworks are intentionally silent. The separate congratulations voice remains enabled by settings.
 }
 function closeCouponCelebration(){const el=document.getElementById("couponCelebrationOverlay");if(el)el.remove();document.body.style.overflow="";}
 function runCouponFireworks(canvas){
@@ -4411,14 +4413,15 @@ function runCouponFireworks(canvas){
   ctx.fillStyle="#030610";ctx.fillRect(0,0,w,h);draw();
   const observer=new MutationObserver(()=>{if(!document.getElementById("couponCelebrationOverlay")){stopped=true;cancelAnimationFrame(raf);window.removeEventListener("resize",resize);observer.disconnect();}});observer.observe(document.body,{childList:true});
 }
-function speakCouponMessage(kind){
+function speakCouponMessage(kind, discountAmount=null){
   const settings=getCouponSoundSettings();if(settings.sounds===false)return;
   playCouponTone(kind);
   if(settings.voice===false)return;
   try{
     if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window))return;
     window.speechSynthesis.cancel();
-    const messages={success:'Congratulations! Nababi Ristorante congratulates you. Enjoy your discount!',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
+    const amountText=(discountAmount!==null&&discountAmount!==undefined&&Number.isFinite(Number(discountAmount))) ? (Number(discountAmount).toLocaleString('en-IE',{minimumFractionDigits:Number.isInteger(Number(discountAmount))?0:2,maximumFractionDigits:2})+' euros') : '';
+    const messages={success:amountText ? `Congratulations! You received ${amountText} discount at Nababi Ristorante.` : 'Congratulations! Your coupon was redeemed successfully at Nababi Ristorante.',invalid:'Sorry, this coupon is invalid. Please check and try again.',used:'Sorry, this coupon has already been used and cannot be used again.'};
     const utterance=new SpeechSynthesisUtterance(messages[kind]||messages.invalid);
     utterance.lang='en-GB';utterance.rate=0.92;utterance.pitch=1.02;utterance.volume=1;
     window.speechSynthesis.speak(utterance);
@@ -4524,9 +4527,7 @@ async function checkSecretCoupon(){
   try{
     const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});
     if(error)throw error;
-    // Supabase RPCs may return either a JSON object ({ success: true }) or a bare boolean.
-    const verifySucceeded = data === true || (data !== null && typeof data === "object" && data.success === true);
-    if(!verifySucceeded){
+    if(!data?.success){
       lastVerifiedCouponData = null;
       box.innerHTML='<div class="card bad"><b>🔴 '+escapeHtml(data?.status==="USED"?"ALREADY USED":"Coupon Invalid")+'</b><br>'+escapeHtml(data?.message||"Invalid coupon code.")+
         (data?.code?'<br>Code: '+escapeHtml(data.code):'<br>Code: '+escapeHtml(code))+
@@ -4548,68 +4549,32 @@ async function useSecretCoupon(){
   const code=normalizeSecretCouponCode($("secretCouponCode")?.value||"");
   const box=$("secretCouponResult");
   if(!code||!box)return;
-  const billField=$("couponBillAmount");
-  const billText=String(billField?.value??"").trim();
-  let billAmount=null;
-  if(billText!==""){
-    billAmount=Number(billText);
-    if(!Number.isFinite(billAmount)||billAmount<0){
-      box.innerHTML='<div class="card bad">🔴 Please enter a valid bill amount (0 or more), or leave it blank.</div>';
-      return;
-    }
-  }
-  box.innerHTML='<div class="muted">Checking discount campaign…</div>';
+  box.innerHTML='<div class="muted">Redeeming coupon…</div>';
   try{
-    const {data:campaign,error:campaignError}=await supabaseClient
-      .from("discount_campaign").select("*").limit(1).maybeSingle();
-    if(campaignError)throw campaignError;
-    if(!campaign){box.innerHTML='<div class="card bad">🔴 Discount campaign settings পাওয়া যায়নি।</div>';return;}
-    if(campaign.enabled===false){box.innerHTML='<div class="card bad">🔴 Discount campaign বর্তমানে বন্ধ আছে। কুপন ব্যবহার করা হয়নি।</div>';return;}
-    const now=Date.now();
-    if(campaign.start_at && now < new Date(campaign.start_at).getTime()){
-      box.innerHTML='<div class="card bad">🔴 Discount campaign এখনও শুরু হয়নি। কুপন ব্যবহার করা হয়নি।</div>';return;
-    }
-    if(campaign.end_at && now > new Date(campaign.end_at).getTime()){
-      box.innerHTML='<div class="card bad">🔴 Discount campaign-এর মেয়াদ শেষ। কুপন ব্যবহার করা হয়নি।</div>';return;
-    }
-    const percent=Number(campaign.discount_percent||0);
-    if(!Number.isFinite(percent)||percent<=0){box.innerHTML='<div class="card bad">🔴 Discount percentage ঠিকভাবে সেট করা নেই। কুপন ব্যবহার করা হয়নি।</div>';return;}
-    box.innerHTML='<div class="muted">Redeeming coupon…</div>';
     const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});
     if(error)throw error;
-    // Accept either a JSON response ({ success: true }) or a bare boolean true.
-    const redeemSucceeded = data === true || (data !== null && typeof data === "object" && data.success === true);
-    if(!redeemSucceeded){
-      const failureMessage = data === false ? "Coupon redemption was not confirmed by the server. Please check the coupon status before trying again." : (data?.message||"Coupon could not be used.");
-      box.innerHTML=`<div class="card bad"><b>🔴 ${escapeHtml(data?.status==="USED"?"ALREADY USED":failureMessage)}</b><br>${escapeHtml(failureMessage)}<br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_by_email?`<br>Staff email: ${escapeHtml(data.used_by_email)}`:""}${data?.used_at?`<br>Used at: ${formatDateTime(data.used_at)}`:""}</div>`;
+    if(!data?.success){
+      box.innerHTML=`<div class="card bad"><b>🔴 ${escapeHtml(data?.status==="USED"?"ALREADY USED":data?.message||"Coupon could not be used.")}</b><br>${escapeHtml(data?.message||"Coupon could not be used.")}<br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_by_email?`<br>Staff email: ${escapeHtml(data.used_by_email)}`:""}${data?.used_at?`<br>Used at: ${formatDateTime(data.used_at)}`:""}</div>`;
       speakCouponMessage(data?.status==="USED"?"used":"invalid");
       await loadCouponTracking();
       return;
     }
-    const redeemResult=(data && typeof data === "object")?data:{};
-    const verified=lastVerifiedCouponData||{};
-    const displayData={...verified,...Object.fromEntries(Object.entries(redeemResult).filter(([_,v])=>v!==null&&v!==undefined&&v!==""))};
-    let discountAmount=null, finalPayment=null;
-    if(billAmount!==null){
-      discountAmount=Math.round((billAmount*percent/100+Number.EPSILON)*100)/100;
-      const capRaw=campaign.maximum_discount??campaign.max_discount??campaign.discount_cap;
-      if(capRaw!==undefined&&capRaw!==null&&String(capRaw).trim()!==""&&Number.isFinite(Number(capRaw))&&Number(capRaw)>0){discountAmount=Math.min(discountAmount,Number(capRaw));}
-      discountAmount=Math.min(billAmount,Math.round((discountAmount+Number.EPSILON)*100)/100);
-      finalPayment=Math.max(0,Math.round((billAmount-discountAmount+Number.EPSILON)*100)/100);
-    }
-    const billSummary=billAmount!==null
-      ? `<br>Bill Total: <b>${escapeHtml(formatCouponEuro(billAmount))}</b><br>Coupon Discount: <b>${escapeHtml(String(percent)+"%")}</b><br>Discount Amount: <b style="color:#16a34a">${escapeHtml(formatCouponEuro(discountAmount))}</b><br>Final Payment: <b>${escapeHtml(formatCouponEuro(finalPayment))}</b>`
-      : "";
-    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}${billSummary}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}</div>`;
-    showCouponCelebration(discountAmount);
-    speakCouponMessage("success");
-    lastVerifiedCouponData=null;
-    if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at,discount_percent:percent,discount_amount:discountAmount,bill_amount:billAmount,final_payment:finalPayment});
+    const redeemResult = data || {};
+    const verified = lastVerifiedCouponData || {};
+    const displayData = {...verified, ...Object.fromEntries(Object.entries(redeemResult).filter(([_,v]) => v !== null && v !== undefined && v !== ""))};
+    const discountAmount = couponDiscountAmount(displayData);
+    const euroAmount = formatCouponEuro(discountAmount);
+    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}${discountAmount===null?'<br><span class="muted">Discount amount unavailable: Supabase did not return a saved euro amount or both the bill total and discount percentage.</span>':''}</div>`;
+    if(discountAmount!==null) showCouponCelebration(discountAmount);
+    speakCouponMessage("success", discountAmount);
+    lastVerifiedCouponData = null;
+    if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
     await loadCoupons();
     await loadCouponTracking();
     await loadDashboard();
   }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}
 }
+
 async function loadCouponTracking(){
   const box=$("couponTrackingList");
   if(!box)return;
@@ -4712,7 +4677,7 @@ function calculateManualDiscount(){
   if($('calcFinal'))$('calcFinal').textContent=euro(final);
 }
 
-function clearSecretCoupon(){const input=$("secretCouponCode");const bill=$("couponBillAmount");const box=$("secretCouponResult");if(input)input.value="";if(bill)bill.value="";if(box)box.innerHTML="";}
+function clearSecretCoupon(){const input=$("secretCouponCode");const box=$("secretCouponResult");if(input)input.value="";if(box)box.innerHTML="";}
 window.addEventListener("DOMContentLoaded",()=>{calculateManualDiscount();});
 
 function focusStaffCoupon(){
@@ -5240,14 +5205,50 @@ async function countRows(table){
 }
 
 
+async function countClickEvents(eventType){
+  const { count, error } = await supabaseClient
+    .from("website_clicks")
+    .select("id", { count: "exact", head: true })
+    .eq("event_type", eventType);
+  if (error) throw error;
+  return count || 0;
+}
+
+
 async function loadDashboard(){
 
   try{
 
-    $("statVisits").textContent =
-      await countRows(
-        "website_visits"
-      );
+    // Preserve the existing visit history. The total is the row count
+    // from website_visits; if the table is unavailable, keep the visible
+    // baseline (146) and report the issue in the console.
+    try {
+      const visitCount = await countRows("website_visits");
+      $("statVisits").textContent = Math.max(146, visitCount);
+    } catch (visitError) {
+      console.error("Website visits count:", visitError);
+      if (!$("statVisits").textContent || $("statVisits").textContent === "—") {
+        $("statVisits").textContent = "146";
+      }
+    }
+
+    // Menu and Gallery click events are recorded by the public website
+    // in website_clicks (event_type = 'menu' or 'gallery').
+    try {
+      const menuClicks = await countClickEvents("menu");
+      $("statMenuClicks").textContent = menuClicks;
+    } catch (clickError) {
+      console.error("Menu clicks count:", clickError);
+      $("statMenuClicks").textContent = "Setup needed";
+    }
+
+    try {
+      const galleryClicks = await countClickEvents("gallery");
+      $("statGalleryClicks").textContent = galleryClicks;
+    } catch (clickError) {
+      console.error("Gallery clicks count:", clickError);
+      $("statGalleryClicks").textContent = "Setup needed";
+    }
 
     $("statCoupons").textContent =
       await countRows(
