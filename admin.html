@@ -420,12 +420,18 @@ input,textarea,select{min-width:0;max-width:100%;font-size:16px}
 .delivery-link{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid #39332a;border-radius:13px;padding:12px;margin:10px 0;background:#101014;min-width:0}
 .delivery-link .link-details{min-width:0;flex:1;overflow-wrap:anywhere}
 .delivery-link a{color:#e4bd70;overflow-wrap:anywhere;word-break:break-word}
-.celebration{position:relative;overflow:hidden;text-align:center;padding:18px 12px 14px;border:1px solid #4da878;border-radius:15px;background:linear-gradient(135deg,#123d2a,#14271f);margin-bottom:12px}
-.celebration h3{color:#9bf0bc;margin:6px 0;font-size:clamp(20px,5vw,28px)}
-.celebration .fireworks{font-size:clamp(24px,7vw,38px);letter-spacing:4px;animation:celebratePop .8s ease-in-out infinite alternate;line-height:1.5}
-.celebration .confetti{position:absolute;inset:0;pointer-events:none;opacity:.7;animation:confettiFade 2.5s ease-out forwards}
-@keyframes celebratePop{from{transform:scale(.92) rotate(-2deg)}to{transform:scale(1.06) rotate(2deg)}}
-@keyframes confettiFade{0%{opacity:.9;transform:translateY(-6px)}100%{opacity:.18;transform:translateY(18px)}}
+/* Full-screen coupon success celebration with canvas-based realistic fireworks */
+#couponCelebrationOverlay{position:fixed;inset:0;z-index:999999;background:radial-gradient(ellipse at 50% 45%,#142447 0%,#070b18 48%,#020308 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;color:#fff}
+#couponFireworksCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#couponCelebrationOverlay .celebration-content{position:relative;z-index:2;text-align:center;width:min(94vw,900px);padding:24px 10px;text-shadow:0 2px 18px #000}
+#couponCelebrationOverlay .congrats-title{font-size:clamp(38px,9vw,92px);font-weight:1000;letter-spacing:clamp(1px,1vw,6px);line-height:1.04;color:#ffe39b;text-shadow:0 0 12px #ffbd42,0 0 35px #f18b27,0 0 75px #ffdf7a;margin:0 0 24px;animation:congratsGlow 1.5s ease-in-out infinite alternate}
+#couponCelebrationOverlay .coupon-euro-amount{font-size:clamp(54px,13vw,124px);font-weight:1000;line-height:1.05;color:#fff;text-shadow:0 0 14px #4dffbf,0 0 42px #13d9a0;margin:0}
+#couponCelebrationOverlay .celebration-close{position:absolute;z-index:4;top:calc(12px + env(safe-area-inset-top));right:14px;border:1px solid #ffffff75;border-radius:999px;background:#111a;color:white;padding:11px 17px;font-weight:800;font-size:14px}
+@keyframes congratsGlow{from{transform:scale(1);filter:brightness(1)}to{transform:scale(1.035);filter:brightness(1.2)}}
+@media(prefers-reduced-motion:reduce){#couponCelebrationOverlay .congrats-title{animation:none}}
+@media(max-width:520px){.calc-results{grid-template-columns:1fr}.calc-result{display:flex;align-items:center;justify-content:space-between;gap:12px}.calc-result b{margin:0;text-align:right}.delivery-link .link-actions{display:flex;gap:8px;width:100%}.delivery-link .link-actions .btn{flex:1}.coupon-hero .row>.btn{flex:1 1 100%}#secretCouponCode{flex:1 1 100%}}
+
+
 @media(max-width:520px){.calc-results{grid-template-columns:1fr}.calc-result{display:flex;align-items:center;justify-content:space-between;gap:12px}.calc-result b{margin:0;text-align:right}.delivery-link .link-actions{display:flex;gap:8px;width:100%}.delivery-link .link-actions .btn{flex:1}.coupon-hero .row>.btn{flex:1 1 100%}#secretCouponCode{flex:1 1 100%}}
 
 </style>
@@ -4351,6 +4357,53 @@ function playCouponTone(kind){
     setTimeout(()=>ctx.close().catch(()=>{}),notes.length*180+250);
   }catch(e){}
 }
+function playFireworksAudio(){
+  const settings=getCouponSoundSettings(); if(settings.sounds===false)return;
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+    const ctx=new AudioCtx();
+    const start=()=>{
+      // Short sparkling launch whistle followed by a noisy burst, synthesized locally.
+      [0,0.55,1.12,1.72,2.3].forEach((delay,index)=>{
+        const t=ctx.currentTime+delay;
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.type="sawtooth";osc.frequency.setValueAtTime(380+index*55,t);osc.frequency.exponentialRampToValueAtTime(1250+index*70,t+0.23);
+        gain.gain.setValueAtTime(0.0001,t);gain.gain.exponentialRampToValueAtTime(0.055,t+0.08);gain.gain.exponentialRampToValueAtTime(0.0001,t+0.28);
+        osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+0.3);
+        const duration=0.38,buffer=ctx.createBuffer(1,Math.floor(ctx.sampleRate*duration),ctx.sampleRate),arr=buffer.getChannelData(0);
+        for(let i=0;i<arr.length;i++)arr[i]=(Math.random()*2-1)*Math.pow(1-i/arr.length,2.4);
+        const noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),ng=ctx.createGain();noise.buffer=buffer;filter.type="lowpass";filter.frequency.value=1600;ng.gain.setValueAtTime(0.0001,t+0.2);ng.gain.exponentialRampToValueAtTime(0.28,t+0.23);ng.gain.exponentialRampToValueAtTime(0.0001,t+0.57);noise.connect(filter);filter.connect(ng);ng.connect(ctx.destination);noise.start(t+0.2);noise.stop(t+0.59);
+      });
+      setTimeout(()=>ctx.close().catch(()=>{}),3400);
+    };
+    if(ctx.state==="suspended")ctx.resume().then(start).catch(()=>{});else start();
+  }catch(e){}
+}
+function showCouponCelebration(amount){
+  const old=document.getElementById("couponCelebrationOverlay");if(old)old.remove();
+  const overlay=document.createElement("div");overlay.id="couponCelebrationOverlay";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Congratulations, coupon redeemed");
+  overlay.innerHTML='<canvas id="couponFireworksCanvas" aria-hidden="true"></canvas><button type="button" class="celebration-close" onclick="closeCouponCelebration()">✕ CLOSE</button><div class="celebration-content"><h1 class="congrats-title">CONGRATULATIONS!</h1><p class="coupon-euro-amount">'+escapeHtml(couponEuro(amount))+'</p></div>';
+  document.body.appendChild(overlay);document.body.style.overflow="hidden";
+  runCouponFireworks(document.getElementById("couponFireworksCanvas"));
+  playFireworksAudio();
+}
+function closeCouponCelebration(){const el=document.getElementById("couponCelebrationOverlay");if(el)el.remove();document.body.style.overflow="";}
+function runCouponFireworks(canvas){
+  if(!canvas)return;
+  const ctx=canvas.getContext("2d");if(!ctx)return;
+  let w=0,h=0,raf=0,stopped=false;const rockets=[],particles=[];
+  function resize(){const dpr=Math.min(window.devicePixelRatio||1,2);w=window.innerWidth;h=window.innerHeight;canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);canvas.style.width=w+"px";canvas.style.height=h+"px";ctx.setTransform(dpr,0,0,dpr,0,0);}
+  resize();window.addEventListener("resize",resize,{passive:true});
+  function launch(){rockets.push({x:w*(0.12+Math.random()*0.76),y:h+5,tx:w*(0.08+Math.random()*0.84),ty:h*(0.12+Math.random()*0.55),speed:5+Math.random()*3,hue:Math.floor(Math.random()*360),trail:[]});}
+  function burst(x,y,hue){const count=70+Math.floor(Math.random()*65);for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=1+Math.random()*5.5;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:55+Math.random()*40,max:95,size:1+Math.random()*2.1,hue:hue+Math.random()*35,twinkle:Math.random()});}}
+  let frame=0;function draw(){if(stopped)return;raf=requestAnimationFrame(draw);frame++;ctx.fillStyle="rgba(2,3,8,0.22)";ctx.fillRect(0,0,w,h);
+    if(frame%13===0 || Math.random()<0.045)launch();
+    for(let i=rockets.length-1;i>=0;i--){const r=rockets[i];r.trail.push({x:r.x,y:r.y});if(r.trail.length>7)r.trail.shift();r.y-=r.speed;r.x+=(r.tx-r.x)*0.012;ctx.beginPath();r.trail.forEach((p,j)=>{if(j===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});ctx.strokeStyle=`hsla(${r.hue},100%,75%,.8)`;ctx.lineWidth=2;ctx.stroke();if(r.y<=r.ty){burst(r.x,r.y,r.hue);rockets.splice(i,1);}}
+    for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vx*=0.986;p.vy=p.vy*0.986+0.045;p.life--;const alpha=Math.max(0,p.life/75);if(p.twinkle>0.7 && frame%3===0 && Math.random()<0.5)continue;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`hsla(${p.hue},100%,${58+Math.random()*30}%,${alpha})`;ctx.shadowBlur=10;ctx.shadowColor=`hsl(${p.hue},100%,65%)`;ctx.fill();ctx.shadowBlur=0;if(p.life<=0||p.y>h+20)particles.splice(i,1);}
+  }
+  ctx.fillStyle="#030610";ctx.fillRect(0,0,w,h);draw();
+  const observer=new MutationObserver(()=>{if(!document.getElementById("couponCelebrationOverlay")){stopped=true;cancelAnimationFrame(raf);window.removeEventListener("resize",resize);observer.disconnect();}});observer.observe(document.body,{childList:true});
+}
 function speakCouponMessage(kind){
   const settings=getCouponSoundSettings();if(settings.sounds===false)return;
   playCouponTone(kind);
@@ -4397,6 +4450,18 @@ function couponDiscountAmount(data){
   if(!data || typeof data !== "object") return null;
   const nested=[data.campaign,data.discount_campaign,data.campaign_data,data.coupon,data.details].filter(v=>v&&typeof v==="object");
   const sources=[data,...nested];
+  // Prefer an actual discount amount returned by Supabase, if available.
+  for(const source of sources){
+    const fixedCandidates=[source.discount_amount,source.calculated_discount_amount,source.coupon_amount,source.savings_amount,source.discount_eur,source.discount_value,source.amount_saved,source.discountAmount,source.savingsAmount];
+    const fixed=fixedCandidates.find(v=>v!==undefined&&v!==null&&String(v).trim()!==""&&Number.isFinite(Number(v))&&Number(v)>=0);
+    if(fixed!==undefined)return Math.round(Number(fixed)*100)/100;
+    const labels=[source.discount_text,source.discount_label,source.discount,source.coupon_discount,source.discount_description];
+    for(const labelValue of labels){
+      const label=String(labelValue??"").trim();
+      const currencyMatch=label.match(/[€$£]\s*([0-9]+(?:[.,][0-9]{1,2})?)/);
+      if(currencyMatch){const amount=Number(currencyMatch[1].replace(",","."));if(Number.isFinite(amount)&&amount>=0)return Math.round(amount*100)/100;}
+    }
+  }
   let bill=null;
   for(const source of sources){
     const candidates=[source.bill_total,source.bill_amount,source.total_bill,source.invoice_total,source.order_total,source.order_amount,source.subtotal,source.total_amount,source.billTotal,source.billAmount,source.totalBill,source.invoiceTotal,source.orderTotal,source.subTotal];
@@ -4428,7 +4493,8 @@ function couponDiscountAmount(data){
 }
 function formatCouponEuro(amount){
   if(amount===null||amount===undefined||!Number.isFinite(Number(amount))) return "—";
-  return "€"+Number(amount).toLocaleString("en-IE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const n=Math.round(Number(amount)*100)/100;
+  return "€"+n.toLocaleString("en-IE",{minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2});
 }
 
 function normalizeSecretCouponCode(value){
@@ -4488,7 +4554,8 @@ async function useSecretCoupon(){
     const displayData = {...verified, ...Object.fromEntries(Object.entries(redeemResult).filter(([_,v]) => v !== null && v !== undefined && v !== ""))};
     const discountAmount = couponDiscountAmount(displayData);
     const euroAmount = formatCouponEuro(discountAmount);
-    box.innerHTML=`<div class="celebration" role="status" aria-live="polite"><div class="confetti">🎊 ✨ 🎉 🎆 ✨ 🎊</div><div class="fireworks" aria-hidden="true">🎆 🎇 🎉 🎆</div><h3>🎉 Congratulations!</h3><b>Nababi Ristorante congratulates you!</b><p style="color:#b8f4cc;margin:8px 0;font-size:2rem;font-weight:800">${escapeHtml(euroAmount)}</p></div><div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Discount: <b style="color:#b8f4cc;font-size:1.15em">${escapeHtml(euroAmount)}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}${discountAmount===null?'<br><span class="muted">Bill total or discount percentage was not returned by Supabase, so the euro amount could not be calculated.</span>':''}</div>`;
+    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}${discountAmount===null?'<br><span class="muted">Discount amount unavailable: Supabase did not return a saved euro amount or both the bill total and discount percentage.</span>':''}</div>`;
+    if(discountAmount!==null) showCouponCelebration(discountAmount);
     speakCouponMessage("success");
     lastVerifiedCouponData = null;
     if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
@@ -5227,4 +5294,4 @@ supabaseClient.auth
 
 <script>document.addEventListener('DOMContentLoaded',loadCouponSoundSettings);</script>
 </body>
-</html>
+  </html>
