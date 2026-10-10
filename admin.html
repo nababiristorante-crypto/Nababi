@@ -1579,12 +1579,15 @@ Customers collect the code and show it to restaurant staff.
     <span class="pill" style="color:#f1d18b;background:#302718;border:1px solid #5c4827">SECURE</span>
   </div>
   <div style="margin-top:18px;position:relative;z-index:1">
+    <label for="couponBillTotal">Bill Total (€)</label>
+    <input id="couponBillTotal" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Enter customer's bill total, e.g. 50.00" style="width:100%;margin-bottom:12px">
     <label for="secretCouponCode">Customer coupon code</label>
     <div class="row" style="align-items:stretch">
       <input id="secretCouponCode" placeholder="NB-123" maxlength="14" autocomplete="off" style="flex:1;min-width:0;text-transform:uppercase;margin:0">
       <button class="btn green" onclick="checkSecretCoupon()">✓ VERIFY</button>
       <button class="btn red" onclick="clearSecretCoupon()">CLEAR</button>
     </div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0">Enter the full bill amount first. Discount is calculated from the saved campaign percentage and minimum bill amount.</p>
     <div id="secretCouponResult" style="margin-top:12px"></div>
   </div>
 </div>
@@ -4542,9 +4545,41 @@ async function checkSecretCoupon(){
 async function useSecretCoupon(){
   const code=normalizeSecretCouponCode($("secretCouponCode")?.value||"");
   const box=$("secretCouponResult");
+  const billRaw=$("couponBillTotal")?.value;
+  const billTotal=Number(billRaw);
   if(!code||!box)return;
-  box.innerHTML='<div class="muted">Redeeming coupon…</div>';
+  if(billRaw===undefined||String(billRaw).trim()===""||!Number.isFinite(billTotal)||billTotal<=0){
+    box.innerHTML='<div class="card bad">🔴 আগে বিলের মোট টাকা (€) লিখুন।</div>';
+    $("couponBillTotal")?.focus();
+    return;
+  }
+  box.innerHTML='<div class="muted">Checking discount campaign…</div>';
   try{
+    const {data:campaign,error:campaignError}=await supabaseClient
+      .from("discount_campaign").select("*").limit(1).maybeSingle();
+    if(campaignError)throw campaignError;
+    if(!campaign){box.innerHTML='<div class="card bad">🔴 Discount campaign settings পাওয়া যায়নি।</div>';return;}
+    if(campaign.enabled===false){box.innerHTML='<div class="card bad">🔴 Discount campaign বর্তমানে বন্ধ আছে। কুপন ব্যবহার করা হয়নি।</div>';return;}
+    const now=Date.now();
+    if(campaign.start_at && now < new Date(campaign.start_at).getTime()){
+      box.innerHTML='<div class="card bad">🔴 Discount campaign এখনও শুরু হয়নি। কুপন ব্যবহার করা হয়নি।</div>';return;
+    }
+    if(campaign.end_at && now > new Date(campaign.end_at).getTime()){
+      box.innerHTML='<div class="card bad">🔴 Discount campaign-এর মেয়াদ শেষ। কুপন ব্যবহার করা হয়নি।</div>';return;
+    }
+    const minimum=Number(campaign.minimum_amount||0);
+    const percent=Number(campaign.discount_percent||0);
+    const maxDiscount=Number(campaign.maximum_discount||0);
+    if(!Number.isFinite(percent)||percent<=0){box.innerHTML='<div class="card bad">🔴 Discount percentage ঠিকভাবে সেট করা নেই। কুপন ব্যবহার করা হয়নি।</div>';return;}
+    if(billTotal<minimum){
+      box.innerHTML=`<div class="card bad">🔴 এই কুপন ব্যবহার করতে বিল কমপক্ষে ${formatCouponEuro(minimum)} হতে হবে। বর্তমান বিল: ${formatCouponEuro(billTotal)}। কুপন ব্যবহার করা হয়নি।</div>`;
+      return;
+    }
+    let discountAmount=Math.round((billTotal*percent/100+Number.EPSILON)*100)/100;
+    if(Number.isFinite(maxDiscount)&&maxDiscount>0)discountAmount=Math.min(discountAmount,maxDiscount);
+    discountAmount=Math.min(discountAmount,billTotal);
+    const payable=Math.round((billTotal-discountAmount+Number.EPSILON)*100)/100;
+    box.innerHTML='<div class="muted">Redeeming coupon…</div>';
     const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});
     if(error)throw error;
     if(!data?.success){
@@ -4553,22 +4588,24 @@ async function useSecretCoupon(){
       await loadCouponTracking();
       return;
     }
-    const redeemResult = data || {};
-    const verified = lastVerifiedCouponData || {};
-    const displayData = {...verified, ...Object.fromEntries(Object.entries(redeemResult).filter(([_,v]) => v !== null && v !== undefined && v !== ""))};
-    const discountAmount = couponDiscountAmount(displayData);
-    const euroAmount = formatCouponEuro(discountAmount);
-    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}${discountAmount===null?'<br><span class="muted">Discount amount unavailable: Supabase did not return a saved euro amount or both the bill total and discount percentage.</span>':''}</div>`;
+    const redeemResult=data||{};
+    const verified=lastVerifiedCouponData||{};
+    const displayData={...verified,...Object.fromEntries(Object.entries(redeemResult).filter(([_,v])=>v!==null&&v!==undefined&&v!==""))};
+    displayData.discount_amount=discountAmount;
+    displayData.discount_percent=percent;
+    displayData.bill_total=billTotal;
+    displayData.minimum_amount=minimum;
+    displayData.maximum_discount=maxDiscount;
+    box.innerHTML=`<div class="card ok"><b>✅ Coupon Used Successfully</b><br>Code: ${escapeHtml(displayData.code||code)}<br>Customer: <b>${escapeHtml(displayData.customer_name||"—")}</b><br>Used by: ${escapeHtml(displayData.used_by_name||currentStaff?.full_name||"—")}<br>Staff email: ${escapeHtml(displayData.used_by_email||currentUser?.email||"—")}<br>Bill Total: <b>${formatCouponEuro(billTotal)}</b><br>Discount (${escapeHtml(percent)}%): <b>${formatCouponEuro(discountAmount)}</b><br>Amount to Pay: <b>${formatCouponEuro(payable)}</b><br>Presented at: ${formatDateTime(displayData.presented_at)}<br>Used at: ${formatDateTime(displayData.used_at)}<br>Usage count: ${escapeHtml(displayData.usage_count??1)}</div>`;
     showCouponCelebration(discountAmount);
     speakCouponMessage("success");
-    lastVerifiedCouponData = null;
-    if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at});
+    lastVerifiedCouponData=null;
+    if(typeof logStaffActivity==="function") await logStaffActivity("COUPON_USED","discount_codes",data.code_id||null,{code:data.code||code,customer_name:data.customer_name||null,used_at:data.used_at,bill_total:billTotal,discount_percent:percent,discount_amount:discountAmount,amount_to_pay:payable});
     await loadCoupons();
     await loadCouponTracking();
     await loadDashboard();
   }catch(error){box.innerHTML='<div class="card bad">🔴 '+escapeHtml(error.message||String(error))+'</div>';}
 }
-
 async function loadCouponTracking(){
   const box=$("couponTrackingList");
   if(!box)return;
@@ -4671,7 +4708,7 @@ function calculateManualDiscount(){
   if($('calcFinal'))$('calcFinal').textContent=euro(final);
 }
 
-function clearSecretCoupon(){const input=$("secretCouponCode");const box=$("secretCouponResult");if(input)input.value="";if(box)box.innerHTML="";}
+function clearSecretCoupon(){const input=$("secretCouponCode");const bill=$("couponBillTotal");const box=$("secretCouponResult");if(input)input.value="";if(bill)bill.value="";if(box)box.innerHTML="";}
 window.addEventListener("DOMContentLoaded",()=>{calculateManualDiscount();});
 
 function focusStaffCoupon(){
