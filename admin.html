@@ -4524,7 +4524,9 @@ async function checkSecretCoupon(){
   try{
     const {data,error}=await supabaseClient.rpc("verify_discount_coupon",{p_code:code});
     if(error)throw error;
-    if(!data?.success){
+    // Supabase RPCs may return either a JSON object ({ success: true }) or a bare boolean.
+    const verifySucceeded = data === true || (data !== null && typeof data === "object" && data.success === true);
+    if(!verifySucceeded){
       lastVerifiedCouponData = null;
       box.innerHTML='<div class="card bad"><b>🔴 '+escapeHtml(data?.status==="USED"?"ALREADY USED":"Coupon Invalid")+'</b><br>'+escapeHtml(data?.message||"Invalid coupon code.")+
         (data?.code?'<br>Code: '+escapeHtml(data.code):'<br>Code: '+escapeHtml(code))+
@@ -4575,13 +4577,16 @@ async function useSecretCoupon(){
     box.innerHTML='<div class="muted">Redeeming coupon…</div>';
     const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});
     if(error)throw error;
-    if(!data?.success){
-      box.innerHTML=`<div class="card bad"><b>🔴 ${escapeHtml(data?.status==="USED"?"ALREADY USED":data?.message||"Coupon could not be used.")}</b><br>${escapeHtml(data?.message||"Coupon could not be used.")}<br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_by_email?`<br>Staff email: ${escapeHtml(data.used_by_email)}`:""}${data?.used_at?`<br>Used at: ${formatDateTime(data.used_at)}`:""}</div>`;
+    // Accept either a JSON response ({ success: true }) or a bare boolean true.
+    const redeemSucceeded = data === true || (data !== null && typeof data === "object" && data.success === true);
+    if(!redeemSucceeded){
+      const failureMessage = data === false ? "Coupon redemption was not confirmed by the server. Please check the coupon status before trying again." : (data?.message||"Coupon could not be used.");
+      box.innerHTML=`<div class="card bad"><b>🔴 ${escapeHtml(data?.status==="USED"?"ALREADY USED":failureMessage)}</b><br>${escapeHtml(failureMessage)}<br>Code: ${escapeHtml(data?.code||code)}${data?.customer_name?`<br>Customer: ${escapeHtml(data.customer_name)}`:""}${data?.used_by_name?`<br>Already used by: ${escapeHtml(data.used_by_name)}`:""}${data?.used_by_email?`<br>Staff email: ${escapeHtml(data.used_by_email)}`:""}${data?.used_at?`<br>Used at: ${formatDateTime(data.used_at)}`:""}</div>`;
       speakCouponMessage(data?.status==="USED"?"used":"invalid");
       await loadCouponTracking();
       return;
     }
-    const redeemResult=data||{};
+    const redeemResult=(data && typeof data === "object")?data:{};
     const verified=lastVerifiedCouponData||{};
     const displayData={...verified,...Object.fromEntries(Object.entries(redeemResult).filter(([_,v])=>v!==null&&v!==undefined&&v!==""))};
     let discountAmount=null, finalPayment=null;
@@ -5334,4 +5339,4 @@ supabaseClient.auth
 
 <script>document.addEventListener('DOMContentLoaded',loadCouponSoundSettings);</script>
 </body>
-  </html>
+</html>
