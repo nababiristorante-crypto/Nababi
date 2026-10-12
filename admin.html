@@ -479,6 +479,14 @@ input,textarea,select{background:#0a0f12;border-color:#344047;border-radius:9px}
 @media(min-width:851px){.g3{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:390px){.quick-grid{gap:8px}.quick-card{min-height:94px;padding:9px 6px}.quick-label{font-size:11px}.header-logo{width:32px;height:32px;flex-basis:32px}}
 
+/* Form fields are arranged one below another for a clear, consistent admin workflow. */
+@media(min-width:0px){
+  .section:not(#dashboard) .grid.g2,
+  .section:not(#dashboard) .grid.g3:not(#eventGalleryList){grid-template-columns:minmax(0,1fr)!important;}
+  .section:not(#dashboard) .grid.g2>*,
+  .section:not(#dashboard) .grid.g3:not(#eventGalleryList)>*{min-width:0;}
+  .section input,.section textarea,.section select{width:100%;box-sizing:border-box;}
+}
 </style>
 
 </head>
@@ -1614,16 +1622,16 @@ Customers collect the code and show it to restaurant staff.
 <!-- EVENT MENU MANAGER -->
 <section id="eventMenu" class="section">
   <h2>🎉 Event Menu Manager</h2>
-  <p class="muted">বিয়েবাড়ি ও জন্মদিনের মেনু আলাদাভাবে সম্পাদনা করুন। পরিবর্তন পাবলিক হোমপেজে দেখাবে।</p>
+  <p class="muted">বিয়েবাড়ি ও জন্মদিনের মেনু আলাদাভাবে সম্পাদনা করুন। পরিবর্তন পাবলিক হোমপেজে দেখাবে।</p>
   <div class="card">
     <label for="eventMenuType">Event type</label>
-    <select id="eventMenuType" onchange="loadEventMenuEditor()"><option value="wedding">বিয়েবাড়ির মেনু / Wedding</option><option value="birthday">জন্মদিনের মেনু / Birthday</option></select>
+    <select id="eventMenuType" onchange="loadEventMenuEditor()"><option value="wedding">বিয়েবাড়ির মেনু / Wedding</option><option value="birthday">জন্মদিনের মেনু / Birthday</option></select>
     <label for="eventMenuTitle">Title</label><input id="eventMenuTitle" placeholder="Event menu title">
     <label for="eventMenuDescription">Description</label><textarea id="eventMenuDescription" placeholder="Describe the event menu"></textarea>
     <label for="eventMenuPackage">Package details / price</label><textarea id="eventMenuPackage" placeholder="Example: €25 per person · minimum 20 guests"></textarea>
     <div style="margin-top:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:rgba(216,179,106,.06)">
       <h3 style="margin:0 0 8px">🖼️ Event cover photo</h3>
-      <p class="muted">এখানে Wedding বা Birthday কার্ডের বড় কভার ছবি আপলোড করুন।</p>
+      <p class="muted">এখানে Wedding বা Birthday কার্ডের বড় কভার ছবি আপলোড করুন।</p>
       <input id="eventCoverImageUrl" placeholder="Uploaded photo URL" aria-label="Event cover image URL">
       <label for="eventCoverImageFile">Choose cover photo from phone / computer</label>
       <input id="eventCoverImageFile" type="file" accept="image/*">
@@ -1661,7 +1669,7 @@ Customers collect the code and show it to restaurant staff.
 <!-- WEBSITE VISIBILITY -->
 <section id="websiteSettings" class="section">
   <h2>🌐 Website ON / OFF</h2>
-  <p class="muted">শুধু Super Admin পাবলিক ওয়েবসাইট চালু বা Maintenance mode-এ রাখতে পারবেন। Admin login আলাদাভাবে চালু থাকবে।</p>
+  <p class="muted">শুধু Super Admin পাবলিক ওয়েবসাইট চালু বা Maintenance mode-এ রাখতে পারবেন। Admin login আলাদাভাবে চালু থাকবে।</p>
   <div class="card">
     <div class="row" style="align-items:center;justify-content:space-between;gap:16px"><div><h3 style="margin:0 0 6px">Public website status</h3><p class="muted" style="margin:0">OFF করলে হোমপেজে maintenance message দেখা যাবে।</p></div><select id="websiteVisibility"><option value="on">🟢 Website ON</option><option value="off">🔴 Website OFF / Maintenance</option></select></div>
     <button class="btn green" style="margin-top:16px" onclick="saveWebsiteVisibility()">💾 Save Website Status</button><p id="websiteStatusMessage" class="muted" aria-live="polite"></p>
@@ -1703,7 +1711,7 @@ Customers collect the code and show it to restaurant staff.
   <div style="margin-top:18px;position:relative;z-index:1">
     <label for="couponBillAmount">Bill Amount (€) — Optional</label>
     <input id="couponBillAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Enter bill amount to calculate discount and final payment" style="width:100%;margin:0 0 14px">
-    <p class="muted" style="font-size:12px;margin:-6px 0 12px">বিলের টাকা লিখলে ছাড় ও বাকি পেমেন্ট হিসাব হবে। ফাঁকা রাখলেও কুপন ব্যবহার করা যাবে।</p>
+    <p class="muted" style="font-size:12px;margin:-6px 0 12px">বিলের টাকা লিখলে ছাড় ও বাকি পেমেন্ট হিসাব হবে। ফাঁকা রাখলেও কুপন ব্যবহার করা যাবে।</p>
     <label for="secretCouponCode">Customer coupon code</label>
     <div class="row" style="align-items:stretch">
       <input id="secretCouponCode" placeholder="NB-123" maxlength="14" autocomplete="off" style="flex:1;min-width:0;text-transform:uppercase;margin:0">
@@ -1860,8 +1868,8 @@ Disabled
 ></div>
 
 
-<div class="card" style="margin-top:16px"><div class="toolbar"><div><h3>⭐ Reviews</h3><p class="muted">Customer reviews দেখুন এবং প্রয়োজন হলে manage করুন।</p></div><button class="btn small" onclick="loadStaffReviews()">Refresh</button></div><div id="staffReviewList"></div></div>
-<div class="card" style="margin-top:16px"><div class="toolbar"><div><h3>📝 Customer Reports</h3><p class="muted">Customer reports দেখুন এবং প্রয়োজন হলে resolve করুন।</p></div><button class="btn small" onclick="loadStaffReports()">Refresh</button></div><div id="staffReportList"></div></div>
+<div class="card" style="margin-top:16px"><div class="toolbar"><div><h3>⭐ Reviews</h3><p class="muted">Customer reviews দেখুন এবং প্রয়োজন হলে manage করুন।</p></div><button class="btn small" onclick="loadStaffReviews()">Refresh</button></div><div id="staffReviewList"></div></div>
+<div class="card" style="margin-top:16px"><div class="toolbar"><div><h3>📝 Customer Reports</h3><p class="muted">Customer reports দেখুন এবং প্রয়োজন হলে resolve করুন।</p></div><button class="btn small" onclick="loadStaffReports()">Refresh</button></div><div id="staffReportList"></div></div>
 </section>
 
 
@@ -3578,65 +3586,38 @@ async function loadBookings(){
   const rows=data||[];
   window.__nababiBookings = rows;
   $("bookingList").innerHTML=`<div class="tablewrap"><table class="table"><thead><tr>
-    <th>Customer / Code</th><th>Type</th><th>Phone</th><th>Email</th><th>Date</th><th>Time</th><th>Guests</th><th>Food / Details</th><th>Status</th><th>Actions</th>
+    <th>Customer / Code</th><th>Type</th><th>Phone</th><th>Email</th><th>Date</th><th>Time</th><th>Guests</th><th>Table</th><th>Food / Details</th><th>Status</th><th>Actions</th>
   </tr></thead><tbody>${rows.map(item=>{
     const type=item.booking_type || ((String(item.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1]) || "Normal Table Booking";
     const code=item.booking_reference||item.booking_code||"—";
     return `<tr>
       <td><strong>${escapeHtml(item.customer_name||item.name||"")}</strong><br><small>${escapeHtml(code)}</small></td>
-      <td>${escapeHtml(type)}</td><td>${escapeHtml(item.phone||"—")}</td><td>${escapeHtml(item.email||"—")}</td>
-      <td>${escapeHtml(item.booking_date||"")}</td><td>${escapeHtml(item.booking_time||"")}</td><td>${escapeHtml(item.guests||2)}</td>
+      <td>${escapeHtml(type)}</td><td>${escapeHtml(item.phone||item.customer_phone||"—")}</td><td>${escapeHtml(item.email||item.customer_email||item.customerEmail||item.contact_email||item.email_address||item.customer_email_address||"—")}</td>
+      <td>${escapeHtml(item.booking_date||"")}</td><td>${escapeHtml(item.booking_time||"")}</td><td>${escapeHtml(item.guests||2)}</td><td>${escapeHtml(item.table_number ? `Table ${item.table_number} · ${item.room_name||""}` : "—")}</td>
       <td>${escapeHtml([item.reserved_food,item.event_details,item.special_request].filter(Boolean).join(" | ").replace(/\[Booking Type: [^\]]+\]\n?/i,"" )||"—")}</td>
       <td><span class="pill ${String(item.status).toLowerCase()==="confirmed"?"ok":""}">${escapeHtml(item.status||"Pending")}</span></td>
       <td><button class="btn dark small" onclick="viewBookingDetails('${String(item.id).replace(/'/g,"\\'")}')">Details</button>
-      <button class="btn green small" onclick="updateBooking('${String(item.id).replace(/'/g,"\\'")}', 'Confirmed')">Confirm + Email</button>
+      <button class="btn green small" onclick="updateBooking('${String(item.id).replace(/'/g,"\\'")}', 'Confirmed')">Confirm Booking</button>
       <button class="btn red small" onclick="updateBooking('${String(item.id).replace(/'/g,"\\'")}', 'Cancelled')">Cancel</button>
-      <button class="btn small" onclick="openGmailBookingEmail('${String(item.id).replace(/'/g,"\\'")}')">✉️ Email Customer (Gmail)</button>
-      <button class="btn small" onclick="sendBookingCustomEmail('${String(item.id).replace(/'/g,"\\'")}')">Custom Email</button></td>
+      <button class="btn small" onclick="openGmailBookingEmail('${String(item.id).replace(/'/g,"\\'")}')">✉️ Email Customer (Gmail)</button></td>
     </tr>`;
   }).join("")}</tbody></table></div>`;
-  await loadBookingEmailHistory().catch(err=>console.warn("Email history could not load:",err));
 }
 
 function viewBookingDetails(id){
   const row=window.__nababiBookings?.find(x=>String(x.id)===String(id));
-  if(row){alert(`Booking Code: ${row.booking_reference||row.booking_code||"—"}\nName: ${row.customer_name||row.name||"—"}\nPhone: ${row.phone||"—"}\nEmail: ${row.email||"—"}\nType: ${row.booking_type||"—"}\nDate: ${row.booking_date||"—"}\nTime: ${row.booking_time||"—"}\nGuests: ${row.guests||"—"}\nReserved Food: ${row.reserved_food||"—"}\nEvent Details: ${row.event_details||"—"}\nSpecial Request: ${row.special_request||"—"}`);return;}
+  if(row){alert(`Booking Code: ${row.booking_reference||row.booking_code||"—"}\nName: ${row.customer_name||row.name||"—"}\nPhone: ${row.phone||"—"}\nEmail: ${row.email||"—"}\nType: ${row.booking_type||"—"}\nDate: ${row.booking_date||"—"}\nTime: ${row.booking_time||"—"}\nGuests: ${row.guests||"—"}\nTable: ${row.table_number ? "Table "+row.table_number+" — "+(row.room_name||"") : "—"}\nReserved Food: ${row.reserved_food||"—"}\nEvent Details: ${row.event_details||"—"}\nSpecial Request: ${row.special_request||"—"}`);return;}
   supabaseClient.from("table_bookings").select("*").eq("id",id).single().then(({data,error})=>{if(error){showError(error);return;}window.__nababiBookings=[...(window.__nababiBookings||[]).filter(x=>String(x.id)!==String(id)),data];viewBookingDetails(id);});
-}
-
-async function invokeBookingEmail(body){
-  const {data,error}=await supabaseClient.functions.invoke("manage-booking-email",{body});
-  if(error){
-    let detail="";
-    try{
-      const context=error.context;
-      if(context && typeof context.clone==="function"){
-        const raw=await context.clone().text();
-        if(raw){
-          try{
-            const parsed=JSON.parse(raw);
-            detail=String(parsed.error||parsed.message||parsed.msg||raw);
-          }catch{
-            detail=raw;
-          }
-        }
-      }
-    }catch(parseError){
-      console.warn("Could not read booking email error response",parseError);
-    }
-    const message=String(error.message||"Booking email request failed.");
-    throw new Error(detail ? `${message}: ${detail}` : message);
-  }
-  if(data?.error) throw new Error(String(data.error));
-  if(data?.ok===false) throw new Error(String(data.error||"The email service reported a failure."));
-  return data;
 }
 
 function openGmailBookingEmail(id){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking details are not loaded. Refresh Bookings and try again.");return;}
-  const email=String(row.email||"").trim();
-  if(!email){toast("This booking has no customer email address.");return;}
+  const email=String(row.email||row.customer_email||row.customerEmail||row.contact_email||row.email_address||row.customer_email_address||"").trim();
+  if(!email){
+    toast("No customer email is saved for this booking. Please add the customer's email to the booking record first.");
+    return;
+  }
   const name=String(row.customer_name||row.name||"Customer").trim()||"Customer";
   const code=String(row.booking_reference||row.booking_code||"Not available");
   const type=row.booking_type || ((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1]) || "Table Booking";
@@ -3659,6 +3640,7 @@ function openGmailBookingEmail(id){
     "Date: "+date,
     "Time: "+time,
     "Guests: "+guests,
+    "Table: "+(row.table_number ? ("Table "+row.table_number+" — "+(row.room_name||"")) : "Not assigned"),
     "",
     "If you have any questions or need further information, please contact us:",
     "Restaurant phone: +39 333 7687319",
@@ -3671,44 +3653,17 @@ function openGmailBookingEmail(id){
     "Warm regards,",
     "Nababi Ristorante Team"
   ].join("\n");
-  const url="https://mail.google.com/mail/?view=cm&fs=1&to="+encodeURIComponent(email)+"&su="+encodeURIComponent(subject)+"&body="+encodeURIComponent(message);
-  window.open(url,"_blank","noopener,noreferrer");
+  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:email,su:subject,body:message});
+  const url="https://mail.google.com/mail/u/0/?"+params.toString();
+  window.open(url,"_blank");
 }
-
-async function sendBookingCustomEmail(id){
-  const message=prompt("Write the custom message to send to this booking customer:");
-  if(message===null) return;
-  if(!message.trim()){toast("Please enter a message.");return;}
-  try{await invokeBookingEmail({action:"custom_message",booking_id:String(id),message:message.trim()});toast("Custom email sent.");await loadBookingEmailHistory();}
-  catch(error){console.error(error);showError(error);await loadBookingEmailHistory().catch(()=>{});}
-}
-
-async function loadBookingEmailHistory(){
-  const target=$("bookingEmailHistoryList");if(!target)return;
-  const {data,error}=await supabaseClient.from("booking_email_history").select("*").order("created_at",{ascending:false}).limit(100);
-  if(error){target.innerHTML=`<p class="muted">Email history is not ready. Run the supplied SQL migration first. (${escapeHtml(error.message)})</p>`;return;}
-  if(!data?.length){target.innerHTML='<p class="muted">No email history recorded yet.</p>';return;}
-  target.innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Time</th><th>Booking Code</th><th>To</th><th>Type</th><th>Subject</th><th>Status</th><th>Attempts</th><th>Action</th></tr></thead><tbody>${data.map(row=>`<tr><td>${escapeHtml(row.created_at||"")}</td><td>${escapeHtml(row.booking_reference||"—")}</td><td>${escapeHtml(row.recipient_email||"")}</td><td>${escapeHtml(row.email_type||"")}</td><td>${escapeHtml(row.subject||"")}</td><td><span class="pill ${row.status==="sent"?"ok":row.status==="failed"?"danger":""}">${escapeHtml(row.status||"")}</span>${row.error_message?`<br><small>${escapeHtml(row.error_message)}</small>`:""}</td><td>${escapeHtml(row.attempts||0)}</td><td>${row.status==="failed"?`<button class="btn small" onclick="retryBookingEmail('${String(row.id).replace(/'/g,"\\'")}')">Retry</button>`:"—"}</td></tr>`).join("")}</tbody></table></div>`;
-}
-
-async function retryBookingEmail(historyId){
-  try{await invokeBookingEmail({action:"retry",history_id:String(historyId)});toast("Email retry completed.");}
-  catch(error){console.error(error);showError(error);}
-  await loadBookingEmailHistory();
-}
-
 async function updateBooking(id,status){
-  const {data:before,error:readError}=await supabaseClient.from("table_bookings").select("*").eq("id",id).single();
-  if(readError){showError(readError);return;}
   const {error}=await supabaseClient.from("table_bookings").update({status,updated_at:new Date().toISOString(),...(status==="Confirmed"?{confirmed_at:new Date().toISOString()}:{})}).eq("id",id);
   if(error){showError(error);return;}
   if(currentStaff){
     await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:status==="Confirmed"?"CONFIRMED":"CANCELLED"});
   }
-  if(status==="Confirmed" && before.email){
-    try{await invokeBookingEmail({action:"booking_confirmed",booking_id:String(id)});toast("Booking confirmed and confirmation email sent.");}
-    catch(emailError){console.error(emailError);toast("Booking confirmed, but email failed. Open Email History and retry.");}
-  }else{toast("Booking updated.");}
+  toast(status==="Confirmed" ? "Booking confirmed. Use Email Customer (Gmail) to prepare the customer email." : "Booking updated.");
   await loadBookings();
 }
 
@@ -4656,17 +4611,17 @@ async function useSecretCoupon(){
     const {data:campaign,error:campaignError}=await supabaseClient
       .from("discount_campaign").select("*").limit(1).maybeSingle();
     if(campaignError)throw campaignError;
-    if(!campaign){box.innerHTML='<div class="card bad">🔴 Discount campaign settings পাওয়া যায়নি।</div>';return;}
-    if(campaign.enabled===false){box.innerHTML='<div class="card bad">🔴 Discount campaign বর্তমানে বন্ধ আছে। কুপন ব্যবহার করা হয়নি।</div>';return;}
+    if(!campaign){box.innerHTML='<div class="card bad">🔴 Discount campaign settings পাওয়া যায়নি।</div>';return;}
+    if(campaign.enabled===false){box.innerHTML='<div class="card bad">🔴 Discount campaign বর্তমানে বন্ধ আছে। কুপন ব্যবহার করা হয়নি।</div>';return;}
     const now=Date.now();
     if(campaign.start_at && now < new Date(campaign.start_at).getTime()){
-      box.innerHTML='<div class="card bad">🔴 Discount campaign এখনও শুরু হয়নি। কুপন ব্যবহার করা হয়নি।</div>';return;
+      box.innerHTML='<div class="card bad">🔴 Discount campaign এখনও শুরু হয়নি। কুপন ব্যবহার করা হয়নি।</div>';return;
     }
     if(campaign.end_at && now > new Date(campaign.end_at).getTime()){
-      box.innerHTML='<div class="card bad">🔴 Discount campaign-এর মেয়াদ শেষ। কুপন ব্যবহার করা হয়নি।</div>';return;
+      box.innerHTML='<div class="card bad">🔴 Discount campaign-এর মেয়াদ শেষ। কুপন ব্যবহার করা হয়নি।</div>';return;
     }
     const percent=Number(campaign.discount_percent||0);
-    if(!Number.isFinite(percent)||percent<=0){box.innerHTML='<div class="card bad">🔴 Discount percentage ঠিকভাবে সেট করা নেই। কুপন ব্যবহার করা হয়নি।</div>';return;}
+    if(!Number.isFinite(percent)||percent<=0){box.innerHTML='<div class="card bad">🔴 Discount percentage ঠিকভাবে সেট করা নেই। কুপন ব্যবহার করা হয়নি।</div>';return;}
     box.innerHTML='<div class="muted">Redeeming coupon…</div>';
     const {data,error}=await supabaseClient.rpc("use_discount_coupon",{p_code:code});
     if(error)throw error;
@@ -5469,7 +5424,7 @@ async function saveEventMenuDetails(){try{const type=$("eventMenuType").value;ev
 function clearEventMenuItemForm(){eventMenuEditingItemId=null;for(const id of ["eventItemName","eventItemDescription","eventItemPrice","eventItemImageUrl","eventItemImageFile"])if($(id))$(id).value="";if($("eventItemFormTitle"))$("eventItemFormTitle").textContent="খাবার যোগ করুন / Add food item";if($("eventItemMessage"))$("eventItemMessage").textContent="";renderEventItemImagePreview("");const b=document.querySelector('#eventMenu button[onclick="saveEventMenuItem()"]');if(b)b.textContent="＋ খাবার যোগ করুন / Add food item";}
 async function uploadEventItemPhoto(){try{const file=$("eventItemImageFile")?.files?.[0];if(!file)throw new Error("আগে একটি ছবি নির্বাচন করুন।");const url=await uploadSiteMedia(file,"event-menu","eventItemImageProgress");$("eventItemImageUrl").value=url;renderEventItemImagePreview(url);if($("eventItemMessage"))$("eventItemMessage").textContent="ছবি আপলোড হয়েছে। খাবার যোগ/সেভ করুন।";}catch(e){if($("eventItemMessage"))$("eventItemMessage").textContent="Upload failed: "+(e.message||String(e));}}
 async function saveEventMenuItem(){try{const type=$("eventMenuType").value,name=$("eventItemName").value.trim();if(!name)throw new Error("খাবারের নাম লিখুন।");let imageUrl=$("eventItemImageUrl").value.trim();const file=$("eventItemImageFile")?.files?.[0];if(file&&!imageUrl)imageUrl=await uploadSiteMedia(file,"event-menu","eventItemImageProgress");const item={id:eventMenuEditingItemId||("event-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),name,description:$("eventItemDescription").value.trim(),price:$("eventItemPrice").value.trim(),image_url:imageUrl};const list=eventMenuData[type].items||[];eventMenuData[type].items=eventMenuEditingItemId?list.map(x=>x.id===eventMenuEditingItemId?item:x):[...list,item];await saveSetting("event_menu",eventMenuData);renderEventMenuItems();clearEventMenuItemForm();if($("eventItemMessage"))$("eventItemMessage").textContent="খাবার ও ছবি সেভ হয়েছে।";toast("Event menu item saved.");}catch(e){if($("eventItemMessage"))$("eventItemMessage").textContent="Save failed: "+(e.message||String(e));}}
-function renderEventMenuItems(){const root=$("eventMenuItemsList");if(!root)return;const type=$("eventMenuType")?.value||"wedding",items=eventMenuData[type]?.items||[];if(!items.length){root.innerHTML='<div class="card muted">এই ইভেন্টের জন্য এখনো কোনো খাবার যোগ করা হয়নি।</div>';return;}root.innerHTML=items.map(item=>`<div class="card" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;flex-wrap:wrap">${item.image_url?`<img src="${escapeHtml(item.image_url)}" alt="" style="width:100px;height:82px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">`:""}<div style="flex:1;min-width:180px"><b>${escapeHtml(item.name||"")}</b><div class="muted">${escapeHtml(item.description||"")}</div><div class="gold">${item.price!==""&&item.price!=null?"€"+escapeHtml(item.price):"Price not set"}</div></div><button class="btn dark small" onclick="editEventMenuItem('${String(item.id).replace(/'/g,"\'")}')">Edit</button><button class="btn red small" onclick="deleteEventMenuItem('${String(item.id).replace(/'/g,"\'")}')">Delete</button></div>`).join("");}
+function renderEventMenuItems(){const root=$("eventMenuItemsList");if(!root)return;const type=$("eventMenuType")?.value||"wedding",items=eventMenuData[type]?.items||[];if(!items.length){root.innerHTML='<div class="card muted">এই ইভেন্টের জন্য এখনো কোনো খাবার যোগ করা হয়নি।</div>';return;}root.innerHTML=items.map(item=>`<div class="card" style="display:flex;gap:14px;align-items:center;margin-bottom:10px;flex-wrap:wrap">${item.image_url?`<img src="${escapeHtml(item.image_url)}" alt="" style="width:100px;height:82px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">`:""}<div style="flex:1;min-width:180px"><b>${escapeHtml(item.name||"")}</b><div class="muted">${escapeHtml(item.description||"")}</div><div class="gold">${item.price!==""&&item.price!=null?"€"+escapeHtml(item.price):"Price not set"}</div></div><button class="btn dark small" onclick="editEventMenuItem('${String(item.id).replace(/'/g,"\'")}')">Edit</button><button class="btn red small" onclick="deleteEventMenuItem('${String(item.id).replace(/'/g,"\'")}')">Delete</button></div>`).join("");}
 function editEventMenuItem(id){const type=$("eventMenuType").value,item=(eventMenuData[type]?.items||[]).find(x=>x.id===id);if(!item)return;eventMenuEditingItemId=id;$("eventItemName").value=item.name||"";$("eventItemDescription").value=item.description||"";$("eventItemPrice").value=item.price??"";$("eventItemImageUrl").value=item.image_url||"";renderEventItemImagePreview(item.image_url||"");if($("eventItemFormTitle"))$("eventItemFormTitle").textContent="খাবার সম্পাদনা করুন / Edit food item";const b=document.querySelector('#eventMenu button[onclick="saveEventMenuItem()"]');if(b)b.textContent="💾 পরিবর্তন সেভ করুন / Save changes";$("eventMenu").scrollIntoView({behavior:"smooth",block:"start"});}
 async function deleteEventMenuItem(id){const type=$("eventMenuType").value;if(!confirm("এই খাবারটি মুছে ফেলবেন?"))return;const old=eventMenuData[type].items||[];eventMenuData[type].items=old.filter(x=>x.id!==id);try{await saveSetting("event_menu",eventMenuData);renderEventMenuItems();toast("Event menu item deleted.");}catch(e){eventMenuData[type].items=old;renderEventMenuItems();alert("Delete failed: "+(e.message||String(e)));}}
 async function loadWebsiteVisibility(){try{if(currentStaff?.role!=="SUPER_ADMIN"){if($("websiteStatusMessage"))$("websiteStatusMessage").textContent="শুধু Super Admin এই সেটিং পরিবর্তন করতে পারবেন।";return;}const status=await getSetting("website_status");const off=status===false||status==="off"||status?.enabled===false||String(status?.status||"").toLowerCase()==="off";if($("websiteVisibility"))$("websiteVisibility").value=off?"off":"on";if($("websiteStatusMessage"))$("websiteStatusMessage").textContent=off?"Website is currently OFF (maintenance mode).":"Website is currently ON.";}catch(e){if($("websiteStatusMessage"))$("websiteStatusMessage").textContent="Load failed: "+(e.message||String(e));}}
