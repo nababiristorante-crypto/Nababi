@@ -1157,7 +1157,27 @@
 
     }
 
-  </style>
+  
+/* Design-reference refinement: luxury black & gold, compact mobile-first layout */
+:root{--gold:#e8bd63;--gold-light:#ffe0a0;--border:rgba(232,189,99,.30)}
+body{background:#050606;color:#f7f2e8}
+header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
+.hero{min-height: min(820px,100vh);background-position:center;background-size:cover}
+.hero:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 78% 50%,rgba(224,154,42,.08),transparent 40%)}
+.hero-content{max-width:670px}
+.hero h1{color:#f6d78f;text-shadow:0 3px 24px #000}
+.section{position:relative}
+.section-title h2,.about-copy h2{color:#f1d18b}
+.category-card,.menu-card,.gallery-item,.review-card,.booking-card,.discount-home-card{border-color:rgba(232,189,99,.34);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.category-card:hover,.menu-card:hover,.gallery-item:hover{border-color:#e8bd63;transform:translateY(-3px)}
+.category-grid{gap:14px}
+.category-image,.menu-image{background-color:#17120a}
+.gallery-preview{gap:12px}
+.footer-grid{border-top:1px solid rgba(232,189,99,.25)}
+.language-select{border-color:rgba(232,189,99,.45)}
+@media(max-width:600px){.hero{min-height:86vh}.hero-content{padding:70px 0 55px}.hero h1{font-size:clamp(48px,14vw,68px)}.section-title h2{font-size:40px}.category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.category-image{height:150px}.gallery-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-grid{gap:22px}}
+
+</style>
 </head>
 
 <body>
@@ -1806,6 +1826,16 @@
             placeholder="Optional"
           ></textarea>
 
+        </div>
+
+        <div class="field booking-full">
+          <label for="bookingFood">Reserved Food / Food Preferences</label>
+          <input id="bookingFood" type="text" placeholder="Optional — dishes or menu package">
+        </div>
+
+        <div class="field booking-full" id="bookingEventDetailsWrap">
+          <label for="bookingEventDetails">Birthday / Event Details</label>
+          <textarea id="bookingEventDetails" placeholder="Occasion, decorations, cake, menu package or other details (optional)"></textarea>
         </div>
 
         <div class="booking-full">
@@ -4661,19 +4691,40 @@ function openAllReviews(){
    BOOKING
 ========================================================= */
 
+
+// Keep booking-specific requirements in sync when the page opens.
+document.addEventListener("DOMContentLoaded", () => {
+  updateBookingTypeFields();
+});
+
 function updateBookingTypeFields(){
   const type = document.getElementById("bookingType")?.value || "normal";
   const guests = Number(document.getElementById("bookingGuests")?.value || 0);
   const hint = document.getElementById("bookingTypeHint");
+  const phone = document.getElementById("bookingPhone");
+  const email = document.getElementById("bookingEmail");
+  const detailsWrap = document.getElementById("bookingEventDetailsWrap");
   const groupTypes = ["party", "birthday", "event"];
+  const contactBothRequired = ["birthday", "event"].includes(type);
+  if (phone) {
+    phone.required = contactBothRequired;
+    const label = phone.closest(".field")?.querySelector("label");
+    if (label) label.textContent = contactBothRequired ? "Phone * (required for Birthday / Event)" : "Phone";
+  }
+  if (email) {
+    email.required = contactBothRequired;
+    const label = email.closest(".field")?.querySelector("label");
+    if (label) label.textContent = contactBothRequired ? "Email * (required for Birthday / Event)" : "Email";
+  }
+  if (detailsWrap) detailsWrap.style.display = ["birthday", "event", "party"].includes(type) ? "block" : "none";
   if (!hint) return;
   if (groupTypes.includes(type)) {
-    hint.textContent = guests < 50
-      ? "This booking type requires at least 50 guests. / Minimo 50 ospiti."
-      : "Minimum guest requirement met. / Numero minimo di ospiti raggiunto.";
-    hint.style.color = guests < 50 ? "#ef4444" : "#22c55e";
+    const minimumOK = guests >= 50;
+    const contactText = contactBothRequired ? " Phone number and email are both required." : "";
+    hint.textContent = (minimumOK ? "Minimum guest requirement met." : "This booking type requires at least 50 guests.") + contactText;
+    hint.style.color = minimumOK ? "#22c55e" : "#ef4444";
   } else {
-    hint.textContent = "For parties, birthdays and events, minimum 50 guests. / Per feste ed eventi, minimo 50 ospiti.";
+    hint.textContent = "For Party, Birthday and Event bookings, minimum 50 guests. Birthday and Event require both phone and email.";
     hint.style.color = "";
   }
 }
@@ -4696,193 +4747,84 @@ function isValidContact(
 
 
 async function createBooking(){
-
-  const name =
-    document.getElementById(
-      "bookingName"
-    ).value.trim();
-
-  const phone =
-    document.getElementById(
-      "bookingPhone"
-    ).value.trim();
-
-  const email =
-    document.getElementById(
-      "bookingEmail"
-    ).value.trim();
-
-  const date =
-    document.getElementById(
-      "bookingDate"
-    ).value;
-
-  const time =
-    document.getElementById(
-      "bookingTime"
-    ).value;
-
-  const guests =
-    Number(
-      document.getElementById(
-        "bookingGuests"
-      ).value
-    );
-
-  const request =
-    document.getElementById(
-      "bookingRequest"
-    ).value.trim();
-
+  const name = document.getElementById("bookingName").value.trim();
+  const phone = document.getElementById("bookingPhone").value.trim();
+  const email = document.getElementById("bookingEmail").value.trim();
+  const date = document.getElementById("bookingDate").value;
+  const time = document.getElementById("bookingTime").value;
+  const guests = Number(document.getElementById("bookingGuests").value || 0);
+  const request = document.getElementById("bookingRequest").value.trim();
   const bookingType = document.getElementById("bookingType")?.value || "normal";
-  const bookingTypeLabels = {normal:"Normal Table Booking", friends:"Friends / Family", party:"Party", birthday:"Birthday", event:"Event Management"};
+  const food = document.getElementById("bookingFood")?.value.trim() || "";
+  const eventDetails = document.getElementById("bookingEventDetails")?.value.trim() || "";
+  const result = document.getElementById("bookingResult");
+  const bookingTypeLabels = {normal:"Normal Table Booking", friends:"Friends / Family", party:"Party", birthday:"Birthday Party", event:"Event Management"};
   const groupBookingTypes = ["party", "birthday", "event"];
-  if (groupBookingTypes.includes(bookingType) && guests < 50) {
-    result.className = "booking-result error";
-    result.textContent = "Party, Birthday and Event bookings require a minimum of 50 guests.";
+  if (!name || !date || !time || !isValidContact(phone,email)) {
+    result.className="booking-result error";
+    result.textContent="Please enter your name, date, time and phone or email.";
     return;
   }
-  const savedRequest = `[Booking Type: ${bookingTypeLabels[bookingType] || bookingTypeLabels.normal}]` + (request ? "\n" + request : "");
-
-
-  const result =
-    document.getElementById(
-      "bookingResult"
-    );
-
-
-  if(
-    !name ||
-    !date ||
-    !time ||
-    !isValidContact(
-      phone,
-      email
-    )
-  ){
-
-    result.className =
-      "booking-result error";
-
-    result.textContent =
-      "Please enter your name, date, time and phone or email.";
-
-    return;
-
-  }
-
-
-  result.className =
-    "booking-result success";
-
-  result.textContent =
-    "Creating your reservation...";
-
-
-  try{
-
-    const {data,error} =
-      await supabaseClient.rpc(
-        "create_table_booking",
-        {
-          p_customer_name:name,
-          p_phone:
-            phone || null,
-          p_email:
-            email || null,
-          p_booking_date:
-            date,
-          p_booking_time:
-            time,
-          p_guests:
-            guests,
-          p_special_request:
-            savedRequest || null
-        }
-      );
-
-
-    if(error){
-
-      console.error(error);
-
-
-      const insertResult =
-        await supabaseClient
-          .from("table_bookings")
-          .insert({
-
-            customer_name:
-              name,
-
-            phone:
-              phone || null,
-
-            email:
-              email || null,
-
-            booking_date:
-              date,
-
-            booking_time:
-              time,
-
-            guests:
-              guests,
-
-            special_request:
-              savedRequest || null,
-
-            status:
-              "Pending"
-
-          })
-          .select()
-          .single();
-
-
-      if(insertResult.error){
-
-        throw insertResult.error;
-
-      }
-
-
-      showBookingSuccess(
-        insertResult.data
-      );
-
-      return;
-
+  if (["birthday","event"].includes(bookingType) && (!phone || !email)) {
+    result.className="booking-result error";
+    if (!phone && !email) {
+      result.textContent="Birthday Party and Event Management bookings require both a phone number and an email address.";
+      document.getElementById("bookingPhone")?.focus();
+    } else if (!phone) {
+      result.textContent="A phone number is required for Birthday Party and Event Management bookings.";
+      document.getElementById("bookingPhone")?.focus();
+    } else {
+      result.textContent="An email address is required for Birthday Party and Event Management bookings.";
+      document.getElementById("bookingEmail")?.focus();
     }
-
-
-    const booking =
-      Array.isArray(data)
-        ? data[0]
-        : data;
-
-
-    showBookingSuccess(
-      booking
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-    result.className =
-      "booking-result error";
-
-    result.textContent =
-      error.message ||
-      "Unable to create reservation.";
-
+    return;
   }
-
+  if (["birthday","event"].includes(bookingType) && !document.getElementById("bookingEmail").checkValidity()) {
+    result.className="booking-result error";
+    result.textContent="Please enter a valid email address for Birthday Party and Event Management bookings.";
+    document.getElementById("bookingEmail")?.focus();
+    return;
+  }
+  if (groupBookingTypes.includes(bookingType) && guests < 50) {
+    result.className="booking-result error";
+    result.textContent="Party, Birthday and Event bookings require a minimum of 50 guests.";
+    return;
+  }
+  const details = [
+    `[Booking Type: ${bookingTypeLabels[bookingType] || bookingTypeLabels.normal}]`,
+    food ? `Reserved Food: ${food}` : "",
+    eventDetails ? `Birthday / Event Details: ${eventDetails}` : "",
+    request ? `Special Request: ${request}` : ""
+  ].filter(Boolean).join("\n");
+  result.className="booking-result success";
+  result.textContent="Creating your reservation...";
+  try {
+    // Insert directly so the new booking fields are saved. Existing database triggers
+    // continue generating the reference and sending the current booking-received email.
+    const {data,error} = await supabaseClient.from("table_bookings").insert({
+      customer_name:name,
+      name:name,
+      phone:phone || null,
+      email:email || null,
+      booking_date:date,
+      booking_time:time,
+      guests:guests,
+      booking_type:bookingType,
+      reserved_food:food || null,
+      event_details:eventDetails || null,
+      special_request:details || null,
+      status:"Pending"
+    }).select().single();
+    if (error) throw error;
+    showBookingSuccess(data);
+  } catch(error) {
+    console.error(error);
+    result.className="booking-result error";
+    result.textContent = /booking_type|reserved_food|event_details/i.test(error.message || "")
+      ? "The booking database needs the included SQL migration before these new details can be saved. Please contact the restaurant and try again after setup."
+      : (error.message || "Unable to create reservation.");
+  }
 }
-
 
 function showBookingSuccess(
   booking
@@ -5111,6 +5053,10 @@ function renderBookingDetails(
           ""
         )}
       </p>
+
+      <p><strong>Booking Type:</strong> ${escapeHTML(booking.booking_type || "Table Booking")}</p>
+      ${booking.reserved_food ? `<p><strong>Reserved Food:</strong> ${escapeHTML(booking.reserved_food)}</p>` : ""}
+      ${booking.event_details ? `<p><strong>Event Details:</strong> ${escapeHTML(booking.event_details)}</p>` : ""}
 
       <p style="margin-top:10px;">
         <strong>Status:</strong>
