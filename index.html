@@ -589,6 +589,32 @@
       border-radius:20px;
     }
 
+    /* EVENT MENU — premium gold cards */
+    .event-menu-section{position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(216,179,106,.12),transparent 58%),linear-gradient(180deg,#0c0b09,#11100d 55%,#080808);}
+    .event-menu-section:before{content:"✦  ·  ✧  ·  ✦";display:block;text-align:center;color:rgba(216,179,106,.35);letter-spacing:14px;font-size:20px;margin:-24px 0 26px;}
+    .event-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:1000px;margin:0 auto;}
+    .event-choice-card{position:relative;display:flex;flex-direction:column;justify-content:flex-end;min-height:340px;overflow:hidden;text-align:left;border:1px solid rgba(216,179,106,.42);border-radius:24px;padding:0;background:linear-gradient(135deg,#342817,#15110c 58%,#090909);color:#fff;box-shadow:0 20px 55px rgba(0,0,0,.35);transition:transform .25s,border-color .25s;isolation:isolate;}
+    .event-choice-card:hover{transform:translateY(-6px);border-color:var(--gold);}
+    .event-choice-visual{position:absolute;inset:0;z-index:-2;background:radial-gradient(circle at 25% 22%,rgba(241,213,154,.3),transparent 24%),linear-gradient(135deg,#514027,#17120b 70%);}
+    .event-choice-visual img{width:100%;height:100%;object-fit:cover;opacity:.72;display:none;transition:transform .6s;}
+    .event-choice-card:hover .event-choice-visual img{transform:scale(1.06);}
+    .event-choice-card:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.05) 5%,rgba(0,0,0,.22) 35%,rgba(0,0,0,.94) 100%);}
+    .event-choice-icon{display:grid;place-items:center;width:60px;height:60px;margin:0 24px 14px;border:1px solid rgba(241,213,154,.7);border-radius:50%;background:rgba(8,8,8,.68);font-size:29px;box-shadow:0 0 30px rgba(216,179,106,.18);}
+    .event-choice-card strong{display:block;padding:0 24px;color:var(--gold-light);font-family:"Cormorant Garamond",serif;font-size:32px;line-height:1.15;}
+    .event-choice-card>span:last-child{display:block;padding:10px 24px 26px;color:#f1e9da;font-size:14px;}
+    .event-menu-details{margin:30px auto 0;max-width:1000px;padding:28px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,#17140f,#0c0c0b);box-shadow:var(--shadow);}
+    .event-menu-details h3{font-family:"Cormorant Garamond",serif;color:var(--gold-light);font-size:36px;margin:8px 0;}
+    .event-menu-details>p{color:#ddd;margin-bottom:14px;white-space:pre-line;}
+    .event-package{white-space:pre-line;margin:18px 0;padding:18px 20px;border:1px solid rgba(216,179,106,.35);border-radius:16px;background:rgba(216,179,106,.08);color:var(--gold-light);}
+    .event-food-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px;}
+    .event-food-card{overflow:hidden;border:1px solid rgba(216,179,106,.2);border-radius:17px;background:#171614;}
+    .event-food-card img{display:block;width:100%;height:190px;object-fit:cover;}
+    .event-food-copy{padding:16px;}
+    .event-food-copy strong{color:#f4dfb0;font-size:16px;}
+    .event-food-copy p{color:#bdb8ae;font-size:13px;margin-top:6px;}
+    .event-food-price{color:var(--gold);font-size:18px;font-weight:800;margin-top:10px;}
+    @media(max-width:700px){.event-choice-grid,.event-food-grid{grid-template-columns:1fr}.event-choice-card{min-height:290px}.event-choice-card strong{font-size:29px}.event-menu-details{padding:18px}.event-food-card img{height:220px}}
+
     /* GALLERY */
 
     .gallery-preview{
@@ -1452,10 +1478,12 @@
       <p>Scegli il tipo di evento per scoprire menu, pacchetti e prezzi.</p>
     </div>
     <div class="event-choice-grid">
-      <button class="event-choice-card" type="button" onclick="openEventMenu('wedding')">
+      <button class="event-choice-card" type="button" onclick="openEventMenu('wedding')" aria-label="Matrimonio / Wedding Menu">
+        <span class="event-choice-visual"><img id="eventWeddingCover" alt="Wedding menu" loading="lazy"></span>
         <span class="event-choice-icon">💍</span><strong>Matrimonio / Wedding Menu</strong><span>Scopri i menu per il tuo giorno speciale</span>
       </button>
-      <button class="event-choice-card" type="button" onclick="openEventMenu('birthday')">
+      <button class="event-choice-card" type="button" onclick="openEventMenu('birthday')" aria-label="Compleanno / Birthday Menu">
+        <span class="event-choice-visual"><img id="eventBirthdayCover" alt="Birthday menu" loading="lazy"></span>
         <span class="event-choice-icon">🎂</span><strong>Compleanno / Birthday Menu</strong><span>Pacchetti per feste di compleanno</span>
       </button>
     </div>
@@ -5356,14 +5384,21 @@ document
 ========================================================= */
 function eventMenuDefaults(){
   return {
-    wedding:{title:"Wedding Menu / বিয়েবাড়ির মেনু",description:"বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।",package:"",items:[]},
-    birthday:{title:"Birthday Menu / জন্মদিনের মেনু",description:"জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।",package:"",items:[]}
+    wedding:{title:"Wedding Menu / বিয়েবাড়ির মেনু",description:"বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।",package:"",cover_image:"",items:[]},
+    birthday:{title:"Birthday Menu / জন্মদিনের মেনু",description:"জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।",package:"",cover_image:"",items:[]}
   };
 }
 function renderEventMenu(){
   const root=document.getElementById("eventMenuDetails");if(!root)return;
   const cfg=getSetting("event_menu",eventMenuDefaults());
   window.nababiEventMenu=cfg;
+  const weddingImage=document.getElementById("eventWeddingCover");
+  const birthdayImage=document.getElementById("eventBirthdayCover");
+  [[weddingImage,cfg?.wedding?.cover_image],[birthdayImage,cfg?.birthday?.cover_image]].forEach(([img,url])=>{
+    if(!img)return;
+    const safe=safeUrl(url||"");
+    if(safe){img.src=safe;img.style.display="block";}else{img.removeAttribute("src");img.style.display="none";}
+  });
 }
 function openEventMenu(type){
   const root=document.getElementById("eventMenuDetails");if(!root)return;
