@@ -984,6 +984,18 @@
       border-radius:12px;
     }
 
+    .modal-gallery img{cursor:zoom-in;transition:transform .2s,box-shadow .2s;}
+    .modal-gallery img:hover{transform:scale(1.025);box-shadow:0 8px 26px rgba(0,0,0,.4);}
+    .photo-lightbox{position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.94);backdrop-filter:blur(8px);}
+    .photo-lightbox.show{display:flex;}
+    .photo-lightbox img{display:block;max-width:min(94vw,1400px);max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:10px;box-shadow:0 20px 70px rgba(0,0,0,.65);}
+    .photo-lightbox-close{position:absolute;top:14px;right:18px;width:48px;height:48px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:#171717;color:#fff;font-size:32px;line-height:1;cursor:pointer;}
+    .event-photo-gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0;}
+    .event-photo-gallery button{padding:0;border:1px solid rgba(216,179,106,.28);border-radius:13px;overflow:hidden;background:#111;cursor:zoom-in;aspect-ratio:1;}
+    .event-photo-gallery img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .25s;}
+    .event-photo-gallery button:hover img{transform:scale(1.05);}
+    @media(max-width:700px){.event-photo-gallery{grid-template-columns:repeat(2,minmax(0,1fr));}.photo-lightbox{padding:12px}.photo-lightbox img{max-width:96vw;max-height:84vh}.photo-lightbox-close{top:8px;right:8px;}}
+
     .all-reviews{
       display:grid;
       gap:15px;
@@ -2338,6 +2350,10 @@
 
 </div>
 
+<div id="photoLightbox" class="photo-lightbox" role="dialog" aria-modal="true" aria-label="Expanded photo" onclick="if(event.target===this)closePhotoLightbox()">
+  <button type="button" class="photo-lightbox-close" aria-label="Close photo" onclick="closePhotoLightbox()">×</button>
+  <img id="photoLightboxImage" src="" alt="Expanded photo">
+</div>
 
 <div id="reviewsModal" class="modal">
 
@@ -4298,23 +4314,9 @@ function openGallery(){
     );
 
 
-  container.innerHTML =
-    galleryItems
-      .map(item => `
-
-        <img
-          src="${escapeHTML(
-            safeUrl(item.image_url)
-          )}"
-          alt="${escapeHTML(
-            item.title ||
-            "Gallery"
-          )}"
-          loading="lazy"
-        >
-
-      `)
-      .join("");
+  container.innerHTML = galleryItems.map((item,index) => `
+    <img role="button" tabindex="0" onclick="openGalleryImage(${index})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGalleryImage(${index})}" src="${escapeHTML(safeUrl(item.image_url))}" alt="${escapeHTML(item.title || "Gallery")}" loading="lazy" title="ছবি বড় করে দেখতে চাপ দিন">
+  `).join("");
 
 
   modal.classList.add(
@@ -4322,6 +4324,25 @@ function openGallery(){
   );
 
 }
+
+function openGalleryImage(index){
+  const item=galleryItems[index];
+  if(!item?.image_url)return;
+  openPhotoLightbox(item.image_url,item.title||"Nababi Ristorante Gallery");
+}
+function openPhotoLightbox(url,alt){
+  const modal=document.getElementById("photoLightbox");
+  const image=document.getElementById("photoLightboxImage");
+  if(!modal||!image)return;
+  image.src=safeUrl(url);image.alt=alt||"Gallery photo";modal.classList.add("show");document.body.style.overflow="hidden";
+}
+function closePhotoLightbox(){
+  const modal=document.getElementById("photoLightbox");
+  const image=document.getElementById("photoLightboxImage");
+  if(modal)modal.classList.remove("show");if(image)image.src="";
+  if(!document.querySelector(".modal.show"))document.body.style.overflow="";
+}
+document.addEventListener("keydown",function(event){if(event.key==="Escape")closePhotoLightbox();});
 
 
 /* =========================================================
@@ -5463,8 +5484,10 @@ function openEventMenu(type){
   const description=escapeHTML(isOldDescription?(localized[type+"Desc"]||fallback.description):rawDescription);
   const packageText=escapeHTML(item.package||"");
   const items=Array.isArray(item.items)?item.items:[];
-  const food=items.length?`<div class="event-food-grid">${items.map(d=>{const image=safeUrl(d.image_url||d.image||"");return `<article class="event-food-card">${image?`<img src="${escapeHTML(image)}" alt="${escapeHTML(d.name||"Event dish")}" loading="lazy" onerror="this.style.display='none'">`:""}<div class="event-food-copy"><strong>${escapeHTML(d.name||"Menu item")}</strong><p>${escapeHTML(d.description||"")}</p>${d.price!==undefined&&d.price!==null&&String(d.price).trim()!==""?`<div class="event-food-price">€${escapeHTML(d.price)}</div>`:""}</div></article>`}).join("")}</div>`:`<p style="color:#aaa;margin-top:18px">${escapeHTML(localized.empty||"Menu details are being prepared.")}</p>`;
-  root.dataset.eventType=type;root.innerHTML=`<button type="button" class="btn btn-outline" style="float:right" onclick="closeEventMenu()">× ${escapeHTML(localized.close||"Close")}</button><h3>${title}</h3><p>${description}</p>${packageText?`<div class="event-package">${packageText}</div>`:""}${food}<div style="clear:both"></div>`;
+  const food=items.length?`<div class="event-food-grid">${items.map(d=>{const image=safeUrl(d.image_url||d.image||"");return `<article class="event-food-card">${image?`<img src="${escapeHTML(image)}" alt="${escapeHTML(d.name||"Event dish")}" loading="lazy" onclick="openPhotoLightbox('${escapeHTML(image)}','${escapeHTML(d.name||"Event dish")}')" style="cursor:zoom-in" onerror="this.style.display='none'">`:""}<div class="event-food-copy"><strong>${escapeHTML(d.name||"Menu item")}</strong><p>${escapeHTML(d.description||"")}</p>${d.price!==undefined&&d.price!==null&&String(d.price).trim()!==""?`<div class="event-food-price">€${escapeHTML(d.price)}</div>`:""}</div></article>`}).join("")}</div>`:`<p style="color:#aaa;margin-top:18px">${escapeHTML(localized.empty||"Menu details are being prepared.")}</p>`;
+  const photos=Array.isArray(item.gallery)?item.gallery.filter(p=>p&&p.image_url):[];
+  const gallery=photos.length?`<h4 style="color:var(--gold-light);margin:24px 0 8px">${lang==="bn"?"ছবির গ্যালারি":lang==="en"?"Photo gallery":"Galleria fotografica"}</h4><div class="event-photo-gallery">${photos.map((p,i)=>`<button type="button" onclick="openPhotoLightbox('${escapeHTML(safeUrl(p.image_url))}','${escapeHTML(p.title||title)}')" aria-label="Open event photo ${i+1}"><img src="${escapeHTML(safeUrl(p.image_url))}" alt="${escapeHTML(p.title||title)}" loading="lazy"></button>`).join("")}</div>`:"";
+  root.dataset.eventType=type;root.innerHTML=`<button type="button" class="btn btn-outline" style="float:right" onclick="closeEventMenu()">× ${escapeHTML(localized.close||"Close")}</button><h3>${title}</h3><p>${description}</p>${packageText?`<div class="event-package">${packageText}</div>`:""}${gallery}${food}<div style="clear:both"></div>`;
   root.hidden=false;root.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function closeEventMenu(){const root=document.getElementById("eventMenuDetails");if(root){root.hidden=true;root.innerHTML="";}}
