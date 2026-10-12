@@ -1752,27 +1752,21 @@
 
         </div>
 
-        <div class="field">
-
-          <label>
-            Guests *
-          </label>
-
-          <select id="bookingGuests">
-
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10+</option>
-
+        <div class="field booking-full">
+          <label for="bookingType">Booking Type * / Tipo di prenotazione</label>
+          <select id="bookingType" onchange="updateBookingTypeFields()">
+            <option value="normal">Normal Table Booking — Tavolo normale</option>
+            <option value="friends">Friends / Family — Amici e famiglia</option>
+            <option value="party">Party — Festa</option>
+            <option value="birthday">Birthday — Compleanno</option>
+            <option value="event">Event Management — Evento speciale</option>
           </select>
+          <small id="bookingTypeHint">For parties, birthdays and events, minimum 50 guests.</small>
+        </div>
 
+        <div class="field">
+          <label for="bookingGuests">Guests / Ospiti *</label>
+          <input id="bookingGuests" type="number" min="1" max="300" value="2" required oninput="updateBookingTypeFields()">
         </div>
 
         <div class="field">
@@ -4667,6 +4661,23 @@ function openAllReviews(){
    BOOKING
 ========================================================= */
 
+function updateBookingTypeFields(){
+  const type = document.getElementById("bookingType")?.value || "normal";
+  const guests = Number(document.getElementById("bookingGuests")?.value || 0);
+  const hint = document.getElementById("bookingTypeHint");
+  const groupTypes = ["party", "birthday", "event"];
+  if (!hint) return;
+  if (groupTypes.includes(type)) {
+    hint.textContent = guests < 50
+      ? "This booking type requires at least 50 guests. / Minimo 50 ospiti."
+      : "Minimum guest requirement met. / Numero minimo di ospiti raggiunto.";
+    hint.style.color = guests < 50 ? "#ef4444" : "#22c55e";
+  } else {
+    hint.textContent = "For parties, birthdays and events, minimum 50 guests. / Per feste ed eventi, minimo 50 ospiti.";
+    hint.style.color = "";
+  }
+}
+
 function isValidContact(
   phone,
   email
@@ -4723,6 +4734,16 @@ async function createBooking(){
       "bookingRequest"
     ).value.trim();
 
+  const bookingType = document.getElementById("bookingType")?.value || "normal";
+  const bookingTypeLabels = {normal:"Normal Table Booking", friends:"Friends / Family", party:"Party", birthday:"Birthday", event:"Event Management"};
+  const groupBookingTypes = ["party", "birthday", "event"];
+  if (groupBookingTypes.includes(bookingType) && guests < 50) {
+    result.className = "booking-result error";
+    result.textContent = "Party, Birthday and Event bookings require a minimum of 50 guests.";
+    return;
+  }
+  const savedRequest = `[Booking Type: ${bookingTypeLabels[bookingType] || bookingTypeLabels.normal}]` + (request ? "\n" + request : "");
+
 
   const result =
     document.getElementById(
@@ -4776,7 +4797,7 @@ async function createBooking(){
           p_guests:
             guests,
           p_special_request:
-            request || null
+            savedRequest || null
         }
       );
 
@@ -4810,7 +4831,7 @@ async function createBooking(){
               guests,
 
             special_request:
-              request || null,
+              savedRequest || null,
 
             status:
               "Pending"
