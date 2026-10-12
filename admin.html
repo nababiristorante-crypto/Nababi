@@ -3570,6 +3570,7 @@ async function loadBookings(){
     <thead>
     <tr>
       <th>Customer</th>
+      <th>Booking Type</th>
       <th>Phone</th>
       <th>Date</th>
       <th>Time</th>
@@ -3586,7 +3587,11 @@ async function loadBookings(){
       <tr>
 
         <td>
-          ${escapeHtml(item.customer_name)}
+          ${escapeHtml(item.customer_name || item.name || "")}
+        </td>
+
+        <td>
+          ${escapeHtml((String(item.special_request || "").match(/\[Booking Type: ([^\]]+)\]/i) || [])[1] || "Normal Table Booking")}
         </td>
 
         <td>
