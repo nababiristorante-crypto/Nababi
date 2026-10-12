@@ -3610,75 +3610,62 @@ function viewBookingDetails(id){
   supabaseClient.from("table_bookings").select("*").eq("id",id).single().then(({data,error})=>{if(error){showError(error);return;}window.__nababiBookings=[...(window.__nababiBookings||[]).filter(x=>String(x.id)!==String(id)),data];viewBookingDetails(id);});
 }
 
-
-function openGmailBookingEmail(id) {
-  const row = (window.__nababiBookings || [])
-    .find(x => String(x.id) === String(id));
-
-  if (!row) {
-    toast("Booking details are not loaded. Refresh Bookings and try again.");
+function openGmailBookingEmail(id){
+  const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
+  if(!row){toast("Booking details are not loaded. Refresh Bookings and try again.");return;}
+  const email=String(row.email||row.customer_email||row.customerEmail||row.contact_email||row.email_address||row.customer_email_address||"").trim();
+  if(!email){
+    toast("No customer email is saved for this booking. Please add the customer's email to the booking record first.");
     return;
   }
-
-  const email = String(
-    row.email ||
-    row.customer_email ||
-    row.customerEmail ||
-    row.contact_email ||
-    ""
-  ).trim();
-
-  if (!email) {
-    toast("This booking has no customer email address.");
-    return;
-  }
-
-  const name = String(
-    row.customer_name || row.name || "Customer"
-  ).trim();
-
-  const code = String(
-    row.booking_reference || row.booking_code || "Not available"
-  );
-
-  const status = String(row.status || "Pending").toLowerCase();
-  const isConfirmed = status === "confirmed";
-
-  const subject = isConfirmed
-    ? "Your Booking Is Confirmed — Nababi Ristorante, Roma"
-    : "Your Booking Request — Nababi Ristorante, Roma";
-
-  const message = [
-    "Dear " + name + ",",
+  const name=String(row.customer_name||row.name||"Customer").trim()||"Customer";
+  const code=String(row.booking_reference||row.booking_code||"Not available");
+  const type=row.booking_type || ((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1]) || "Table Booking";
+  const status=String(row.status||"Pending").toLowerCase();
+  const isConfirmed=status==="confirmed";
+  const subject=isConfirmed ? "Your Booking Is Confirmed — Nababi Ristorante, Roma" : "Thank You for Your Booking Request — Nababi Ristorante, Roma";
+  const date=String(row.booking_date||"To be confirmed");
+  const time=String(row.booking_time||"To be confirmed");
+  const guests=String(row.guests||2);
+  const message=[
+    "Dear "+name+",",
     "",
     isConfirmed
-      ? "Thank you for choosing Nababi Ristorante. We are pleased to confirm your booking."
-      : "Thank you for choosing Nababi Ristorante. We have received your booking request.",
+      ? "Thank you for choosing Nababi Ristorante. We are pleased to confirm your booking. We look forward to welcoming you!"
+      : "Thank you for choosing Nababi Ristorante! We have received your booking request. Our team will confirm your booking as soon as possible.",
     "",
-    "BOOKING DETAILS",
-    "Booking reference: " + code,
-    "Date: " + (row.booking_date || "To be confirmed"),
-    "Time: " + (row.booking_time || "To be confirmed"),
-    "Guests: " + (row.guests || 2),
+    "YOUR BOOKING DETAILS",
+    "Booking reference: "+code,
+    "Booking type: "+type,
+    "Date: "+date,
+    "Time: "+time,
+    "Guests: "+guests,
+    "Table: "+(row.table_number ? ("Table "+row.table_number+" — "+(row.room_name||"")) : "Not assigned"),
     "",
-    "For assistance, please contact us:",
-    "Phone / WhatsApp: +39 333 7687319",
+    "If you have any questions or need further information, please contact us:",
+    "Restaurant phone: +39 333 7687319",
+    "WhatsApp: +39 333 7687319",
+    "Additional phone: +39 393 3805350",
     "Address: Via Vespasiano 73/75/77, Roma",
     "",
-    "Kind regards,",
+    "Thank you again for choosing Nababi Ristorante. We look forward to serving you!",
+    "",
+    "Warm regards,",
     "Nababi Ristorante Team"
   ].join("\n");
-
- 
-const gmailUrl =
-  "mailto:" + encodeURIComponent(email) +
-  "?subject=" + encodeURIComponent(subject) +
-  "&body=" + encodeURIComponent(message);
-
-window.location.href = gmailUrl;
-
+  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:email,su:subject,body:message});
+  const url="https://mail.google.com/mail/u/0/?"+params.toString();
+  window.open(url,"_blank");
 }
-
+async function updateBooking(id,status){
+  const {error}=await supabaseClient.from("table_bookings").update({status,updated_at:new Date().toISOString(),...(status==="Confirmed"?{confirmed_at:new Date().toISOString()}:{})}).eq("id",id);
+  if(error){showError(error);return;}
+  if(currentStaff){
+    await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:status==="Confirmed"?"CONFIRMED":"CANCELLED"});
+  }
+  toast(status==="Confirmed" ? "Booking confirmed. Use Email Customer (Gmail) to prepare the customer email." : "Booking updated.");
+  await loadBookings();
+}
 
 /* =========================================================
    REVIEWS
