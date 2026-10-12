@@ -3604,8 +3604,29 @@ function viewBookingDetails(id){
 
 async function invokeBookingEmail(body){
   const {data,error}=await supabaseClient.functions.invoke("manage-booking-email",{body});
-  if(error) throw error;
-  if(data?.error) throw new Error(data.error);
+  if(error){
+    let detail="";
+    try{
+      const context=error.context;
+      if(context && typeof context.clone==="function"){
+        const raw=await context.clone().text();
+        if(raw){
+          try{
+            const parsed=JSON.parse(raw);
+            detail=String(parsed.error||parsed.message||parsed.msg||raw);
+          }catch{
+            detail=raw;
+          }
+        }
+      }
+    }catch(parseError){
+      console.warn("Could not read booking email error response",parseError);
+    }
+    const message=String(error.message||"Booking email request failed.");
+    throw new Error(detail ? `${message}: ${detail}` : message);
+  }
+  if(data?.error) throw new Error(String(data.error));
+  if(data?.ok===false) throw new Error(String(data.error||"The email service reported a failure."));
   return data;
 }
 
