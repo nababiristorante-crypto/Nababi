@@ -759,7 +759,7 @@
     .map-table{position:relative;min-height:100px;border:1px solid rgba(216,179,106,.28);border-radius:14px;background:#191919;color:#fff;padding:9px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .15s,border-color .15s,background .15s;width:100%}
     .map-table:hover{transform:translateY(-2px);border-color:var(--gold)}
     .map-table .table-top{width:47px;height:35px;border-radius:12px;background:linear-gradient(145deg,#3a2d16,#201a10);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:800;font-size:15px;position:relative;box-shadow:0 3px 12px rgba(0,0,0,.25)}
-    .map-table .chair-line{font-size:10px;letter-spacing:1px;color:#e6d3a8;line-height:1.1;max-width:100%;overflow-wrap:anywhere}
+    .map-table .chair-line{font-size:11px;letter-spacing:1px;color:#f3d99d;line-height:1.2;max-width:100%;overflow-wrap:anywhere;background:rgba(216,179,106,.07);border:1px solid rgba(216,179,106,.14);border-radius:999px;padding:4px 7px}
     .map-table .table-capacity{font-size:11px;color:#eee}
     .map-table .table-status{font-size:10px;color:#8de3a6}
     .map-table.selected{border:2px solid #e4bd65;background:rgba(216,179,106,.13);box-shadow:0 0 0 2px rgba(216,179,106,.08)}
@@ -1877,7 +1877,10 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
           <input
             id="bookingTime"
             type="time"
+            max="23:30"
+            aria-describedby="bookingTimeNote"
           >
+          <small id="bookingTimeNote" class="table-map-note">Last available booking time: 23:30. Reservations after closing time are not accepted.</small>
 
         </div>
 
@@ -2844,6 +2847,8 @@ function applySettings(){
   const hours =
     getSetting("hours");
 
+  // Keep the booking time selector in sync with the opening hours saved by Admin.
+  if(typeof updateNababiBookingTimeBounds === "function") updateNababiBookingTimeBounds();
 
   /* HERO */
 
@@ -4878,6 +4883,14 @@ async function createBooking(){
     result.textContent="Please enter your name, date, time and phone or email.";
     return;
   }
+  // Enforce the selected day's opening hours, including midnight/early-morning times.
+  if (time && !validateNababiBookingTime(true)) {
+    result.className="booking-result error";
+    const bounds=getNababiHoursForDate(date);
+    result.textContent=bounds.closed ? "The restaurant is closed on the selected date. Please choose another date." : `Please choose a booking time between ${bounds.open||"12:00"} and ${bounds.close||"23:30"}. Bookings outside opening hours are not accepted.`;
+    document.getElementById("bookingTime")?.focus();
+    return;
+  }
   if (["birthday","event"].includes(bookingType) && (!phone || !email)) {
     result.className="booking-result error";
     if (!phone && !email) {
@@ -5713,8 +5726,52 @@ async function initializeSite(){
 }
 
 
-document.getElementById("bookingDate")?.addEventListener("change",refreshNababiTableAvailability);
-document.getElementById("bookingTime")?.addEventListener("change",refreshNababiTableAvailability);
+function getNababiHoursForDate(dateValue){
+  const fallback={open:"12:00",close:"23:30"};
+  if(!dateValue)return fallback;
+  const date=new Date(dateValue+"T12:00:00");
+  const dayNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const day=dayNames[date.getDay()];
+  const hours=getSetting("hours",{});
+  const value=hours?.[day] ?? hours?.[day.toLowerCase()];
+  if(typeof value==="string"){
+    const match=value.match(/(\d{1,2}:\d{2}).*?(\d{1,2}:\d{2})/);
+    return match?{open:match[1].padStart(5,"0"),close:match[2].padStart(5,"0")} : fallback;
+  }
+  if(value&&typeof value==="object"){
+    const open=String(value.open||fallback.open).trim();
+    const close=String(value.close||fallback.close).trim();
+    if(open.toLowerCase()==="closed"||close.toLowerCase()==="closed")return {closed:true,open,close};
+    return {open,close};
+  }
+  return fallback;
+}
+function updateNababiBookingTimeBounds(){
+  const dateInput=document.getElementById("bookingDate");
+  const timeInput=document.getElementById("bookingTime");
+  if(!timeInput)return;
+  const bounds=getNababiHoursForDate(dateInput?.value);
+  timeInput.min=bounds.open||"12:00";
+  timeInput.max=bounds.close||"23:30";
+  timeInput.title=bounds.closed?"The restaurant is closed on this day.":`Bookings accepted from ${timeInput.min} to ${timeInput.max}.`;
+  if(bounds.closed){timeInput.value="";timeInput.disabled=true;}
+  else {timeInput.disabled=false;if(timeInput.value&&(timeInput.value<timeInput.min||timeInput.value>timeInput.max))timeInput.value="";}
+}
+function validateNababiBookingTime(showMessage=false){
+  const date=document.getElementById("bookingDate")?.value;
+  const timeInput=document.getElementById("bookingTime");
+  if(!timeInput||!timeInput.value)return true;
+  const bounds=getNababiHoursForDate(date);
+  let message="";
+  if(bounds.closed)message="The restaurant is closed on the selected date. Please choose another date.";
+  else if(timeInput.value<(bounds.open||"12:00")||timeInput.value>(bounds.close||"23:30"))message=`Please choose a time between ${bounds.open||"12:00"} and ${bounds.close||"23:30"}. Bookings outside opening hours are not accepted.`;
+  timeInput.setCustomValidity(message);
+  if(message&&showMessage)timeInput.reportValidity();
+  return !message;
+}
+document.getElementById("bookingDate")?.addEventListener("change",()=>{updateNababiBookingTimeBounds();refreshNababiTableAvailability();});
+document.getElementById("bookingTime")?.addEventListener("change",()=>{validateNababiBookingTime(true);refreshNababiTableAvailability();});
+updateNababiBookingTimeBounds();
 document.getElementById("bookingGuests")?.addEventListener("change",()=>{
   const cfg=selectedNababiTable?NABABI_TABLE_CONFIG[selectedNababiTable]:null;
   const privateWrap=document.getElementById("table9PrivateWrap");
