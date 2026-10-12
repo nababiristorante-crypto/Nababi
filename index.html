@@ -2369,7 +2369,7 @@ async function registerNababiWebsiteVisit(){
         : "nb-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
       sessionStorage.setItem("nababi_visit_session_id", visitorId);
     }
-    const { error } = await supabaseClient.rpc("register_website_visit", { p_visitor_id: visitorId });
+    const { error } = await supabaseClient.rpc("register_website_visit", { p_visitor_key: visitorId });
     if(error){
       console.error("Website visit counter registration failed:", error.message || error);
       return;
@@ -3032,64 +3032,60 @@ function setSocialLink(id,url){
 ========================================================= */
 
 function renderHours(hours){
-
-  const list =
-    document.getElementById(
-      "hoursList"
-    );
-
-  if(!list){
-    return;
-  }
+  const list = document.getElementById("hoursList");
+  if(!list) return;
 
   const days = [
-    ["Monday","Lunedì"],
-    ["Tuesday","Martedì"],
-    ["Wednesday","Mercoledì"],
-    ["Thursday","Giovedì"],
-    ["Friday","Venerdì"],
-    ["Saturday","Sabato"],
-    ["Sunday","Domenica"]
+    ["Monday", "Lunedì"],
+    ["Tuesday", "Martedì"],
+    ["Wednesday", "Mercoledì"],
+    ["Thursday", "Giovedì"],
+    ["Friday", "Venerdì"],
+    ["Saturday", "Sabato"],
+    ["Sunday", "Domenica"]
   ];
 
   let html = "";
+  days.forEach(([key, label]) => {
+    const value = hours && (hours[key] ?? hours[key.toLowerCase()]);
+    let display = "";
 
-  days.forEach(([key,label]) => {
+    // Current Admin saves each day as { open: "12:00", close: "23:00" }.
+    // Also accept older schedules where the value was a plain string.
+    if(typeof value === "string") {
+      display = value.trim();
+    } else if(value && typeof value === "object") {
+      const open = String(value.open || "").trim();
+      const close = String(value.close || "").trim();
+      if(open.toLowerCase() === "closed" || close.toLowerCase() === "closed") {
+        display = "Chiuso";
+      } else if(open && close) {
+        display = `${open} – ${close}`;
+      } else if(open || close) {
+        display = open || close;
+      }
+    }
 
-    const value =
-      hours[key] ||
-      hours[key.toLowerCase()] ||
-      "";
-
-    if(value){
-
+    if(display) {
       html += `
         <div class="hours-row">
           <strong>${label}</strong>
-          <span>${escapeHTML(value)}</span>
+          <span>${escapeHTML(display)}</span>
         </div>
       `;
-
     }
-
   });
 
-  if(!html){
-
+  if(!html) {
     html = `
       <div class="hours-row">
-        <strong>Monday</strong>
-        <span>12:00 - 23:00</span>
+        <strong>Orari</strong>
+        <span>Orari non ancora disponibili</span>
       </div>
     `;
-
   }
-
-  list.innerHTML =
-    html;
-
+  list.innerHTML = html;
 }
-
 
 /* =========================================================
    BREAKING NEWS
@@ -5501,4 +5497,4 @@ initializeSite();
 </a>
 
 </body>
-  </html>
+</html>
