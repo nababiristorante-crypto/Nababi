@@ -449,6 +449,36 @@ input,textarea,select{background:#0b0c0f;color:#f6f3eb;border:1px solid #35363d;
 @keyframes nbFadeIn{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.side{top:72px;height:calc(100dvh - 72px);min-height:0;left:-285px;width:270px;box-shadow:20px 0 50px #0007}.side.open{left:0}.main{padding:15px 12px}.g2,.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:0 12px}.brand-head b{font-size:13px}.coupon-hero .row{gap:9px}.coupon-hero .row button{flex:1}.section h2{font-size:25px}}
 @media(max-width:480px){.g2,.g3{grid-template-columns:1fr}.card{padding:15px}.card.stat{min-height:94px}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.quick-card{min-height:102px;padding:13px 11px}.quick-label{font-size:12px}.header-logo{width:36px;height:36px}.top{height:64px}.side{top:64px;height:calc(100dvh - 64px)}.coupon-hero{padding:16px}.coupon-hero .row{flex-wrap:wrap}.coupon-hero .row input{flex-basis:100%!important}.main{padding:12px 10px}}
+
+/* Match supplied Nababi dashboard reference while preserving existing controls and permissions */
+:root{--gold:#edbf60;--line:#393021;--panel:#11171b}
+body{background:radial-gradient(ellipse at 72% 0%,#151b1e 0,#080b0d 48%,#050607 100%)}
+.top{background:rgba(5,8,10,.96);border-bottom:1px solid #49391d;min-height:70px}
+.brand-head b{letter-spacing:.2px}.header-logo{border:1px solid #b78d3c;background:#0b0c0c}
+.layout{grid-template-columns:248px minmax(0,1fr)}
+.side{background:linear-gradient(180deg,#0b1013,#090c0e);border-right:1px solid #302719}
+.nav{display:flex;align-items:center;gap:9px;min-height:40px;padding:9px 10px;border-radius:8px;font-size:13px}
+.nav:hover,.nav.active{background:linear-gradient(90deg,#e9bd60,#c99536);color:#17110a;border-color:#f2d28d;box-shadow:none;font-weight:800}
+.main{max-width:1600px;padding:clamp(14px,2vw,28px)}
+.card{background:linear-gradient(145deg,#12191d,#0d1114);border:1px solid #2c3539;border-radius:13px;box-shadow:0 10px 28px #0004}
+.coupon-hero{background:linear-gradient(115deg,#12191d,#0c1012 72%,#241b0d);border:1px solid #d5a748;box-shadow:0 12px 35px #0005}
+.coupon-hero h2{font-size:clamp(22px,2vw,30px)}
+.quick-heading h3{color:#efc66d}
+.quick-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.quick-card{background:linear-gradient(145deg,#10171b,#090d0f);border:1px solid #2d383d;border-radius:12px;min-height:105px;align-items:center;text-align:center;justify-content:center;gap:10px;padding:13px 8px}
+.quick-card:hover{border-color:#d5a748;background:linear-gradient(145deg,#1c211f,#101214)}
+.quick-icon{background:#302718;color:#f0c66a;border:1px solid #5e4925;border-radius:10px}
+.quick-label{font-size:12px}
+.stat{background:linear-gradient(145deg,#10171b,#0b0f11);border-color:#263136}
+.stat b{color:#f5d28a}
+input,textarea,select{background:#0a0f12;border-color:#344047;border-radius:9px}
+.btn{background:linear-gradient(180deg,#f6d27f,#dca744);color:#16110a;border-radius:8px}
+.btn.dark{background:#171d20;color:#f5f1e8;border:1px solid #394247}
+.tablewrap{border-color:#2c3539}
+@media(max-width:850px){.layout{grid-template-columns:minmax(0,1fr)}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.side{background:#080c0e}.nav{min-height:42px}.top{min-height:64px}}
+@media(min-width:851px){.g3{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:390px){.quick-grid{gap:8px}.quick-card{min-height:94px;padding:9px 6px}.quick-label{font-size:11px}.header-logo{width:32px;height:32px;flex-basis:32px}}
+
 </style>
 
 </head>
@@ -3543,179 +3573,78 @@ async function deleteMenu(id){
 ========================================================= */
 
 async function loadBookings(){
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-    .from("table_bookings")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending:false
-      }
-    );
-
-  if(error)
-    throw error;
-
-  $("bookingList").innerHTML =
-    `
-    <div class="tablewrap">
-
-    <table class="table">
-
-    <thead>
-    <tr>
-      <th>Customer</th>
-      <th>Booking Type</th>
-      <th>Phone</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th>Guests</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-
-    <tbody>
-
-    ${(data || []).map(item=>`
-
-      <tr>
-
-        <td>
-          ${escapeHtml(item.customer_name || item.name || "")}
-        </td>
-
-        <td>
-          ${escapeHtml((String(item.special_request || "").match(/\[Booking Type: ([^\]]+)\]/i) || [])[1] || "Normal Table Booking")}
-        </td>
-
-        <td>
-          ${escapeHtml(
-            item.phone ||
-            item.email ||
-            ""
-          )}
-        </td>
-
-        <td>
-          ${escapeHtml(item.booking_date)}
-        </td>
-
-        <td>
-          ${escapeHtml(item.booking_time)}
-        </td>
-
-        <td>
-          ${item.guests || 2}
-        </td>
-
-        <td>
-          <span class="pill ${
-            item.status==="Confirmed"
-            ?"ok"
-            :""
-          }">
-            ${escapeHtml(item.status)}
-          </span>
-        </td>
-
-        <td>
-
-          <button
-            class="btn green small"
-            onclick="updateBooking(
-              ${item.id},
-              'Confirmed'
-            )"
-          >
-            Confirm
-          </button>
-
-          <button
-            class="btn red small"
-            onclick="updateBooking(
-              ${item.id},
-              'Cancelled'
-            )"
-          >
-            Cancel
-          </button>
-
-        </td>
-
-      </tr>
-
-    `).join("")}
-
-    </tbody>
-
-    </table>
-
-    </div>
-    `;
-
+  const {data,error}=await supabaseClient.from("table_bookings").select("*").order("created_at",{ascending:false});
+  if(error) throw error;
+  const rows=data||[];
+  $("bookingList").innerHTML=`<div class="tablewrap"><table class="table"><thead><tr>
+    <th>Customer / Code</th><th>Type</th><th>Phone</th><th>Email</th><th>Date</th><th>Time</th><th>Guests</th><th>Food / Details</th><th>Status</th><th>Actions</th>
+  </tr></thead><tbody>${rows.map(item=>{
+    const type=item.booking_type || ((String(item.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1]) || "Normal Table Booking";
+    const code=item.booking_reference||item.booking_code||"—";
+    return `<tr>
+      <td><strong>${escapeHtml(item.customer_name||item.name||"")}</strong><br><small>${escapeHtml(code)}</small></td>
+      <td>${escapeHtml(type)}</td><td>${escapeHtml(item.phone||"—")}</td><td>${escapeHtml(item.email||"—")}</td>
+      <td>${escapeHtml(item.booking_date||"")}</td><td>${escapeHtml(item.booking_time||"")}</td><td>${escapeHtml(item.guests||2)}</td>
+      <td>${escapeHtml([item.reserved_food,item.event_details,item.special_request].filter(Boolean).join(" | ").replace(/\[Booking Type: [^\]]+\]\n?/i,"" )||"—")}</td>
+      <td><span class="pill ${String(item.status).toLowerCase()==="confirmed"?"ok":""}">${escapeHtml(item.status||"Pending")}</span></td>
+      <td><button class="btn dark small" onclick="viewBookingDetails('${String(item.id).replace(/'/g,"\\'")}')">Details</button>
+      <button class="btn green small" onclick="updateBooking('${String(item.id).replace(/'/g,"\\'")}', 'Confirmed')">Confirm + Email</button>
+      <button class="btn red small" onclick="updateBooking('${String(item.id).replace(/'/g,"\\'")}', 'Cancelled')">Cancel</button>
+      <button class="btn small" onclick="sendBookingCustomEmail('${String(item.id).replace(/'/g,"\\'")}')">Custom Email</button></td>
+    </tr>`;
+  }).join("")}</tbody></table></div>`;
+  await loadBookingEmailHistory().catch(err=>console.warn("Email history could not load:",err));
 }
 
+function viewBookingDetails(id){
+  const row=window.__nababiBookings?.find(x=>String(x.id)===String(id));
+  if(row){alert(`Booking Code: ${row.booking_reference||row.booking_code||"—"}\nName: ${row.customer_name||row.name||"—"}\nPhone: ${row.phone||"—"}\nEmail: ${row.email||"—"}\nType: ${row.booking_type||"—"}\nDate: ${row.booking_date||"—"}\nTime: ${row.booking_time||"—"}\nGuests: ${row.guests||"—"}\nReserved Food: ${row.reserved_food||"—"}\nEvent Details: ${row.event_details||"—"}\nSpecial Request: ${row.special_request||"—"}`);return;}
+  supabaseClient.from("table_bookings").select("*").eq("id",id).single().then(({data,error})=>{if(error){showError(error);return;}window.__nababiBookings=[...(window.__nababiBookings||[]).filter(x=>String(x.id)!==String(id)),data];viewBookingDetails(id);});
+}
+
+async function invokeBookingEmail(body){
+  const {data,error}=await supabaseClient.functions.invoke("manage-booking-email",{body});
+  if(error) throw error;
+  if(data?.error) throw new Error(data.error);
+  return data;
+}
+
+async function sendBookingCustomEmail(id){
+  const message=prompt("Write the custom message to send to this booking customer:");
+  if(message===null) return;
+  if(!message.trim()){toast("Please enter a message.");return;}
+  try{await invokeBookingEmail({action:"custom_message",booking_id:String(id),message:message.trim()});toast("Custom email sent.");await loadBookingEmailHistory();}
+  catch(error){console.error(error);showError(error);await loadBookingEmailHistory().catch(()=>{});}
+}
+
+async function loadBookingEmailHistory(){
+  const target=$("bookingEmailHistoryList");if(!target)return;
+  const {data,error}=await supabaseClient.from("booking_email_history").select("*").order("created_at",{ascending:false}).limit(100);
+  if(error){target.innerHTML=`<p class="muted">Email history is not ready. Run the supplied SQL migration first. (${escapeHtml(error.message)})</p>`;return;}
+  if(!data?.length){target.innerHTML='<p class="muted">No email history recorded yet.</p>';return;}
+  target.innerHTML=`<div class="tablewrap"><table class="table"><thead><tr><th>Time</th><th>Booking Code</th><th>To</th><th>Type</th><th>Subject</th><th>Status</th><th>Attempts</th><th>Action</th></tr></thead><tbody>${data.map(row=>`<tr><td>${escapeHtml(row.created_at||"")}</td><td>${escapeHtml(row.booking_reference||"—")}</td><td>${escapeHtml(row.recipient_email||"")}</td><td>${escapeHtml(row.email_type||"")}</td><td>${escapeHtml(row.subject||"")}</td><td><span class="pill ${row.status==="sent"?"ok":row.status==="failed"?"danger":""}">${escapeHtml(row.status||"")}</span>${row.error_message?`<br><small>${escapeHtml(row.error_message)}</small>`:""}</td><td>${escapeHtml(row.attempts||0)}</td><td>${row.status==="failed"?`<button class="btn small" onclick="retryBookingEmail('${String(row.id).replace(/'/g,"\\'")}')">Retry</button>`:"—"}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+async function retryBookingEmail(historyId){
+  try{await invokeBookingEmail({action:"retry",history_id:String(historyId)});toast("Email retry completed.");}
+  catch(error){console.error(error);showError(error);}
+  await loadBookingEmailHistory();
+}
 
 async function updateBooking(id,status){
-
-  const {
-    error
-  } =
-  await supabaseClient
-    .from("table_bookings")
-    .update({
-      status,
-      updated_at:
-        new Date().toISOString()
-    })
-    .eq("id",id);
-
-  if(error){
-
-    showError(error);
-
-    return;
-
-  }
-
+  const {data:before,error:readError}=await supabaseClient.from("table_bookings").select("*").eq("id",id).single();
+  if(readError){showError(readError);return;}
+  const {error}=await supabaseClient.from("table_bookings").update({status,updated_at:new Date().toISOString(),...(status==="Confirmed"?{confirmed_at:new Date().toISOString()}:{})}).eq("id",id);
+  if(error){showError(error);return;}
   if(currentStaff){
-
-    await supabaseClient
-      .from("booking_staff_activity")
-      .insert({
-        staff_email:
-          currentUser.email,
-
-        staff_name:
-          currentStaff.full_name,
-
-        booking_id:
-          id,
-
-        action:
-          status==="Confirmed"
-          ?
-          "CONFIRMED"
-          :
-          "CANCELLED"
-      });
-
+    await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:status==="Confirmed"?"CONFIRMED":"CANCELLED"});
   }
-
+  if(status==="Confirmed" && before.email){
+    try{await invokeBookingEmail({action:"booking_confirmed",booking_id:String(id)});toast("Booking confirmed and confirmation email sent.");}
+    catch(emailError){console.error(emailError);toast("Booking confirmed, but email failed. Open Email History and retry.");}
+  }else{toast("Booking updated.");}
   await loadBookings();
-
-  toast(
-    "Booking updated."
-  );
-
 }
-
 
 /* =========================================================
    REVIEWS
