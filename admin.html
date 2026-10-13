@@ -3727,7 +3727,6 @@ async function loadBookings(){
       <div style="display:flex;flex-wrap:wrap;gap:8px">
         <button type="button" class="btn dark small" data-booking-action="details" data-booking-id="${escapeHtml(id)}">📋 Details</button>
         <button type="button" class="btn green small" data-booking-action="confirm" data-booking-id="${escapeHtml(id)}">✅ Confirm + Open Gmail</button>
-        <button type="button" class="btn small" data-booking-action="email" data-booking-id="${escapeHtml(id)}">📧 Email Customer (Gmail)</button>
         <button type="button" class="btn small" data-booking-action="whatsapp" data-booking-id="${escapeHtml(id)}">💬 WhatsApp</button>
         <button type="button" class="btn dark small" data-booking-action="call" data-booking-id="${escapeHtml(id)}">📞 Call</button>
         <button type="button" class="btn small" data-booking-action="custom" data-booking-id="${escapeHtml(id)}">✉️ Custom Message (Gmail)</button>
@@ -3839,24 +3838,37 @@ async function sendBookingCustomEmail(id){
   openGmailBookingEmail(id,message.trim());
 }
 
+function getBookingCustomerPhone(row){
+  return String(row?.phone||row?.customer_phone||row?.customerPhone||row?.phone_number||row?.mobile||row?.telephone||row?.contact_phone||row?.customer_mobile||row?.whatsapp||"").trim();
+}
+function normalizeInternationalPhone(raw){
+  // WhatsApp requires country code without +, spaces, or punctuation.
+  // Keep digits only; booking forms should save an international number such as +39...
+  return String(raw||"").replace(/[^\d]/g,"");
+}
 function openBookingWhatsApp(id){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking not found. Refresh bookings and try again.");return;}
-  const rawPhone=String(row.phone||row.customer_phone||row.customerPhone||"").trim();
-  const phone=rawPhone.replace(/[^\d]/g,"");
-  if(!phone){toast("No customer phone number is saved for this booking.");return;}
+  const rawPhone=getBookingCustomerPhone(row);
+  const phone=normalizeInternationalPhone(rawPhone);
+  if(!phone){toast("এই বুকিংয়ে গ্রাহকের ফোন নম্বর পাওয়া যায়নি। Booking Details-এ নম্বর আছে কি না দেখুন।");return;}
+  if(phone.length<8){toast("গ্রাহকের ফোন নম্বরটি অসম্পূর্ণ মনে হচ্ছে। দেশের কোডসহ নম্বরটি পরীক্ষা করুন।");return;}
   const name=row.customer_name||row.name||"Customer",code=row.booking_reference||row.booking_code||"—";
   const msg=`Dear ${name}, thank you for choosing Nababi Ristorante. Booking reference: ${code}. Date: ${row.booking_date||"—"}, Time: ${row.booking_time||"—"}, Guests: ${row.guests||2}. Please contact us if you need any changes.`;
-  const whatsappUrl="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
-  // Navigate directly from the user's click: this works better than opening a popup on iOS Safari.
-  window.location.href=whatsappUrl;
+  const whatsappUrl="https://api.whatsapp.com/send?phone="+phone+"&text="+encodeURIComponent(msg);
+  // Direct same-tab navigation is less likely to be blocked on iPhone Safari.
+  window.location.assign(whatsappUrl);
 }
 function callBookingCustomer(id){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking not found. Refresh bookings and try again.");return;}
-  const phone=String(row.phone||row.customer_phone||"").trim();
-  if(!phone){toast("No customer phone number is saved for this booking.");return;}
-  window.location.href="tel:"+phone.replace(/[^+\d]/g,"");
+  const rawPhone=getBookingCustomerPhone(row);
+  if(!rawPhone){toast("এই বুকিংয়ে গ্রাহকের ফোন নম্বর পাওয়া যায়নি। Booking Details-এ নম্বর আছে কি না দেখুন।");return;}
+  // tel: should retain leading + and digits only, removing spaces and punctuation.
+  let phone=rawPhone.replace(/[^+\d]/g,"");
+  if(phone.indexOf("+")>0)phone=phone.replace(/\+/g,"");
+  if(!phone){toast("গ্রাহকের ফোন নম্বরটি সঠিক নয়।");return;}
+  window.location.href="tel:"+phone;
 }
 
 async function loadBookingEmailHistory(){
@@ -5662,4 +5674,4 @@ supabaseClient.auth
 
 <script>document.addEventListener('DOMContentLoaded',loadCouponSoundSettings);</script>
 </body>
-</html>
+  </html>
