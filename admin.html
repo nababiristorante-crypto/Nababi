@@ -537,23 +537,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 
-<style id="nababi-reference-finish">
-
-/* Reference-aligned finishing pass: keeps existing section IDs, data handlers and role permissions intact. */
-.brand-head{display:flex;align-items:center;min-width:0}
-.brand-head b{font-family:Georgia,"Times New Roman",serif}
-.main>.section{scroll-margin-top:90px}
-#dashboard .toolbar{align-items:center}
-#dashboard .grid.g3{grid-template-columns:repeat(4,minmax(0,1fr))}
-#dashboard .stat{display:flex;flex-direction:column;gap:8px;justify-content:space-between}
-#dashboard .stat b{display:block;margin-top:5px}
-#secretCoupon .coupon-hero{margin-bottom:18px}
-#quickAccessGrid .quick-card{cursor:pointer}
-#quickAccessGrid .quick-card:focus-visible{outline:2px solid #f2dca2;outline-offset:3px}
-@media(max-width:1050px){#dashboard .grid.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){#dashboard .grid.g3{grid-template-columns:repeat(2,minmax(0,1fr))}#dashboard .stat{padding:12px;min-height:100px}}
-
-</style>
 </head>
 
 <body>
@@ -3702,6 +3685,25 @@ async function loadBookings(){
   const rows=data||[];
   window.__nababiBookings=rows;
   const host=$("bookingList");
+  if(!host.__bookingActionBound){
+    host.__bookingActionBound=true;
+    host.addEventListener("click",function(event){
+      const button=event.target.closest("button[data-booking-action]");
+      if(!button)return;
+      event.preventDefault();
+      const id=button.getAttribute("data-booking-id");
+      const action=button.getAttribute("data-booking-action");
+      try{
+        if(action==="details")viewBookingDetails(id);
+        else if(action==="email")openGmailBookingEmail(id);
+        else if(action==="custom")sendBookingCustomEmail(id);
+        else if(action==="whatsapp")openBookingWhatsApp(id);
+        else if(action==="call")callBookingCustomer(id);
+        else if(action==="cancel")updateBooking(id,"Cancelled");
+        else if(action==="confirm")confirmBookingAndSendEmail(id);
+      }catch(error){console.error("Booking action failed",error);showError(error);}
+    });
+  }
   if(!rows.length){host.innerHTML='<div class="card"><p class="muted">No bookings found.</p></div>';await loadBookingEmailHistory().catch(()=>{});return;}
   host.innerHTML=`<div class="booking-admin-list">${rows.map(item=>{
     const id=String(item.id).replace(/'/g,"\\'");
@@ -3723,13 +3725,13 @@ async function loadBookings(){
         <div><small class="muted">👥 Guests</small><div>${escapeHtml(item.guests||2)}${item.table_number?" · Table "+escapeHtml(item.table_number):""}</div></div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button class="btn dark small" onclick="viewBookingDetails('${id}')">📋 Details</button>
-        <button class="btn green small" onclick="confirmBookingAndSendEmail('${id}')">✅ Confirm + Send Email</button>
-        <button class="btn small" onclick="sendBookingCustomEmail('${id}')">📧 Email Customer</button>
-        <button class="btn small" onclick="openBookingWhatsApp('${id}')">💬 WhatsApp</button>
-        <button class="btn dark small" onclick="callBookingCustomer('${id}')">📞 Call</button>
-        <button class="btn small" onclick="sendBookingCustomEmail('${id}')">✉️ Custom Message</button>
-        <button class="btn red small" onclick="updateBooking('${id}','Cancelled')">Cancel Booking</button>
+        <button type="button" class="btn dark small" data-booking-action="details" data-booking-id="${escapeHtml(id)}">📋 Details</button>
+        <button type="button" class="btn green small" data-booking-action="confirm" data-booking-id="${escapeHtml(id)}">✅ Confirm + Open Gmail</button>
+        <button type="button" class="btn small" data-booking-action="email" data-booking-id="${escapeHtml(id)}">📧 Email Customer (Gmail)</button>
+        <button type="button" class="btn small" data-booking-action="whatsapp" data-booking-id="${escapeHtml(id)}">💬 WhatsApp</button>
+        <button type="button" class="btn dark small" data-booking-action="call" data-booking-id="${escapeHtml(id)}">📞 Call</button>
+        <button type="button" class="btn small" data-booking-action="custom" data-booking-id="${escapeHtml(id)}">✉️ Custom Message (Gmail)</button>
+        <button type="button" class="btn red small" data-booking-action="cancel" data-booking-id="${escapeHtml(id)}">Cancel Booking</button>
       </div>
     </article>`;
   }).join("")}</div>`;
@@ -3748,30 +3750,60 @@ async function invokeBookingEmail(body){
   if(data?.error)throw new Error(String(data.error));if(data?.ok===false)throw new Error(String(data.error||"Email service failed."));return data;
 }
 
+function getBookingEmailAddress(row){
+  return String(row?.email||row?.customer_email||row?.customerEmail||row?.contact_email||row?.email_address||row?.customer_email_address||"").trim();
+}
+function buildBookingGmailDraft(row, customMessage=""){
+  const email=getBookingEmailAddress(row);
+  if(!email){toast("এই বুকিংয়ে কাস্টমারের ইমেইল নেই। আগে বুকিংয়ের ইমেইল যোগ করুন অথবা WhatsApp ব্যবহার করুন।");return null;}
+  const name=String(row.customer_name||row.name||"Customer").trim()||"Customer";
+  const code=String(row.booking_reference||row.booking_code||"Not available");
+  const type=row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking";
+  const confirmed=String(row.status||"Pending").toLowerCase()==="confirmed";
+  const subject=customMessage ? `Message about your booking ${code} — Nababi Ristorante` : (confirmed?"Your Booking Is Confirmed — Nababi Ristorante, Roma":"Thank You for Your Booking Request — Nababi Ristorante, Roma");
+  const details=[
+    `Dear ${name},`,"",
+    customMessage.trim() ? customMessage.trim() : (confirmed
+      ? "Thank you for choosing Nababi Ristorante. We are pleased to confirm your booking. We look forward to welcoming you!"
+      : "Thank you for choosing Nababi Ristorante! We have received your booking request. Our team will confirm your booking as soon as possible."),
+    "","YOUR BOOKING DETAILS",`Booking reference: ${code}`,`Booking type: ${type}`,
+    `Date: ${row.booking_date||"To be confirmed"}`,`Time: ${row.booking_time||"To be confirmed"}`,`Guests: ${row.guests||2}`,
+    row.table_number?`Table: ${row.table_number}${row.room_name?" — "+row.room_name:""}`:"",
+    "","If you have any questions, please contact us:","Restaurant phone: +39 333 7687319","WhatsApp: +39 333 7687319","Additional phone: +39 393 3805350","Address: Via Vespasiano 73/75/77, Roma","","Thank you for choosing Nababi Ristorante.","","Warm regards,","Nababi Ristorante Team"
+  ].filter((line,index)=>line!==""||index===1).join("\n");
+  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:email,su:subject,body:details});
+  return "https://mail.google.com/mail/u/0/?"+params.toString();
+}
+function openGmailBookingEmail(id, customMessage=""){
+  const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
+  if(!row){toast("Booking details are not loaded. Please refresh Bookings and try again.");return false;}
+  const url=buildBookingGmailDraft(row,customMessage);
+  if(!url)return false;
+  // Called directly from a user click so browser popup protection is less likely to block Gmail.
+  const opened=window.open(url,"_blank");
+  if(!opened){window.location.href=url;}
+  return true;
+}
 async function confirmBookingAndSendEmail(id){
-  const {data:before,error:readError}=await supabaseClient.from("table_bookings").select("*").eq("id",id).single();
-  if(readError){showError(readError);return;}
+  const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
+  if(!row){toast("Booking details are not loaded. Please refresh Bookings and try again.");return;}
+  // Open Gmail synchronously from the click before awaiting the database update.
+  const oldStatus=row.status;
+  row.status="Confirmed";
+  const draftOpened=openGmailBookingEmail(id);
+  if(!draftOpened){row.status=oldStatus;return;}
   const {error}=await supabaseClient.from("table_bookings").update({status:"Confirmed",confirmed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",id);
-  if(error){showError(error);return;}
-  if(currentStaff){try{await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:"CONFIRMED"});}catch(e){console.warn(e);}}
-  if(!(before.email||before.customer_email||before.customerEmail||before.contact_email||before.email_address||before.customer_email_address)){
-    toast("Booking confirmed, but no customer email is saved. Use WhatsApp or Custom Message instead.");await loadBookings();return;
-  }
-  try{await invokeBookingEmail({action:"booking_confirmed",booking_id:String(id)});toast("Booking confirmed and confirmation email sent.");}
-  catch(e){console.error(e);showError(e);}
+  if(error){row.status=oldStatus;showError(error);return;}
+  if(currentStaff&&currentUser){try{await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:"CONFIRMED"});}catch(e){console.warn("Could not record booking staff activity",e);}}
+  toast("Booking confirmed. Gmail draft opened — review it and press Send.");
   await loadBookings();
 }
-
 async function sendBookingCustomEmail(id){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking not found. Refresh bookings and try again.");return;}
-  const email=String(row.email||row.customer_email||row.customerEmail||row.contact_email||row.email_address||row.customer_email_address||"").trim();
-  if(!email){toast("This booking has no customer email address. Use WhatsApp if a phone number is saved.");return;}
-  const message=prompt("Write the message to send to this customer by email:");
-  if(message===null)return;if(!message.trim()){toast("Please enter a message.");return;}
-  try{await invokeBookingEmail({action:"custom_message",booking_id:String(id),message:message.trim()});toast("Custom email sent successfully.");}
-  catch(e){console.error(e);showError(e);}
-  await loadBookingEmailHistory().catch(()=>{});
+  const message=prompt("Optional: add a custom message. Leave blank to use the saved standard booking message:");
+  if(message===null)return;
+  openGmailBookingEmail(id,message.trim());
 }
 
 function openBookingWhatsApp(id){
@@ -3803,23 +3835,13 @@ async function loadBookingEmailHistory(){
 async function retryBookingEmail(historyId){try{await invokeBookingEmail({action:"retry",history_id:String(historyId)});toast("Email retry completed.");}catch(e){console.error(e);showError(e);}await loadBookingEmailHistory();}
 
 async function updateBooking(id,status){
-  const {data:before,error:readError}=await supabaseClient.from("table_bookings").select("*").eq("id",id).single();
-  if(readError){showError(readError);return;}
-  const {error}=await supabaseClient.from("table_bookings").update({status,updated_at:new Date().toISOString(),...(status==="Confirmed"?{confirmed_at:new Date().toISOString()}:{})}).eq("id",id);
-  if(error){showError(error);return;}
-  if(currentStaff){try{await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:status==="Confirmed"?"CONFIRMED":"CANCELLED"});}catch(e){console.warn(e);}}
-  if(status==="Confirmed"){
-    const email=String(before.email||before.customer_email||before.customerEmail||before.contact_email||before.email_address||before.customer_email_address||"").trim();
-    if(email){
-      try{await invokeBookingEmail({action:"booking_confirmed",booking_id:String(id)});toast("Booking confirmed and confirmation email sent automatically.");}
-      catch(emailError){console.error(emailError);toast("Booking confirmed, but confirmation email failed. Open Email History and use Retry.");}
-    }else{
-      toast("Booking confirmed. No customer email is saved; use WhatsApp or Call instead.");
-    }
-  }else{
-    toast("Booking cancelled.");
-  }
-  await loadBookings();
+  try{
+    const {error}=await supabaseClient.from("table_bookings").update({status,updated_at:new Date().toISOString(),...(status==="Confirmed"?{confirmed_at:new Date().toISOString()}:{})}).eq("id",id);
+    if(error)throw error;
+    if(currentStaff&&currentUser){try{await supabaseClient.from("booking_staff_activity").insert({staff_email:currentUser.email,staff_name:currentStaff.full_name,booking_id:id,action:status==="Confirmed"?"CONFIRMED":"CANCELLED"});}catch(e){console.warn("Could not record booking staff activity",e);}}
+    toast(status==="Confirmed"?"Booking confirmed.":"Booking cancelled.");
+    await loadBookings();
+  }catch(error){console.error("Booking status update failed",error);showError(error);}
 }
 
 /* =========================================================
