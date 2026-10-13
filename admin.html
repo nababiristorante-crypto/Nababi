@@ -3776,30 +3776,45 @@ function buildBookingEmailPayload(row, customMessage=""){
 function buildBookingGmailDraft(row, customMessage=""){
   const payload=buildBookingEmailPayload(row,customMessage);
   if(!payload)return null;
-  // Use Gmail's generic compose route; /u/0 can send some mobile browsers to the inbox/home page.
   const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:payload.email,su:payload.subject,body:payload.body});
-  return "https://mail.google.com/mail/?"+params.toString();
+  return "https://mail.google.com/mail/u/0/?ui=2&"+params.toString();
 }
 function openGmailBookingEmail(id, customMessage=""){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking details are not loaded. Please refresh Bookings and try again.");return false;}
   const payload=buildBookingEmailPayload(row,customMessage);
   if(!payload)return false;
-  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:payload.email,su:payload.subject,body:payload.body});
-  const gmailUrl="https://mail.google.com/mail/?"+params.toString();
-  const mailtoUrl="mailto:"+encodeURIComponent(payload.email)+"?subject="+encodeURIComponent(payload.subject)+"&body="+encodeURIComponent(payload.body);
-  // Mobile devices may redirect Gmail web to its home screen when the user is not signed in.
-  // Keep a mailto fallback available, while desktop/tablet browsers go straight to Gmail compose.
+  const enc=(v)=>encodeURIComponent(String(v||""));
+  const gmailWebUrl="https://mail.google.com/mail/u/0/?ui=2&view=cm&fs=1&tf=1&to="+enc(payload.email)+"&su="+enc(payload.subject)+"&body="+enc(payload.body);
+  const mailtoUrl="mailto:"+enc(payload.email)+"?subject="+enc(payload.subject)+"&body="+enc(payload.body);
   const ua=String(navigator.userAgent||"");
-  const isMobile=/iPhone|iPad|iPod|Android|Mobile/i.test(ua);
-  if(isMobile){
-    const opened=window.open(gmailUrl,"_blank");
-    if(!opened){window.location.href=mailtoUrl;return true;}
-    toast("Gmail compose খুলুন। যদি শুধু Inbox/Home আসে, ফিরে এসে আবার Email চাপুন—ফোনের Mail/Gmail app-এর বিকল্প খুলবে।");
-  }else{
-    const opened=window.open(gmailUrl,"_blank");
-    if(!opened)window.location.href=mailtoUrl;
+  const isAppleMobile=/iPhone|iPad|iPod/i.test(ua);
+  const isAndroid=/Android/i.test(ua);
+  // On iOS, ask the Gmail app directly for its Compose screen; if unavailable, fall back to Gmail web Compose.
+  // Use same-tab navigation so Safari does not block the app hand-off as a popup.
+  if(isAppleMobile){
+    const gmailAppUrl="googlegmail://co?to="+enc(payload.email)+"&subject="+enc(payload.subject)+"&body="+enc(payload.body);
+    const fallbackKey="__nababiGmailFallback";
+    try{window.clearTimeout(window[fallbackKey]);}catch(e){}
+    let handedOff=false;
+    const onVisibility=()=>{if(document.hidden){handedOff=true;try{window.clearTimeout(window[fallbackKey]);}catch(e){}document.removeEventListener("visibilitychange",onVisibility);}};
+    document.addEventListener("visibilitychange",onVisibility);
+    window[fallbackKey]=window.setTimeout(()=>{
+      document.removeEventListener("visibilitychange",onVisibility);
+      if(!handedOff)window.location.href=gmailWebUrl;
+    },1400);
+    window.location.href=gmailAppUrl;
+    toast("Gmail-এর Compose খুলতে চেষ্টা করছি। অ্যাপ না খুললে Gmail-এর ওয়েব Compose খুলবে।");
+    return true;
   }
+  if(isAndroid){
+    // Gmail's mobile Compose endpoint reliably carries the recipient, subject and body.
+    window.location.href=gmailWebUrl;
+    return true;
+  }
+  // Desktop and tablet browsers use the explicit Compose endpoint, not the Gmail inbox URL.
+  const opened=window.open(gmailWebUrl,"_blank");
+  if(!opened)window.location.href=mailtoUrl;
   return true;
 }
 async function confirmBookingAndSendEmail(id){
@@ -3827,18 +3842,15 @@ async function sendBookingCustomEmail(id){
 function openBookingWhatsApp(id){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking not found. Refresh bookings and try again.");return;}
-  const phone=String(row.phone||row.customer_phone||"").replace(/[^\d]/g,"");
+  const rawPhone=String(row.phone||row.customer_phone||row.customerPhone||"").trim();
+  const phone=rawPhone.replace(/[^\d]/g,"");
   if(!phone){toast("No customer phone number is saved for this booking.");return;}
   const name=row.customer_name||row.name||"Customer",code=row.booking_reference||row.booking_code||"—";
   const msg=`Dear ${name}, thank you for choosing Nababi Ristorante. Booking reference: ${code}. Date: ${row.booking_date||"—"}, Time: ${row.booking_time||"—"}, Guests: ${row.guests||2}. Please contact us if you need any changes.`;
-  const text=encodeURIComponent(msg);
-  const whatsappUrl="https://api.whatsapp.com/send?phone="+phone+"&text="+text;
-  const fallbackUrl="https://wa.me/"+phone+"?text="+text;
-  // Open a new tab/window so iOS Safari, desktop browsers, and tablets can hand off to WhatsApp.
-  const opened=window.open(whatsappUrl,"_blank");
-  if(!opened)window.location.href=fallbackUrl;
+  const whatsappUrl="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
+  // Navigate directly from the user's click: this works better than opening a popup on iOS Safari.
+  window.location.href=whatsappUrl;
 }
-
 function callBookingCustomer(id){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking not found. Refresh bookings and try again.");return;}
