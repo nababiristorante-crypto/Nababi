@@ -3753,7 +3753,7 @@ async function invokeBookingEmail(body){
 function getBookingEmailAddress(row){
   return String(row?.email||row?.customer_email||row?.customerEmail||row?.contact_email||row?.email_address||row?.customer_email_address||"").trim();
 }
-function buildBookingGmailDraft(row, customMessage=""){
+function buildBookingEmailPayload(row, customMessage=""){
   const email=getBookingEmailAddress(row);
   if(!email){toast("এই বুকিংয়ে কাস্টমারের ইমেইল নেই। আগে বুকিংয়ের ইমেইল যোগ করুন অথবা WhatsApp ব্যবহার করুন।");return null;}
   const name=String(row.customer_name||row.name||"Customer").trim()||"Customer";
@@ -3761,7 +3761,7 @@ function buildBookingGmailDraft(row, customMessage=""){
   const type=row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking";
   const confirmed=String(row.status||"Pending").toLowerCase()==="confirmed";
   const subject=customMessage ? `Message about your booking ${code} — Nababi Ristorante` : (confirmed?"Your Booking Is Confirmed — Nababi Ristorante, Roma":"Thank You for Your Booking Request — Nababi Ristorante, Roma");
-  const details=[
+  const body=[
     `Dear ${name},`,"",
     customMessage.trim() ? customMessage.trim() : (confirmed
       ? "Thank you for choosing Nababi Ristorante. We are pleased to confirm your booking. We look forward to welcoming you!"
@@ -3771,17 +3771,35 @@ function buildBookingGmailDraft(row, customMessage=""){
     row.table_number?`Table: ${row.table_number}${row.room_name?" — "+row.room_name:""}`:"",
     "","If you have any questions, please contact us:","Restaurant phone: +39 333 7687319","WhatsApp: +39 333 7687319","Additional phone: +39 393 3805350","Address: Via Vespasiano 73/75/77, Roma","","Thank you for choosing Nababi Ristorante.","","Warm regards,","Nababi Ristorante Team"
   ].filter((line,index)=>line!==""||index===1).join("\n");
-  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:email,su:subject,body:details});
-  return "https://mail.google.com/mail/u/0/?"+params.toString();
+  return {email,subject,body};
+}
+function buildBookingGmailDraft(row, customMessage=""){
+  const payload=buildBookingEmailPayload(row,customMessage);
+  if(!payload)return null;
+  // Use Gmail's generic compose route; /u/0 can send some mobile browsers to the inbox/home page.
+  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:payload.email,su:payload.subject,body:payload.body});
+  return "https://mail.google.com/mail/?"+params.toString();
 }
 function openGmailBookingEmail(id, customMessage=""){
   const row=(window.__nababiBookings||[]).find(x=>String(x.id)===String(id));
   if(!row){toast("Booking details are not loaded. Please refresh Bookings and try again.");return false;}
-  const url=buildBookingGmailDraft(row,customMessage);
-  if(!url)return false;
-  // Called directly from a user click so browser popup protection is less likely to block Gmail.
-  const opened=window.open(url,"_blank");
-  if(!opened){window.location.href=url;}
+  const payload=buildBookingEmailPayload(row,customMessage);
+  if(!payload)return false;
+  const params=new URLSearchParams({view:"cm",fs:"1",tf:"1",to:payload.email,su:payload.subject,body:payload.body});
+  const gmailUrl="https://mail.google.com/mail/?"+params.toString();
+  const mailtoUrl="mailto:"+encodeURIComponent(payload.email)+"?subject="+encodeURIComponent(payload.subject)+"&body="+encodeURIComponent(payload.body);
+  // Mobile devices may redirect Gmail web to its home screen when the user is not signed in.
+  // Keep a mailto fallback available, while desktop/tablet browsers go straight to Gmail compose.
+  const ua=String(navigator.userAgent||"");
+  const isMobile=/iPhone|iPad|iPod|Android|Mobile/i.test(ua);
+  if(isMobile){
+    const opened=window.open(gmailUrl,"_blank");
+    if(!opened){window.location.href=mailtoUrl;return true;}
+    toast("Gmail compose খুলুন। যদি শুধু Inbox/Home আসে, ফিরে এসে আবার Email চাপুন—ফোনের Mail/Gmail app-এর বিকল্প খুলবে।");
+  }else{
+    const opened=window.open(gmailUrl,"_blank");
+    if(!opened)window.location.href=mailtoUrl;
+  }
   return true;
 }
 async function confirmBookingAndSendEmail(id){
@@ -3813,7 +3831,12 @@ function openBookingWhatsApp(id){
   if(!phone){toast("No customer phone number is saved for this booking.");return;}
   const name=row.customer_name||row.name||"Customer",code=row.booking_reference||row.booking_code||"—";
   const msg=`Dear ${name}, thank you for choosing Nababi Ristorante. Booking reference: ${code}. Date: ${row.booking_date||"—"}, Time: ${row.booking_time||"—"}, Guests: ${row.guests||2}. Please contact us if you need any changes.`;
-  window.location.href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
+  const text=encodeURIComponent(msg);
+  const whatsappUrl="https://api.whatsapp.com/send?phone="+phone+"&text="+text;
+  const fallbackUrl="https://wa.me/"+phone+"?text="+text;
+  // Open a new tab/window so iOS Safari, desktop browsers, and tablets can hand off to WhatsApp.
+  const opened=window.open(whatsappUrl,"_blank");
+  if(!opened)window.location.href=fallbackUrl;
 }
 
 function callBookingCustomer(id){
