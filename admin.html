@@ -687,7 +687,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 </button>
 
 <button class="nav" data-section="qrManager" style="display:none">
-🔳 QR Code Menu
+🔳 QR Menu Cards
 </button>
 
 <button class="nav" data-section="categories">
@@ -805,6 +805,12 @@ Refresh
 <b id="statStaff">—</b>
 </div>
 
+</div>
+
+<div class="card" data-quick-section="qrManager" style="margin-top:18px;border:1px solid #6d5426;padding:16px;border-radius:14px">
+  <h3 class="gold" style="margin:0 0 8px">🔳 QR Menu Cards</h3>
+  <p class="muted" style="margin:0 0 12px">Create and print table QR cards that open only the menu categories.</p>
+  <button type="button" class="btn" onclick="openQuickSection('qrManager')">Open QR Menu Cards</button>
 </div>
 
 </section>
@@ -1349,7 +1355,7 @@ Save Opening Hours
 <section id="qrManager" class="section">
   <div class="toolbar">
     <div>
-      <h2>🔳 QR Code Menu Manager</h2>
+      <h2>🔳 QR Menu Cards Manager</h2>
       <p class="muted">Create, save, preview and print a separate black-and-gold QR card for each table.</p>
     </div>
     <button class="btn dark" onclick="loadQrMenuCards()">↻ Refresh</button>
@@ -1366,7 +1372,7 @@ Save Opening Hours
       </label>
     </div>
     <label>Menu URL
-      <input id="qrTargetUrl" type="url" value="https://nababi-restorante-theta.vercel.app/#menu" placeholder="https://nababi-restorante-theta.vercel.app/#menu">
+      <input id="qrTargetUrl" type="url" value="https://nababi-restorante-theta.vercel.app/?view=menu#menu" placeholder="https://nababi-restorante-theta.vercel.app/?view=menu#menu">
     </label>
     <p class="muted" style="font-size:13px">Tip: the default link opens the Menu section. For a table-specific card, the table label is also shown on the printed card.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -4730,7 +4736,7 @@ function resetQrMenuForm(){
   $("qrCardId").value="";
   $("qrRoom").value="Flower Room";
   $("qrTableLabel").value="";
-  $("qrTargetUrl").value="https://nababi-restorante-theta.vercel.app/#menu";
+  $("qrTargetUrl").value="https://nababi-restorante-theta.vercel.app/?view=menu#menu";
   $("qrManagerMessage").textContent="";
 }
 function makeQrUrl(base,label){
@@ -4738,8 +4744,10 @@ function makeQrUrl(base,label){
   if(!clean) return "";
   try{
     const u=new URL(clean);
+    // Always use the dedicated menu-only view for table QR codes.
+    u.searchParams.set("view","menu");
     if(!u.searchParams.has("table")) u.searchParams.set("table",label);
-    if(!u.hash) u.hash="menu";
+    u.hash="menu";
     return u.toString();
   }catch(e){ return clean; }
 }
@@ -4797,7 +4805,7 @@ async function editQrMenuCard(id){
     const {data,error}=await supabaseClient.from("qr_menu_cards").select("*").eq("id",id).single();
     if(error) throw error;
     $("qrCardId").value=data.id; $("qrRoom").value=data.room_name||"Other"; $("qrTableLabel").value=data.table_label||"";
-    let baseUrl=data.target_url||"https://nababi-restorante-theta.vercel.app/#menu";
+    let baseUrl=data.target_url||"https://nababi-restorante-theta.vercel.app/?view=menu#menu";
     try{const parsedUrl=new URL(baseUrl);parsedUrl.searchParams.delete("table");baseUrl=parsedUrl.toString();}catch(e){}
     $("qrTargetUrl").value=baseUrl;
     $("qrManagerMessage").textContent="Editing "+data.table_label+". Save to apply changes.";
