@@ -694,6 +694,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 📅 Table Bookings
 </button>
 
+<button class="nav" data-section="bookingReports">
+📈 Booking Reports
+</button>
+
 <button class="nav" data-section="reviews">
 ⭐ Reviews
 </button>
@@ -1485,6 +1489,22 @@ Refresh
 </section>
 
 
+<!-- BOOKING REPORTS: SUPER ADMIN ONLY -->
+<section id="bookingReports" class="section">
+  <div class="toolbar" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div><h2>📈 Booking Reports</h2><p class="muted">Super Admin only · Summary from existing table_bookings records; no duplicate records are created.</p></div>
+    <button class="btn" type="button" onclick="loadBookingReports()">Refresh Reports</button>
+  </div>
+  <div id="bookingReportMessage" class="muted" role="status" style="margin:8px 0 14px"></div>
+  <div id="bookingReportStats" class="grid g2 g3" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px"></div>
+  <div class="grid g2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px;margin-top:16px">
+    <div class="card"><h3>Booking Type Breakdown</h3><div id="bookingReportTypes"></div></div>
+    <div class="card"><h3>Status Breakdown</h3><div id="bookingReportStatuses"></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Guest Summary</h3><div id="bookingReportGuests" class="muted">Loading…</div></div>
+</section>
+
+
 <!-- REVIEWS -->
 <section
  id="reviews"
@@ -1822,6 +1842,7 @@ Customers collect the code and show it to restaurant staff.
   <button class="quick-card" data-quick-section="menu" onclick="openQuickSection('menu')"><span class="quick-icon">🍽️</span><span class="quick-label">Menu Manager</span></button>
   <button class="quick-card" data-quick-section="categories" onclick="openQuickSection('categories')"><span class="quick-icon">📂</span><span class="quick-label">Menu Categories</span></button>
   <button class="quick-card" data-quick-section="bookings" onclick="openQuickSection('bookings')"><span class="quick-icon">📅</span><span class="quick-label">Table Bookings</span></button>
+  <button class="quick-card" data-quick-section="bookingReports" onclick="openQuickSection('bookingReports')"><span class="quick-icon">📈</span><span class="quick-label">Booking Reports</span></button>
   <button class="quick-card" data-quick-section="reviews" onclick="openQuickSection('reviews')"><span class="quick-icon">⭐</span><span class="quick-label">Customer Reviews</span></button>
   <button class="quick-card" data-quick-section="reports" onclick="openQuickSection('reports')"><span class="quick-icon">📝</span><span class="quick-label">Customer Reports</span></button>
   <button class="quick-card" data-quick-section="discount" onclick="openQuickSection('discount')"><span class="quick-icon">🏷️</span><span class="quick-label">Discount Campaign</span></button>
@@ -2160,6 +2181,13 @@ async function loadSection(id){
 
     if(id==="bookings")
       await loadBookings();
+
+    if(id==="bookingReports"){
+      if(String(currentStaff?.role||"").toUpperCase()!=="SUPER_ADMIN"){
+        throw new Error("Booking Reports are available to Super Admin only.");
+      }
+      await loadBookingReports();
+    }
 
     if(id==="reviews")
       await loadReviews();
@@ -3768,7 +3796,7 @@ function buildBookingEmailPayload(row, customMessage=""){
     "","YOUR BOOKING DETAILS",`Booking reference: ${code}`,`Booking type: ${type}`,
     `Date: ${row.booking_date||"To be confirmed"}`,`Time: ${row.booking_time||"To be confirmed"}`,`Guests: ${row.guests||2}`,
     row.table_number?`Table: ${row.table_number}${row.room_name?" — "+row.room_name:""}`:"",
-    "","If you have any questions, please contact us:","Restaurant phone: +39 393 3805350","WhatsApp: +39 333 7687319","Additional phone: +39 393 3805350","Address: Via Vespasiano 73/75/77, Roma","","Thank you for choosing Nababi Ristorante.","","Warm regards,","Nababi Ristorante Team"
+    "","If you have any questions, please contact us:","Restaurant phone: +39 333 7687319","WhatsApp: +39 333 7687319","Additional phone: +39 393 3805350","Address: Via Vespasiano 73/75/77, Roma","","Thank you for choosing Nababi Ristorante.","","Warm regards,","Nababi Ristorante Team"
   ].filter((line,index)=>line!==""||index===1).join("\n");
   return {email,subject,body};
 }
@@ -3889,6 +3917,66 @@ async function updateBooking(id,status){
     toast(status==="Confirmed"?"Booking confirmed.":"Booking cancelled.");
     await loadBookings();
   }catch(error){console.error("Booking status update failed",error);showError(error);}
+}
+
+/* =========================================================
+   BOOKING REPORTS — SUPER ADMIN ONLY
+   Reads existing records from public.table_bookings.
+========================================================= */
+function bookingReportRomeDate(){
+  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+  const v={};parts.forEach(p=>{if(p.type!=="literal")v[p.type]=p.value;});
+  return `${v.year}-${v.month}-${v.day}`;
+}
+function bookingReportDateUTC(dateText){
+  if(!dateText)return null;
+  const m=String(dateText).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m?new Date(Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]))):null;
+}
+function bookingReportType(row){
+  const raw=String(row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table").trim().toLowerCase();
+  if(raw.includes("birth"))return "Birthday";
+  if(raw.includes("event"))return "Event";
+  if(raw.includes("table")||raw.includes("normal")||!raw)return "Table";
+  return raw.replace(/\b\w/g,c=>c.toUpperCase());
+}
+function bookingReportStatus(row){
+  const raw=String(row.status||"Pending").trim().toLowerCase();
+  if(["cancelled","canceled","rejected","declined"].includes(raw))return "Cancelled";
+  if(["confirmed","approved","accepted"].includes(raw))return "Confirmed";
+  return "Pending";
+}
+function bookingReportTable(counts){
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length)return '<p class="muted">No bookings yet.</p>';
+  return '<div class="tablewrap"><table class="table"><thead><tr><th>Category</th><th>Bookings</th></tr></thead><tbody>'+entries.map(([name,count])=>`<tr><td>${escapeHtml(name)}</td><td><strong>${count}</strong></td></tr>`).join("")+'</tbody></table></div>';
+}
+async function loadBookingReports(){
+  if(String(currentStaff?.role||"").toUpperCase()!=="SUPER_ADMIN"){
+    const msg=$("bookingReportMessage");if(msg)msg.textContent="Access denied. Booking Reports are for Super Admin only.";
+    return;
+  }
+  const msg=$("bookingReportMessage");
+  const stats=$("bookingReportStats");
+  if(msg)msg.textContent="Loading booking report…";
+  if(stats)stats.innerHTML='<div class="card"><p class="muted">Loading…</p></div>';
+  const {data,error}=await supabaseClient.rpc("get_nababi_booking_reports");
+  if(error)throw error;
+  const report=data||{};
+  const daily=Number(report.daily||0),weekly=Number(report.weekly||0),monthly=Number(report.monthly||0),total=Number(report.total||0);
+  const guests=Number(report.guests||0),activeGuests=Number(report.active_guests||0);
+  if(stats)stats.innerHTML=[
+    ["Today",daily,"Bookings scheduled for today (Rome time)"],
+    ["This Week",weekly,"Monday through today"],
+    ["This Month",monthly,"Month to date"],
+    ["All-Time Bookings",total,"All existing booking records"]
+  ].map(([label,value,caption])=>`<div class="card stat"><div class="stat-caption">${escapeHtml(label)}</div><b>${value}</b><p class="muted" style="font-size:12px;margin:8px 0 0">${escapeHtml(caption)}</p></div>`).join("");
+  const typeCounts=report.type_counts||{"Table":0,"Birthday":0,"Event":0};
+  const statusCounts=report.status_counts||{"Confirmed":0,"Pending":0,"Cancelled":0};
+  const types=$("bookingReportTypes");if(types)types.innerHTML=bookingReportTable(typeCounts);
+  const statuses=$("bookingReportStatuses");if(statuses)statuses.innerHTML=bookingReportTable(statusCounts);
+  const guestHost=$("bookingReportGuests");if(guestHost)guestHost.innerHTML=`<div class="grid g2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px"><div><span class="muted">Total guests across all bookings</span><h2 style="margin:6px 0">${guests}</h2></div><div><span class="muted">Guests excluding cancelled bookings</span><h2 style="margin:6px 0">${activeGuests}</h2></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Calculated securely from existing booking records. No PDF/Excel export or duplicate data is created.</p>`;
+  if(msg)msg.textContent=`Updated ${report.updated_at||new Date().toLocaleString("en-GB",{timeZone:"Europe/Rome"})} · Secure report totals received.`;
 }
 
 /* =========================================================
@@ -4585,7 +4673,7 @@ async function applyCurrentRolePermissions(){
   const permissions=await getStaffPermissions();
   document.querySelectorAll(".nav").forEach(nav=>{
     const section=nav.dataset.section;
-    const allowed=section==="websiteSettings" ? role==="SUPER_ADMIN" : (role==="SUPER_ADMIN" || Boolean(permissions?.[role]?.view?.includes(section)));
+    const allowed=(section==="websiteSettings" || section==="bookingReports") ? role==="SUPER_ADMIN" : (role==="SUPER_ADMIN" || Boolean(permissions?.[role]?.view?.includes(section)));
     nav.style.display=allowed?"block":"none";
   });
   syncQuickAccessPermissions();
@@ -5674,4 +5762,4 @@ supabaseClient.auth
 
 <script>document.addEventListener('DOMContentLoaded',loadCouponSoundSettings);</script>
 </body>
-  </html>
+</html>
