@@ -1340,11 +1340,9 @@ Save Opening Hours
   <p class="muted">শুধু Birthday Party ও Event Management-এর জন্য। এখানে সর্বশেষ শেষের সময় এবং গ্রাহক কত মিনিট/ঘণ্টা নির্বাচন করতে পারবেন তা ঠিক করুন। সাধারণ Table Booking-এর সময় বদলাবে না।</p>
   <div class="grid g3" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
     <label>Latest event end time<input id="eventLatestEndTime" type="time" value="01:00" style="display:block;width:100%;margin-top:6px"></label>
-    <label>Minimum duration (minutes)<input id="eventMinDuration" type="number" min="120" max="480" step="15" value="120" style="display:block;width:100%;margin-top:6px"></label>
-    <label>Maximum duration (minutes)<input id="eventMaxDuration" type="number" min="120" max="480" step="15" value="480" style="display:block;width:100%;margin-top:6px"></label>
-    <label>Duration interval (minutes)<select id="eventDurationStep" style="display:block;width:100%;margin-top:6px"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></label>
   </div>
-  <p id="eventBookingSettingsStatus" class="muted" aria-live="polite">Default: event must finish by 01:00; duration 2–8 hours, in 30-minute steps.</p>
+  <p class="muted">Birthday ও Event Management বুকিংয়ের সময়কাল স্বয়ংক্রিয়ভাবে ঠিক ২ ঘণ্টা হবে। গ্রাহক আর ৩/৪/৮ ঘণ্টার duration বেছে নিতে পারবেন না। শুধু শেষ হওয়ার সর্বশেষ সময় এখানে পরিবর্তন করা যাবে।</p>
+  <p id="eventBookingSettingsStatus" class="muted" aria-live="polite">Default: fixed 2-hour booking; latest end time 01:00.</p>
   <button class="btn" onclick="saveEventBookingSettings()" style="margin-top:10px">💾 Save Birthday / Event Settings</button>
 </div>
 
@@ -3305,23 +3303,16 @@ async function loadEventBookingSettings(){
   try{
     const cfg=await getSetting("event_booking_settings");
     $("eventLatestEndTime").value=String(cfg.latest_end_time||"01:00").slice(0,5);
-    $("eventMinDuration").value=Number(cfg.min_duration_minutes)||120;
-    $("eventMaxDuration").value=Number(cfg.max_duration_minutes)||480;
-    $("eventDurationStep").value=String(Number(cfg.duration_step_minutes)||30);
-    $("eventBookingSettingsStatus").textContent=`Saved: finish by ${$("eventLatestEndTime").value}; duration ${$("eventMinDuration").value}–${$("eventMaxDuration").value} minutes; step ${$("eventDurationStep").value} minutes.`;
+    $("eventBookingSettingsStatus").textContent=`Saved: fixed 2-hour booking; latest end time ${$("eventLatestEndTime").value}.`;
   }catch(error){$("eventBookingSettingsStatus").textContent="Could not load settings: "+(error.message||String(error));}
 }
 async function saveEventBookingSettings(){
   try{
     if(String(currentStaff?.role||"").toUpperCase()!=="SUPER_ADMIN")throw new Error("Only Super Admin can change Birthday/Event time settings.");
     const latest=String($("eventLatestEndTime").value||"").slice(0,5);
-    const min=Number($("eventMinDuration").value), max=Number($("eventMaxDuration").value), step=Number($("eventDurationStep").value);
     if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(latest))throw new Error("Please select a valid latest end time.");
-    if(!Number.isInteger(min)||!Number.isInteger(max)||min<120||max>480||min>max)throw new Error("Duration must be between 120 and 480 minutes (2–8 hours), and minimum cannot exceed maximum.");
-    if(![15,30,60].includes(step))throw new Error("Choose a 15, 30, or 60 minute interval.");
-    if((max-min)%step!==0)throw new Error("Maximum duration must align with the selected duration interval.");
-    await saveSetting("event_booking_settings",{latest_end_time:latest,min_duration_minutes:min,max_duration_minutes:max,duration_step_minutes:step,updated_at:new Date().toISOString(),updated_by:currentUser?.email||""});
-    $("eventBookingSettingsStatus").textContent=`Saved: finish by ${latest}; duration ${min}–${max} minutes; step ${step} minutes. Public booking form will use these settings after refresh.`;
+    await saveSetting("event_booking_settings",{latest_end_time:latest,min_duration_minutes:120,max_duration_minutes:120,duration_step_minutes:60,updated_at:new Date().toISOString(),updated_by:currentUser?.email||""});
+    $("eventBookingSettingsStatus").textContent=`Saved: fixed 2-hour booking; latest end time ${latest}. Public booking form will use these settings after refresh.`;
     toast("Birthday & Event settings saved.");
   }catch(error){$("eventBookingSettingsStatus").textContent="Save failed: "+(error.message||String(error));}
 }
