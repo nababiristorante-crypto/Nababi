@@ -1941,18 +1941,8 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         </div>
 
         <div class="field booking-full" id="bookingHallDurationWrap" style="display:none;">
-          <label for="bookingHallDuration">Hall Booking Duration / Durata della sala *</label>
-          <select id="bookingHallDuration" onchange="updateHallDurationPreview()">
-            <option value="" selected disabled>Select duration (required)</option>
-            <option value="2">2 hours</option>
-            <option value="3">3 hours</option>
-            <option value="4">4 hours</option>
-            <option value="5">5 hours</option>
-            <option value="6">6 hours</option>
-            <option value="7">7 hours</option>
-            <option value="8">8 hours</option>
-          </select>
-          <small id="bookingHallDurationPreview" class="table-map-note">Choose the duration for Birthday / Event Hall Booking. The hall must remain available for the full period.</small>
+          <input type="hidden" id="bookingHallDuration" value="2">
+          <small id="bookingHallDurationPreview" class="table-map-note">Birthday / Event hall bookings are automatically reserved for 2 hours. Please choose a start time; the end time is calculated automatically.</small>
         </div>
 
         <div class="field booking-full">
@@ -4878,7 +4868,7 @@ function updateBookingTypeFields(){
   if (!hint) return;
   if (groupTypes.includes(type)) {
     const minimumOK = guests >= 50;
-    const contactText = contactBothRequired ? " Phone number and email are both required. Birthday and Event use the same hall; choose 2–8 hours." : "";
+    const contactText = contactBothRequired ? " Phone number and email are both required. Birthday and Event use the same hall for a fixed 2-hour booking." : "";
     hint.textContent = (minimumOK ? "Minimum guest requirement met." : "This booking type requires at least 50 guests.") + contactText;
     hint.style.color = minimumOK ? "#22c55e" : "#ef4444";
   } else {
@@ -4889,7 +4879,7 @@ function updateBookingTypeFields(){
 }
 
 function nababiTimeToMinutes(value){
-  if(!value || !/^\\d{2}:\\d{2}/.test(String(value)))return NaN;
+  if(!value || !/^\d{2}:\d{2}/.test(String(value)))return NaN;
   const parts=String(value).slice(0,5).split(":").map(Number);
   return parts[0]*60+parts[1];
 }
@@ -4903,9 +4893,9 @@ function updateHallDurationPreview(){
   if(!preview)return;
   if(!["birthday","event"].includes(type)){preview.textContent="Choose the duration for Birthday / Event Hall Booking. The hall must remain available for the full period.";return;}
   const time=document.getElementById("bookingTime")?.value||"";
-  const rawDuration=document.getElementById("bookingHallDuration")?.value||"";
-  if(!rawDuration){preview.textContent="Please select a duration between 2 and 8 hours.";return;}
-  const duration=Number(rawDuration);
+  const duration=2;
+  const durationInput=document.getElementById("bookingHallDuration");
+  if(durationInput)durationInput.value="2";
   if(!time){preview.textContent=`The shared hall can be booked for ${duration} hours. Choose a start time; the end time must be before closing.`;return;}
   const end=nababiTimeToMinutes(time)+duration*60;
   const endClock=nababiMinutesToTime(end % (24*60));
@@ -5055,23 +5045,19 @@ async function createBooking(){
     return;
   }
   const isHallBooking = ["birthday","event"].includes(bookingType);
-  const rawHallDuration = document.getElementById("bookingHallDuration")?.value || "";
-  const hallDuration = isHallBooking ? Number(rawHallDuration) : null;
+  const hallDuration = isHallBooking ? 2 : null;
+  const durationInput = document.getElementById("bookingHallDuration");
+  if (durationInput) durationInput.value = "2";
   const startMinutes = nababiTimeToMinutes(time);
   const endMinutes = isHallBooking ? startMinutes + hallDuration * 60 : null;
   if (isHallBooking) {
-    if (!rawHallDuration || !Number.isInteger(hallDuration) || hallDuration < 2 || hallDuration > 8) {
-      result.className="booking-result error";
-      result.textContent="Please choose a hall duration between 2 and 8 hours.";
-      return;
-    }
     const latestHallEndMinutes=60; // 01:00 on the following day is the configured latest end time.
     const finishesAfterMidnight=endMinutes>=24*60;
     const endClockMinutes=endMinutes%(24*60);
     if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes) || endMinutes<=startMinutes || (finishesAfterMidnight && endClockMinutes>latestHallEndMinutes)) {
       result.className="booking-result error";
-      result.textContent=`A ${hallDuration}-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time or a shorter duration.`;
-      document.getElementById("bookingHallDuration")?.focus();
+      result.textContent=`The fixed 2-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time.`;
+      document.getElementById("bookingTime")?.focus();
       return;
     }
     // Check both Birthday and Event because they use the same physical hall.
