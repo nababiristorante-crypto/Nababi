@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // QR menu links show only the menu categories, not the full homepage.
+    if (new URLSearchParams(window.location.search).get("view") === "menu") {
+      document.documentElement.classList.add("qr-menu-only");
+    }
+  </script>
 
   <title>Nababi Ristorante | Roma</title>
 
@@ -1226,6 +1232,29 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
 .language-select{border-color:rgba(232,189,99,.45)}
 @media(max-width:600px){.hero{min-height:86vh}.hero-content{padding:70px 0 55px}.hero h1{font-size:clamp(48px,14vw,68px)}.section-title h2{font-size:40px}.category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.category-image{height:150px}.gallery-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-grid{gap:22px}}
 
+
+    /* QR-only view: show the category menu without the rest of the homepage. */
+    html.qr-menu-only header,
+    html.qr-menu-only section:not(#menu),
+    html.qr-menu-only footer,
+    html.qr-menu-only .admin-login {
+      display: none !important;
+    }
+    html.qr-menu-only #menu {
+      display: block !important;
+      min-height: 100vh;
+      padding: 34px 0 56px;
+      scroll-margin-top: 0;
+    }
+    html.qr-menu-only #menu .container {
+      width: min(980px, 94%);
+    }
+    html.qr-menu-only #menu .section-title {
+      margin-bottom: 28px;
+    }
+    html.qr-menu-only #menu .section-title h2 {
+      font-size: clamp(36px, 8vw, 48px);
+    }
 </style>
 </head>
 
@@ -1912,7 +1941,18 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         </div>
 
         <div class="field booking-full" id="bookingHallDurationWrap" style="display:none;">
-          <small id="bookingHallDurationPreview" class="table-map-note">Birthday and Event bookings are automatically reserved for 2 hours. The hall must be available for the full period.</small>
+          <label for="bookingHallDuration">Hall Booking Duration / Durata della sala *</label>
+          <select id="bookingHallDuration" onchange="updateHallDurationPreview()">
+            <option value="" selected disabled>Select duration (required)</option>
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4">4 hours</option>
+            <option value="5">5 hours</option>
+            <option value="6">6 hours</option>
+            <option value="7">7 hours</option>
+            <option value="8">8 hours</option>
+          </select>
+          <small id="bookingHallDurationPreview" class="table-map-note">Choose the duration for Birthday / Event Hall Booking. The hall must remain available for the full period.</small>
         </div>
 
         <div class="field booking-full">
@@ -4806,6 +4846,7 @@ function updateBookingTypeFields(){
   const phone = document.getElementById("bookingPhone");
   const email = document.getElementById("bookingEmail");
   const detailsWrap = document.getElementById("bookingEventDetailsWrap");
+  const durationWrap = document.getElementById("bookingHallDurationWrap");
   const tablePickerWrap = document.getElementById("bookingTablePickerWrap");
   const groupTypes = ["party", "birthday", "event"];
   const contactBothRequired = ["birthday", "event"].includes(type);
@@ -4820,8 +4861,7 @@ function updateBookingTypeFields(){
     if (label) label.textContent = contactBothRequired ? "Email * (required for Birthday / Event)" : "Email";
   }
   if (detailsWrap) detailsWrap.style.display = ["birthday", "event", "party"].includes(type) ? "block" : "none";
-  const durationInfoWrap = document.getElementById("bookingHallDurationWrap");
-  if (durationInfoWrap) durationInfoWrap.style.display = contactBothRequired ? "block" : "none";
+  if (durationWrap) durationWrap.style.display = contactBothRequired ? "block" : "none";
   // Birthday and Event bookings reserve the shared hall directly; no table selection is shown or saved.
   if (tablePickerWrap) tablePickerWrap.style.display = contactBothRequired ? "none" : "block";
   if (contactBothRequired) {
@@ -4838,7 +4878,7 @@ function updateBookingTypeFields(){
   if (!hint) return;
   if (groupTypes.includes(type)) {
     const minimumOK = guests >= 50;
-    const contactText = contactBothRequired ? " Phone number and email are both required. Birthday and Event use the same hall; bookings are automatically reserved for 2 hours." : "";
+    const contactText = contactBothRequired ? " Phone number and email are both required. Birthday and Event use the same hall; choose 2–8 hours." : "";
     hint.textContent = (minimumOK ? "Minimum guest requirement met." : "This booking type requires at least 50 guests.") + contactText;
     hint.style.color = minimumOK ? "#22c55e" : "#ef4444";
   } else {
@@ -4849,31 +4889,28 @@ function updateBookingTypeFields(){
 }
 
 function nababiTimeToMinutes(value){
-  if(!value || !/^\d{2}:\d{2}/.test(String(value)))return NaN;
+  if(!value || !/^\\d{2}:\\d{2}/.test(String(value)))return NaN;
   const parts=String(value).slice(0,5).split(":").map(Number);
   return parts[0]*60+parts[1];
 }
 function nababiMinutesToTime(minutes){
-  const normalized=((Number(minutes)%1440)+1440)%1440;
-  const h=Math.floor(normalized/60),m=normalized%60;
+  const h=Math.floor(minutes/60),m=minutes%60;
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
 }
 function updateHallDurationPreview(){
   const type=document.getElementById("bookingType")?.value||"normal";
   const preview=document.getElementById("bookingHallDurationPreview");
   if(!preview)return;
-  if(!["birthday","event"].includes(type)){
-    preview.textContent="Birthday and Event bookings are automatically reserved for 2 hours. The hall must be available for the full period.";
-    return;
-  }
+  if(!["birthday","event"].includes(type)){preview.textContent="Choose the duration for Birthday / Event Hall Booking. The hall must remain available for the full period.";return;}
   const time=document.getElementById("bookingTime")?.value||"";
-  if(!time){
-    preview.textContent="Your hall booking will automatically be reserved for 2 hours. Choose a start time; the end time will be calculated automatically.";
-    return;
-  }
-  const start=nababiTimeToMinutes(time);
-  const end=start+120;
-  preview.textContent=`Hall time: ${time}–${nababiMinutesToTime(end)} (2 hours). Birthday and Event share one hall, so overlapping reservations are not allowed.`;
+  const rawDuration=document.getElementById("bookingHallDuration")?.value||"";
+  if(!rawDuration){preview.textContent="Please select a duration between 2 and 8 hours.";return;}
+  const duration=Number(rawDuration);
+  if(!time){preview.textContent=`The shared hall can be booked for ${duration} hours. Choose a start time; the end time must be before closing.`;return;}
+  const end=nababiTimeToMinutes(time)+duration*60;
+  const endClock=nababiMinutesToTime(end % (24*60));
+  const nextDay=end>=24*60 ? " (+1 day)" : "";
+  preview.textContent=`Hall time: ${time}–${endClock}${nextDay} (${duration} hours). The latest permitted end time is 01:00. Birthday and Event share one hall, so overlapping reservations are not allowed.`;
 }
 function isValidContact(
   phone,
@@ -4951,9 +4988,13 @@ async function refreshNababiTableAvailability(){
   const date=document.getElementById("bookingDate")?.value, time=document.getElementById("bookingTime")?.value;
   if(!date||!time){return;}
   try{
-    const {data,error}=await supabaseClient.from("table_bookings").select("table_number,status").eq("booking_date",date).eq("booking_time",time).not("table_number","is",null);
+    const {data,error}=await supabaseClient.rpc("get_nababi_table_availability",{
+      p_booking_date:date,
+      p_booking_time:time
+    });
     if(error)throw error;
-    nababiBookedTableKeys=new Set((data||[]).filter(r=>!['cancelled','rejected','declined'].includes(String(r.status||'pending').toLowerCase())).map(r=>Number(r.table_number)));
+    // This RPC returns occupied table numbers only, never customer information.
+    nababiBookedTableKeys=new Set((data||[]).map(r=>Number(r.table_number)));
     renderNababiTableMap();
     if(selectedNababiTable && nababiBookedTableKeys.has(Number(selectedNababiTable))){selectedNababiTable=null;const txt=document.getElementById("selectedTableText");if(txt)txt.textContent="That table is already booked for this date and time. Please choose another table.";const title=document.getElementById("tablePickerButtonTitle"),sub=document.getElementById("tablePickerButtonSub"),summary=document.getElementById("selectedTableSummary");if(title)title.textContent="Choose a Table (Optional)";if(sub)sub.textContent="That table is booked for the selected date and time. Please choose another.";if(summary){summary.textContent="The previously selected table is no longer available for this date and time. Choose another table or continue without selecting one.";summary.classList.add("visible");}}
   }catch(err){
@@ -5014,41 +5055,47 @@ async function createBooking(){
     return;
   }
   const isHallBooking = ["birthday","event"].includes(bookingType);
-  // Birthday/Event duration is fixed automatically to 2 hours; customers do not select it.
-  const hallDuration = isHallBooking ? 2 : null;
+  const rawHallDuration = document.getElementById("bookingHallDuration")?.value || "";
+  const hallDuration = isHallBooking ? Number(rawHallDuration) : null;
   const startMinutes = nababiTimeToMinutes(time);
-  const endMinutes = isHallBooking ? startMinutes + 120 : null;
+  const endMinutes = isHallBooking ? startMinutes + hallDuration * 60 : null;
   if (isHallBooking) {
-    // The shared hall may finish after midnight, but no later than 01:00.
-    if (!Number.isFinite(startMinutes) || endMinutes > 25*60) {
+    if (!rawHallDuration || !Number.isInteger(hallDuration) || hallDuration < 2 || hallDuration > 8) {
       result.className="booking-result error";
-      result.textContent="A 2-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time.";
-      document.getElementById("bookingTime")?.focus();
+      result.textContent="Please choose a hall duration between 2 and 8 hours.";
       return;
     }
-    // Use the public, date-scoped RPC instead of selecting table_bookings directly.
-    // The database trigger remains the final protection against overlapping bookings.
+    const latestHallEndMinutes=60; // 01:00 on the following day is the configured latest end time.
+    const finishesAfterMidnight=endMinutes>=24*60;
+    const endClockMinutes=endMinutes%(24*60);
+    if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes) || endMinutes<=startMinutes || (finishesAfterMidnight && endClockMinutes>latestHallEndMinutes)) {
+      result.className="booking-result error";
+      result.textContent=`A ${hallDuration}-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time or a shorter duration.`;
+      document.getElementById("bookingHallDuration")?.focus();
+      return;
+    }
+    // Check both Birthday and Event because they use the same physical hall.
+    // The database trigger in the supplied SQL migration repeats this check to prevent simultaneous overlaps.
     try {
       const {data:hallBookings,error:hallAvailabilityError}=await supabaseClient
-        .rpc("get_nababi_hall_availability", { p_booking_date: date });
+        .rpc("get_nababi_hall_availability",{p_booking_date:date});
       if(hallAvailabilityError)throw hallAvailabilityError;
-      const active=(hallBookings||[]).filter(b=>!["cancelled","canceled","rejected","declined"].includes(String(b.status||"pending").toLowerCase()));
+      const active=(hallBookings||[]).filter(b=>!["cancelled","rejected","declined"].includes(String(b.status||"pending").toLowerCase()));
       const overlap=active.some(b=>{
         const otherStart=nababiTimeToMinutes(b.booking_time);
         let otherEnd=nababiTimeToMinutes(b.booking_end_time);
         if(!Number.isFinite(otherEnd))otherEnd=otherStart+Number(b.booking_duration_hours||2)*60;
-        else if(Number.isFinite(otherStart) && otherEnd<=otherStart)otherEnd+=1440;
         return Number.isFinite(otherStart) && Number.isFinite(otherEnd) && startMinutes < otherEnd && otherStart < endMinutes;
       });
       if(overlap){
         result.className="booking-result error";
-        result.textContent="Sorry, the Birthday / Event hall is already booked for part of this time. Please choose another start time.";
+        result.textContent="Sorry, the Birthday / Event hall is already booked for part of this time. Please choose another start time or duration.";
         return;
       }
     } catch(availabilityError) {
-      console.error("Hall availability RPC failed",availabilityError);
+      console.error("Hall availability check failed",availabilityError);
       result.className="booking-result error";
-      result.textContent="We could not check hall availability right now. Please try again shortly or contact the restaurant.";
+      result.textContent="Hall availability is not configured yet. Please apply the included hall-booking SQL migration, then try again.";
       return;
     }
   }
@@ -5067,15 +5114,23 @@ async function createBooking(){
     return;
   }
   if (!isGroupBooking && selectedNababiTable && date && time) {
-    const {data:existing,error:availabilityError}=await supabaseClient.from("table_bookings").select("id,status").eq("booking_date",date).eq("booking_time",time).eq("table_number",Number(selectedNababiTable));
+    const tableBeingChecked=Number(selectedNababiTable);
+    const {data:occupiedTables,error:availabilityError}=await supabaseClient.rpc("get_nababi_table_availability",{
+      p_booking_date:date,
+      p_booking_time:time
+    });
     if (availabilityError) {
       result.className="booking-result error";
-      result.textContent="Table availability is not configured yet. Please apply the included table-map SQL migration, then try again.";
+      result.textContent="Table availability could not be checked. Please make sure the Nababi booking SQL setup has been applied, then try again.";
       console.error(availabilityError); return;
     }
-    if ((existing||[]).some(r=>!['cancelled','rejected','declined'].includes(String(r.status||'pending').toLowerCase()))) {
-      nababiBookedTableKeys.add(Number(selectedNababiTable));renderNababiTableMap();
-      result.className="booking-result error";result.textContent="Sorry, that table has just been booked for this date and time. Please choose another table.";return;
+    const occupiedSet=new Set((occupiedTables||[]).map(r=>Number(r.table_number)));
+    nababiBookedTableKeys=occupiedSet;
+    renderNababiTableMap();
+    if (occupiedSet.has(tableBeingChecked)) {
+      result.className="booking-result error";
+      result.textContent="Sorry, that table has just been booked for this date and time. Please choose another table.";
+      return;
     }
   }
   const details = [
@@ -5087,32 +5142,33 @@ async function createBooking(){
   result.className="booking-result success";
   result.textContent="Creating your reservation...";
   try {
-    // Create bookings through the secured database RPC (direct table writes may be blocked by RLS).
-    const {data:rpcData,error} = await supabaseClient.rpc("create_nababi_booking", {
-      p_customer_name: name,
-      p_phone: phone || null,
-      p_email: email || null,
-      p_booking_date: date,
-      p_booking_time: time,
-      p_guests: guests,
-      p_booking_type: bookingType,
-      p_booking_duration_minutes: isHallBooking ? 120 : null,
-      p_booking_end_time: isHallBooking ? nababiMinutesToTime(endMinutes) : null,
-      p_table_number: (!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? Number(selectedNababiTable) : null,
-      p_booking_mode: !isHallBooking && privateTable9 ? "private_full_table" : "standard",
-      p_reserved_food: food || null,
-      p_event_details: eventDetails || null,
-      p_special_request: details || null
+    // Use a SECURITY DEFINER RPC: anonymous visitors are not given direct table INSERT/SELECT access.
+    // The insert still runs the existing database triggers for references, time rules and email notices.
+    const {data,error} = await supabaseClient.rpc("create_nababi_booking",{
+      p_customer_name:name,
+      p_phone:phone || null,
+      p_email:email || null,
+      p_booking_date:date,
+      p_booking_time:time,
+      p_guests:guests,
+      p_booking_type:bookingType,
+      p_booking_duration_minutes:isHallBooking ? hallDuration*60 : null,
+      p_booking_end_time:isHallBooking ? nababiMinutesToTime(endMinutes % (24*60)) : null,
+      p_table_number:(!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? Number(selectedNababiTable) : null,
+      p_booking_mode:!isHallBooking && privateTable9 ? "private_full_table" : "standard",
+      p_reserved_food:food || null,
+      p_event_details:eventDetails || null,
+      p_special_request:details || null
     });
     if (error) throw error;
-    const bookingResult = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-    if (bookingResult && bookingResult.success === false) {
-      throw new Error(bookingResult.message || bookingResult.error || "Unable to create reservation.");
+    if (!data || data.success !== true) {
+      throw new Error(data?.message || "Unable to create reservation.");
     }
-    const savedBooking = bookingResult && typeof bookingResult === "object"
-      ? { id: bookingResult.id, booking_reference: bookingResult.booking_reference || bookingResult.booking_code || bookingResult.reference, status: bookingResult.status }
-      : {};
-    showBookingSuccess(savedBooking);
+    showBookingSuccess({
+      id:data.id,
+      booking_reference:data.booking_reference,
+      status:data.status
+    });
     await refreshNababiTableAvailability();
   } catch(error) {
     console.error(error);
@@ -5822,6 +5878,11 @@ async function initializeSite(){
 
     setupStars();
 
+    if (new URLSearchParams(window.location.search).get("view") === "menu") {
+      const menuSection = document.getElementById("menu");
+      if (menuSection) menuSection.scrollIntoView({ behavior: "instant", block: "start" });
+    }
+
 
   }catch(error){
 
@@ -5905,7 +5966,7 @@ document.getElementById("bookingDate")?.addEventListener("change",()=>{updateNab
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeNababiTableMap();});
 document.getElementById("bookingTime")?.addEventListener("change",()=>{validateNababiBookingTime(true);refreshNababiTableAvailability();});
 document.getElementById("bookingTime")?.addEventListener("change",updateHallDurationPreview);
-
+document.getElementById("bookingHallDuration")?.addEventListener("change",updateHallDurationPreview);
 updateNababiBookingTimeBounds();
 document.getElementById("bookingGuests")?.addEventListener("change",()=>{
   const cfg=selectedNababiTable?NABABI_TABLE_CONFIG[selectedNababiTable]:null;
