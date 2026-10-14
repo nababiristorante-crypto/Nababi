@@ -3693,7 +3693,7 @@ function renderBreakingNews(){
   Home এখন discount_campaign table থেকে
   সরাসরি campaign load করবে।
 
-  যদি table empty হয়,
+  যদি table empty হয়,
   site_settings-এর discount_campaign / discount
   fallback হিসেবেও চেষ্টা করবে।
 */
@@ -4860,7 +4860,7 @@ function updateBookingTypeFields(){
 }
 
 function nababiTimeToMinutes(value){
-  if(!value || !/^\\d{2}:\\d{2}/.test(String(value)))return NaN;
+  if(!value || !/^\d{2}:\d{2}/.test(String(value)))return NaN;
   const parts=String(value).slice(0,5).split(":").map(Number);
   return parts[0]*60+parts[1];
 }
@@ -4879,9 +4879,7 @@ function updateHallDurationPreview(){
   const duration=Number(rawDuration);
   if(!time){preview.textContent=`The shared hall can be booked for ${duration} hours. Choose a start time; the end time must be before closing.`;return;}
   const end=nababiTimeToMinutes(time)+duration*60;
-  const endClock=nababiMinutesToTime(end % (24*60));
-  const nextDay=end>=24*60 ? " (+1 day)" : "";
-  preview.textContent=`Hall time: ${time}–${endClock}${nextDay} (${duration} hours). The latest permitted end time is 01:00. Birthday and Event share one hall, so overlapping reservations are not allowed.`;
+  preview.textContent=`Hall time: ${time}–${nababiMinutesToTime(end)} (${duration} hours). Birthday and Event share one hall, so overlapping reservations are not allowed.`;
 }
 function isValidContact(
   phone,
@@ -4959,13 +4957,9 @@ async function refreshNababiTableAvailability(){
   const date=document.getElementById("bookingDate")?.value, time=document.getElementById("bookingTime")?.value;
   if(!date||!time){return;}
   try{
-    const {data,error}=await supabaseClient.rpc("get_nababi_table_availability",{
-      p_booking_date:date,
-      p_booking_time:time
-    });
+    const {data,error}=await supabaseClient.from("table_bookings").select("table_number,status").eq("booking_date",date).eq("booking_time",time).not("table_number","is",null);
     if(error)throw error;
-    // This RPC returns occupied table numbers only, never customer information.
-    nababiBookedTableKeys=new Set((data||[]).map(r=>Number(r.table_number)));
+    nababiBookedTableKeys=new Set((data||[]).filter(r=>!['cancelled','rejected','declined'].includes(String(r.status||'pending').toLowerCase())).map(r=>Number(r.table_number)));
     renderNababiTableMap();
     if(selectedNababiTable && nababiBookedTableKeys.has(Number(selectedNababiTable))){selectedNababiTable=null;const txt=document.getElementById("selectedTableText");if(txt)txt.textContent="That table is already booked for this date and time. Please choose another table.";const title=document.getElementById("tablePickerButtonTitle"),sub=document.getElementById("tablePickerButtonSub"),summary=document.getElementById("selectedTableSummary");if(title)title.textContent="Choose a Table (Optional)";if(sub)sub.textContent="That table is booked for the selected date and time. Please choose another.";if(summary){summary.textContent="The previously selected table is no longer available for this date and time. Choose another table or continue without selecting one.";summary.classList.add("visible");}}
   }catch(err){
@@ -5036,12 +5030,11 @@ async function createBooking(){
       result.textContent="Please choose a hall duration between 2 and 8 hours.";
       return;
     }
-    const latestHallEndMinutes=60; // 01:00 on the following day is the configured latest end time.
-    const finishesAfterMidnight=endMinutes>=24*60;
-    const endClockMinutes=endMinutes%(24*60);
-    if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes) || endMinutes<=startMinutes || (finishesAfterMidnight && endClockMinutes>latestHallEndMinutes)) {
+    const bounds=getNababiHoursForDate(date);
+    const closingMinutes=nababiTimeToMinutes(bounds.restaurantClose || bounds.close || "23:30");
+    if (!Number.isFinite(startMinutes) || !Number.isFinite(closingMinutes) || endMinutes > closingMinutes || endMinutes >= 24*60) {
       result.className="booking-result error";
-      result.textContent=`A ${hallDuration}-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time or a shorter duration.`;
+      result.textContent=`A ${hallDuration}-hour hall booking would finish after closing time (${bounds.restaurantClose || "23:30"}). Please choose an earlier start time or a shorter duration.`;
       document.getElementById("bookingHallDuration")?.focus();
       return;
     }
@@ -5049,7 +5042,10 @@ async function createBooking(){
     // The database trigger in the supplied SQL migration repeats this check to prevent simultaneous overlaps.
     try {
       const {data:hallBookings,error:hallAvailabilityError}=await supabaseClient
-        .rpc("get_nababi_hall_availability",{p_booking_date:date});
+        .from("table_bookings")
+        .select("booking_date,booking_time,booking_end_time,booking_duration_hours,booking_type,status")
+        .eq("booking_date",date)
+        .in("booking_type",["birthday","event"]);
       if(hallAvailabilityError)throw hallAvailabilityError;
       const active=(hallBookings||[]).filter(b=>!["cancelled","rejected","declined"].includes(String(b.status||"pending").toLowerCase()));
       const overlap=active.some(b=>{
@@ -5085,23 +5081,15 @@ async function createBooking(){
     return;
   }
   if (!isGroupBooking && selectedNababiTable && date && time) {
-    const tableBeingChecked=Number(selectedNababiTable);
-    const {data:occupiedTables,error:availabilityError}=await supabaseClient.rpc("get_nababi_table_availability",{
-      p_booking_date:date,
-      p_booking_time:time
-    });
+    const {data:existing,error:availabilityError}=await supabaseClient.from("table_bookings").select("id,status").eq("booking_date",date).eq("booking_time",time).eq("table_number",Number(selectedNababiTable));
     if (availabilityError) {
       result.className="booking-result error";
-      result.textContent="Table availability could not be checked. Please make sure the Nababi booking SQL setup has been applied, then try again.";
+      result.textContent="Table availability is not configured yet. Please apply the included table-map SQL migration, then try again.";
       console.error(availabilityError); return;
     }
-    const occupiedSet=new Set((occupiedTables||[]).map(r=>Number(r.table_number)));
-    nababiBookedTableKeys=occupiedSet;
-    renderNababiTableMap();
-    if (occupiedSet.has(tableBeingChecked)) {
-      result.className="booking-result error";
-      result.textContent="Sorry, that table has just been booked for this date and time. Please choose another table.";
-      return;
+    if ((existing||[]).some(r=>!['cancelled','rejected','declined'].includes(String(r.status||'pending').toLowerCase()))) {
+      nababiBookedTableKeys.add(Number(selectedNababiTable));renderNababiTableMap();
+      result.className="booking-result error";result.textContent="Sorry, that table has just been booked for this date and time. Please choose another table.";return;
     }
   }
   const details = [
@@ -5113,33 +5101,29 @@ async function createBooking(){
   result.className="booking-result success";
   result.textContent="Creating your reservation...";
   try {
-    // Use a SECURITY DEFINER RPC: anonymous visitors are not given direct table INSERT/SELECT access.
-    // The insert still runs the existing database triggers for references, time rules and email notices.
-    const {data,error} = await supabaseClient.rpc("create_nababi_booking",{
-      p_customer_name:name,
-      p_phone:phone || null,
-      p_email:email || null,
-      p_booking_date:date,
-      p_booking_time:time,
-      p_guests:guests,
-      p_booking_type:bookingType,
-      p_booking_duration_minutes:isHallBooking ? hallDuration*60 : null,
-      p_booking_end_time:isHallBooking ? nababiMinutesToTime(endMinutes % (24*60)) : null,
-      p_table_number:(!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? Number(selectedNababiTable) : null,
-      p_booking_mode:!isHallBooking && privateTable9 ? "private_full_table" : "standard",
-      p_reserved_food:food || null,
-      p_event_details:eventDetails || null,
-      p_special_request:details || null
-    });
+    // Insert directly so the new booking fields are saved. Existing database triggers
+    // continue generating the reference and sending the current booking-received email.
+    const {data,error} = await supabaseClient.from("table_bookings").insert({
+      customer_name:name,
+      phone:phone || null,
+      email:email || null,
+      booking_date:date,
+      booking_time:time,
+      guests:guests,
+      booking_type:bookingType,
+      booking_duration_hours:isHallBooking ? hallDuration : null,
+      booking_end_time:isHallBooking ? nababiMinutesToTime(endMinutes) : null,
+      table_number:(!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? Number(selectedNababiTable) : null,
+      room_name:(!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? NABABI_TABLE_CONFIG[selectedNababiTable].room : null,
+      table_capacity:(!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? NABABI_TABLE_CONFIG[selectedNababiTable].capacity : null,
+      booking_mode:!isHallBooking && privateTable9 ? "private_full_table" : "standard",
+      reserved_food:food || null,
+      event_details:eventDetails || null,
+      special_request:details || null,
+      status:"Pending"
+    }).select().single();
     if (error) throw error;
-    if (!data || data.success !== true) {
-      throw new Error(data?.message || "Unable to create reservation.");
-    }
-    showBookingSuccess({
-      id:data.id,
-      booking_reference:data.booking_reference,
-      status:data.status
-    });
+    showBookingSuccess(data);
     await refreshNababiTableAvailability();
   } catch(error) {
     console.error(error);
@@ -5765,8 +5749,8 @@ function openEventMenu(type){
     en:{wedding:"Wedding Menu",birthday:"Birthday Menu",weddingDesc:"Discover menus for your special day",birthdayDesc:"Packages for birthday celebrations",empty:"Menu details are being prepared. Please contact Nababi Ristorante for available packages.",close:"Close"},
     bn:{wedding:"বিয়ের মেনু",birthday:"জন্মদিনের মেনু",weddingDesc:"আপনার বিশেষ দিনের জন্য মেনু দেখুন",birthdayDesc:"জন্মদিনের অনুষ্ঠানের প্যাকেজ দেখুন",empty:"মেনুর বিস্তারিত প্রস্তুত করা হচ্ছে। প্যাকেজ জানতে Nababi Ristorante-এ যোগাযোগ করুন।",close:"বন্ধ করুন"}
   }[lang]||{};
-  const oldTitles={wedding:["বিয়েবাড়ির মেনু / Wedding Menu","বিয়ের মেনু / Wedding Menu"],birthday:["জন্মদিনের মেনু / Birthday Menu"]};
-  const oldDescriptions={wedding:["বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন.","বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।","বিশেষ দিনের জন্য বিয়ের আয়োজনের মেনু।"],birthday:["জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন.","জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।","জন্মদিনের আয়োজনের মেনু ও প্যাকেজ।"]};
+  const oldTitles={wedding:["বিয়েবাড়ির মেনু / Wedding Menu","বিয়ের মেনু / Wedding Menu"],birthday:["জন্মদিনের মেনু / Birthday Menu"]};
+  const oldDescriptions={wedding:["বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন.","বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।","বিশেষ দিনের জন্য বিয়ের আয়োজনের মেনু।"],birthday:["জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন.","জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।","জন্মদিনের আয়োজনের মেনু ও প্যাকেজ।"]};
   let rawTitle=String(item.title||"");
   let rawDescription=String(item.description||"");
   const isOldTitle=!rawTitle||rawTitle===fallback.title||(oldTitles[type]||[]).includes(rawTitle);
