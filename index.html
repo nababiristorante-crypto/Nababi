@@ -1256,6 +1256,24 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
       font-size: clamp(36px, 8vw, 48px);
     }
 </style>
+
+<style id="nababi-booking-icon-modal-refresh">
+.nb-booking-launcher-section{padding:34px 16px!important;text-align:center;background:radial-gradient(ellipse at center,rgba(214,169,73,.11),transparent 65%)}
+.nb-booking-launcher{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:min(100%,310px);min-height:210px;margin:0 auto;padding:24px 20px;border:1px solid rgba(225,181,79,.7);border-radius:22px;color:#f3c85f;background:linear-gradient(145deg,#17130b,#08090b 68%);box-shadow:0 14px 42px #0008, inset 0 0 0 4px rgba(225,181,79,.035);cursor:pointer}
+.nb-booking-launcher:hover{transform:translateY(-3px);box-shadow:0 18px 48px #000a,0 0 25px rgba(225,181,79,.12)}
+.nb-booking-icon{display:grid;place-items:center;width:96px;height:96px;border:2px solid #d9b45d;border-radius:28px 28px 28px 8px;transform:rotate(-2deg);box-shadow:0 0 0 7px rgba(217,182,107,.06),0 0 26px rgba(217,182,107,.12)}
+.nb-booking-icon svg{width:62px;height:62px;transform:rotate(2deg)}
+.nb-booking-launcher-title{font-family:Georgia,serif;font-size:25px;font-weight:700;color:#f2d27e}
+.nb-booking-launcher-sub{font-size:13px;color:#c4bda9}
+.nb-booking-modal{display:none;position:fixed!important;inset:0;z-index:99990;overflow-y:auto;overscroll-behavior:contain;background:rgba(0,0,0,.84)!important;backdrop-filter:blur(8px);padding:24px 12px!important}
+.nb-booking-modal.nb-booking-open{display:block!important}
+.nb-booking-modal>.container{position:relative;width:min(100%,850px);margin:12px auto 28px;padding:clamp(18px,3vw,34px);border:1px solid rgba(217,182,107,.55);border-radius:20px;background:linear-gradient(145deg,#111317,#07090b);box-shadow:0 25px 90px #000c}
+.nb-booking-modal .section-title{padding-right:36px}
+.nb-booking-close{position:absolute;right:16px;top:14px;width:42px;height:42px;border:1px solid rgba(217,182,107,.45);border-radius:50%;background:#17130b;color:#f2d27e;font-size:29px;line-height:1;cursor:pointer;z-index:5}
+body.nb-booking-lock{overflow:hidden}
+@media(max-width:520px){.nb-booking-launcher{min-height:180px;width:min(100%,270px)}.nb-booking-icon{width:80px;height:80px}.nb-booking-icon svg{width:52px;height:52px}.nb-booking-launcher-title{font-size:22px}.nb-booking-modal{padding:8px!important}.nb-booking-modal>.container{margin:4px auto 16px;padding:18px 12px;border-radius:15px}.nb-booking-close{right:10px;top:10px}}
+</style>
+
 </head>
 
 <body>
@@ -1368,13 +1386,7 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
           Explore Menu
         </a>
 
-        <a
-          href="#booking"
-          class="btn btn-outline"
-          data-i18n="bookTable"
-        >
-          Book a Table
-        </a>
+        <button type="button" class="btn btn-outline" data-i18n="bookTable" onclick="openNababiBookingForm()">Book a Table</button>
 
       </div>
 
@@ -1785,7 +1797,17 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
 </section>
 
 
-<section id="booking" class="section">
+<section id="bookingLauncher" class="section nb-booking-launcher-section">
+  <div class="container">
+    <button type="button" class="nb-booking-launcher" onclick="openNababiBookingForm()" aria-haspopup="dialog" aria-controls="booking">
+      <span class="nb-booking-icon" aria-hidden="true"><svg viewBox="0 0 64 64" role="img"><path d="M10 28h44M14 28v19m36-19v19M10 47h44M18 28V18h28v10M24 18v-6m16 6v-6M24 47v5m16-5v5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="7" r="2" fill="currentColor"/></svg></span>
+      <span class="nb-booking-launcher-title">Table Booking</span>
+      <span class="nb-booking-launcher-sub">Tap the table icon to reserve</span>
+    </button>
+  </div>
+</section>
+
+<section id="booking" class="section nb-booking-modal" role="dialog" aria-modal="true" aria-labelledby="nbBookingModalTitle">
 
   <div class="container">
 
@@ -1795,9 +1817,8 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         Reservations
       </div>
 
-      <h2 data-i18n="bookTable">
-        Book a Table
-      </h2>
+      <button type="button" class="nb-booking-close" onclick="closeNababiBookingForm()" aria-label="Close booking form">×</button>
+      <h2 id="nbBookingModalTitle" data-i18n="bookTable">Book a Table</h2>
 
       <p>
         Reserve your table directly with Nababi Ristorante.
@@ -2421,7 +2442,7 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         <p><a href="#about">About</a></p>
         <p><a href="#menu">Menu</a></p>
         <p><a href="#gallery">Gallery</a></p>
-        <p><a href="#booking">Booking</a></p>
+        <p><a href="#bookingLauncher" onclick="openNababiBookingForm();return false;">Booking</a></p>
 
       </div>
 
@@ -3712,7 +3733,7 @@ function renderBreakingNews(){
   Home এখন discount_campaign table থেকে
   সরাসরি campaign load করবে।
 
-  যদি table empty হয়,
+  যদি table empty হয়,
   site_settings-এর discount_campaign / discount
   fallback হিসেবেও চেষ্টা করবে।
 */
@@ -5780,8 +5801,8 @@ function openEventMenu(type){
     en:{wedding:"Wedding Menu",birthday:"Birthday Menu",weddingDesc:"Discover menus for your special day",birthdayDesc:"Packages for birthday celebrations",empty:"Menu details are being prepared. Please contact Nababi Ristorante for available packages.",close:"Close"},
     bn:{wedding:"বিয়ের মেনু",birthday:"জন্মদিনের মেনু",weddingDesc:"আপনার বিশেষ দিনের জন্য মেনু দেখুন",birthdayDesc:"জন্মদিনের অনুষ্ঠানের প্যাকেজ দেখুন",empty:"মেনুর বিস্তারিত প্রস্তুত করা হচ্ছে। প্যাকেজ জানতে Nababi Ristorante-এ যোগাযোগ করুন।",close:"বন্ধ করুন"}
   }[lang]||{};
-  const oldTitles={wedding:["বিয়েবাড়ির মেনু / Wedding Menu","বিয়ের মেনু / Wedding Menu"],birthday:["জন্মদিনের মেনু / Birthday Menu"]};
-  const oldDescriptions={wedding:["বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন.","বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।","বিশেষ দিনের জন্য বিয়ের আয়োজনের মেনু।"],birthday:["জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন.","জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।","জন্মদিনের আয়োজনের মেনু ও প্যাকেজ।"]};
+  const oldTitles={wedding:["বিয়েবাড়ির মেনু / Wedding Menu","বিয়ের মেনু / Wedding Menu"],birthday:["জন্মদিনের মেনু / Birthday Menu"]};
+  const oldDescriptions={wedding:["বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন.","বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।","বিশেষ দিনের জন্য বিয়ের আয়োজনের মেনু।"],birthday:["জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন.","জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।","জন্মদিনের আয়োজনের মেনু ও প্যাকেজ।"]};
   let rawTitle=String(item.title||"");
   let rawDescription=String(item.description||"");
   const isOldTitle=!rawTitle||rawTitle===fallback.title||(oldTitles[type]||[]).includes(rawTitle);
@@ -5972,6 +5993,27 @@ initializeSite();
 >
   🔐 Admin
 </a>
+
+
+<script id="nababi-booking-icon-modal-actions">
+function openNababiBookingForm(){
+  const modal=document.getElementById('booking');
+  if(!modal)return;
+  modal.classList.add('nb-booking-open');
+  document.body.classList.add('nb-booking-lock');
+  modal.setAttribute('aria-hidden','false');
+  const first=modal.querySelector('#bookingName');
+  window.setTimeout(()=>first?.focus({preventScroll:true}),80);
+}
+function closeNababiBookingForm(){
+  const modal=document.getElementById('booking');
+  if(!modal)return;
+  modal.classList.remove('nb-booking-open');
+  document.body.classList.remove('nb-booking-lock');
+  modal.setAttribute('aria-hidden','true');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeNababiBookingForm();});
+</script>
 
 </body>
 </html>
