@@ -3844,7 +3844,8 @@ async function loadBookings(){
   if(!rows.length){host.innerHTML='<div class="card"><p class="muted">No bookings found.</p></div>';await loadBookingEmailHistory().catch(()=>{});return;}
   host.innerHTML=`<div class="booking-admin-list">${rows.map(item=>{
     const id=String(item.id).replace(/'/g,"\\'");
-    const type=item.booking_type||((String(item.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Normal Table Booking";
+    const rawType=item.booking_type||((String(item.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking";
+    const type=nababiAdminBookingTypeLabel(rawType);
     const code=item.booking_reference||item.booking_code||"—";
     const name=item.customer_name||item.name||"Customer";
     const email=item.email||item.customer_email||item.customerEmail||item.contact_email||item.email_address||item.customer_email_address||"";
@@ -3895,7 +3896,7 @@ function buildBookingEmailPayload(row, customMessage=""){
   if(!email){toast("এই বুকিংয়ে কাস্টমারের ইমেইল নেই। আগে বুকিংয়ের ইমেইল যোগ করুন অথবা WhatsApp ব্যবহার করুন।");return null;}
   const name=String(row.customer_name||row.name||"Customer").trim()||"Customer";
   const code=String(row.booking_reference||row.booking_code||"Not available");
-  const type=row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking";
+  const type=nababiAdminBookingTypeLabel(row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking");
   const confirmed=String(row.status||"Pending").toLowerCase()==="confirmed";
   const subject=customMessage ? `Message about your booking ${code} — Nababi Ristorante` : (confirmed?"Your Booking Is Confirmed — Nababi Ristorante, Roma":"Thank You for Your Booking Request — Nababi Ristorante, Roma");
   const body=[
@@ -4033,6 +4034,15 @@ async function updateBooking(id,status){
    BOOKING REPORTS — SUPER ADMIN ONLY
    Reads existing records from public.table_bookings.
 ========================================================= */
+function nababiAdminBookingTypeLabel(value){
+  const raw=String(value||"").trim().toLowerCase();
+  if(raw==="normal"||raw==="normal table booking"||raw==="table"||raw==="table booking")return "Table Booking";
+  if(raw==="friends"||raw==="family"||raw.includes("family"))return "Family Table Booking";
+  if(raw==="party"||raw==="party table booking")return "Party Table Booking";
+  if(raw.includes("birth"))return "Birthday";
+  if(raw.includes("event"))return "Event Management";
+  return value||"Table Booking";
+}
 function bookingReportRomeDate(){
   const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
   const v={};parts.forEach(p=>{if(p.type!=="literal")v[p.type]=p.value;});
@@ -4046,8 +4056,10 @@ function bookingReportDateUTC(dateText){
 function bookingReportType(row){
   const raw=String(row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table").trim().toLowerCase();
   if(raw.includes("birth"))return "Birthday";
-  if(raw.includes("event"))return "Event";
-  if(raw.includes("table")||raw.includes("normal")||!raw)return "Table";
+  if(raw.includes("event"))return "Event Management";
+  if(raw==="friends"||raw.includes("family"))return "Family Table Booking";
+  if(raw==="party"||raw.includes("party table"))return "Party Table Booking";
+  if(raw.includes("table")||raw.includes("normal")||!raw)return "Table Booking";
   return raw.replace(/\b\w/g,c=>c.toUpperCase());
 }
 function bookingReportStatus(row){
