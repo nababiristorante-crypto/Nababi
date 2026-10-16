@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // QR menu links show only the menu categories, not the full homepage.
+    if (new URLSearchParams(window.location.search).get("view") === "menu") {
+      document.documentElement.classList.add("qr-menu-only");
+    }
+  </script>
 
   <title>Nababi Ristorante | Roma</title>
 
@@ -758,14 +764,8 @@
     .table-zone-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
     .map-table{position:relative;min-height:100px;border:1px solid rgba(216,179,106,.28);border-radius:14px;background:#191919;color:#fff;padding:9px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .15s,border-color .15s,background .15s;width:100%}
     .map-table:hover{transform:translateY(-2px);border-color:var(--gold)}
-    .map-table .table-illustration{position:relative;display:block;width:76px;height:53px;flex:0 0 53px;margin:0 auto 1px}
-    .map-table .table-top{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:28px;border-radius:8px;background:linear-gradient(145deg,#4a391b,#20180d);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:800;font-size:14px;box-shadow:0 3px 12px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.035)}
-    .map-table .chair-seat{position:absolute;display:block;width:13px;height:10px;border:1.5px solid #f1d59a;border-radius:4px;background:linear-gradient(145deg,#6d5428,#332514);box-shadow:0 1px 3px rgba(0,0,0,.35)}
-    .map-table .chair-seat:after{content:"";position:absolute;left:2px;right:2px;bottom:-3px;height:3px;border-radius:2px;background:#d8b36a;opacity:.9}
-    .map-table .chair-n{left:50%;top:0;transform:translateX(-50%)}
-    .map-table .chair-s{left:50%;bottom:0;transform:translateX(-50%)}
-    .map-table .chair-w{left:0;top:50%;transform:translateY(-50%) rotate(-90deg)}
-    .map-table .chair-e{right:0;top:50%;transform:translateY(-50%) rotate(90deg)}
+    .map-table .table-top{width:47px;height:35px;border-radius:12px;background:linear-gradient(145deg,#3a2d16,#201a10);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:800;font-size:15px;position:relative;box-shadow:0 3px 12px rgba(0,0,0,.25)}
+    .map-table .chair-line{font-size:11px;letter-spacing:1px;color:#f3d99d;line-height:1.2;max-width:100%;overflow-wrap:anywhere;background:rgba(216,179,106,.07);border:1px solid rgba(216,179,106,.14);border-radius:999px;padding:4px 7px}
     .map-table .table-capacity{font-size:11px;color:#eee}
     .map-table .table-status{font-size:10px;color:#8de3a6}
     .map-table.selected{border:2px solid #e4bd65;background:rgba(216,179,106,.13);box-shadow:0 0 0 2px rgba(216,179,106,.08)}
@@ -794,31 +794,7 @@
     .selected-table-summary{display:none;margin-top:10px;padding:10px 12px;border:1px solid rgba(216,179,106,.3);border-radius:12px;color:#f4ead5;background:rgba(216,179,106,.06);font-size:13px}
     .selected-table-summary.visible{display:block}
     body.table-picker-open{overflow:hidden}
-    @media(max-width:680px){.table-map-wrap{padding:14px;border-radius:18px}.table-map-zones{grid-template-columns:1fr}.table-zone.outdoor{grid-column:auto}.table-map-head h3{font-size:22px}.table-zone-grid{gap:7px}.map-table{min-height:104px;padding:7px 3px}.map-table .table-illustration{transform:scale(.94);margin-bottom:0}.map-table .table-top{width:40px;height:28px}.table-zone{padding:12px}}
-
-
-    /* TWO CLEAR BOOKING PATHS */
-    .booking-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:1000px;margin:0 auto 26px}
-    .booking-path-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:12px;min-height:220px;padding:24px;border:1px solid rgba(216,179,106,.42);border-radius:22px;background:radial-gradient(circle at top right,rgba(216,179,106,.13),transparent 48%),linear-gradient(145deg,#171512,#090909);color:#f8f0df;cursor:pointer;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
-    .booking-path-card:hover{transform:translateY(-3px);border-color:var(--gold-light);box-shadow:0 14px 36px rgba(0,0,0,.32)}
-    .booking-path-card.active{border:2px solid var(--gold-light);box-shadow:0 0 0 3px rgba(216,179,106,.12),0 16px 38px rgba(0,0,0,.35)}
-    .booking-path-icon{display:grid;place-items:center;width:58px;height:58px;border:1px solid rgba(216,179,106,.55);border-radius:17px;background:rgba(216,179,106,.1);color:var(--gold-light);font-size:29px}
-    .booking-table-chair-icon{width:42px;height:42px;display:block;overflow:visible}
-    .booking-table-chair-icon *{vector-effect:non-scaling-stroke}
-    .table-picker-trigger .booking-table-chair-icon{width:30px;height:30px;flex:0 0 30px}
-    .booking-path-icon{color:#f1d59a}
-    .booking-path-card strong{font-family:'Cormorant Garamond',serif;font-size:27px;line-height:1.1;color:var(--gold-light)}
-    .booking-path-card .path-subtitle{font-size:13px;color:var(--muted);line-height:1.55}
-    .booking-path-cta{margin-top:auto;display:inline-flex;align-items:center;gap:8px;color:var(--gold-light);font-size:13px;font-weight:800;letter-spacing:.03em}
-    .booking-mode-note{max-width:850px;margin:0 auto 14px;padding:12px 15px;border-radius:13px;background:rgba(216,179,106,.07);border:1px solid rgba(216,179,106,.22);color:var(--gold-light);font-size:13px}
-    .event-subchoices{max-width:850px;margin:0 auto 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .event-subchoices[hidden]{display:none!important}
-    .event-subchoice{display:flex;align-items:center;gap:12px;text-align:left;padding:15px;border:1px solid rgba(216,179,106,.38);border-radius:16px;background:linear-gradient(145deg,#171512,#090909);color:#f8f0df;cursor:pointer;min-width:0}
-    .event-subchoice.active{border:2px solid var(--gold-light);background:radial-gradient(circle at top right,rgba(216,179,106,.17),transparent 55%),#11100e}
-    .event-subchoice-icon{font-size:27px;flex-shrink:0}.event-subchoice strong{display:block;color:var(--gold-light);font-size:16px}.event-subchoice small{display:block;color:var(--muted);font-size:12px;line-height:1.4;margin-top:3px}.event-subchoice-arrow{margin-left:auto;color:var(--gold-light);font-size:20px}
-    #bookingTypeField{display:none!important}
-    @media(max-width:560px){.event-subchoices{grid-template-columns:1fr}.event-subchoice{padding:13px}}
-    @media(max-width:680px){.booking-paths{grid-template-columns:1fr;gap:12px;margin-bottom:20px}.booking-path-card{min-height:0;padding:19px;display:grid;grid-template-columns:58px 1fr;column-gap:14px;align-items:center}.booking-path-icon{grid-row:span 2}.booking-path-card strong{font-size:24px}.booking-path-card .path-subtitle{grid-column:2}.booking-path-cta{grid-column:2;margin-top:0}}
+    @media(max-width:680px){.table-map-wrap{padding:14px;border-radius:18px}.table-map-zones{grid-template-columns:1fr}.table-zone.outdoor{grid-column:auto}.table-map-head h3{font-size:22px}.table-zone-grid{gap:7px}.map-table{min-height:92px;padding:7px 3px}.map-table .table-top{width:40px;height:31px}.table-zone{padding:12px}}
 
     /* BOOKING */
 
@@ -1256,6 +1232,70 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
 .language-select{border-color:rgba(232,189,99,.45)}
 @media(max-width:600px){.hero{min-height:86vh}.hero-content{padding:70px 0 55px}.hero h1{font-size:clamp(48px,14vw,68px)}.section-title h2{font-size:40px}.category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.category-image{height:150px}.gallery-preview{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-grid{gap:22px}}
 
+
+    /* QR-only view: show the category menu without the rest of the homepage. */
+    html.qr-menu-only header,
+    html.qr-menu-only section:not(#menu),
+    html.qr-menu-only footer,
+    html.qr-menu-only .admin-login {
+      display: none !important;
+    }
+    html.qr-menu-only #menu {
+      display: block !important;
+      min-height: 100vh;
+      padding: 34px 0 56px;
+      scroll-margin-top: 0;
+    }
+    html.qr-menu-only #menu .container {
+      width: min(980px, 94%);
+    }
+    html.qr-menu-only #menu .section-title {
+      margin-bottom: 28px;
+    }
+    html.qr-menu-only #menu .section-title h2 {
+      font-size: clamp(36px, 8vw, 48px);
+    }
+</style>
+
+<style id="nababi-booking-icon-modal-refresh">
+.nb-booking-launcher-section{padding:34px 16px!important;text-align:center;background:radial-gradient(ellipse at center,rgba(214,169,73,.11),transparent 65%)}
+.nb-booking-launcher{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:min(100%,310px);min-height:210px;margin:0 auto;padding:24px 20px;border:1px solid rgba(225,181,79,.7);border-radius:22px;color:#f3c85f;background:linear-gradient(145deg,#17130b,#08090b 68%);box-shadow:0 14px 42px #0008, inset 0 0 0 4px rgba(225,181,79,.035);cursor:pointer}
+.nb-booking-launcher:hover{transform:translateY(-3px);box-shadow:0 18px 48px #000a,0 0 25px rgba(225,181,79,.12)}
+.nb-booking-icon{display:grid;place-items:center;width:96px;height:96px;border:2px solid #d9b45d;border-radius:28px 28px 28px 8px;transform:rotate(-2deg);box-shadow:0 0 0 7px rgba(217,182,107,.06),0 0 26px rgba(217,182,107,.12)}
+.nb-booking-icon svg{width:62px;height:62px;transform:rotate(2deg)}
+.nb-booking-launcher-title{font-family:Georgia,serif;font-size:25px;font-weight:700;color:#f2d27e}
+.nb-booking-launcher-sub{font-size:13px;color:#c4bda9}
+.nb-booking-modal{display:none;position:fixed!important;inset:0;z-index:99990;overflow-y:auto;overscroll-behavior:contain;background:rgba(0,0,0,.84)!important;backdrop-filter:blur(8px);padding:24px 12px!important}
+.nb-booking-modal.nb-booking-open{display:block!important}
+.nb-booking-modal>.container{position:relative;width:min(100%,850px);margin:12px auto 28px;padding:clamp(18px,3vw,34px);border:1px solid rgba(217,182,107,.55);border-radius:20px;background:linear-gradient(145deg,#111317,#07090b);box-shadow:0 25px 90px #000c}
+.nb-booking-modal .section-title{padding-right:36px}
+.nb-booking-close{position:absolute;right:16px;top:14px;width:42px;height:42px;border:1px solid rgba(217,182,107,.45);border-radius:50%;background:#17130b;color:#f2d27e;font-size:29px;line-height:1;cursor:pointer;z-index:5}
+body.nb-booking-lock{overflow:hidden}
+@media(max-width:520px){.nb-booking-launcher{min-height:180px;width:min(100%,270px)}.nb-booking-icon{width:80px;height:80px}.nb-booking-icon svg{width:52px;height:52px}.nb-booking-launcher-title{font-size:22px}.nb-booking-modal{padding:8px!important}.nb-booking-modal>.container{margin:4px auto 16px;padding:18px 12px;border-radius:15px}.nb-booking-close{right:10px;top:10px}}
+</style>
+
+
+<style id="nababi-reference-design-final">
+/* Reference-matched luxury layout: keep existing markup and integrations intact. */
+:root{--gold:#d8a84e;--gold-light:#f6d98a;--black:#05080b;--black2:#0a0e12;--card:#10151b;--card2:#151b22;--border:rgba(218,174,83,.34);--shadow:0 18px 55px rgba(0,0,0,.48)}
+body{background:#05080b;color:#f7f2e6}
+header{background:rgba(4,7,10,.96)!important;border-bottom:1px solid rgba(218,174,83,.4)!important;backdrop-filter:blur(16px)}
+.brand-name,.section-title h2,.hero h1{font-family:'Cormorant Garamond',Georgia,serif}
+.brand-name{color:var(--gold-light)!important}
+.hero{position:relative;isolation:isolate;background-color:#07090b;background-position:center;background-size:cover}
+.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,0,0,.18) 72%),linear-gradient(0deg,#05080b 0%,transparent 24%)}
+.hero h1{color:#f3cd77!important;text-shadow:0 4px 28px #000;font-size:clamp(48px,7vw,92px);line-height:.96;letter-spacing:-.035em}
+.hero-kicker{color:#f1d28a!important;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic}
+.btn{background:linear-gradient(135deg,#ffe29a,#d8a13a)!important;color:#171108!important;border:1px solid #f5d68b!important;border-radius:999px!important;box-shadow:0 6px 20px #0005}
+.btn-outline{background:rgba(8,10,12,.75)!important;color:#f3d487!important}
+section:not(.hero){border-color:rgba(218,174,83,.23)}
+.section-title h2{color:#f1d18a!important}
+.category-card,.menu-card,.gallery-item,.review-card,.booking-card,.discount-home-card{background:linear-gradient(145deg,#12171c,#080b0e)!important;border:1px solid rgba(218,174,83,.42)!important;border-radius:12px!important;box-shadow:0 12px 30px #0006!important;overflow:hidden}
+.category-card img,.menu-card img,.gallery-item img{filter:saturate(1.08)}
+footer{background:#05080b!important;border-top:1px solid rgba(218,174,83,.4)!important}
+.nav-btn,.language-select{border-color:rgba(218,174,83,.42)!important;background:#0c1116!important;color:#f4d58b!important}
+@media(max-width:700px){.hero{min-height:78vh!important;background-position:60% center!important}.hero:after{background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.28)),linear-gradient(0deg,#05080b 0%,transparent 30%)}.hero-content{padding-top:82px!important;padding-bottom:54px!important}.hero h1{font-size:clamp(46px,13vw,68px)!important}.container{width:min(94%,1180px)!important}.section-title h2{font-size:36px!important}}
+
 </style>
 </head>
 
@@ -1369,13 +1409,7 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
           Explore Menu
         </a>
 
-        <a
-          href="#booking"
-          class="btn btn-outline"
-          data-i18n="bookTable"
-        >
-          Book a Table
-        </a>
+        <button type="button" class="btn btn-outline" data-i18n="bookTable" onclick="openNababiBookingForm()">Book a Table</button>
 
       </div>
 
@@ -1786,7 +1820,17 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
 </section>
 
 
-<section id="booking" class="section">
+<section id="bookingLauncher" class="section nb-booking-launcher-section">
+  <div class="container">
+    <button type="button" class="nb-booking-launcher" onclick="openNababiBookingForm()" aria-haspopup="dialog" aria-controls="booking">
+      <span class="nb-booking-icon" aria-hidden="true"><svg viewBox="0 0 64 64" role="img"><path d="M10 28h44M14 28v19m36-19v19M10 47h44M18 28V18h28v10M24 18v-6m16 6v-6M24 47v5m16-5v5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="7" r="2" fill="currentColor"/></svg></span>
+      <span class="nb-booking-launcher-title">Table Booking</span>
+      <span class="nb-booking-launcher-sub">Tap the table icon to reserve</span>
+    </button>
+  </div>
+</section>
+
+<section id="booking" class="section nb-booking-modal" role="dialog" aria-modal="true" aria-labelledby="nbBookingModalTitle">
 
   <div class="container">
 
@@ -1796,35 +1840,14 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         Reservations
       </div>
 
-      <h2 data-i18n="bookTable">
-        Book a Table
-      </h2>
+      <button type="button" class="nb-booking-close" onclick="closeNababiBookingForm()" aria-label="Close booking form">×</button>
+      <h2 id="nbBookingModalTitle" data-i18n="bookTable">Book a Table</h2>
 
       <p>
         Reserve your table directly with Nababi Ristorante.
       </p>
 
     </div>
-
-    <div class="booking-paths" aria-label="Choose booking type">
-      <button type="button" class="booking-path-card active" id="tableBookingPath" onclick="chooseNababiBookingMode('table')" aria-pressed="true">
-        <span class="booking-path-icon" aria-hidden="true"><svg class="booking-table-chair-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="15" width="20" height="18" rx="3" fill="rgba(216,179,106,.13)"/><path d="M18 33v5M30 33v5M24 15V10"/><rect x="18" y="3.5" width="12" height="6.5" rx="2.5"/><rect x="18" y="38" width="12" height="6.5" rx="2.5"/><path d="M20 38v-2M28 38v-2"/><rect x="3.5" y="18" width="7" height="12" rx="2.5"/><rect x="37.5" y="18" width="7" height="12" rx="2.5"/><path d="M10.5 21h3.5M10.5 27h3.5M34 21h3.5M34 27h3.5"/></g></svg></span>
-        <strong>Table Booking</strong>
-        <span class="path-subtitle">Reserve a restaurant table for lunch, dinner, family or friends. Choose your date, time, guests and table with chairs.</span>
-        <span class="booking-path-cta">BOOK A TABLE <span aria-hidden="true">→</span></span>
-      </button>
-      <button type="button" class="booking-path-card" id="eventBookingPath" onclick="chooseNababiBookingMode('event')" aria-pressed="false">
-        <span class="booking-path-icon" aria-hidden="true">🎉</span>
-        <strong>Birthday &amp; Event Management</strong>
-        <span class="path-subtitle">Plan a birthday or special event with guest details, contact information, menu preferences and event notes.</span>
-        <span class="booking-path-cta">PLAN YOUR EVENT <span aria-hidden="true">→</span></span>
-      </button>
-    </div>
-    <div class="event-subchoices" id="eventBookingSubchoices" hidden aria-label="Choose birthday or event booking">
-      <button type="button" class="event-subchoice active" id="birthdayBookingChoice" onclick="chooseNababiEventType('birthday')" aria-pressed="true"><span class="event-subchoice-icon" aria-hidden="true">🎂</span><span><strong>Birthday</strong><small>Birthday party and celebration</small></span><span class="event-subchoice-arrow" aria-hidden="true">→</span></button>
-      <button type="button" class="event-subchoice" id="specialEventBookingChoice" onclick="chooseNababiEventType('event')" aria-pressed="false"><span class="event-subchoice-icon" aria-hidden="true">🎉</span><span><strong>Event Management</strong><small>Private events and special occasions</small></span><span class="event-subchoice-arrow" aria-hidden="true">→</span></button>
-    </div>
-    <div class="booking-mode-note" id="bookingModeNote" aria-live="polite">Table Booking selected — choose a table from the map if you wish. Table selection is optional.</div>
 
     <div class="table-picker-modal" id="tableMapModal" role="dialog" aria-modal="true" aria-labelledby="tableMapModalTitle" onclick="if(event.target===this)closeNababiTableMap()">
       <div class="table-picker-dialog">
@@ -1836,24 +1859,24 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
       </div>
       <div class="table-map-zones">
         <div class="table-zone flowers"><h4>🌸 FLOWER DECORATION ROOM</h4><p class="zone-sub">Decorated indoor room · Tables 7–9</p><div class="table-zone-grid">
-          <button type="button" class="map-table" data-table="7" onclick="selectNababiTable(7)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">7</span></span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="8" onclick="selectNababiTable(8)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">8</span></span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="9" onclick="selectNababiTable(9)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">9</span></span><span class="table-capacity">16 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="7" onclick="selectNababiTable(7)"><span class="table-top">7</span><span class="chair-line">🪑 🪑</span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="8" onclick="selectNababiTable(8)"><span class="table-top">8</span><span class="chair-line">🪑 🪑</span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="9" onclick="selectNababiTable(9)"><span class="table-top">9</span><span class="chair-line">🪑 × 16</span><span class="table-capacity">16 chairs</span><span class="table-status">Available</span></button>
         </div></div>
         <div class="table-zone tv"><h4>📺 LARGE LED TV ROOM</h4><p class="zone-sub">Indoor room · LED screen · Tables 1–6</p><div class="table-zone-grid">
-          <button type="button" class="map-table" data-table="1" onclick="selectNababiTable(1)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">1</span></span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="2" onclick="selectNababiTable(2)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">2</span></span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="3" onclick="selectNababiTable(3)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">3</span></span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="4" onclick="selectNababiTable(4)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">4</span></span><span class="table-capacity">4 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="5" onclick="selectNababiTable(5)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">5</span></span><span class="table-capacity">4 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="6" onclick="selectNababiTable(6)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">6</span></span><span class="table-capacity">4 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="1" onclick="selectNababiTable(1)"><span class="table-top">1</span><span class="chair-line">🪑 × 6</span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="2" onclick="selectNababiTable(2)"><span class="table-top">2</span><span class="chair-line">🪑 × 6</span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="3" onclick="selectNababiTable(3)"><span class="table-top">3</span><span class="chair-line">🪑 × 6</span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="4" onclick="selectNababiTable(4)"><span class="table-top">4</span><span class="chair-line">🪑 × 4</span><span class="table-capacity">4 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="5" onclick="selectNababiTable(5)"><span class="table-top">5</span><span class="chair-line">🪑 × 4</span><span class="table-capacity">4 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="6" onclick="selectNababiTable(6)"><span class="table-top">6</span><span class="chair-line">🪑 × 4</span><span class="table-capacity">4 chairs</span><span class="table-status">Available</span></button>
         </div></div>
         <div class="table-zone outdoor"><h4>🌿 OUTDOOR DECORATION AREA</h4><p class="zone-sub">Decorated outdoor seating · Tables 10–14</p><div class="table-zone-grid">
-          <button type="button" class="map-table" data-table="10" onclick="selectNababiTable(10)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">10</span></span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="11" onclick="selectNababiTable(11)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">11</span></span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="12" onclick="selectNababiTable(12)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">12</span></span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="13" onclick="selectNababiTable(13)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">13</span></span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
-          <button type="button" class="map-table" data-table="14" onclick="selectNababiTable(14)"><span class="table-illustration" aria-hidden="true"><span class="chair-seat chair-n"></span><span class="chair-seat chair-s"></span><span class="chair-seat chair-w"></span><span class="chair-seat chair-e"></span><span class="table-top">14</span></span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="10" onclick="selectNababiTable(10)"><span class="table-top">10</span><span class="chair-line">🪑 🪑</span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="11" onclick="selectNababiTable(11)"><span class="table-top">11</span><span class="chair-line">🪑 🪑</span><span class="table-capacity">2 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="12" onclick="selectNababiTable(12)"><span class="table-top">12</span><span class="chair-line">🪑 × 6</span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="13" onclick="selectNababiTable(13)"><span class="table-top">13</span><span class="chair-line">🪑 × 6</span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
+          <button type="button" class="map-table" data-table="14" onclick="selectNababiTable(14)"><span class="table-top">14</span><span class="chair-line">🪑 × 6</span><span class="table-capacity">6 chairs</span><span class="table-status">Available</span></button>
         </div></div>
       </div>
       <div id="tableMapSelection" class="table-map-selection" aria-live="polite">Selected: <strong id="selectedTableText">No table selected</strong>. Choose date and time below to check availability.</div>
@@ -1910,13 +1933,12 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         </div>
 
         <div class="field booking-full" id="bookingTablePickerWrap">
-          <button type="button" class="table-picker-trigger" onclick="openNababiTableMap()" aria-haspopup="dialog" aria-controls="tableMapModal"><span class="chair-icon" aria-hidden="true"><svg class="booking-table-chair-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="15" width="20" height="18" rx="3" fill="rgba(216,179,106,.13)"/><path d="M18 33v5M30 33v5M24 15V10"/><rect x="18" y="3.5" width="12" height="6.5" rx="2.5"/><rect x="18" y="38" width="12" height="6.5" rx="2.5"/><rect x="3.5" y="18" width="7" height="12" rx="2.5"/><rect x="37.5" y="18" width="7" height="12" rx="2.5"/></g></svg></span><span><span id="tablePickerButtonTitle">Choose a Table (Optional)</span><small id="tablePickerButtonSub">Tap to open the restaurant table map</small></span><span aria-hidden="true">⌄</span></button>
+          <button type="button" class="table-picker-trigger" onclick="openNababiTableMap()" aria-haspopup="dialog" aria-controls="tableMapModal"><span class="chair-icon" aria-hidden="true">🪑</span><span><span id="tablePickerButtonTitle">Choose a Table (Optional)</span><small id="tablePickerButtonSub">Tap to open the restaurant table map</small></span><span aria-hidden="true">⌄</span></button>
           <div class="selected-table-summary" id="selectedTableSummary" aria-live="polite"></div>
         </div>
 
-        <div class="field booking-full" id="bookingTypeField">
-          <label for="bookingType">Booking Type / Tipo di prenotazione</label>
-          <small class="booking-type-explainer">This is set automatically by the booking option selected above.</small>
+        <div class="field booking-full">
+          <label for="bookingType">Booking Type * / Tipo di prenotazione</label>
           <select id="bookingType" onchange="updateBookingTypeFields()">
             <option value="normal">Normal Table Booking — Tavolo normale</option>
             <option value="friends">Friends / Family — Amici e famiglia</option>
@@ -1963,7 +1985,8 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         </div>
 
         <div class="field booking-full" id="bookingHallDurationWrap" style="display:none;">
-          <small id="bookingHallDurationPreview" class="table-map-note">Birthday and Event bookings are automatically reserved for 2 hours. The hall must be available for the full period.</small>
+          <input type="hidden" id="bookingHallDuration" value="2">
+          <small id="bookingHallDurationPreview" class="table-map-note">Birthday / Event hall bookings are automatically reserved for 2 hours. Please choose a start time; the end time is calculated automatically.</small>
         </div>
 
         <div class="field booking-full">
@@ -2442,7 +2465,7 @@ header{background:rgba(4,6,7,.94);border-bottom:1px solid rgba(232,189,99,.24)}
         <p><a href="#about">About</a></p>
         <p><a href="#menu">Menu</a></p>
         <p><a href="#gallery">Gallery</a></p>
-        <p><a href="#booking">Booking</a></p>
+        <p><a href="#bookingLauncher" onclick="openNababiBookingForm();return false;">Booking</a></p>
 
       </div>
 
@@ -3733,7 +3756,7 @@ function renderBreakingNews(){
   Home এখন discount_campaign table থেকে
   সরাসরি campaign load করবে।
 
-  যদি table empty হয়,
+  যদি table empty হয়,
   site_settings-এর discount_campaign / discount
   fallback হিসেবেও চেষ্টা করবে।
 */
@@ -4850,51 +4873,6 @@ document.addEventListener("DOMContentLoaded", () => {
   updateBookingTypeFields();
 });
 
-
-function chooseNababiBookingMode(mode){
-  const tableMode = mode === "table";
-  const tableCard = document.getElementById("tableBookingPath");
-  const eventCard = document.getElementById("eventBookingPath");
-  const eventChoices = document.getElementById("eventBookingSubchoices");
-  if(tableCard){tableCard.classList.toggle("active",tableMode);tableCard.setAttribute("aria-pressed",String(tableMode));}
-  if(eventCard){eventCard.classList.toggle("active",!tableMode);eventCard.setAttribute("aria-pressed",String(!tableMode));}
-  if(eventChoices) eventChoices.hidden = tableMode;
-  const typeSelect = document.getElementById("bookingType");
-  if(typeSelect){
-    typeSelect.value = tableMode ? "normal" : (typeSelect.value === "event" ? "event" : "birthday");
-    typeSelect.dispatchEvent(new Event("change",{bubbles:true}));
-  }
-  if(tableMode){
-    selectedNababiTable = null;
-    const summary=document.getElementById("selectedTableSummary");
-    if(summary){summary.textContent="";summary.classList.remove("visible");}
-  }
-  const note = document.getElementById("bookingModeNote");
-  if(note) note.textContent = tableMode
-    ? "Normal Table Booking — choose a table and chairs from the map if you wish. Birthday and Event options are not part of this form."
-    : "Birthday & Event Management — choose Birthday or Event Management above. Hall booking is separate; selecting a table is optional. Phone and email are required.";
-  const title = document.querySelector('#booking .section-title h2');
-  if(title) title.textContent = tableMode ? "Book a Table" : "Birthday & Event Management";
-  const form = document.querySelector('#booking .booking-box');
-  if(form) form.scrollIntoView({behavior:'smooth',block:'start'});
-  updateBookingTypeFields();
-}
-
-function chooseNababiEventType(type){
-  if(!["birthday","event"].includes(type)) return;
-  const typeSelect=document.getElementById("bookingType");
-  if(typeSelect){typeSelect.value=type;typeSelect.dispatchEvent(new Event("change",{bubbles:true}));}
-  const birthday=document.getElementById("birthdayBookingChoice");
-  const event=document.getElementById("specialEventBookingChoice");
-  if(birthday){birthday.classList.toggle("active",type==="birthday");birthday.setAttribute("aria-pressed",String(type==="birthday"));}
-  if(event){event.classList.toggle("active",type==="event");event.setAttribute("aria-pressed",String(type==="event"));}
-  const note=document.getElementById("bookingModeNote");
-  if(note) note.textContent = type==="birthday"
-    ? "Birthday selected — reserve the shared event hall for 2 hours. You may optionally choose a table as a seating preference. Phone and email are required."
-    : "Event Management selected — reserve the shared event hall for 2 hours. You may optionally choose a table as a seating preference. Phone and email are required.";
-  updateBookingTypeFields();
-}
-
 function updateBookingTypeFields(){
   const type = document.getElementById("bookingType")?.value || "normal";
   const guests = Number(document.getElementById("bookingGuests")?.value || 0);
@@ -4902,6 +4880,7 @@ function updateBookingTypeFields(){
   const phone = document.getElementById("bookingPhone");
   const email = document.getElementById("bookingEmail");
   const detailsWrap = document.getElementById("bookingEventDetailsWrap");
+  const durationWrap = document.getElementById("bookingHallDurationWrap");
   const tablePickerWrap = document.getElementById("bookingTablePickerWrap");
   const groupTypes = ["party", "birthday", "event"];
   const contactBothRequired = ["birthday", "event"].includes(type);
@@ -4916,19 +4895,24 @@ function updateBookingTypeFields(){
     if (label) label.textContent = contactBothRequired ? "Email * (required for Birthday / Event)" : "Email";
   }
   if (detailsWrap) detailsWrap.style.display = ["birthday", "event", "party"].includes(type) ? "block" : "none";
-  const durationInfoWrap = document.getElementById("bookingHallDurationWrap");
-  if (durationInfoWrap) durationInfoWrap.style.display = contactBothRequired ? "block" : "none";
-  // Table selection stays optional for both booking paths. Birthday/Event still reserve the shared hall.
-  if (tablePickerWrap) tablePickerWrap.style.display = "block";
-  const pickerTitle = document.getElementById("tablePickerButtonTitle");
-  const pickerSub = document.getElementById("tablePickerButtonSub");
-  if (pickerTitle) pickerTitle.textContent = contactBothRequired ? "Choose a Table (Optional — Seating Preference)" : "Choose a Table (Optional)";
-  if (pickerSub) pickerSub.textContent = contactBothRequired ? "Hall booking is separate; choose a table only if useful" : "Tap to open the restaurant table map";
-  if (contactBothRequired) document.getElementById("table9PrivateBooking") && (document.getElementById("table9PrivateBooking").checked = false);
+  if (durationWrap) durationWrap.style.display = contactBothRequired ? "block" : "none";
+  // Birthday and Event bookings reserve the shared hall directly; no table selection is shown or saved.
+  if (tablePickerWrap) tablePickerWrap.style.display = contactBothRequired ? "none" : "block";
+  if (contactBothRequired) {
+    selectedNababiTable = null;
+    const title = document.getElementById("tablePickerButtonTitle");
+    const sub = document.getElementById("tablePickerButtonSub");
+    const summary = document.getElementById("selectedTableSummary");
+    if (title) title.textContent = "Choose a Table (Optional)";
+    if (sub) sub.textContent = "Tap to open the restaurant table map";
+    if (summary) { summary.textContent = ""; summary.classList.remove("visible"); }
+    document.getElementById("table9PrivateBooking") && (document.getElementById("table9PrivateBooking").checked = false);
+    closeNababiTableMap();
+  }
   if (!hint) return;
   if (groupTypes.includes(type)) {
     const minimumOK = guests >= 50;
-    const contactText = contactBothRequired ? " Phone number and email are both required. Birthday and Event use the same hall; bookings are automatically reserved for 2 hours." : "";
+    const contactText = contactBothRequired ? " Phone number and email are both required. Birthday and Event use the same hall for a fixed 2-hour booking." : "";
     hint.textContent = (minimumOK ? "Minimum guest requirement met." : "This booking type requires at least 50 guests.") + contactText;
     hint.style.color = minimumOK ? "#22c55e" : "#ef4444";
   } else {
@@ -4944,26 +4928,23 @@ function nababiTimeToMinutes(value){
   return parts[0]*60+parts[1];
 }
 function nababiMinutesToTime(minutes){
-  const normalized=((Number(minutes)%1440)+1440)%1440;
-  const h=Math.floor(normalized/60),m=normalized%60;
+  const h=Math.floor(minutes/60),m=minutes%60;
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
 }
 function updateHallDurationPreview(){
   const type=document.getElementById("bookingType")?.value||"normal";
   const preview=document.getElementById("bookingHallDurationPreview");
   if(!preview)return;
-  if(!["birthday","event"].includes(type)){
-    preview.textContent="Birthday and Event bookings are automatically reserved for 2 hours. The hall must be available for the full period.";
-    return;
-  }
+  if(!["birthday","event"].includes(type)){preview.textContent="Choose the duration for Birthday / Event Hall Booking. The hall must remain available for the full period.";return;}
   const time=document.getElementById("bookingTime")?.value||"";
-  if(!time){
-    preview.textContent="Your hall booking will automatically be reserved for 2 hours. Choose a start time; the end time will be calculated automatically.";
-    return;
-  }
-  const start=nababiTimeToMinutes(time);
-  const end=start+120;
-  preview.textContent=`Hall time: ${time}–${nababiMinutesToTime(end)} (2 hours). Birthday and Event share one hall, so overlapping reservations are not allowed.`;
+  const duration=2;
+  const durationInput=document.getElementById("bookingHallDuration");
+  if(durationInput)durationInput.value="2";
+  if(!time){preview.textContent=`The shared hall can be booked for ${duration} hours. Choose a start time; the end time must be before closing.`;return;}
+  const end=nababiTimeToMinutes(time)+duration*60;
+  const endClock=nababiMinutesToTime(end % (24*60));
+  const nextDay=end>=24*60 ? " (+1 day)" : "";
+  preview.textContent=`Hall time: ${time}–${endClock}${nextDay} (${duration} hours). The latest permitted end time is 01:00. Birthday and Event share one hall, so overlapping reservations are not allowed.`;
 }
 function isValidContact(
   phone,
@@ -5041,9 +5022,13 @@ async function refreshNababiTableAvailability(){
   const date=document.getElementById("bookingDate")?.value, time=document.getElementById("bookingTime")?.value;
   if(!date||!time){return;}
   try{
-    const {data,error}=await supabaseClient.from("table_bookings").select("table_number,status").eq("booking_date",date).eq("booking_time",time).not("table_number","is",null);
+    const {data,error}=await supabaseClient.rpc("get_nababi_table_availability",{
+      p_booking_date:date,
+      p_booking_time:time
+    });
     if(error)throw error;
-    nababiBookedTableKeys=new Set((data||[]).filter(r=>!['cancelled','rejected','declined'].includes(String(r.status||'pending').toLowerCase())).map(r=>Number(r.table_number)));
+    // This RPC returns occupied table numbers only, never customer information.
+    nababiBookedTableKeys=new Set((data||[]).map(r=>Number(r.table_number)));
     renderNababiTableMap();
     if(selectedNababiTable && nababiBookedTableKeys.has(Number(selectedNababiTable))){selectedNababiTable=null;const txt=document.getElementById("selectedTableText");if(txt)txt.textContent="That table is already booked for this date and time. Please choose another table.";const title=document.getElementById("tablePickerButtonTitle"),sub=document.getElementById("tablePickerButtonSub"),summary=document.getElementById("selectedTableSummary");if(title)title.textContent="Choose a Table (Optional)";if(sub)sub.textContent="That table is booked for the selected date and time. Please choose another.";if(summary){summary.textContent="The previously selected table is no longer available for this date and time. Choose another table or continue without selecting one.";summary.classList.add("visible");}}
   }catch(err){
@@ -5104,41 +5089,43 @@ async function createBooking(){
     return;
   }
   const isHallBooking = ["birthday","event"].includes(bookingType);
-  // Birthday/Event duration is fixed automatically to 2 hours; customers do not select it.
   const hallDuration = isHallBooking ? 2 : null;
+  const durationInput = document.getElementById("bookingHallDuration");
+  if (durationInput) durationInput.value = "2";
   const startMinutes = nababiTimeToMinutes(time);
-  const endMinutes = isHallBooking ? startMinutes + 120 : null;
+  const endMinutes = isHallBooking ? startMinutes + hallDuration * 60 : null;
   if (isHallBooking) {
-    // The shared hall may finish after midnight, but no later than 01:00.
-    if (!Number.isFinite(startMinutes) || endMinutes > 25*60) {
+    const latestHallEndMinutes=60; // 01:00 on the following day is the configured latest end time.
+    const finishesAfterMidnight=endMinutes>=24*60;
+    const endClockMinutes=endMinutes%(24*60);
+    if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes) || endMinutes<=startMinutes || (finishesAfterMidnight && endClockMinutes>latestHallEndMinutes)) {
       result.className="booking-result error";
-      result.textContent="A 2-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time.";
+      result.textContent=`The fixed 2-hour hall booking must finish by 01:00 at the latest. Please choose an earlier start time.`;
       document.getElementById("bookingTime")?.focus();
       return;
     }
-    // Use the public, date-scoped RPC instead of selecting table_bookings directly.
-    // The database trigger remains the final protection against overlapping bookings.
+    // Check both Birthday and Event because they use the same physical hall.
+    // The database trigger in the supplied SQL migration repeats this check to prevent simultaneous overlaps.
     try {
       const {data:hallBookings,error:hallAvailabilityError}=await supabaseClient
-        .rpc("get_nababi_hall_availability", { p_booking_date: date });
+        .rpc("get_nababi_hall_availability",{p_booking_date:date});
       if(hallAvailabilityError)throw hallAvailabilityError;
-      const active=(hallBookings||[]).filter(b=>!["cancelled","canceled","rejected","declined"].includes(String(b.status||"pending").toLowerCase()));
+      const active=(hallBookings||[]).filter(b=>!["cancelled","rejected","declined"].includes(String(b.status||"pending").toLowerCase()));
       const overlap=active.some(b=>{
         const otherStart=nababiTimeToMinutes(b.booking_time);
         let otherEnd=nababiTimeToMinutes(b.booking_end_time);
         if(!Number.isFinite(otherEnd))otherEnd=otherStart+Number(b.booking_duration_hours||2)*60;
-        else if(Number.isFinite(otherStart) && otherEnd<=otherStart)otherEnd+=1440;
         return Number.isFinite(otherStart) && Number.isFinite(otherEnd) && startMinutes < otherEnd && otherStart < endMinutes;
       });
       if(overlap){
         result.className="booking-result error";
-        result.textContent="Sorry, the Birthday / Event hall is already booked for part of this time. Please choose another start time.";
+        result.textContent="Sorry, the Birthday / Event hall is already booked for part of this time. Please choose another start time or duration.";
         return;
       }
     } catch(availabilityError) {
-      console.error("Hall availability RPC failed",availabilityError);
+      console.error("Hall availability check failed",availabilityError);
       result.className="booking-result error";
-      result.textContent="We could not check hall availability right now. Please try again shortly or contact the restaurant.";
+      result.textContent="Hall availability is not configured yet. Please apply the included hall-booking SQL migration, then try again.";
       return;
     }
   }
@@ -5156,16 +5143,24 @@ async function createBooking(){
     document.getElementById("table9PrivateWrap")?.scrollIntoView({behavior:"smooth",block:"center"});
     return;
   }
-  if (selectedNababiTable && date && time) {
-    const {data:existing,error:availabilityError}=await supabaseClient.from("table_bookings").select("id,status").eq("booking_date",date).eq("booking_time",time).eq("table_number",Number(selectedNababiTable));
+  if (!isGroupBooking && selectedNababiTable && date && time) {
+    const tableBeingChecked=Number(selectedNababiTable);
+    const {data:occupiedTables,error:availabilityError}=await supabaseClient.rpc("get_nababi_table_availability",{
+      p_booking_date:date,
+      p_booking_time:time
+    });
     if (availabilityError) {
       result.className="booking-result error";
-      result.textContent="Table availability is not configured yet. Please apply the included table-map SQL migration, then try again.";
+      result.textContent="Table availability could not be checked. Please make sure the Nababi booking SQL setup has been applied, then try again.";
       console.error(availabilityError); return;
     }
-    if ((existing||[]).some(r=>!['cancelled','rejected','declined'].includes(String(r.status||'pending').toLowerCase()))) {
-      nababiBookedTableKeys.add(Number(selectedNababiTable));renderNababiTableMap();
-      result.className="booking-result error";result.textContent="Sorry, that table has just been booked for this date and time. Please choose another table.";return;
+    const occupiedSet=new Set((occupiedTables||[]).map(r=>Number(r.table_number)));
+    nababiBookedTableKeys=occupiedSet;
+    renderNababiTableMap();
+    if (occupiedSet.has(tableBeingChecked)) {
+      result.className="booking-result error";
+      result.textContent="Sorry, that table has just been booked for this date and time. Please choose another table.";
+      return;
     }
   }
   const details = [
@@ -5177,32 +5172,33 @@ async function createBooking(){
   result.className="booking-result success";
   result.textContent="Creating your reservation...";
   try {
-    // Create bookings through the secured database RPC (direct table writes may be blocked by RLS).
-    const {data:rpcData,error} = await supabaseClient.rpc("create_nababi_booking", {
-      p_customer_name: name,
-      p_phone: phone || null,
-      p_email: email || null,
-      p_booking_date: date,
-      p_booking_time: time,
-      p_guests: guests,
-      p_booking_type: bookingType,
-      p_booking_duration_minutes: isHallBooking ? 120 : null,
-      p_booking_end_time: isHallBooking ? nababiMinutesToTime(endMinutes) : null,
-      p_table_number: selectedNababiTable ? Number(selectedNababiTable) : null,
-      p_booking_mode: !isHallBooking && privateTable9 ? "private_full_table" : "standard",
-      p_reserved_food: food || null,
-      p_event_details: eventDetails || null,
-      p_special_request: details || null
+    // Use a SECURITY DEFINER RPC: anonymous visitors are not given direct table INSERT/SELECT access.
+    // The insert still runs the existing database triggers for references, time rules and email notices.
+    const {data,error} = await supabaseClient.rpc("create_nababi_booking",{
+      p_customer_name:name,
+      p_phone:phone || null,
+      p_email:email || null,
+      p_booking_date:date,
+      p_booking_time:time,
+      p_guests:guests,
+      p_booking_type:bookingType,
+      p_booking_duration_minutes:isHallBooking ? hallDuration*60 : null,
+      p_booking_end_time:isHallBooking ? nababiMinutesToTime(endMinutes % (24*60)) : null,
+      p_table_number:(!isHallBooking && !groupBookingTypes.includes(bookingType) && selectedNababiTable) ? Number(selectedNababiTable) : null,
+      p_booking_mode:!isHallBooking && privateTable9 ? "private_full_table" : "standard",
+      p_reserved_food:food || null,
+      p_event_details:eventDetails || null,
+      p_special_request:details || null
     });
     if (error) throw error;
-    const bookingResult = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-    if (bookingResult && bookingResult.success === false) {
-      throw new Error(bookingResult.message || bookingResult.error || "Unable to create reservation.");
+    if (!data || data.success !== true) {
+      throw new Error(data?.message || "Unable to create reservation.");
     }
-    const savedBooking = bookingResult && typeof bookingResult === "object"
-      ? { id: bookingResult.id, booking_reference: bookingResult.booking_reference || bookingResult.booking_code || bookingResult.reference, status: bookingResult.status }
-      : {};
-    showBookingSuccess(savedBooking);
+    showBookingSuccess({
+      id:data.id,
+      booking_reference:data.booking_reference,
+      status:data.status
+    });
     await refreshNababiTableAvailability();
   } catch(error) {
     console.error(error);
@@ -5828,8 +5824,8 @@ function openEventMenu(type){
     en:{wedding:"Wedding Menu",birthday:"Birthday Menu",weddingDesc:"Discover menus for your special day",birthdayDesc:"Packages for birthday celebrations",empty:"Menu details are being prepared. Please contact Nababi Ristorante for available packages.",close:"Close"},
     bn:{wedding:"বিয়ের মেনু",birthday:"জন্মদিনের মেনু",weddingDesc:"আপনার বিশেষ দিনের জন্য মেনু দেখুন",birthdayDesc:"জন্মদিনের অনুষ্ঠানের প্যাকেজ দেখুন",empty:"মেনুর বিস্তারিত প্রস্তুত করা হচ্ছে। প্যাকেজ জানতে Nababi Ristorante-এ যোগাযোগ করুন।",close:"বন্ধ করুন"}
   }[lang]||{};
-  const oldTitles={wedding:["বিয়েবাড়ির মেনু / Wedding Menu","বিয়ের মেনু / Wedding Menu"],birthday:["জন্মদিনের মেনু / Birthday Menu"]};
-  const oldDescriptions={wedding:["বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন.","বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।","বিশেষ দিনের জন্য বিয়ের আয়োজনের মেনু।"],birthday:["জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন.","জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।","জন্মদিনের আয়োজনের মেনু ও প্যাকেজ।"]};
+  const oldTitles={wedding:["বিয়েবাড়ির মেনু / Wedding Menu","বিয়ের মেনু / Wedding Menu"],birthday:["জন্মদিনের মেনু / Birthday Menu"]};
+  const oldDescriptions={wedding:["বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন.","বিশেষ দিনের জন্য আমাদের বিয়ের আয়োজনের মেনু। বিস্তারিত জানতে রেস্টুরেন্টে যোগাযোগ করুন।","বিশেষ দিনের জন্য বিয়ের আয়োজনের মেনু।"],birthday:["জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন.","জন্মদিনের আয়োজনের জন্য খাবার ও প্যাকেজ বেছে নিন।","জন্মদিনের আয়োজনের মেনু ও প্যাকেজ।"]};
   let rawTitle=String(item.title||"");
   let rawDescription=String(item.description||"");
   const isOldTitle=!rawTitle||rawTitle===fallback.title||(oldTitles[type]||[]).includes(rawTitle);
@@ -5911,6 +5907,11 @@ async function initializeSite(){
 
 
     setupStars();
+
+    if (new URLSearchParams(window.location.search).get("view") === "menu") {
+      const menuSection = document.getElementById("menu");
+      if (menuSection) menuSection.scrollIntoView({ behavior: "instant", block: "start" });
+    }
 
 
   }catch(error){
@@ -5995,7 +5996,7 @@ document.getElementById("bookingDate")?.addEventListener("change",()=>{updateNab
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeNababiTableMap();});
 document.getElementById("bookingTime")?.addEventListener("change",()=>{validateNababiBookingTime(true);refreshNababiTableAvailability();});
 document.getElementById("bookingTime")?.addEventListener("change",updateHallDurationPreview);
-
+document.getElementById("bookingHallDuration")?.addEventListener("change",updateHallDurationPreview);
 updateNababiBookingTimeBounds();
 document.getElementById("bookingGuests")?.addEventListener("change",()=>{
   const cfg=selectedNababiTable?NABABI_TABLE_CONFIG[selectedNababiTable]:null;
@@ -6015,6 +6016,27 @@ initializeSite();
 >
   🔐 Admin
 </a>
+
+
+<script id="nababi-booking-icon-modal-actions">
+function openNababiBookingForm(){
+  const modal=document.getElementById('booking');
+  if(!modal)return;
+  modal.classList.add('nb-booking-open');
+  document.body.classList.add('nb-booking-lock');
+  modal.setAttribute('aria-hidden','false');
+  const first=modal.querySelector('#bookingName');
+  window.setTimeout(()=>first?.focus({preventScroll:true}),80);
+}
+function closeNababiBookingForm(){
+  const modal=document.getElementById('booking');
+  if(!modal)return;
+  modal.classList.remove('nb-booking-open');
+  document.body.classList.remove('nb-booking-lock');
+  modal.setAttribute('aria-hidden','true');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeNababiBookingForm();});
+</script>
 
 </body>
 </html>
