@@ -1520,9 +1520,10 @@ Clear
  placeholder="Sort Order"
 >
 
-<label for="newCategoryImageFile" class="muted">Category Image / ক্যাটাগরির ছবি</label>
-<input id="newCategoryImageFile" type="file" accept="image/*">
-<div id="newCategoryImageProgress" class="muted" aria-live="polite"></div>
+<label for="newCategoryImageFile" style="display:block;margin-top:10px;font-weight:700">Category Image / ক্যাটাগরির ছবি</label>
+<input id="newCategoryImageFile" type="file" accept="image/*" style="display:block;width:100%;margin-top:6px">
+<div id="newCategoryImagePreview" style="margin-top:8px"></div>
+<div id="newCategoryImageProgress" class="muted" style="margin:6px 0"></div>
 
 <button
  class="btn"
@@ -3370,9 +3371,9 @@ async function loadCategories(){
 
     <thead>
     <tr>
-      <th>Image</th>
-      <th>Category</th>
+      <th>Category / Image</th>
       <th>Order</th>
+      <th>Change Image</th>
       <th>Action</th>
     </tr>
     </thead>
@@ -3383,14 +3384,21 @@ async function loadCategories(){
 
       <tr>
 
-        <td>${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.name)}" style="width:64px;height:48px;object-fit:cover;border-radius:8px">` : "—"}</td>
-
         <td>
-          ${escapeHtml(item.name)}
+          <div style="display:flex;align-items:center;gap:10px;min-width:170px">
+            ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.name)}" style="width:64px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #c9a65d" onerror="this.style.display='none'">` : `<div style="width:64px;height:48px;display:grid;place-items:center;border:1px dashed #9b864d;border-radius:8px;font-size:11px;color:#aaa">No image</div>`}
+            <span>${escapeHtml(item.name)}</span>
+          </div>
         </td>
 
         <td>
           ${item.sort_order ?? 0}
+        </td>
+
+        <td>
+          <input type="file" id="categoryImageFile-${Number(item.id)}" accept="image/*" style="max-width:190px">
+          <button class="btn small" style="margin-top:6px" onclick="uploadCategoryImage(${Number(item.id)})">Upload / Replace</button>
+          <div class="muted" id="categoryImageStatus-${Number(item.id)}" style="font-size:11px;margin-top:4px"></div>
         </td>
 
         <td>
@@ -3418,34 +3426,61 @@ async function loadCategories(){
 }
 
 
+const newCategoryImageInput = document.getElementById("newCategoryImageFile");
+if(newCategoryImageInput){
+  newCategoryImageInput.addEventListener("change",()=>{
+    const file=newCategoryImageInput.files?.[0];
+    const preview=document.getElementById("newCategoryImagePreview");
+    if(!preview)return;
+    preview.innerHTML=file ? `<img src="${URL.createObjectURL(file)}" alt="Category preview" style="width:120px;height:85px;object-fit:cover;border-radius:8px;border:1px solid #c9a65d">` : "";
+  });
+}
+
 async function createCategory(){
-  const name=$("newCategoryName").value.trim();
+  const name = $("newCategoryName").value.trim();
+  const file = $("newCategoryImageFile")?.files?.[0] || null;
   if(!name){ alert("Enter a category name."); return; }
-  try {
-    const file=$("newCategoryImageFile")?.files?.[0];
-    let image_url=null;
+  try{
+    let image_url = null;
     if(file){
-      if(!file.type.startsWith("image/")) throw new Error("Please select an image file.");
-      if($("newCategoryImageProgress")) $("newCategoryImageProgress").textContent="Uploading image…";
-      image_url=await uploadSiteMedia(file,"category-images","newCategoryImageProgress");
+      if(!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+      image_url = await uploadSiteMedia(file,"category-images","newCategoryImageProgress");
     }
-    const {error}=await supabaseClient.from("menu_categories").insert({
+    const {error} = await supabaseClient.from("menu_categories").insert({
       name,
-      sort_order:Number($("newCategoryOrder").value||0),
+      sort_order:Number($("newCategoryOrder").value || 0),
       image_url
     });
     if(error) throw error;
     $("newCategoryName").value="";
     $("newCategoryOrder").value="";
     if($("newCategoryImageFile")) $("newCategoryImageFile").value="";
-    if($("newCategoryImageProgress")) $("newCategoryImageProgress").textContent="Category saved.";
+    if($("newCategoryImagePreview")) $("newCategoryImagePreview").innerHTML="";
+    if($("newCategoryImageProgress")) $("newCategoryImageProgress").textContent="";
     await loadCategories();
     toast("New category created.");
-  } catch(error) {
-    if($("newCategoryImageProgress")) $("newCategoryImageProgress").textContent="Save failed: "+(error.message||String(error));
-    showError(error);
+  }catch(error){ showError(error); }
+}
+
+async function uploadCategoryImage(id){
+  const input=$("categoryImageFile-"+id);
+  const status=$("categoryImageStatus-"+id);
+  try{
+    const file=input?.files?.[0];
+    if(!file) throw new Error("আগে ক্যাটাগরির ছবি নির্বাচন করুন।");
+    if(!file.type.startsWith("image/")) throw new Error("শুধু image file আপলোড করা যাবে।");
+    if(status) status.textContent="Uploading…";
+    const url=await uploadSiteMedia(file,"category-images",null);
+    const {error}=await supabaseClient.from("menu_categories").update({image_url:url}).eq("id",id);
+    if(error) throw error;
+    await loadCategories();
+    toast("Category image uploaded and saved.");
+  }catch(error){
+    if(status) status.textContent="Upload failed: "+(error.message||String(error));
+    else showError(error);
   }
 }
+
 
 async function deleteCategory(id){
 
