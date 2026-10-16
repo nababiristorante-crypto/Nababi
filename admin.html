@@ -1334,17 +1334,17 @@ Save Social Media
 
 <h2>🕐 Opening Hours</h2>
 
-<div
- id="hoursContainer"
- class="card"
-></div>
+<div class="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:18px">
+  <label>Opening time
+    <input id="siteOpeningTime" type="time" value="12:00" required style="display:block;width:100%;margin-top:6px">
+  </label>
+  <label>Closing time
+    <input id="siteClosingTime" type="time" value="23:00" required style="display:block;width:100%;margin-top:6px">
+  </label>
+  <p id="siteHoursStatus" class="muted" aria-live="polite" style="grid-column:1/-1;margin:0">Monday – Sunday · 12:00 – 23:00</p>
+</div>
 
-<button
- class="btn"
- onclick="saveHours()"
->
-Save Opening Hours
-</button>
+<button class="btn" onclick="saveHours()" style="margin-top:12px">💾 Save Opening Hours</button>
 
 <div class="card" style="margin-top:18px;border:1px solid rgba(216,179,106,.45);padding:18px;border-radius:16px">
   <h3 style="margin-top:0">🕘 Table Booking Time Settings</h3>
@@ -3250,46 +3250,18 @@ const DAYS = [
 
 
 async function loadHours(){
-
-  const hours =
-    await getSetting("hours");
+  const hours = await getSetting("hours");
+  // The public Opening Hours card is one all-week schedule. Read older per-day
+  // settings for compatibility, then normalize all seven days when saved.
+  const first = hours.Monday || hours.monday || Object.values(hours).find(v => v && typeof v === "object" && (v.open || v.close)) || {};
+  const open = String(first.open || (typeof first === "string" ? first.split(/[–-]/)[0].trim() : "12:00")).slice(0,5) || "12:00";
+  const close = String(first.close || (typeof first === "string" && /[–-]/.test(first) ? first.split(/[–-]/).slice(1).join("-").trim() : "23:00")).slice(0,5) || "23:00";
+  $("siteOpeningTime").value = /^\d{2}:\d{2}$/.test(open) ? open : "12:00";
+  $("siteClosingTime").value = /^\d{2}:\d{2}$/.test(close) ? close : "23:00";
+  $("siteHoursStatus").textContent = `Monday – Sunday · ${$("siteOpeningTime").value} – ${$("siteClosingTime").value}`;
   await loadBookingHours();
   await loadEventBookingSettings();
-
-  $("hoursContainer").innerHTML =
-    DAYS.map(day=>{
-
-      const value =
-        hours[day] || {};
-
-      return `
-      <div class="grid g2">
-
-        <div>
-          <b>${day}</b>
-        </div>
-
-        <div>
-          <input
-            id="open_${day}"
-            value="${escapeHtml(value.open || "")}"
-            placeholder="Opening time"
-          >
-
-          <input
-            id="close_${day}"
-            value="${escapeHtml(value.close || "")}"
-            placeholder="Closing time"
-          >
-        </div>
-
-      </div>
-      `;
-
-    }).join("");
-
 }
-
 
 async function loadBookingHours(){
   try{
@@ -3341,34 +3313,22 @@ async function saveEventBookingSettings(){
 }
 
 async function saveHours(){
-
+  const open = String($("siteOpeningTime").value || "").slice(0,5);
+  const close = String($("siteClosingTime").value || "").slice(0,5);
+  if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(open) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(close)){
+    toast("Please choose valid opening and closing times."); return;
+  }
+  if(close <= open){
+    toast("Closing time must be later than opening time."); return;
+  }
   const hours = {};
-
-  DAYS.forEach(day=>{
-
-    hours[day] = {
-
-      open:
-        $(`open_${day}`).value.trim(),
-
-      close:
-        $(`close_${day}`).value.trim()
-
-    };
-
-  });
-
-  await saveSetting(
-    "hours",
-    hours
-  );
-
-  toast(
-    "Opening hours saved."
-  );
-
+  DAYS.forEach(day => { hours[day] = {open, close}; });
+  try{
+    await saveSetting("hours", hours);
+    $("siteHoursStatus").textContent = `Saved: Monday – Sunday · ${open} – ${close}`;
+    toast("Opening Hours saved. The website card will show the updated time after refresh.");
+  }catch(error){ showError(error); }
 }
-
 
 /* =========================================================
    CATEGORIES
@@ -3844,8 +3804,7 @@ async function loadBookings(){
   if(!rows.length){host.innerHTML='<div class="card"><p class="muted">No bookings found.</p></div>';await loadBookingEmailHistory().catch(()=>{});return;}
   host.innerHTML=`<div class="booking-admin-list">${rows.map(item=>{
     const id=String(item.id).replace(/'/g,"\\'");
-    const rawType=item.booking_type||((String(item.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking";
-    const type=nababiAdminBookingTypeLabel(rawType);
+    const type=item.booking_type||((String(item.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Normal Table Booking";
     const code=item.booking_reference||item.booking_code||"—";
     const name=item.customer_name||item.name||"Customer";
     const email=item.email||item.customer_email||item.customerEmail||item.contact_email||item.email_address||item.customer_email_address||"";
@@ -3896,7 +3855,7 @@ function buildBookingEmailPayload(row, customMessage=""){
   if(!email){toast("এই বুকিংয়ে কাস্টমারের ইমেইল নেই। আগে বুকিংয়ের ইমেইল যোগ করুন অথবা WhatsApp ব্যবহার করুন।");return null;}
   const name=String(row.customer_name||row.name||"Customer").trim()||"Customer";
   const code=String(row.booking_reference||row.booking_code||"Not available");
-  const type=nababiAdminBookingTypeLabel(row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking");
+  const type=row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table Booking";
   const confirmed=String(row.status||"Pending").toLowerCase()==="confirmed";
   const subject=customMessage ? `Message about your booking ${code} — Nababi Ristorante` : (confirmed?"Your Booking Is Confirmed — Nababi Ristorante, Roma":"Thank You for Your Booking Request — Nababi Ristorante, Roma");
   const body=[
@@ -4034,15 +3993,6 @@ async function updateBooking(id,status){
    BOOKING REPORTS — SUPER ADMIN ONLY
    Reads existing records from public.table_bookings.
 ========================================================= */
-function nababiAdminBookingTypeLabel(value){
-  const raw=String(value||"").trim().toLowerCase();
-  if(raw==="normal"||raw==="normal table booking"||raw==="table"||raw==="table booking")return "Table Booking";
-  if(raw==="friends"||raw==="family"||raw.includes("family"))return "Family Table Booking";
-  if(raw==="party"||raw==="party table booking")return "Party Table Booking";
-  if(raw.includes("birth"))return "Birthday";
-  if(raw.includes("event"))return "Event Management";
-  return value||"Table Booking";
-}
 function bookingReportRomeDate(){
   const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
   const v={};parts.forEach(p=>{if(p.type!=="literal")v[p.type]=p.value;});
@@ -4056,10 +4006,8 @@ function bookingReportDateUTC(dateText){
 function bookingReportType(row){
   const raw=String(row.booking_type||((String(row.special_request||"").match(/\[Booking Type: ([^\]]+)\]/i)||[])[1])||"Table").trim().toLowerCase();
   if(raw.includes("birth"))return "Birthday";
-  if(raw.includes("event"))return "Event Management";
-  if(raw==="friends"||raw.includes("family"))return "Family Table Booking";
-  if(raw==="party"||raw.includes("party table"))return "Party Table Booking";
-  if(raw.includes("table")||raw.includes("normal")||!raw)return "Table Booking";
+  if(raw.includes("event"))return "Event";
+  if(raw.includes("table")||raw.includes("normal")||!raw)return "Table";
   return raw.replace(/\b\w/g,c=>c.toUpperCase());
 }
 function bookingReportStatus(row){
