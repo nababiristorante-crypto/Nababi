@@ -2520,6 +2520,24 @@ async function uploadSiteMedia(file,folder,progressTargetId){
 
   if(!file) throw new Error("Please select a file.");
 
+  // Free-plan friendly upload limits: images up to 300 KB; videos up to 5 MB.
+  // Small files continue uploading normally; oversized files are stopped before network transfer.
+  const IMAGE_MAX_BYTES = 300 * 1024;
+  const VIDEO_MAX_BYTES = 5 * 1024 * 1024;
+  const fileNameLower = String(file.name || "").toLowerCase();
+  const isVideo = (file.type || "").startsWith("video/") || /\.(mp4|mov|webm|m4v|avi|mpeg|mpg)$/i.test(fileNameLower);
+  const isImage = (file.type || "").startsWith("image/") || /\.(jpg|jpeg|png|webp|gif|avif|svg)$/i.test(fileNameLower);
+  const limitBytes = isVideo ? VIDEO_MAX_BYTES : isImage ? IMAGE_MAX_BYTES : null;
+  if(limitBytes && file.size > limitBytes){
+    const actualMB = (file.size / (1024 * 1024)).toFixed(2);
+    const maxLabel = isVideo ? "5 MB" : "300 KB";
+    const message = isVideo
+      ? `ভিডিওটি ${actualMB} MB। সর্বোচ্চ 5 MB ভিডিও আপলোড করা যাবে। ভিডিওটি ছোট করে আবার চেষ্টা করুন।`
+      : `ছবিটি ${(file.size / 1024).toFixed(0)} KB। সর্বোচ্চ 300 KB ছবি আপলোড করা যাবে। ছবিটি কমপ্রেস করে আবার চেষ্টা করুন।`;
+    alert("আপলোড করা যাচ্ছে না / Upload limit exceeded\n\n" + message);
+    throw new Error(message);
+  }
+
   const extension = file.name.split(".").pop().toLowerCase();
   const path = folder + "/" + crypto.randomUUID() + "." + extension;
 
