@@ -1,108 +1,436 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10100e">
   <title>Nababi Ristorante | Admin</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body class="admin-page">
-  <main class="admin-wrap">
-    <a class="brand" href="index.html">NABABI <span>RISTORANTE</span></a>
 
-    <section class="panel" id="login-panel">
-      <p class="eyebrow">SECURE AREA</p>
-      <h1>Admin Login</h1>
-      <p>Sign in using your Supabase user account.</p>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --gold: #d5b16b;
+      --gold-light: #f1dca5;
+      --bg: #10100e;
+      --panel: #191916;
+      --text: #f8f4eb;
+      --muted: #bdb7a9;
+      --line: rgba(213,177,107,.25);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+      line-height: 1.7;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .admin-top {
+      padding: 15px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      border-bottom: 1px solid var(--line);
+      background: #0a0a09;
+    }
+
+    .brand {
+      color: var(--gold-light);
+      font: 600 27px/1.1 "Cormorant Garamond", Georgia, serif;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font: 10px Inter, sans-serif;
+      letter-spacing: 3px;
+    }
+
+    .gold { color: var(--gold-light); }
+
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 44px;
+      padding: 11px 18px;
+      border: 1px solid var(--gold);
+      background: var(--gold);
+      color: #17130b;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .button:hover { background: transparent; color: var(--gold-light); }
+    .button.secondary { background: transparent; color: var(--gold-light); }
+
+    .login-wrap {
+      display: grid;
+      min-height: calc(100vh - 75px);
+      place-items: center;
+      padding: 25px;
+    }
+
+    .login-card {
+      width: min(100%, 440px);
+      padding: 36px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 25px 70px #0007;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 500;
+      line-height: 1.15;
+    }
+
+    h1 { margin: 8px 0 12px; font-size: 42px; }
+    h2 { margin-bottom: 15px; font-size: 31px; }
+    h3 { margin-bottom: 10px; font-size: 25px; }
+
+    .muted, .help { color: var(--muted); }
+    .help { font-size: 12px; }
+
+    .field { display: grid; gap: 7px; margin: 17px 0; }
+    .field label { font-size: 12px; color: var(--gold-light); }
+
+    .field input, .field textarea, .field select {
+      width: 100%;
+      min-height: 45px;
+      padding: 11px 13px;
+      border: 1px solid #514735;
+      border-radius: 0;
+      outline: none;
+      background: #11110f;
+      color: var(--text);
+    }
+
+    .field textarea { min-height: 100px; resize: vertical; }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--gold);
+    }
+
+    .full { width: 100%; }
+    .status { min-height: 24px; margin-top: 12px; color: var(--gold-light); font-size: 13px; }
+    .hidden { display: none !important; }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 245px minmax(0, 1fr);
+      min-height: calc(100vh - 75px);
+    }
+
+    .sidebar {
+      padding: 25px 17px;
+      border-right: 1px solid var(--line);
+      background: #0a0a09;
+    }
+
+    .sidebar .eyebrow { margin: 10px 12px 18px; }
+    .nav-btn {
+      display: block;
+      width: 100%;
+      margin: 4px 0;
+      padding: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      border-color: var(--line);
+      background: #d5b16b12;
+      color: var(--gold-light);
+    }
+
+    .main { min-width: 0; padding: 32px; }
+    .main-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .panel {
+      margin-bottom: 22px;
+      padding: 25px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .notice {
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #d5b16b0b;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section-view { display: none; }
+    .section-view.active { display: block; }
+
+    @media (max-width: 760px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 15px;
+      }
+      .sidebar nav { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+      .nav-btn { margin: 0; font-size: 12px; }
+      .main { padding: 20px 14px; }
+      .login-card { padding: 26px 20px; }
+      .grid { grid-template-columns: 1fr; }
+      .brand { font-size: 22px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="admin-top">
+    <a class="brand" href="index.html">
+      NABABI RISTORANTE
+      <small>ADMIN CONTROL CENTRE</small>
+    </a>
+    <a class="button secondary" href="index.html">View Website ↗</a>
+  </header>
+
+  <main id="login-view" class="login-wrap">
+    <section class="login-card">
+      <p class="eyebrow">Secure Area</p>
+      <h1>Admin <span class="gold">Login</span></h1>
+      <p class="muted">Sign in using your Supabase user account.</p>
 
       <form id="login-form">
-        <label for="email">Email</label>
-        <input id="email" type="email" required autocomplete="username"
-               value="Nababiristorante@gmail.com">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" required autocomplete="username"
+                 value="Nababiristorante@gmail.com">
+        </div>
 
-        <label for="password">Password</label>
-        <input id="password" type="password" required autocomplete="current-password">
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" required autocomplete="current-password">
+        </div>
 
-        <button class="button" type="submit">Sign In</button>
-        <p id="login-message" role="status"></p>
+        <button class="button full" type="submit">Sign In</button>
+        <p id="login-message" class="status" role="status"></p>
       </form>
     </section>
+  </main>
 
-    <section class="panel hidden" id="dashboard">
-      <div class="dashboard-head">
+  <main id="dashboard" class="dashboard hidden">
+    <aside class="sidebar">
+      <p class="eyebrow">Control Centre</p>
+      <nav aria-label="Admin sections">
+        <button class="nav-btn active" data-section="home">⌂ Dashboard</button>
+        <button class="nav-btn" data-section="website">✧ Website Content</button>
+        <button class="nav-btn" data-section="menu">☷ Menu Manager</button>
+        <button class="nav-btn" data-section="gallery">▧ Gallery</button>
+        <button class="nav-btn" data-section="videos">▷ Videos</button>
+        <a class="nav-btn" href="coupon.box.html">◇ Coupon Manager ↗</a>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <div class="main-head">
         <div>
-          <p class="eyebrow">CONTROL CENTRE</p>
-          <h1>Dashboard</h1>
+          <p class="eyebrow">Nababi Ristorante · Roma</p>
+          <h1 id="page-title">Dashboard</h1>
+          <p class="muted" id="admin-status">Signed in</p>
         </div>
         <button class="button secondary" id="signout" type="button">Sign Out</button>
       </div>
 
-      <p id="admin-status"></p>
-      <h2>Coupon Management</h2>
-      <p>Manage restaurant coupons from the coupon manager.</p>
-      <a class="button" href="coupon.box.html">Open Coupon Manager</a>
-      <p class="small-note">Booking and menu management need their own database integration.</p>
-    </section>
+      <section class="section-view active" id="section-home">
+        <div class="panel">
+          <h2>Welcome to your <span class="gold">Dashboard</span></h2>
+          <p class="muted">Manage your restaurant website from this control centre.</p>
+          <div class="notice" style="margin-top:18px">
+            Your existing Premium website design is kept separate from this Admin page.
+            Database-connected editing requires the matching Supabase tables and Storage setup.
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Quick Links</h3>
+          <p><a class="gold" href="index.html">Open public website ↗</a></p>
+          <p style="margin-top:12px"><a class="gold" href="coupon.box.html">Open Coupon Manager ↗</a></p>
+        </div>
+      </section>
+
+      <section class="section-view" id="section-website">
+        <div class="panel">
+          <h2>Website <span class="gold">Content</span></h2>
+          <p class="muted">Your homepage uses the existing HTML content and styling.</p>
+          <div class="field">
+            <label>Hero title</label>
+            <input value="A Beautiful Table. An Unforgettable Taste." readonly>
+          </div>
+          <div class="field">
+            <label>Restaurant address</label>
+            <input value="Via Vespasiano 73/75/77, Roma, Italy" readonly>
+          </div>
+          <p class="notice">These fields are read-only in this version. Saving edits to the live homepage needs a configured website-settings table.</p>
+        </div>
+      </section>
+
+      <section class="section-view" id="section-menu">
+        <div class="panel">
+          <h2>Menu <span class="gold">Manager</span></h2>
+          <p class="muted">Menu items and categories can be connected to your existing Supabase database.</p>
+          <div class="notice">The current public page contains three illustrative sample dishes. Before enabling add/edit/delete, the exact menu table and column names must be confirmed so your existing data is not changed accidentally.</div>
+        </div>
+      </section>
+
+      <section class="section-view" id="section-gallery">
+        <div class="panel">
+          <h2>Photo <span class="gold">Gallery</span></h2>
+          <p class="muted">Your public website currently displays sample gallery images.</p>
+          <div class="notice">Photo uploads can use your public Supabase Storage bucket named <strong>menu-images</strong>. The gallery table and upload path must be matched before uploaded photos can appear on the public site.</div>
+        </div>
+      </section>
+
+      <section class="section-view" id="section-videos">
+        <div class="panel">
+          <h2>Restaurant <span class="gold">Videos</span></h2>
+          <div class="field">
+            <label>Video slot 1 — Restaurant Video</label>
+            <input type="file" accept="video/*" disabled>
+          </div>
+          <div class="field">
+            <label>Video slot 2 — Food & Experience</label>
+            <input type="file" accept="video/*" disabled>
+          </div>
+          <p class="notice">The two slots remain separate. Upload controls will be enabled when the video Storage path and settings table are configured.</p>
+        </div>
+      </section>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script>
-    const cfg = window.NABABI_CONFIG;
-    const client = cfg?.supabaseUrl && cfg?.supabaseAnonKey
-      ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey)
-      : null;
+    (() => {
+      const cfg = window.NABABI_CONFIG || {};
+      const loginView = document.getElementById("login-view");
+      const dashboard = document.getElementById("dashboard");
+      const loginMessage = document.getElementById("login-message");
+      const client = window.supabase && cfg.supabaseUrl && cfg.supabaseAnonKey
+        ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey)
+        : null;
 
-    const message = document.getElementById("login-message");
-    const loginPanel = document.getElementById("login-panel");
-    const dashboard = document.getElementById("dashboard");
+      function showSession(session) {
+        const signedIn = Boolean(session);
+        loginView.classList.toggle("hidden", signedIn);
+        dashboard.classList.toggle("hidden", !signedIn);
 
-    function showSession(session) {
-      loginPanel.classList.toggle("hidden", Boolean(session));
-      dashboard.classList.toggle("hidden", !session);
-
-      if (session) {
-        document.getElementById("admin-status").textContent =
-          "Signed in as " + (session.user.email || "Admin");
+        if (session) {
+          document.getElementById("admin-status").textContent =
+            "Signed in as " + (session.user.email || "Admin");
+        }
       }
-    }
-
-    if (!client) {
-      message.textContent = "Setup required: check config.js.";
-    } else {
-      client.auth.getSession().then(({ data, error }) => {
-        if (error) message.textContent = error.message;
-        showSession(data?.session || null);
-      });
-
-      client.auth.onAuthStateChange((_event, session) => {
-        showSession(session);
-      });
-    }
-
-    document.getElementById("login-form").addEventListener("submit", async event => {
-      event.preventDefault();
 
       if (!client) {
-        message.textContent = "Supabase configuration is missing.";
-        return;
+        loginMessage.textContent = "Setup required: please check config.js.";
+      } else {
+        client.auth.getSession().then(({ data, error }) => {
+          if (error) loginMessage.textContent = error.message;
+          showSession(data && data.session ? data.session : null);
+        });
+
+        client.auth.onAuthStateChange((_event, session) => {
+          showSession(session);
+        });
       }
 
-      message.textContent = "Signing in…";
+      document.getElementById("login-form").addEventListener("submit", async event => {
+        event.preventDefault();
 
-      const { error } = await client.auth.signInWithPassword({
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("password").value
+        if (!client) {
+          loginMessage.textContent = "Supabase configuration is missing.";
+          return;
+        }
+
+        const button = event.currentTarget.querySelector('button[type="submit"]');
+        button.disabled = true;
+        loginMessage.textContent = "Signing in…";
+
+        try {
+          const { error } = await client.auth.signInWithPassword({
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value
+          });
+
+          loginMessage.textContent = error ? error.message : "Signed in successfully.";
+        } catch (error) {
+          loginMessage.textContent = error.message || "Unable to sign in.";
+        } finally {
+          button.disabled = false;
+        }
       });
 
-      message.textContent = error ? error.message : "";
-    });
+      document.getElementById("signout").addEventListener("click", async () => {
+        if (!client) return;
+        const { error } = await client.auth.signOut();
+        if (error) {
+          document.getElementById("admin-status").textContent = error.message;
+        }
+      });
 
-    document.getElementById("signout").addEventListener("click", async () => {
-      if (!client) return;
-      const { error } = await client.auth.signOut();
-      if (error) message.textContent = error.message;
-    });
+      const titles = {
+        home: "Dashboard",
+        website: "Website Content",
+        menu: "Menu Manager",
+        gallery: "Gallery",
+        videos: "Video Manager"
+      };
+
+      document.querySelectorAll("[data-section]").forEach(button => {
+        button.addEventListener("click", () => {
+          const name = button.dataset.section;
+          document.querySelectorAll(".section-view").forEach(section => {
+            section.classList.toggle("active", section.id === "section-" + name);
+          });
+          document.querySelectorAll("[data-section]").forEach(item => {
+            item.classList.toggle("active", item === button);
+          });
+          document.getElementById("page-title").textContent = titles[name] || "Dashboard";
+        });
+      });
+    })();
   </script>
 </body>
 </html>
