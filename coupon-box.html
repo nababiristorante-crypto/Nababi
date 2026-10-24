@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nababi Ristorante — Coupon Box</title>
+<style>
+:root{--gold:#c9a44c;--bg:#11110f;--panel:#1b1a17;--text:#f6f0e4;--muted:#b9b09c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px}.head{border-bottom:1px solid var(--gold);padding-bottom:16px;margin-bottom:22px}
+h1,h2{margin:.2em 0;color:var(--gold)}.grid{display:grid;grid-template-columns: minmax(260px,360px) 1fr;gap:20px}
+.panel{background:var(--panel);border:1px solid #6d5729;border-radius:14px;padding:18px;min-width:0}
+label{display:block;margin:12px 0 5px;color:var(--muted)}input,select{width:100%;padding:11px;border-radius:8px;border:1px solid #66552e;background:#111;color:var(--text)}
+button{background:var(--gold);border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}button:disabled{opacity:.5}
+table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:10px;border-bottom:1px solid #4c4027;white-space:nowrap}th{color:var(--gold)}
+.table-wrap{overflow:auto}.note{color:var(--muted);font-size:13px}.preview{margin-top:14px;padding:14px;border:1px dashed var(--gold);border-radius:10px}
+@media(max-width:800px){main{padding:14px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header class="head"><h1>Nababi Ristorante</h1><div>Admin Panel / Coupon Box</div></header>
+<div class="grid">
+<section class="panel">
+<h2>Create Coupon</h2>
+<form id="coupon-form">
+<label for="code">Coupon code</label><input id="code" name="code" value="NABABI10" required maxlength="32">
+<label for="discount_type">Discount type</label><select id="discount_type" name="discount_type"><option value="percent">Percentage (%)</option><option value="fixed">Fixed amount (€)</option></select>
+<label for="discount_value">Discount value</label><input id="discount_value" name="discount_value" type="number" min="0.01" max="100" step="0.01" value="10" required>
+<label for="min_order_eur">Minimum order (€)</label><input id="min_order_eur" name="min_order_eur" type="number" min="0" step="0.01" value="25">
+<label for="expires_at">Expiry date</label><input id="expires_at" name="expires_at" type="date" value="2026-12-31">
+<label for="usage_limit">Usage limit</label><input id="usage_limit" name="usage_limit" type="number" min="1" value="100">
+<label><input name="is_active" type="checkbox" checked style="width:auto"> Activate immediately</label>
+<p class="note">The seed SQL also creates NABABI10. The form can create or update coupons once connected to Supabase.</p>
+<button type="submit">Save Coupon</button>
+</form>
+<div class="preview"><strong id="preview-code">NABABI10</strong><h2 id="preview-discount">10% OFF</h2><span id="preview-min">Minimum order €25</span></div>
+</section>
+<section class="panel"><h2>Existing Coupons</h2><div class="table-wrap"><table><thead><tr><th>Code</th><th>Discount</th><th>Min. order</th><th>Expiry</th><th>Used</th><th>Status</th><th>Action</th></tr></thead><tbody id="coupon-table-body"></tbody></table></div>
+<p class="note">Admin listing requires authenticated Supabase access and appropriate RLS policies. This standalone page is an integration template, not a production login system.</p></section>
+</div></main>
+<script>
+const form=document.querySelector("#coupon-form");
+function preview(){const d=form.elements.discount_type.value;document.querySelector("#preview-code").textContent=(form.elements.code.value||"YOURCODE").toUpperCase();document.querySelector("#preview-discount").textContent=(form.elements.discount_value.value||"0")+(d==="percent"?"% OFF":" € OFF");document.querySelector("#preview-min").textContent="Minimum order €"+(form.elements.min_order_eur.value||"0")}
+form.addEventListener("input",preview);form.elements.discount_type.addEventListener("change",preview);preview();
+</script>
+<!-- Load Supabase v2 and your config.js that initializes window.supabaseClient, then coupons.js.
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="coupons.js"></script>
+<script>window.NababiCoupons?.bindCouponForm();</script>
+-->
+</body></html>
